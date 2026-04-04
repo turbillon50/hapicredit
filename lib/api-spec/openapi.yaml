@@ -1,22 +1,43 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: HapiControl Internal Financial Operations API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: users
+    description: User management
+  - name: clients
+    description: Client registry
+  - name: credits
+    description: Credit records
+  - name: payments
+    description: Payment control
+  - name: commitments
+    description: Payment commitments
+  - name: notes
+    description: Follow-up notes
+  - name: caja
+    description: Executive cash control
+  - name: alerts
+    description: Smart alerts
+  - name: dashboard
+    description: Dashboard summaries
+  - name: public
+    description: Public requests
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +45,737 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # AUTH
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # USERS
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List all users
+      responses:
+        "200":
+          description: Users list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Get user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  # CLIENTS
+  /clients:
+    get:
+      operationId: listClients
+      tags: [clients]
+      summary: List clients
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Clients list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Client"
+    post:
+      operationId: createClient
+      tags: [clients]
+      summary: Create client
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateClientBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}:
+    get:
+      operationId: getClient
+      tags: [clients]
+      summary: Get client by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClientDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateClient
+      tags: [clients]
+      summary: Update client
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateClientBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}/risk-score:
+    get:
+      operationId: getClientRiskScore
+      tags: [clients]
+      summary: Get client risk score
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Risk score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RiskScore"
+
+  # CREDITS
+  /credits:
+    get:
+      operationId: listCredits
+      tags: [credits]
+      summary: List credits
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Credits list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Credit"
+    post:
+      operationId: createCredit
+      tags: [credits]
+      summary: Create credit
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCreditBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+
+  /credits/{id}:
+    get:
+      operationId: getCredit
+      tags: [credits]
+      summary: Get credit by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Credit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateCredit
+      tags: [credits]
+      summary: Update credit
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCreditBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Credit"
+
+  # PAYMENTS
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List payments
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: creditId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: dateFrom
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: dateTo
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Payments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Register payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePaymentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/{id}:
+    get:
+      operationId: getPayment
+      tags: [payments]
+      summary: Get payment by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payment
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  # PAYMENT COMMITMENTS
+  /commitments:
+    get:
+      operationId: listCommitments
+      tags: [commitments]
+      summary: List payment commitments
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: status
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Commitments list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Commitment"
+    post:
+      operationId: createCommitment
+      tags: [commitments]
+      summary: Create payment commitment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCommitmentBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commitment"
+
+  /commitments/{id}:
+    patch:
+      operationId: updateCommitment
+      tags: [commitments]
+      summary: Update commitment status
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateCommitmentBody"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Commitment"
+
+  # NOTES
+  /notes:
+    get:
+      operationId: listNotes
+      tags: [notes]
+      summary: List notes
+      parameters:
+        - name: clientId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Notes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Note"
+    post:
+      operationId: createNote
+      tags: [notes]
+      summary: Create note
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateNoteBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Note"
+
+  # CAJA (EXECUTIVE CASH)
+  /caja:
+    get:
+      operationId: listCajaMovements
+      tags: [caja]
+      summary: List caja movements
+      parameters:
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: dateFrom
+          in: query
+          schema:
+            type: ["string", "null"]
+        - name: dateTo
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Caja movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CajaMovement"
+    post:
+      operationId: createCajaMovement
+      tags: [caja]
+      summary: Create caja movement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCajaMovementBody"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CajaMovement"
+
+  /caja/summary:
+    get:
+      operationId: getCajaSummary
+      tags: [caja]
+      summary: Get caja summary by executive
+      responses:
+        "200":
+          description: Caja summary per executive
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CajaSummary"
+
+  # ALERTS
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts
+      parameters:
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+        - name: resolved
+          in: query
+          schema:
+            type: ["string", "null"]
+      responses:
+        "200":
+          description: Alerts list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/resolve:
+    patch:
+      operationId: resolveAlert
+      tags: [alerts]
+      summary: Resolve alert
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Resolved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  # DASHBOARD
+  /dashboard/executive:
+    get:
+      operationId: getExecutiveDashboard
+      tags: [dashboard]
+      summary: Executive dashboard summary
+      parameters:
+        - name: executiveId
+          in: query
+          schema:
+            type: ["integer", "null"]
+      responses:
+        "200":
+          description: Dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExecutiveDashboard"
+
+  /dashboard/admin:
+    get:
+      operationId: getAdminDashboard
+      tags: [dashboard]
+      summary: Admin dashboard summary
+      responses:
+        "200":
+          description: Admin dashboard data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminDashboard"
+
+  /dashboard/executive-ranking:
+    get:
+      operationId: getExecutiveRanking
+      tags: [dashboard]
+      summary: Executive performance ranking
+      responses:
+        "200":
+          description: Executive ranking
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExecutiveRanking"
+
+  /dashboard/portfolio-aging:
+    get:
+      operationId: getPortfolioAging
+      tags: [dashboard]
+      summary: Portfolio aging breakdown
+      responses:
+        "200":
+          description: Portfolio aging data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PortfolioAgingBucket"
+
+  /dashboard/collection-trend:
+    get:
+      operationId: getCollectionTrend
+      tags: [dashboard]
+      summary: Collection trend by week/month
+      responses:
+        "200":
+          description: Collection trend
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CollectionTrendPoint"
+
+  # PUBLIC REQUESTS
+  /public/requests:
+    post:
+      operationId: createPublicRequest
+      tags: [public]
+      summary: Submit public information request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePublicRequestBody"
+      responses:
+        "201":
+          description: Request submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
 components:
   schemas:
     HealthStatus:
@@ -31,6 +783,662 @@ components:
       properties:
         status:
           type: string
-      required:
-        - status
+      required: [status]
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required: [success]
+
+    LoginBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required: [username, password]
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required: [user, token]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [admin, executive, client, public]
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, username, fullName, role, isActive, createdAt, updatedAt]
+
+    CreateUserBody:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: ["string", "null"]
+        role:
+          type: string
+          enum: [admin, executive, client, public]
+      required: [username, password, fullName, role]
+
+    UpdateUserBody:
+      type: object
+      properties:
+        fullName:
+          type: ["string", "null"]
+        email:
+          type: ["string", "null"]
+        role:
+          type: ["string", "null"]
+        isActive:
+          type: ["boolean", "null"]
+        password:
+          type: ["string", "null"]
+
+    Client:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        phone:
+          type: string
+        altPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        curp:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [current, at_risk, overdue, defaulted, inactive]
+        executiveId:
+          type: ["integer", "null"]
+        executiveName:
+          type: ["string", "null"]
+        riskLevel:
+          type: ["string", "null"]
+        registeredAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, fullName, phone, status, registeredAt, updatedAt]
+
+    ClientDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+        fullName:
+          type: string
+        phone:
+          type: string
+        altPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        curp:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [current, at_risk, overdue, defaulted, inactive]
+        executiveId:
+          type: ["integer", "null"]
+        executiveName:
+          type: ["string", "null"]
+        riskLevel:
+          type: ["string", "null"]
+        guarantorName:
+          type: ["string", "null"]
+        guarantorPhone:
+          type: ["string", "null"]
+        internalNotes:
+          type: ["string", "null"]
+        registeredAt:
+          type: string
+        updatedAt:
+          type: string
+        credits:
+          type: array
+          items:
+            $ref: "#/components/schemas/Credit"
+        recentPayments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Payment"
+        recentNotes:
+          type: array
+          items:
+            $ref: "#/components/schemas/Note"
+        openCommitments:
+          type: array
+          items:
+            $ref: "#/components/schemas/Commitment"
+      required: [id, fullName, phone, status, registeredAt, updatedAt, credits, recentPayments, recentNotes, openCommitments]
+
+    CreateClientBody:
+      type: object
+      properties:
+        fullName:
+          type: string
+        phone:
+          type: string
+        altPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        curp:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        guarantorName:
+          type: ["string", "null"]
+        guarantorPhone:
+          type: ["string", "null"]
+        internalNotes:
+          type: ["string", "null"]
+      required: [fullName, phone]
+
+    UpdateClientBody:
+      type: object
+      properties:
+        fullName:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        altPhone:
+          type: ["string", "null"]
+        address:
+          type: ["string", "null"]
+        curp:
+          type: ["string", "null"]
+        status:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        guarantorName:
+          type: ["string", "null"]
+        guarantorPhone:
+          type: ["string", "null"]
+        internalNotes:
+          type: ["string", "null"]
+
+    RiskScore:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        score:
+          type: integer
+        level:
+          type: string
+          enum: [low, medium, high]
+        punctualityScore:
+          type: integer
+        delayCount:
+          type: integer
+        brokenPromises:
+          type: integer
+        currentArrears:
+          type: number
+        renewalCount:
+          type: integer
+        calculatedAt:
+          type: string
+      required: [clientId, score, level, punctualityScore, delayCount, brokenPromises, currentArrears, renewalCount, calculatedAt]
+
+    Credit:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        executiveName:
+          type: ["string", "null"]
+        amount:
+          type: number
+        disbursementDate:
+          type: string
+        termWeeks:
+          type: integer
+        weeklyPayment:
+          type: number
+        openingFee:
+          type: ["number", "null"]
+        totalToRepay:
+          type: number
+        currentPaymentNumber:
+          type: integer
+        remainingBalance:
+          type: number
+        status:
+          type: string
+          enum: [active, completed, defaulted, restructured]
+        renewalEligible:
+          type: boolean
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, clientId, amount, disbursementDate, termWeeks, weeklyPayment, totalToRepay, currentPaymentNumber, remainingBalance, status, renewalEligible, createdAt, updatedAt]
+
+    CreateCreditBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        executiveId:
+          type: ["integer", "null"]
+        amount:
+          type: number
+        disbursementDate:
+          type: string
+        termWeeks:
+          type: integer
+        weeklyPayment:
+          type: number
+        openingFee:
+          type: ["number", "null"]
+        notes:
+          type: ["string", "null"]
+      required: [clientId, amount, disbursementDate, termWeeks, weeklyPayment]
+
+    UpdateCreditBody:
+      type: object
+      properties:
+        status:
+          type: ["string", "null"]
+        renewalEligible:
+          type: ["boolean", "null"]
+        notes:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: ["string", "null"]
+        creditId:
+          type: integer
+        paymentNumber:
+          type: integer
+        paymentDate:
+          type: string
+        amountPaid:
+          type: number
+        amountExpected:
+          type: number
+        lateFee:
+          type: ["number", "null"]
+        updatedBalance:
+          type: number
+        paymentStatus:
+          type: string
+          enum: [on_time, partial, late, missed]
+        executiveId:
+          type: ["integer", "null"]
+        executiveName:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+      required: [id, clientId, creditId, paymentNumber, paymentDate, amountPaid, amountExpected, updatedBalance, paymentStatus, createdAt]
+
+    CreatePaymentBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        creditId:
+          type: integer
+        paymentDate:
+          type: string
+        amountPaid:
+          type: number
+        lateFee:
+          type: ["number", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        notes:
+          type: ["string", "null"]
+      required: [clientId, creditId, paymentDate, amountPaid]
+
+    Commitment:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        clientName:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        executiveName:
+          type: ["string", "null"]
+        promisedDate:
+          type: string
+        promisedAmount:
+          type: number
+        reason:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [pending, fulfilled, broken]
+        followUpNote:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required: [id, clientId, promisedDate, promisedAmount, status, createdAt, updatedAt]
+
+    CreateCommitmentBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        executiveId:
+          type: ["integer", "null"]
+        promisedDate:
+          type: string
+        promisedAmount:
+          type: number
+        reason:
+          type: ["string", "null"]
+      required: [clientId, promisedDate, promisedAmount]
+
+    UpdateCommitmentBody:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, fulfilled, broken]
+        followUpNote:
+          type: ["string", "null"]
+      required: [status]
+
+    Note:
+      type: object
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: integer
+        authorId:
+          type: ["integer", "null"]
+        authorName:
+          type: ["string", "null"]
+        noteType:
+          type: string
+          enum: [call, visit, comment, promise, issue, other]
+        content:
+          type: string
+        createdAt:
+          type: string
+      required: [id, clientId, noteType, content, createdAt]
+
+    CreateNoteBody:
+      type: object
+      properties:
+        clientId:
+          type: integer
+        authorId:
+          type: ["integer", "null"]
+        noteType:
+          type: string
+          enum: [call, visit, comment, promise, issue, other]
+        content:
+          type: string
+      required: [clientId, noteType, content]
+
+    CajaMovement:
+      type: object
+      properties:
+        id:
+          type: integer
+        executiveId:
+          type: integer
+        executiveName:
+          type: ["string", "null"]
+        movementType:
+          type: string
+          enum: [collection, delivery, adjustment]
+        amount:
+          type: number
+        description:
+          type: ["string", "null"]
+        relatedPaymentId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+      required: [id, executiveId, movementType, amount, createdAt]
+
+    CreateCajaMovementBody:
+      type: object
+      properties:
+        executiveId:
+          type: integer
+        movementType:
+          type: string
+          enum: [collection, delivery, adjustment]
+        amount:
+          type: number
+        description:
+          type: ["string", "null"]
+        relatedPaymentId:
+          type: ["integer", "null"]
+      required: [executiveId, movementType, amount]
+
+    CajaSummary:
+      type: object
+      properties:
+        executiveId:
+          type: integer
+        executiveName:
+          type: string
+        collectedToday:
+          type: number
+        pendingToReconcile:
+          type: number
+        cashOnHand:
+          type: number
+        lastMovementAt:
+          type: ["string", "null"]
+      required: [executiveId, executiveName, collectedToday, pendingToReconcile, cashOnHand]
+
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+        alertType:
+          type: string
+          enum: [due_today, overdue, broken_promise, renewal_opportunity, executive_inactive, unusual_movement, repeated_delay]
+        severity:
+          type: string
+          enum: [low, medium, high]
+        message:
+          type: string
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        executiveId:
+          type: ["integer", "null"]
+        isResolved:
+          type: boolean
+        createdAt:
+          type: string
+      required: [id, alertType, severity, message, isResolved, createdAt]
+
+    ExecutiveDashboard:
+      type: object
+      properties:
+        executiveId:
+          type: integer
+        executiveName:
+          type: string
+        totalAssignedClients:
+          type: integer
+        clientsDueToday:
+          type: integer
+        clientsOverdue:
+          type: integer
+        totalExpectedToday:
+          type: number
+        totalCollectedToday:
+          type: number
+        pendingPromises:
+          type: integer
+        cashOnHand:
+          type: number
+        placementThisWeek:
+          type: number
+        alertCount:
+          type: integer
+      required: [executiveId, executiveName, totalAssignedClients, clientsDueToday, clientsOverdue, totalExpectedToday, totalCollectedToday, pendingPromises, cashOnHand, placementThisWeek, alertCount]
+
+    AdminDashboard:
+      type: object
+      properties:
+        totalPortfolio:
+          type: number
+        activeClients:
+          type: integer
+        clientsOverdue:
+          type: integer
+        clientsDefaulted:
+          type: integer
+        collectionToday:
+          type: number
+        expectedToday:
+          type: number
+        placementThisWeek:
+          type: number
+        placementThisMonth:
+          type: number
+        weeklyUtility:
+          type: number
+        monthlyUtility:
+          type: number
+        lossesFromDefault:
+          type: number
+        delinquencyRate:
+          type: number
+        totalExecutives:
+          type: integer
+        alertCount:
+          type: integer
+      required: [totalPortfolio, activeClients, clientsOverdue, clientsDefaulted, collectionToday, expectedToday, placementThisWeek, placementThisMonth, weeklyUtility, monthlyUtility, lossesFromDefault, delinquencyRate, totalExecutives, alertCount]
+
+    ExecutiveRanking:
+      type: object
+      properties:
+        executiveId:
+          type: integer
+        executiveName:
+          type: string
+        placement:
+          type: number
+        collection:
+          type: number
+        delinquencyRate:
+          type: number
+        overdueClients:
+          type: integer
+        promiseCompliance:
+          type: number
+        activityScore:
+          type: number
+        rank:
+          type: integer
+      required: [executiveId, executiveName, placement, collection, delinquencyRate, overdueClients, promiseCompliance, activityScore, rank]
+
+    PortfolioAgingBucket:
+      type: object
+      properties:
+        bucket:
+          type: string
+        clientCount:
+          type: integer
+        totalAmount:
+          type: number
+        percentage:
+          type: number
+      required: [bucket, clientCount, totalAmount, percentage]
+
+    CollectionTrendPoint:
+      type: object
+      properties:
+        period:
+          type: string
+        expected:
+          type: number
+        collected:
+          type: number
+      required: [period, expected, collected]
+
+    CreatePublicRequestBody:
+      type: object
+      properties:
+        name:
+          type: string
+        phone:
+          type: string
+        email:
+          type: ["string", "null"]
+        message:
+          type: string
+      required: [name, phone, message]

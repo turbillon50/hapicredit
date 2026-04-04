@@ -1,0 +1,472 @@
+Build a premium mobile-first internal operations app that looks and behaves like a real native iPhone and Android financial control application.
+
+Temporary App Name: HapiControl
+Category: Internal CRM / Loan Portfolio Control / Collection Management
+
+IMPORTANT:
+This is NOT a public lending app and NOT a banking integration platform.
+This is an INTERNAL business control app for a microcredit company.
+Do NOT include bank APIs, Open Banking, external KYC services, buro APIs, or heavy third-party fintech integrations.
+All registration, validation, and evidence capture should work as internal manual or semi-automated processes stored inside the app database.
+
+The app must feel like a serious financial institution tool:
+clean, elegant, trustworthy, premium, highly usable on mobile, especially iPhone.
+It must feel closer to a banking app like BBVA mobile quality than to a generic startup dashboard.
+
+CRITICAL DESIGN RULES:
+- Mobile-first, native app feel
+- iPhone-first UX
+- Clean financial UI
+- No generic startup look
+- No childish design
+- No bright random gradients
+- No Lucide icons
+- Do not use generic icon libraries that make the app look cheap
+- Use a custom minimal icon style, elegant and professional
+- Strong hierarchy, excellent spacing, subtle shadows
+- Premium cards, smooth transitions, refined typography
+- White/light background, dark text, deep blue as primary, green/yellow/red for status
+- Bottom navigation like a true mobile app
+- Fast operational flows
+- Clear visual hierarchy
+- High trust visual language
+
+BRAND DIRECTION:
+The product should feel like:
+- internal financial control
+- order
+- risk visibility
+- portfolio supervision
+- executive accountability
+- mobile operational command center
+
+USER STRUCTURE:
+Create 4 very clearly defined roles.
+
+1. GENERAL PUBLIC ROLE
+This is a basic public access role or landing access.
+Purpose:
+- See company presentation
+- Understand what the company does
+- Contact the company
+- See general business information
+- View trust-building sections
+- Optionally start a request or leave contact information
+This role must NOT access internal portfolio data.
+
+2. CLIENT ROLE
+This is a simple client-facing role with limited access.
+Purpose:
+- View their own basic loan summary
+- View payment schedule
+- View current balance
+- View next payment date
+- View payment history
+- View notices or reminders
+- View company contact options
+Do NOT make this role too complex.
+It should be optional and lightweight.
+No external integrations required.
+
+3. EXECUTIVE ROLE
+This is the operational field/desk executive role.
+Each executive must only see their own assigned portfolio.
+Functions:
+- View assigned clients
+- Search clients
+- Register new clients
+- Register loan data
+- Register payments
+- View current balance per client
+- View payment number progress
+- Detect overdue clients
+- Register payment commitments
+- Add notes and follow-up comments
+- Upload client evidence
+- Upload client photo
+- Upload ID, CURP, proof of address, buro document scans if collected manually
+- Register guarantor / aval data
+- Register basic visit or follow-up logs
+- See daily tasks and alerts
+- See their own collection and placement stats
+- See how much cash they currently hold in caja
+- Every movement must be logged with timestamp and executive identity
+
+4. ADMINISTRATOR ROLE
+This is the master dashboard role.
+Functions:
+- Full access to all executives, clients, credits, payments, and reports
+- Global portfolio view
+- Portfolio segmented by executive
+- Executive performance ranking
+- View all recorded payments
+- View caja by executive
+- See overdue portfolio
+- See current, overdue, and defaulted clients
+- See operational semaforo by status
+- Control users and permissions
+- Detect inconsistencies
+- Review audit trail of all movements
+- Control business metrics and financial overview
+
+CORE OBJECTIVE:
+Replace the current fragmented workflow of Wallet App + Google Calendar + Excel with one single mobile-first internal control system.
+
+MAIN APP STRUCTURE:
+
+A. PUBLIC / GENERAL SECTION
+This section should look polished and trustworthy.
+Include:
+- Company landing
+- About us
+- How it works
+- Contact button
+- WhatsApp button
+- Trust section
+- Basic FAQ
+- Option to request information
+This role is simple and separate from internal operations.
+
+B. INTERNAL CRM SECTION
+This is the core of the product.
+
+BOTTOM NAVIGATION FOR INTERNAL APP:
+- Dashboard
+- Clients
+- Payments
+- Alerts
+- Profile
+
+MAIN INTERNAL MODULES:
+
+1. DASHBOARD
+Create a premium financial operations dashboard.
+
+For Executive:
+- Total assigned clients
+- Clients due today
+- Clients overdue
+- Total expected collection today
+- Total collected today
+- Promises to pay pending
+- Quick alerts
+- Current caja
+- Placement this week
+
+For Administrator:
+- Total portfolio
+- Active clients
+- Clients overdue
+- Clients in default
+- Collection today vs expected
+- Placement day / week / month
+- Weekly, monthly, annual utility
+- Losses from default
+- Projected cash flow
+- Portfolio by executive
+- Executive ranking
+- Smart alerts
+- Risk overview
+
+2. CLIENT REGISTRY
+Each client record must include:
+- Full name
+- Phone
+- Alternate phone
+- Address
+- CURP
+- INE or ID upload
+- Proof of address upload
+- Client photo
+- Optional buro document scan upload
+- Guarantor / aval data
+- Assigned executive
+- Registration date
+- Notes
+- Internal status
+
+Allow:
+- Camera capture
+- File upload
+- Image preview
+- Manual data entry
+- Internal storage in database
+
+3. CREDIT RECORD
+Each client can have one or more credit records.
+Credit record fields:
+- Credit ID
+- Amount granted
+- Disbursement date
+- Term length
+- Weekly payment amount
+- Opening fee if applicable
+- Total to repay
+- Current payment number
+- Remaining balance
+- Status
+- Renewal eligibility
+- Notes
+- Risk score
+- Assigned executive
+
+4. PAYMENT CONTROL
+This module is critical.
+
+Each payment record must include:
+- Client
+- Credit
+- Payment number
+- Payment date
+- Amount paid
+- Amount expected
+- Late fee if any
+- Updated balance
+- Registered by executive
+- Timestamp
+- Notes
+- Receipt/evidence optional upload
+
+Logic required:
+- Auto-update remaining balance
+- Auto-update payment number
+- Identify if payment is on time, partial, late, or missed
+- Calculate overdue amount if payment happens late
+- Show full amount due today including pending week + late fees
+- Register payment history clearly
+
+5. PAYMENT COMMITMENTS
+Add a dedicated module for promises to pay.
+
+Each commitment should include:
+- Client
+- Promised date
+- Promised amount
+- Reason / comment
+- Status: pending, fulfilled, broken
+- Follow-up note
+- Registered by executive
+
+This module must trigger alerts.
+
+6. OVERDUE / ARREARS CONTROL
+The system must automatically classify clients:
+- Current
+- At risk
+- Overdue
+- Defaulted
+
+Use visual semaforo:
+- Green = current
+- Yellow = light delay / attention
+- Red = overdue / high risk
+
+Add operational logic:
+- Days delayed
+- Repeated delay behavior
+- High-risk behavior marker
+- Renewal opportunity marker
+
+7. NOTES / FOLLOW-UP LOG
+Each client must have a full follow-up log:
+- Notes
+- Calls
+- Visits
+- Payment promises
+- Issues
+- Internal comments
+- Date/time/user stamp
+
+This log is essential.
+
+8. EXECUTIVE CAJA CONTROL
+Track money per executive.
+
+Include:
+- Payments collected today
+- Payments pending to reconcile
+- Cash currently held by executive
+- Amount delivered / closed
+- Movement history
+- Date and time of each movement
+
+Administrator must see this by executive.
+
+9. FINANCIAL OVERVIEW
+Admin must have a finance section with:
+- Collection today vs expected
+- Weekly collection
+- Monthly collection
+- Annual accumulated collection
+- Placement day / week / month
+- Utility week / month / year
+- Losses from default
+- Projected flow of collections
+- Portfolio aging
+- Delinquency metrics
+
+10. RISK SCORE
+Do NOT use external risk engines.
+Create an INTERNAL behavioral score.
+
+The score must be based on:
+- Payment punctuality
+- Repeated delays
+- Number of broken promises
+- Current arrears
+- Renewal behavior
+- Historical compliance
+
+Display:
+- Low risk
+- Medium risk
+- High risk
+
+11. SMART ALERTS
+Add internal smart alerts for:
+- Clients due today
+- Clients overdue
+- Repeated late clients
+- Broken payment promises
+- Renewal opportunities
+- Executive inactivity
+- Unusual movement warnings
+
+12. EXECUTIVE RANKING
+Admin must see a ranking module based on:
+- Placement
+- Collection
+- Delinquency rate
+- Number of overdue clients
+- Payment promise compliance
+- Activity level
+
+13. FULL CLIENT HISTORY
+Each client profile should show:
+- Personal data
+- Documents
+- All credits
+- All payments
+- Delays
+- Promises to pay
+- Notes
+- Renewals
+- Risk score history
+
+14. AUDIT / ANTIFRAUD CONTROL
+Every sensitive movement must be recorded:
+- Who created it
+- Who edited it
+- Date
+- Time
+- User role
+- Device/session marker if possible
+
+Track:
+- Client creation
+- Payment capture
+- Balance changes
+- Promise creation
+- Caja movements
+- Loan updates
+
+This is very important.
+
+15. OPTIONAL NEXT PHASE PLACEHOLDERS
+Do NOT fully build complex integrations now, but leave architecture ready for:
+- GPS client location
+- Visit evidence with photo + GPS
+- Rescue plans / restructures
+- Automatic message generation
+- WhatsApp reminders
+- SMS reminders
+
+Design these as future-ready placeholders only.
+
+CLIENT ROLE VIEW
+Keep this simple and elegant:
+- My loan
+- Current balance
+- Next payment
+- Payment calendar
+- Payment history
+- Notices
+- Contact advisor
+- Contact company
+
+PUBLIC ROLE VIEW
+Keep this polished:
+- Landing page
+- Company overview
+- Contact section
+- Trust and credibility section
+- FAQ
+- WhatsApp button
+- Information request form
+
+VISUAL STYLE DETAILS:
+- Premium financial app
+- Clean banking feel
+- Native tab bar
+- Refined cards
+- Realistic charts
+- Smooth loading states
+- Professional tables converted into mobile cards
+- No cheap SaaS look
+- No generic construction of UI
+- High-end mobile operations product
+
+SUGGESTED COLOR SYSTEM:
+- Primary: deep financial blue
+- Background: soft white / very light gray
+- Success: refined green
+- Warning: elegant amber
+- Danger: deep red
+- Text: charcoal / near-black
+- Cards: white with subtle elevation
+
+TYPOGRAPHY:
+Use elegant, strong, readable typography.
+No playful fonts.
+No oversized generic headings.
+Everything should feel precise and controlled.
+
+TECHNICAL REQUIREMENTS:
+- Mobile-first PWA that feels native
+- iPhone-first interface
+- Authentication system
+- Role-based access
+- Database structured for clients, credits, payments, commitments, notes, users, caja, alerts, and history
+- File upload support for photos and documents
+- Camera capture support
+- Admin dashboard
+- Executive dashboard
+- Public landing section
+- Client mini-portal
+- Ready for GitHub
+- Ready for Vercel deployment
+- Compatible with Replit backend logic
+- Scalable architecture for future expansion
+
+DATABASE TABLES TO INCLUDE:
+- Users
+- Roles
+- Clients
+- Guarantors
+- Credits
+- Payments
+- PaymentCommitments
+- Notes
+- ExecutiveCash
+- Alerts
+- RiskScores
+- Renewals
+- Documents
+- AuditLog
+- PublicRequests
+
+GOAL:
+Deliver a polished, mobile-first internal financial operations app that gives the company full control over clients, payments, arrears, executive performance, and portfolio behavior from the cellphone.
+
+The system must feel like a serious banking-adjacent internal control app, not a generic CRM.
+It should be clean enough to present to the client immediately and structured enough to scale later into a larger platform.

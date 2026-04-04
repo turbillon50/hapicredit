@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "HapiControl"
+version = "1.0.0"
+id = "artifacts/hapicontrol"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25240
+
+[services.development]
+run = "pnpm --filter @workspace/hapicontrol run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/hapicontrol", "run", "build" ]
+publicDir = "artifacts/hapicontrol/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25240"
+BASE_PATH = "/"
