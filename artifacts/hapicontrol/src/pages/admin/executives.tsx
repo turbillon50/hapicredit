@@ -1,50 +1,62 @@
 import { Layout } from "@/components/layout/Layout";
-import { getListUsersQueryKey, useListUsers } from "@workspace/api-client-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { RiUserStarLine, RiMailLine } from "react-icons/ri";
-import { Button } from "@/components/ui/button";
+import { useGetExecutiveRanking } from "@workspace/api-client-react";
+import { RiMedalLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
 export default function AdminExecutives() {
-  const { data: users, isLoading } = useListUsers(
-    { query: { queryKey: getListUsersQueryKey() } }
-  );
+  const { data: ranking, isLoading } = useGetExecutiveRanking({ query: {} });
 
-  const executives = users?.filter(u => u.role === 'executive') || [];
+  const medalColors = ["#f59e0b", "#94a3b8", "#b87333"];
 
   return (
-    <Layout title="Executive Staff">
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <Button size="sm" variant="default">Add Executive</Button>
-        </div>
-
+    <Layout title="Asesores">
+      <div className="space-y-3">
         {isLoading ? (
-          <div className="space-y-3 animate-pulse">
-            {[1, 2].map(i => <div key={i} className="h-20 bg-muted rounded-xl" />)}
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-[100px] bg-white rounded-2xl shadow-card animate-pulse" />
+          ))
+        ) : ranking?.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-card p-10 text-center">
+            <p className="text-[13px] text-muted-foreground">Sin datos de asesores</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {executives.map(exec => (
-              <Card key={exec.id}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
-                      <RiUserStarLine className="w-5 h-5" />
+          ranking?.map((exec: any, idx: number) => (
+            <div key={exec.id} className="bg-white rounded-2xl shadow-card p-4">
+              <div className="flex items-start gap-3">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#eef3fb" }}>
+                  {idx < 3 ? (
+                    <RiMedalLine className="w-5 h-5" style={{ color: medalColors[idx] }} />
+                  ) : (
+                    <span className="text-[13px] font-bold text-muted-foreground">#{idx + 1}</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[14px] font-semibold text-foreground">{exec.fullName}</p>
+                    <span className="text-[11px] font-medium text-muted-foreground">#{idx + 1}</span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 mt-3">
+                    <div className="text-center">
+                      <p className="text-[12px] font-bold text-foreground">{exec.totalClients}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Clientes</p>
                     </div>
-                    <div>
-                      <p className="font-medium text-sm text-foreground">{exec.fullName}</p>
-                      <p className="text-xs text-muted-foreground flex items-center mt-1">
-                        <RiMailLine className="mr-1" /> {exec.email || exec.username}
+                    <div className="text-center border-x border-border">
+                      <p className="text-[12px] font-bold text-success">{fmt(exec.totalCollected ?? 0)}</p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Cobrado</p>
+                    </div>
+                    <div className="text-center">
+                      <p className={`text-[12px] font-bold ${exec.overdueClients > 0 ? "text-destructive" : "text-foreground"}`}>
+                        {exec.overdueClients}
                       </p>
+                      <p className="text-[9px] text-muted-foreground uppercase tracking-wide">En atraso</p>
                     </div>
                   </div>
-                  <div className={`px-2 py-1 rounded text-[10px] font-medium uppercase ${exec.isActive ? 'bg-success/10 text-success' : 'bg-muted text-muted-foreground'}`}>
-                    {exec.isActive ? 'Active' : 'Inactive'}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                </div>
+              </div>
+            </div>
+          ))
         )}
       </div>
     </Layout>

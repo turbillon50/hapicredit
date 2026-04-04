@@ -1,0 +1,83 @@
+Hola, buen día 👋
+
+Te contacto por parte de Grupo CAFJA / HapiCredit, somos una financiera enfocada en microcréditos para clientes que no cuentan con acceso a financiamiento bancario.
+
+Actualmente estamos buscando desarrollar una aplicación móvil (Android y iOS) que nos permita escalar nuestra operación, automatizar procesos y mejorar el control de nuestra cartera.
+
+A continuación te comparto lo que necesitamos que incluya la app:
+
+📌 1. Registro de clientes
+- Captura de datos personales (INE, CURP, domicilio)
+- Subida de documentos
+- Selfie con identificación
+- Geolocalización
+- Registro de aval (obligado solidario)
+
+📌 2. Evaluación de riesgo
+- Sistema de score automático
+- Perfilamiento del cliente
+- Sugerencia de monto aprobado
+
+📌 3. Simulador de crédito
+- Monto solicitado
+- Comisión por apertura
+- Pago semanal
+- Plazo (8 o 13 semanas)
+- Total a pagar
+
+📌 4. Autorización digital
+- Firma o aceptación digital del contrato
+- Validación por código o SMS
+
+📌 5. Desembolso
+- Registro de depósitos (transferencia o retiro sin tarjeta)
+- Historial de movimientos
+
+📌 6. Control de pagos
+- Calendario de pagos
+- Registro de pagos realizados
+- Saldo pendiente
+- Cálculo automático de multas por atraso
+
+📌 7. Sistema de cobranza
+- Recordatorios automáticos
+- Notificaciones por atraso
+- Seguimiento de compromisos de pago
+
+📌 8. Panel administrativo
+- Control de cartera
+- Colocación por ejecutivo
+- Clientes en atraso
+- Flujo de efectivo
+
+📌 9. Módulo para ejecutivos
+- Gestión de sus clientes
+- Registro de visitas
+- Evidencia (fotos/ubicación)
+- Seguimiento de metas
+
+📌 10. Renovaciones
+- Cálculo automático de renovación
+- Descuento de adeudos previos
+- Nuevo desembolso
+
+📌 11. Validación de domicilio
+- Ubicación en mapa
+- Evidencia fotográfica
+
+📌 12. Comunicación
+- Integración con WhatsApp o mensajería interna
+
+Nuestro objetivo principal es:
+👉 Incrementar colocación  
+👉 Reducir morosidad  
+👉 Tener control total del negocio  
+👉 Escalar la operación de forma digital  
+
+Nos gustaría saber:
+- Propuesta técnica
+- Tiempo de desarrollo
+- Costo estimado
+- Si han desarrollado algo similar
+
+Quedo atento a tus comentarios para avanzar 🙌

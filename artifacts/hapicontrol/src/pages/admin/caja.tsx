@@ -1,46 +1,65 @@
 import { Layout } from "@/components/layout/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { RiWallet3Line, RiArrowRightDownLine, RiArrowLeftUpLine } from "react-icons/ri";
+import { useGetCajaSummary } from "@workspace/api-client-react";
+import { RiSafeLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
+
+const fmt = (n: number) =>
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
 export default function AdminCaja() {
-  return (
-    <Layout title="Caja Control">
-      <div className="space-y-6">
-        <Card className="bg-primary text-primary-foreground border-none shadow-md overflow-hidden relative">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <RiWallet3Line className="w-24 h-24" />
-          </div>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-primary-foreground/80">Total Vault Balance</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold tracking-tight">
-              $142,500.00
-            </div>
-          </CardContent>
-        </Card>
+  const { data: summary, isLoading } = useGetCajaSummary({ query: {} });
 
-        <h3 className="font-medium text-sm text-muted-foreground px-1">Recent Movements</h3>
-        <div className="space-y-3">
-          {[1,2,3].map(i => (
-            <Card key={i}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-full ${i % 2 === 0 ? 'bg-success/10 text-success' : 'bg-blue-100 text-blue-600'}`}>
-                    {i % 2 === 0 ? <RiArrowLeftUpLine className="w-5 h-5" /> : <RiArrowRightDownLine className="w-5 h-5" />}
-                  </div>
-                  <div>
-                    <p className="font-medium text-sm text-foreground">{i % 2 === 0 ? 'Collection Delivery' : 'Disbursement'}</p>
-                    <p className="text-xs text-muted-foreground">Executive #{i}</p>
-                  </div>
+  return (
+    <Layout title="Control de Caja">
+      <div className="space-y-4">
+
+        {summary && (
+          <div className="rounded-2xl p-5 shadow-card-md" style={{ background: "linear-gradient(135deg, #0f1f3d, #1a3a6b)" }}>
+            <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>Total en caja</p>
+            <p className="text-[32px] font-bold text-white">{fmt(summary.totalCash ?? 0)}</p>
+            <div className="mt-3 flex gap-5">
+              <div>
+                <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.5)" }}>Cobrado hoy</p>
+                <p className="text-[14px] font-semibold text-white">{fmt(summary.collectedToday ?? 0)}</p>
+              </div>
+              <div>
+                <p className="text-[10px]" style={{ color: "rgba(255,255,255,0.5)" }}>Esta semana</p>
+                <p className="text-[14px] font-semibold text-white">{fmt(summary.collectedWeek ?? 0)}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isLoading ? (
+          Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="h-[88px] bg-white rounded-2xl shadow-card animate-pulse" />
+          ))
+        ) : (
+          summary?.executives?.map((exec: any) => (
+            <div key={exec.id} className="bg-white rounded-2xl shadow-card p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
+                  <RiSafeLine className="w-4.5 h-4.5 text-primary" />
                 </div>
-                <div className={`font-semibold ${i % 2 === 0 ? 'text-success' : 'text-foreground'}`}>
-                  {i % 2 === 0 ? '+' : '-'}$5,000.00
+                <p className="text-[13px] font-semibold text-foreground">{exec.fullName}</p>
+              </div>
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <p className="text-[13px] font-bold text-success">{fmt(exec.cashOnHand ?? 0)}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wide">En caja</p>
                 </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+                <div className="text-center border-x border-border">
+                  <p className="text-[13px] font-bold text-foreground">{fmt(exec.totalDeposited ?? 0)}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Cobrado</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[13px] font-bold text-primary">{fmt(exec.totalDisbursed ?? 0)}</p>
+                  <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Otorgado</p>
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+
       </div>
     </Layout>
   );

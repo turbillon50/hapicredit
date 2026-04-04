@@ -1,70 +1,106 @@
+import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { getListClientsQueryKey, useListClients } from "@workspace/api-client-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { RiUserLine, RiSearchLine, RiFilter3Line } from "react-icons/ri";
 import { Link } from "wouter";
+import { RiSearchLine, RiAddCircleLine, RiArrowRightLine } from "react-icons/ri";
+
+const statusLabels: Record<string, string> = {
+  current: "Al corriente",
+  overdue: "En atraso",
+  at_risk: "En riesgo",
+  defaulted: "Vencido",
+  inactive: "Inactivo",
+};
+
+function Initials({ name }: { name: string }) {
+  const parts = name.trim().split(" ");
+  const text = parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : name.slice(0, 2);
+  return <span className="text-[13px] font-bold text-white uppercase">{text}</span>;
+}
+
+const avatarColors: Record<string, string> = {
+  current: "#1a3a6b",
+  overdue: "#b45309",
+  at_risk: "#d97706",
+  defaulted: "#dc2626",
+  inactive: "#94a3b8",
+};
 
 export default function ExecutiveClients() {
   const { user } = useAuth();
+  const [search, setSearch] = useState("");
+
   const { data: clients, isLoading } = useListClients(
     { executiveId: user?.id },
     { query: { enabled: !!user?.id, queryKey: getListClientsQueryKey({ executiveId: user?.id }) } }
   );
 
+  const filtered = clients?.filter(c =>
+    c.fullName.toLowerCase().includes(search.toLowerCase()) ||
+    c.phone?.includes(search)
+  ) ?? [];
+
   return (
-    <Layout title="My Clients">
+    <Layout title="Mi Cartera">
       <div className="space-y-4">
+
         <div className="flex gap-2">
           <div className="relative flex-1">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <input 
-              type="text" 
-              placeholder="Search clients..." 
-              className="w-full pl-9 pr-4 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <input
+              type="search"
+              placeholder="Buscar cliente o teléfono..."
+              className="w-full h-10 pl-9 pr-4 bg-white border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all shadow-card"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
             />
           </div>
-          <button className="p-2 bg-card border border-border rounded-lg text-muted-foreground hover:text-foreground">
-            <RiFilter3Line className="w-5 h-5" />
-          </button>
+          <Link href="/clients/new">
+            <button className="h-10 w-10 flex items-center justify-center bg-primary rounded-xl shadow-card active:opacity-80 transition-opacity">
+              <RiAddCircleLine className="w-5 h-5 text-white" />
+            </button>
+          </Link>
         </div>
 
         {isLoading ? (
           <div className="space-y-3 animate-pulse">
-            {[1, 2, 3].map(i => <div key={i} className="h-20 bg-muted rounded-xl" />)}
+            {[0,1,2,3].map(i => <div key={i} className="h-[70px] bg-white rounded-2xl shadow-card" />)}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-white rounded-2xl shadow-card p-10 text-center">
+            <p className="text-[13px] text-muted-foreground">
+              {search ? "Sin resultados para tu búsqueda" : "No tienes clientes asignados"}
+            </p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {clients?.map(client => (
+          <div className="space-y-2.5">
+            {filtered.map(client => (
               <Link key={client.id} href={`/clients/${client.id}`}>
-                <Card className="hover:bg-accent/50 transition-colors cursor-pointer">
-                  <CardContent className="p-4 flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                        <RiUserLine className="w-5 h-5" />
-                      </div>
-                      <div>
-                        <p className="font-medium text-sm">{client.fullName}</p>
-                        <p className="text-xs text-muted-foreground">{client.phone}</p>
-                      </div>
-                    </div>
-                    <div className={`px-2 py-1 rounded text-[10px] font-medium uppercase
-                      ${client.status === 'current' ? 'bg-success/10 text-success' : 
-                        client.status === 'overdue' ? 'bg-destructive/10 text-destructive' : 
-                        client.status === 'at_risk' ? 'bg-warning/10 text-warning' : 'bg-muted text-muted-foreground'}`}>
-                      {client.status.replace('_', ' ')}
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3 active:bg-secondary transition-colors">
+                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: avatarColors[client.status] ?? "#1a3a6b" }}>
+                    <Initials name={client.fullName} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[14px] font-semibold text-foreground truncate">{client.fullName}</p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5">{client.phone}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full status-${client.status}`}>
+                      {statusLabels[client.status] ?? client.status}
+                    </span>
+                    <RiArrowRightLine className="w-3.5 h-3.5 text-muted-foreground/50" />
+                  </div>
+                </div>
               </Link>
             ))}
-            {clients?.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
-                <RiUserLine className="w-12 h-12 mx-auto mb-3 opacity-20" />
-                <p>No clients found</p>
-              </div>
-            )}
           </div>
+        )}
+
+        {!isLoading && clients && clients.length > 0 && (
+          <p className="text-center text-[11px] text-muted-foreground">
+            {filtered.length} de {clients.length} clientes
+          </p>
         )}
       </div>
     </Layout>

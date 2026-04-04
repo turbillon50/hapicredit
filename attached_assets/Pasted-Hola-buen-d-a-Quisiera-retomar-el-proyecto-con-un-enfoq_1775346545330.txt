@@ -1,0 +1,85 @@
+Hola, buen día 👋
+
+Quisiera retomar el proyecto con un enfoque más aterrizado a lo que realmente necesitamos en esta primera etapa.
+
+Por un tema de costos y prioridad operativa, buscamos desarrollar una herramienta interna de control (tipo CRM) en lugar de una app completa para clientes.
+
+Actualmente manejamos la operación de forma separada entre Wallet App, Google Calendar y Excel, y lo que buscamos es centralizar todo en una sola herramienta, accesible desde celular (principalmente iPhone), que nos permita tener mayor control y escalar la operación.
+
+🔹 Estructura de usuarios
+
+Inicialmente serían 4 usuarios:
+
+- 1 Administrador (con acceso total)
+- 4 Ejecutivos (cada uno con acceso únicamente a su cartera de clientes)
+
+🔹 Funcionalidad para ejecutivos
+
+Cada ejecutivo debe poder:
+
+- Ver su cartera de clientes asignados  
+- Consultar saldo deudor por cliente  
+- Ver en qué número de pago va cada cliente  
+- Registrar pagos (fecha, monto y actualización automática de saldo)  
+- Identificar clientes en atraso  
+
+Adicionalmente, es muy importante incluir:
+
+- 📝 Registro de compromisos de pago (fecha, monto y seguimiento)  
+- 🔔 Notificaciones automáticas de clientes en impago  
+- 📅 Notificación diaria de clientes que deben pagar ese día  
+- 💰 Cálculo automático de monto a pagar en caso de atraso  
+  (ejemplo: si paga hoy con atraso, que el sistema indique el total actualizado incluyendo semana y multas)  
+- 🗒️ Notas o seguimiento por cliente  
+
+🔹 Funcionalidad para administrador
+
+Desde el perfil administrador necesito:
+
+- Vista completa de toda la cartera  
+- Cartera segmentada por ejecutivo  
+- Estatus de clientes (al corriente, atraso, vencido)  
+- Visual tipo semáforo (verde, amarillo, rojo)  
+- Revisión de pagos registrados por cada ejecutivo  
+- Control de cuánto dinero tiene cada ejecutivo en caja (por separado)  
+
+Y un apartado financiero que permita ver:
+
+- 📊 Cobros del día vs lo esperado  
+- 💸 Colocación (día, semana, mes)  
+- 📈 Utilidad por semana, mes y acumulado anual  
+- 📉 Pérdidas por impago  
+- 📆 Flujo proyectado de cobros  
+
+🔹 Control operativo y análisis
+
+También buscamos incluir funciones que nos ayuden a mejorar la toma de decisiones:
+
+- Score de riesgo por cliente (basado en comportamiento de pago)  
+- Alertas inteligentes (clientes con atrasos repetidos, riesgo alto, oportunidades de renovación)  
+- Ranking de ejecutivos (colocación, cobranza, cartera vencida)  
+- Historial completo del cliente (créditos, pagos, atrasos, renovaciones)  
+- Control antifraude (registro de quién capturó cada movimiento, fecha y hora)  
+
+---
+
+🔹 Funciones adicionales deseables (fase siguiente)
+
+- Registro de ubicación de clientes  
+- Evidencia de visitas (foto + GPS)  
+- Módulo de reestructuras / planes de rescate  
+- Generador de mensajes automáticos (recordatorios, cobranza, seguimiento)  
+
+El objetivo principal de esta herramienta es:
+
+👉 Tener control total del negocio desde el celular  
+👉 Mejorar la cobranza y reducir morosidad  
+👉 Medir el desempeño de los ejecutivos  
+👉 Escalar la operación de forma ordenada  
+
+Me gustaría saber:
+
+- Si este alcance es factible con ustedes  
+- Si esta base puede escalar posteriormente a una app más completa  
+
+Quedo atento a sus comentarios. Muchas gracias 🙌

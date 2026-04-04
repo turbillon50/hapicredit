@@ -3,6 +3,7 @@ import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import { VitePWA } from "vite-plugin-pwa";
 
 const rawPort = process.env.PORT;
 
@@ -32,6 +33,23 @@ export default defineConfig({
     react(),
     tailwindcss(),
     runtimeErrorOverlay(),
+    VitePWA({
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.svg", "pwa-icon.svg"],
+      manifest: {
+        name: "HapiControl",
+        short_name: "HapiControl",
+        description: "Gestión de cartera de microcréditos",
+        theme_color: "#1a3a6b",
+        background_color: "#f0f4f8",
+        display: "standalone",
+        orientation: "portrait",
+        icons: [
+          { src: "/pwa-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }
+        ]
+      },
+      workbox: { globPatterns: ["**/*.{js,css,html,svg,png,woff2}"] }
+    }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [

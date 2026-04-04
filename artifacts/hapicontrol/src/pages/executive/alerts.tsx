@@ -1,104 +1,52 @@
 import { Layout } from "@/components/layout/Layout";
+import { useListAlerts } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { getListAlertsQueryKey, useListAlerts, useResolveAlert } from "@workspace/api-client-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { 
-  RiAlarmWarningLine, 
-  RiCheckDoubleLine, 
-  RiTimeLine,
-  RiUserLine,
-  RiMoneyDollarCircleLine,
-  RiErrorWarningLine
-} from "react-icons/ri";
-import { useToast } from "@/hooks/use-toast";
-import { useQueryClient } from "@tanstack/react-query";
+import { RiAlarmWarningLine, RiInformationLine, RiErrorWarningLine } from "react-icons/ri";
+
+const typeConfig: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
+  overdue:    { label: "En atraso",   icon: RiAlarmWarningLine,  cls: "bg-red-50 text-red-600 border-l-red-400" },
+  at_risk:    { label: "En riesgo",   icon: RiErrorWarningLine,  cls: "bg-amber-50 text-amber-600 border-l-amber-400" },
+  renewal:    { label: "Renovación",  icon: RiInformationLine,   cls: "bg-blue-50 text-blue-600 border-l-blue-400" },
+  no_payment: { label: "Sin pago",    icon: RiAlarmWarningLine,  cls: "bg-red-50 text-red-600 border-l-red-400" },
+};
 
 export default function ExecutiveAlerts() {
   const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
   const { data: alerts, isLoading } = useListAlerts(
-    { executiveId: user?.id, resolved: "false" },
-    { query: { enabled: !!user?.id, queryKey: getListAlertsQueryKey({ executiveId: user?.id, resolved: "false" }) } }
+    { executiveId: user?.id },
+    { query: { enabled: !!user?.id } }
   );
 
-  const resolveAlert = useResolveAlert();
-
-  const handleResolve = async (id: number) => {
-    try {
-      await resolveAlert.mutateAsync({ id });
-      queryClient.invalidateQueries({ queryKey: getListAlertsQueryKey({ executiveId: user?.id, resolved: "false" }) });
-      toast({ title: "Alert resolved" });
-    } catch (error) {
-      toast({ title: "Failed to resolve alert", variant: "destructive" });
-    }
-  };
-
-  const getAlertIcon = (type: string) => {
-    switch (type) {
-      case 'due_today': return <RiTimeLine className="w-5 h-5" />;
-      case 'overdue': return <RiAlarmWarningLine className="w-5 h-5" />;
-      case 'broken_promise': return <RiErrorWarningLine className="w-5 h-5" />;
-      default: return <RiAlarmWarningLine className="w-5 h-5" />;
-    }
-  };
-
-  const getSeverityColor = (severity: string) => {
-    switch (severity) {
-      case 'high': return 'text-destructive bg-destructive/10 border-destructive/20';
-      case 'medium': return 'text-warning bg-warning/10 border-warning/20';
-      case 'low': return 'text-blue-600 bg-blue-100 border-blue-200';
-      default: return 'text-muted-foreground bg-muted border-border';
-    }
-  };
-
   return (
-    <Layout title="Smart Alerts">
-      <div className="space-y-4">
+    <Layout title="Alertas">
+      <div className="space-y-3">
         {isLoading ? (
-          <div className="space-y-3 animate-pulse">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 bg-muted rounded-xl" />)}
-          </div>
+          Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="h-[72px] bg-white rounded-2xl shadow-card animate-pulse" />
+          ))
         ) : alerts?.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <RiCheckDoubleLine className="w-12 h-12 mx-auto mb-3 text-success opacity-50" />
-            <p>All caught up! No pending alerts.</p>
+          <div className="bg-white rounded-2xl shadow-card p-10 text-center">
+            <RiAlarmWarningLine className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <p className="text-[13px] text-muted-foreground">Sin alertas activas</p>
           </div>
         ) : (
-          <div className="space-y-3">
-            {alerts?.map(alert => (
-              <Card key={alert.id} className={`border ${getSeverityColor(alert.severity).split(' ')[2]}`}>
-                <CardContent className="p-4">
-                  <div className="flex items-start gap-3">
-                    <div className={`p-2 rounded-full ${getSeverityColor(alert.severity).split(' ').slice(0,2).join(' ')}`}>
-                      {getAlertIcon(alert.alertType)}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium text-sm text-foreground">{alert.message}</p>
-                      {alert.clientName && (
-                        <p className="text-xs flex items-center text-muted-foreground mt-1">
-                          <RiUserLine className="mr-1" /> {alert.clientName}
-                        </p>
-                      )}
-                      <div className="mt-3 flex justify-end">
-                        <Button 
-                          size="sm" 
-                          variant="outline" 
-                          className="h-8 text-xs"
-                          onClick={() => handleResolve(alert.id)}
-                          disabled={resolveAlert.isPending}
-                        >
-                          Mark Resolved
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          alerts?.map((alert: any) => {
+            const cfg = typeConfig[alert.type] ?? typeConfig.overdue;
+            const Icon = cfg.icon;
+            const date = new Date(alert.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
+            return (
+              <div key={alert.id} className={`bg-white rounded-2xl shadow-card p-4 flex items-center gap-3 border-l-4 ${cfg.cls}`}>
+                <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.cls}`}>
+                  <Icon className="w-4.5 h-4.5" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[13px] font-semibold text-foreground truncate">{alert.clientName}</p>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{alert.message}</p>
+                </div>
+                <span className="text-[10px] text-muted-foreground flex-shrink-0">{date}</span>
+              </div>
+            );
+          })
         )}
       </div>
     </Layout>

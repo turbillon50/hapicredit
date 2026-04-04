@@ -1,0 +1,6 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#1a3a6b"/>
+  <rect x="48" y="48" width="416" height="416" rx="80" fill="#1e4280"/>
+  <text x="256" y="340" font-family="Georgia,serif" font-size="220" font-weight="700" fill="white" text-anchor="middle" letter-spacing="-8">HC</text>
+  <rect x="96" y="380" width="320" height="6" rx="3" fill="#4a90d9" opacity="0.6"/>
+</svg>

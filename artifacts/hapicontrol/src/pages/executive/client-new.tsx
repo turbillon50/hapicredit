@@ -2,101 +2,112 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useCreateClient } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { RiUserAddLine } from "react-icons/ri";
+
+const fields = [
+  { key: "fullName",        label: "Nombre completo",   type: "text",   required: true, ph: "Ej. María García López" },
+  { key: "phone",           label: "Teléfono",          type: "tel",    required: true, ph: "10 dígitos" },
+  { key: "altPhone",        label: "Tel. alternativo",  type: "tel",    required: false, ph: "Opcional" },
+  { key: "curp",            label: "CURP",              type: "text",   required: false, ph: "XXXX000000XXXXXX00" },
+];
+
+const guarantorFields = [
+  { key: "guarantorName",  label: "Nombre del aval",   type: "text",   required: false, ph: "Nombre completo" },
+  { key: "guarantorPhone", label: "Teléfono del aval",  type: "tel",   required: false, ph: "10 dígitos" },
+];
 
 export default function ExecutiveClientNew() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
-  
   const createClient = useCreateClient();
-  
-  const [formData, setFormData] = useState({
-    fullName: "",
-    phone: "",
-    altPhone: "",
-    address: "",
-    curp: "",
-    guarantorName: "",
-    guarantorPhone: "",
-    internalNotes: ""
+
+  const [form, setForm] = useState({
+    fullName: "", phone: "", altPhone: "", address: "",
+    curp: "", guarantorName: "", guarantorPhone: "", internalNotes: ""
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (key: string, val: string) => setForm(p => ({ ...p, [key]: val }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const client = await createClient.mutateAsync({
-        data: {
-          ...formData,
-          executiveId: user?.id,
-        }
-      });
-      toast({ title: "Client registered successfully" });
+      const client = await createClient.mutateAsync({ data: { ...form, executiveId: user?.id } });
+      toast({ title: "Cliente registrado correctamente" });
       setLocation(`/clients/${client.id}`);
-    } catch (error) {
-      toast({ title: "Failed to register client", variant: "destructive" });
+    } catch {
+      toast({ title: "No se pudo registrar el cliente", variant: "destructive" });
     }
   };
 
   return (
-    <Layout title="New Client">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">Client Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name *</Label>
-              <Input id="fullName" name="fullName" required value={formData.fullName} onChange={handleChange} />
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone Number *</Label>
-              <Input id="phone" name="phone" type="tel" required value={formData.phone} onChange={handleChange} />
-            </div>
+    <Layout title="Nuevo Cliente" back="/clients">
+      <form onSubmit={handleSubmit} className="space-y-4">
 
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea id="address" name="address" value={formData.address} onChange={handleChange} />
+        <div className="bg-white rounded-2xl shadow-card p-5 space-y-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Datos personales</p>
+          {fields.map(f => (
+            <div key={f.key} className="space-y-1.5">
+              <label className="text-[12px] font-medium text-foreground/75">{f.label}{f.required && <span className="text-destructive ml-0.5">*</span>}</label>
+              <input
+                type={f.type}
+                required={f.required}
+                placeholder={f.ph}
+                className="w-full h-10 px-3.5 bg-background border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+                value={(form as any)[f.key]}
+                onChange={e => set(f.key, e.target.value)}
+              />
             </div>
+          ))}
+          <div className="space-y-1.5">
+            <label className="text-[12px] font-medium text-foreground/75">Domicilio</label>
+            <textarea
+              placeholder="Calle, colonia, municipio"
+              className="w-full h-20 px-3.5 py-2.5 bg-background border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+              value={form.address}
+              onChange={e => set("address", e.target.value)}
+            />
+          </div>
+        </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="curp">CURP</Label>
-              <Input id="curp" name="curp" value={formData.curp} onChange={handleChange} />
+        <div className="bg-white rounded-2xl shadow-card p-5 space-y-4">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aval / Obligado solidario</p>
+          {guarantorFields.map(f => (
+            <div key={f.key} className="space-y-1.5">
+              <label className="text-[12px] font-medium text-foreground/75">{f.label}</label>
+              <input
+                type={f.type}
+                placeholder={f.ph}
+                className="w-full h-10 px-3.5 bg-background border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+                value={(form as any)[f.key]}
+                onChange={e => set(f.key, e.target.value)}
+              />
             </div>
-            
-            <div className="pt-4 border-t border-border">
-              <h3 className="font-medium mb-4 text-sm">Guarantor Information</h3>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="guarantorName">Guarantor Name</Label>
-                  <Input id="guarantorName" name="guarantorName" value={formData.guarantorName} onChange={handleChange} />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="guarantorPhone">Guarantor Phone</Label>
-                  <Input id="guarantorPhone" name="guarantorPhone" type="tel" value={formData.guarantorPhone} onChange={handleChange} />
-                </div>
-              </div>
-            </div>
+          ))}
+        </div>
 
-            <Button type="submit" className="w-full mt-6" disabled={createClient.isPending}>
-              {createClient.isPending ? "Registering..." : "Register Client"}
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="bg-white rounded-2xl shadow-card p-5 space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notas internas</p>
+          <textarea
+            placeholder="Observaciones relevantes del cliente..."
+            className="w-full h-20 px-3.5 py-2.5 bg-background border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 resize-none focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
+            value={form.internalNotes}
+            onChange={e => set("internalNotes", e.target.value)}
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={createClient.isPending}
+          className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
+          style={{ background: "linear-gradient(135deg, #1a3a6b, #2454a3)" }}
+        >
+          <RiUserAddLine className="w-5 h-5" />
+          {createClient.isPending ? "Registrando..." : "Registrar cliente"}
+        </button>
+      </form>
     </Layout>
   );
 }
