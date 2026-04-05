@@ -52,9 +52,18 @@ function getRoleInfo(location: string) {
     return { label: "Administrador", color: "#7c3aed", bg: "rgba(124,58,237,0.1)" };
   }
   if (location === "/solicitar" || location === "/mi-credito" || location === "/perfil") {
-    return { label: "Cliente", color: "#2563eb", bg: "rgba(37,99,235,0.1)" };
+    return { label: "Cliente", color: "var(--accent)", bg: "rgba(26,46,94,0.1)" };
   }
   return null;
+}
+
+function HapiLogo({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="90" cy="52" r="16" fill="white"/>
+      <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
+    </svg>
+  );
 }
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -72,7 +81,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       <div
         className="sticky top-0 z-30 shrink-0"
-        style={{ background: "var(--navy-900)" }}
+        style={{ background: "var(--navy-800)" }}
       >
         <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
         <header
@@ -104,14 +113,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
             </>
           ) : (
             <>
-              <div>
-                <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
-                <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>Grupo CAFJA</div>
+              <div className="flex items-center gap-2.5">
+                <div
+                  className="w-8 h-8 rounded-lg flex items-center justify-center"
+                  style={{ background: "rgba(255,255,255,0.1)" }}
+                >
+                  <HapiLogo size={22} />
+                </div>
+                <div>
+                  <div className="text-white font-bold text-base tracking-tight leading-none">
+                    <span>Hapi</span><span style={{ color: "var(--brand-red)" }}>Credit</span>
+                  </div>
+                  <div className="text-[9px]" style={{ color: "rgba(255,255,255,0.35)" }}>Tu credito, Tu impulso</div>
+                </div>
               </div>
               {roleInfo && (
                 <div
                   className="px-2.5 py-1 rounded-lg text-[10px] font-bold"
-                  style={{ background: "rgba(37,99,235,0.15)", color: "#93c5fd" }}
+                  style={{ background: "rgba(26,46,94,0.3)", color: "#93c5fd" }}
                 >
                   {roleInfo.label}
                 </div>
@@ -128,7 +147,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <nav
         className="fixed bottom-0 left-0 right-0 z-30 flex"
         style={{
-          background: isAdmin ? "var(--navy-900)" : "#fff",
+          background: isAdmin ? "var(--navy-800)" : "#fff",
           borderTop: isAdmin ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,31,61,0.08)",
           boxShadow: isAdmin ? "none" : "0 -2px 20px rgba(15,31,61,0.08)",
           paddingBottom: "env(safe-area-inset-bottom)",
@@ -161,7 +180,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               {active && (
                 <span
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
-                  style={{ background: isAdmin ? "#60a5fa" : "var(--accent)" }}
+                  style={{ background: isAdmin ? "#60a5fa" : "var(--brand-red)" }}
                 />
               )}
             </Link>

@@ -10,6 +10,8 @@ import {
   RiLineChartLine, RiPhoneLine, RiMailLine,
   RiMapPinLine, RiStarLine,
 } from "react-icons/ri";
+import logoSrc from "@assets/IMG_0626_1775411853416.jpeg";
+const logoPngUrl = `${import.meta.env.BASE_URL}logo-hapicredit.png`;
 
 const PROCESS_STEPS = [
   { icon: <RiCheckboxCircleLine />, title: "1. Solicita", desc: "Llena tu solicitud en linea con tus datos y documentos" },
@@ -24,7 +26,7 @@ const ROLES = [
     label: "Cliente",
     desc: "Solicita tu credito, sube documentos y consulta tu estado de cuenta",
     icon: <RiUserLine />,
-    gradient: "linear-gradient(135deg,#2563eb,#60a5fa)",
+    gradient: "linear-gradient(135deg,#1a2e5e,#2c4f8e)",
     href: "/solicitar",
     screens: ["Solicitar credito", "Mi credito", "Perfil"],
   },
@@ -86,30 +88,26 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
     const timer = setTimeout(() => {
       setExiting(true);
       setTimeout(onDone, 400);
-    }, 2200);
+    }, 2800);
     return () => clearTimeout(timer);
   }, [onDone]);
 
   return (
     <div
       className={`fixed inset-0 z-[100] flex flex-col items-center justify-center splash-bg ${exiting ? "splash-out" : ""}`}
-      style={{ background: "linear-gradient(160deg,#040e21 0%,#0f1f3d 40%,#1e3a7b 80%,#2563eb 100%)" }}
+      style={{ background: "linear-gradient(160deg,#0c1a38 0%,#1a2e5e 50%,#233d74 100%)" }}
     >
-      <div
-        className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl text-white splash-logo"
-        style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(10px)" }}
-      >
-        <RiShieldCheckLine />
+      <div className="splash-logo flex flex-col items-center">
+        <img
+          src={logoSrc}
+          alt="HapiCredit"
+          className="w-56 h-auto rounded-2xl shadow-2xl"
+        />
       </div>
-      <h1 className="text-4xl font-extrabold text-white tracking-tight mt-5 splash-title">
-        HapiCredit
-      </h1>
-      <p className="text-white/40 text-sm mt-2 splash-sub">Grupo CAFJA</p>
-      <p className="text-white/30 text-xs mt-1 splash-sub">Creditos rapidos y transparentes</p>
-      <div className="mt-8 flex gap-1.5 splash-loader">
-        <div className="w-2 h-2 rounded-full bg-white/60" style={{ animationDelay: "0s" }} />
-        <div className="w-2 h-2 rounded-full bg-white/60" style={{ animationDelay: "0.15s" }} />
-        <div className="w-2 h-2 rounded-full bg-white/60" style={{ animationDelay: "0.3s" }} />
+      <div className="mt-6 flex gap-1.5 splash-loader">
+        <div className="w-2 h-2 rounded-full" style={{ background: "rgba(255,255,255,0.6)", animationDelay: "0s" }} />
+        <div className="w-2 h-2 rounded-full" style={{ background: "rgba(255,255,255,0.6)", animationDelay: "0.15s" }} />
+        <div className="w-2 h-2 rounded-full" style={{ background: "rgba(255,255,255,0.6)", animationDelay: "0.3s" }} />
       </div>
     </div>
   );
@@ -160,40 +158,35 @@ export default function Home() {
       <Layout>
         <div className="flex flex-col gap-0">
 
-          {/* Hero */}
           <div
             className="px-6 pt-8 pb-10 text-center anim-section anim-d1"
-            style={{ background: "linear-gradient(160deg,#0f1e3d 0%,#1e3a7b 60%,#2563eb 100%)" }}
+            style={{ background: "linear-gradient(160deg,#0c1a38 0%,#1a2e5e 60%,#233d74 100%)" }}
           >
-            <div
-              className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-3 text-3xl text-white"
-              style={{ background: "rgba(255,255,255,0.1)" }}
-            >
-              <RiShieldCheckLine />
-            </div>
-            <h1 className="text-3xl font-extrabold text-white tracking-tight mb-1">HapiCredit</h1>
-            <p className="text-white/40 text-xs font-medium tracking-wide">GRUPO CAFJA</p>
-            <p className="text-white/70 text-sm max-w-xs mx-auto leading-relaxed mt-3">
+            <img
+              src={logoSrc}
+              alt="HapiCredit"
+              className="w-44 h-auto mx-auto mb-4 rounded-xl shadow-lg"
+            />
+            <p className="text-white/70 text-sm max-w-xs mx-auto leading-relaxed mt-1">
               Creditos rapidos y transparentes para hacer crecer tu negocio
             </p>
             <Link href="/solicitar">
               <button
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold pressable mt-5 float-cta"
-                style={{ background: "#fff", color: "var(--navy-900)" }}
+                style={{ background: "var(--brand-red)", color: "#fff" }}
               >
                 Solicitar credito <RiArrowRightLine />
               </button>
             </Link>
           </div>
 
-          {/* Demo Role Selector */}
           <div className="px-4 -mt-4 relative z-10 anim-section anim-d2">
             <div
               className="rounded-2xl p-4"
-              style={{ background: "linear-gradient(135deg,#f0f4ff,#e8f0fe)", border: "1px solid rgba(37,99,235,0.12)" }}
+              style={{ background: "linear-gradient(135deg,#eef2f9,#e1e9f5)", border: "1px solid rgba(26,46,94,0.12)" }}
             >
               <div className="flex items-center justify-center gap-2 mb-2">
-                <div className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest bg-blue-600 text-white">
+                <div className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-widest text-white" style={{ background: "var(--accent)" }}>
                   Demo
                 </div>
                 <span className="text-xs font-semibold text-gray-700">Explora cada rol</span>
@@ -223,10 +216,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Quienes somos */}
           <div className="px-4 pt-8 pb-2 anim-section anim-d3">
             <div className="text-center mb-5">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Quienes somos</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Quienes somos</div>
               <h2 className="text-xl font-extrabold text-gray-900">HapiCredit por Grupo CAFJA</h2>
             </div>
             <div className="card">
@@ -234,7 +226,7 @@ export default function Home() {
                 Somos una empresa financiera especializada en <strong>microcreditos</strong> para emprendedores y comerciantes. Nuestra mision es impulsar el crecimiento de negocios locales a traves de creditos accesibles, transparentes y con atencion personalizada.
               </p>
               <div className="grid grid-cols-2 gap-3">
-                <div className="text-center p-3 rounded-xl" style={{ background: "#f0f7ff" }}>
+                <div className="text-center p-3 rounded-xl" style={{ background: "rgba(26,46,94,0.06)" }}>
                   <RiTeamLine className="text-2xl mx-auto mb-1" style={{ color: "var(--accent)" }} />
                   <div className="text-xs font-bold text-gray-800">Atencion personal</div>
                   <div className="text-[10px] text-gray-500">Asesor asignado</div>
@@ -249,8 +241,8 @@ export default function Home() {
                   <div className="text-xs font-bold text-gray-800">Rapido</div>
                   <div className="text-[10px] text-gray-500">Aprobacion en 24h</div>
                 </div>
-                <div className="text-center p-3 rounded-xl" style={{ background: "#faf5ff" }}>
-                  <RiLineChartLine className="text-2xl mx-auto mb-1 text-purple-600" />
+                <div className="text-center p-3 rounded-xl" style={{ background: "rgba(229,57,53,0.06)" }}>
+                  <RiLineChartLine className="text-2xl mx-auto mb-1" style={{ color: "var(--brand-red)" }} />
                   <div className="text-xs font-bold text-gray-800">Crecimiento</div>
                   <div className="text-[10px] text-gray-500">Impulsa tu negocio</div>
                 </div>
@@ -258,10 +250,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Proceso de credito */}
           <div className="px-4 pt-6 pb-2 anim-section anim-d4">
             <div className="text-center mb-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Proceso</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Proceso</div>
               <h2 className="text-lg font-extrabold text-gray-900">Como funciona</h2>
             </div>
             <div className="flex flex-col gap-2.5">
@@ -286,10 +277,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Condiciones */}
           <div className="px-4 pt-6 pb-2 anim-section anim-d5">
             <div className="text-center mb-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Condiciones</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Condiciones</div>
               <h2 className="text-lg font-extrabold text-gray-900">Nuestros creditos</h2>
             </div>
             <div className="grid grid-cols-2 gap-3">
@@ -305,7 +295,7 @@ export default function Home() {
             <div className="mt-3 card">
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Opciones de plazo</div>
               <div className="flex flex-col gap-3">
-                <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: "#f0f7ff" }}>
+                <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: "rgba(26,46,94,0.04)" }}>
                   <div>
                     <div className="text-sm font-bold text-gray-900">8 semanas</div>
                     <div className="text-xs text-gray-500">Plazo corto</div>
@@ -315,13 +305,13 @@ export default function Home() {
                     <div className="text-[10px] text-gray-400">por semana / $1,000</div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: "#f0fdf4" }}>
+                <div className="flex items-center justify-between p-3 rounded-xl" style={{ background: "rgba(229,57,53,0.04)" }}>
                   <div>
                     <div className="text-sm font-bold text-gray-900">13 semanas</div>
                     <div className="text-xs text-gray-500">Plazo extendido</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-lg font-extrabold text-green-600">$120</div>
+                    <div className="text-lg font-extrabold" style={{ color: "var(--brand-red)" }}>$120</div>
                     <div className="text-[10px] text-gray-400">por semana / $1,000</div>
                   </div>
                 </div>
@@ -332,10 +322,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* FAQ */}
           <div className="px-4 pt-6 pb-2 anim-section anim-d6">
             <div className="text-center mb-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Ayuda</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Ayuda</div>
               <h2 className="text-lg font-extrabold text-gray-900">Preguntas frecuentes</h2>
             </div>
             <div className="flex flex-col gap-2">
@@ -343,10 +332,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Instalar PWA */}
           <div className="px-4 pt-6 pb-2 anim-section anim-d7">
             <div className="text-center mb-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Instalar</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Instalar</div>
               <h2 className="text-lg font-extrabold text-gray-900">Usa HapiCredit como app</h2>
             </div>
             <div className="card">
@@ -378,10 +366,9 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Terminos */}
           <div className="px-4 pt-6 pb-2 anim-section anim-d8">
             <div className="text-center mb-4">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-blue-600 mb-1">Legal</div>
+              <div className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: "var(--brand-red)" }}>Legal</div>
               <h2 className="text-lg font-extrabold text-gray-900">Terminos y condiciones</h2>
             </div>
             <div className="card text-xs text-gray-600 leading-relaxed flex flex-col gap-3">
@@ -412,43 +399,40 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Contacto */}
           <div className="px-4 pt-6 pb-4">
             <div className="card text-center">
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Contacto</div>
               <div className="flex flex-col gap-2 text-sm text-gray-700">
                 <div className="flex items-center justify-center gap-2">
-                  <RiPhoneLine className="text-blue-500" />
+                  <RiPhoneLine style={{ color: "var(--accent)" }} />
                   <span>Contacta a tu asesor asignado</span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
-                  <RiMapPinLine className="text-blue-500" />
+                  <RiMapPinLine style={{ color: "var(--accent)" }} />
                   <span>Cobertura en tu localidad</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* CTA */}
           <div className="px-4 pb-6">
             <Link href="/solicitar">
               <button
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-                style={{ background: "linear-gradient(135deg,#1e40af,#3b82f6)" }}
+                style={{ background: "linear-gradient(135deg,var(--brand-red),var(--brand-red-light))" }}
               >
                 Solicitar mi credito ahora <RiArrowRightLine />
               </button>
             </Link>
           </div>
 
-          {/* Footer */}
           <div className="text-center pb-8 flex flex-col gap-1">
-            <div className="text-xs text-gray-400 font-semibold">Grupo CAFJA</div>
-            <div className="text-[10px] text-gray-300">HapiCredit v1.0</div>
+            <img src={logoPngUrl} alt="HapiCredit" className="w-28 h-auto mx-auto mb-1 opacity-70" />
+            <div className="text-[10px] text-gray-300">v1.0</div>
             <div className="flex justify-center gap-4 mt-2">
-              <Link href="/terminos" className="text-[10px] text-blue-500 font-medium">Terminos</Link>
-              <Link href="/faq" className="text-[10px] text-blue-500 font-medium">FAQ</Link>
-              <Link href="/instalar" className="text-[10px] text-blue-500 font-medium">Instalar app</Link>
+              <Link href="/terminos" className="text-[10px] font-medium" style={{ color: "var(--accent)" }}>Terminos</Link>
+              <Link href="/faq" className="text-[10px] font-medium" style={{ color: "var(--accent)" }}>FAQ</Link>
+              <Link href="/instalar" className="text-[10px] font-medium" style={{ color: "var(--accent)" }}>Instalar app</Link>
             </div>
           </div>
         </div>

@@ -39,6 +39,17 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - **Caja** (admin/caja): Cash control per executive
 - **Expediente** (admin/expediente/:id): Full client record
 
+## Branding
+
+- **Brand**: HapiCredit by Grupo CAFJA
+- **Slogan**: "Tu credito, Tu impulso"
+- **Logo**: Heart/person icon (navy) + "HapiCredit" (navy/red) + red smile. Source: `attached_assets/IMG_0626_1775411853416.jpeg`
+- **Colors**: Navy blue `#1a2e5e` (primary/accent), Red `#e53935` (brand-red, CTA buttons, active indicators)
+- **Favicon/PWA icons**: SVG heart icon on navy bg. PNGs at 180/192/512px generated from SVG.
+- **Splash screen**: Shows full logo JPEG on dark navy gradient, 2.8s per session (sessionStorage)
+- **Header**: Heart icon + "HapiCredit" (Hapi white, Credit red) + slogan. Admin shows "HapiControl" with purple badge.
+- **CSS vars**: `--accent: #1a2e5e`, `--brand-red: #e53935`, `--navy-800: #1a2e5e`
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
