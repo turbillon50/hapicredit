@@ -1,0 +1,147 @@
+🔄 1. ETAPA: PROSPECCIÓN
+
+📲 ¿Cómo llega el cliente?
+	•	Facebook
+	•	Recomendación
+	•	WhatsApp directo
+	•	Referido de otro cliente
+
+📌 Acciones:
+	•	Solicita información
+	•	Se le explican condiciones básicas
+	•	Se valida interés real
+
+🧾 2. ETAPA: SOLICITUD
+
+📄 El cliente proporciona:
+	•	INE (ambos lados)
+	•	Selfie con INE
+	•	Comprobante de domicilio
+	•	Datos personales
+	•	Datos de negocio
+	•	Referencias
+	•	Aval (obligado solidario)
+
+📍 Validaciones:
+	•	Ubicación del domicilio
+	•	Revisión de redes sociales (Facebook)
+	•	Consistencia de información
+
+🧠 3. ETAPA: EVALUACIÓN
+
+🔍 Se analiza:
+	•	Capacidad de pago
+	•	Estabilidad del cliente
+	•	Tipo de negocio
+	•	Comportamiento
+	•	Aval
+
+⚖️ Decisión:
+	•	Aprobado
+	•	Rechazado
+	•	Aprobado con ajuste (monto menor)
+
+💰 4. ETAPA: AUTORIZACIÓN Y DESEMBOLSO
+
+📊 Se define:
+	•	Monto autorizado
+	•	Comisión por apertura
+	•	Desembolso final
+	•	Pago semanal
+	•	Número de pagos
+	•	Día de pago
+
+💸 Entrega:
+	•	Transferencia
+	•	Retiro sin tarjeta
+
+📅 5. ETAPA: SEGUIMIENTO DE PAGOS
+
+Cada cliente tiene:
+	•	Día fijo de pago (ej: lunes)
+	•	Número de pagos (8 o 13)
+	•	Monto semanal
+Paga 175 a 8 smenas y 120 a 13 semanas por cada mil
+
+📌 Comportamientos posibles:
+	•	Paga puntual
+	•	Paga parcial
+	•	No paga
+
+⚠️ 6. EVENTO: ATRASO
+
+🚨 Se activa cuando:
+	•	No paga el día correspondiente
+
+📌 Consecuencias:
+	•	Genera multa diaria ($200)
+	•	Se marca como cliente en atraso
+
+🔔 Acciones:
+	•	Notificación automática
+	•	Seguimiento del ejecutivo
+	•	Registro de compromiso de pago
+
+📝 7. COMPROMISO DE PAGO
+
+Cuando el cliente no paga:
+	•	Indica cuánto puede pagar
+	•	Define fecha de pago
+	•	Se registra en sistema
+
+📌 Resultado:
+	•	Cumple → continúa normal
+	•	No cumple → aumenta riesgo
+
+💸 8. EVENTO: PAGO
+
+Cuando el cliente paga:
+
+📊 El sistema debe:
+	•	Registrar monto
+	•	Actualizar saldo
+	•	Actualizar número de pago
+	•	Calcular multas (si aplica)
+
+🔴 9. EVENTO: ATRASO CRÍTICO
+
+🚨 Se considera cuando:
+	•	Tiene varios días sin pagar
+	•	No cumple compromisos
+
+📌 Acciones:
+	•	Seguimiento intensivo
+	•	Posible bloqueo de renovación
+	•	Evaluación legal
+
+🔄 10. ETAPA: RENOVACIÓN
+
+📌 Se evalúa:
+	•	Historial de pagos
+	•	Nivel de atraso
+	•	Comportamiento
+
+💰 Se define:
+	•	Nuevo monto
+	•	Comisión
+	•	Descuento de adeudo anterior
+	•	Nuevo desembolso
+
+⚫ 11. EVENTO: CARTERA VENCIDA
+
+🚨 Se considera cuando:
+	•	Cliente deja de pagar completamente
+	•	No hay contacto
+
+📌 Acciones:
+	•	Se clasifica como incobrable
+	•	Se detiene cualquier renovación
+	•	Se registra pérdida
+
+📊 12. PERFIL FINAL DEL CLIENTE
+
+Cada cliente queda clasificado como:
+	•	🟢 Cliente bueno (puntual)
+	•	🟡 Cliente irregular
+	•	🔴 Cliente riesgoso
+	•	⚫ Cliente perdido

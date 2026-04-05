@@ -1,0 +1,132 @@
+Te comparto el segundo bloque actualizado: la bitácora del ejecutivo, ya incorporando la lógica real de cobranza y un punto clave de validación por parte del administrador.
+
+🔹 Rol del ejecutivo
+El ejecutivo es responsable de:
+- Colocar créditos  
+- Dar seguimiento a clientes  
+- Cobrar pagos  
+- Registrar la información en sistema  
+
+🔹 1. Inicio del día
+El ejecutivo debe poder ver:
+
+- 📅 Lista de clientes que deben pagar hoy  
+- 🚨 Clientes en atraso  
+- 📝 Compromisos de pago del día  
+- 💰 Monto estimado a cobrar  
+
+🔹 2. Prospección y colocación
+- Atención a nuevos clientes  
+- Explicación de condiciones  
+- Solicitud de documentos  
+- Seguimiento hasta aprobación  
+
+🔹 3. Seguimiento de cartera
+- Contacto con clientes  
+- Recordatorios  
+- Cobranza  
+- Negociación de pagos  
+
+🔹 4. Registro de pagos
+Cuando un cliente paga, el ejecutivo:
+
+- Registra el pago (fecha y monto)  
+- Indica si es completo o parcial  
+
+Y el sistema debe:
+
+- Actualizar número de pago  
+- Actualizar saldo  
+- Calcular multas (si aplica)  
+
+🔹 5. Lógica de atraso y multas
+
+Cuando un cliente no paga:
+
+- El sistema genera automáticamente $200 por día de atraso
+
+Ejemplo:
+- Pago semanal: $875  
+- 3 días de atraso → $600 de multas  
+
+🔹 6. Pagos parciales con multas
+
+Ejemplo real:
+
+- Cliente debía: $875 + $600 de multas = $1,475  
+- Paga: $875  
+
+👉 Resultado:
+
+- Se cubre el pago semanal  
+- Quedan $600 de multas pendientes  
+- El sistema registra el pago y detiene la generación de multas sobre esa semana  
+
+🔹 7. Validación de pagos por administrador (MUY IMPORTANTE)
+
+Cuando el ejecutivo registra un pago:
+
+- El pago queda en estatus: “Pendiente de validación”  
+
+El administrador debe:
+
+- Validar que el depósito realmente llegó a la cuenta  
+- Confirmar que el monto es correcto  
+
+👉 Solo después de esta validación:
+
+- El pago se aplica oficialmente  
+- Se actualiza el saldo real  
+- Se refleja en reportes  
+
+⚠️ Esto es clave para evitar:
+- Errores  
+- Pagos falsos  
+- Descuadres de caja  
+
+🔹 8. Registro de compromisos
+- Fecha compromiso  
+- Monto  
+- Seguimiento  
+- Validación de cumplimiento  
+
+🔹 9. Control de atraso
+El ejecutivo ve:
+
+- Días de atraso  
+- Multas acumuladas  
+- Saldo total  
+- Nivel de riesgo  
+
+🔹 10. Cierre del día (caja)
+El ejecutivo debe ver:
+
+- 💵 Cobros del día  
+- 📊 Pagos registrados  
+- Diferencias  
+
+🔹 11. Seguimiento y notas
+- Observaciones  
+- Situaciones de cliente  
+- Comentarios de cobranza  
+
+---
+
+🔹 12. Eventos que gestiona
+- Pago  
+- Atraso  
+- Multas  
+- Pago parcial  
+- Compromiso  
+- Incumplimiento  
+- No localizado  
+- Renovación  
+
+---
+
+🔹 Objetivo
+Que el ejecutivo pueda operar correctamente, pero que el administrador tenga el control final de validación y del dinero.
+
+Este punto de validación es fundamental para mantener el control financiero real del negocio.
+
+Quedo atento 🙌
