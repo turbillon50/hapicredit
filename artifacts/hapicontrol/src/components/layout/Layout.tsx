@@ -13,7 +13,7 @@ type NavItem = { icon: React.ReactNode; label: string; path: string };
 const clientNav: NavItem[] = [
   { icon: <RiHomeLine />,        label: "Inicio",     path: "/"           },
   { icon: <RiAddCircleLine />,   label: "Solicitar",  path: "/solicitar"  },
-  { icon: <RiBankCardLine />,    label: "Mi Crédito", path: "/mi-credito" },
+  { icon: <RiBankCardLine />,    label: "Mi Credito", path: "/mi-credito" },
   { icon: <RiUserLine />,        label: "Perfil",     path: "/perfil"     },
   { icon: <RiSettings3Line />,   label: "Admin",      path: "/admin"      },
 ];
@@ -47,10 +47,21 @@ async function ensureAdminToken() {
   } catch {}
 }
 
+function getRoleInfo(location: string) {
+  if (location.startsWith("/admin")) {
+    return { label: "Administrador", color: "#7c3aed", bg: "rgba(124,58,237,0.1)" };
+  }
+  if (location === "/solicitar" || location === "/mi-credito" || location === "/perfil") {
+    return { label: "Cliente", color: "#2563eb", bg: "rgba(37,99,235,0.1)" };
+  }
+  return null;
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   const [location, navigate] = useLocation();
   const isAdmin = location.startsWith("/admin");
   const navItems = isAdmin ? adminNav : clientNav;
+  const roleInfo = getRoleInfo(location);
 
   useEffect(() => {
     ensureAdminToken();
@@ -78,9 +89,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 className="flex items-center gap-2 text-white/70 pressable py-3"
               >
                 <RiArrowLeftLine className="text-lg" />
-                <span className="text-sm font-medium">Volver</span>
+                <span className="text-sm font-medium">Inicio</span>
               </button>
-              <div className="text-white font-bold text-sm tracking-tight">Administrador</div>
+              <div className="flex items-center gap-2">
+                <div
+                  className="px-2 py-0.5 rounded-md text-[10px] font-bold"
+                  style={{ background: "rgba(124,58,237,0.2)", color: "#a78bfa" }}
+                >
+                  Admin
+                </div>
+                <span className="text-white font-bold text-sm tracking-tight">HapiControl</span>
+              </div>
               <div className="w-16" />
             </>
           ) : (
@@ -89,6 +108,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
                 <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>Grupo CAFJA</div>
               </div>
+              {roleInfo && (
+                <div
+                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold"
+                  style={{ background: "rgba(37,99,235,0.15)", color: "#93c5fd" }}
+                >
+                  {roleInfo.label}
+                </div>
+              )}
             </>
           )}
         </header>

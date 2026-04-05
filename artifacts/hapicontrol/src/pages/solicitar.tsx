@@ -107,13 +107,13 @@ export default function Solicitar() {
   const commission = amount * COMMISSION_RATE;
   const disbursement = amount - commission;
 
-  const canStep0 = fullName.trim().length >= 3 && phone.replace(/\D/g, "").length === 10;
-  const canStep1 = purpose.length > 0;
-  const canStep2 = avalName.trim().length >= 3 && avalPhone.replace(/\D/g, "").length === 10;
+  const canStep0 = true;
+  const canStep1 = true;
+  const canStep2 = true;
   const requiredDocs = DOC_TYPES.filter(d => d.required);
   const uploadedKeys = docs.map(d => d.key);
   const docProgress = requiredDocs.filter(d => uploadedKeys.includes(d.key)).length;
-  const canSubmit = canStep0 && canStep1 && canStep2;
+  const canSubmit = true;
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
