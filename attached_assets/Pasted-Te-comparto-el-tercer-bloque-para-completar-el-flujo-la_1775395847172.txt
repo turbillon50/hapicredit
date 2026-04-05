@@ -1,0 +1,137 @@
+Te comparto el tercer bloque para completar el flujo: la bitácora del administrador, que describe cómo se controla y supervisa toda la operación.
+
+Este rol es clave porque desde aquí se valida la información, se controla el dinero y se toman decisiones.
+
+🔹 Rol del administrador
+El administrador es responsable de:
+
+- Supervisar toda la cartera  
+- Validar pagos  
+- Controlar el dinero  
+- Analizar resultados  
+- Tomar decisiones  
+
+🔹 1. Vista general (dashboard principal)
+
+El administrador debe tener una vista clara de:
+
+- 📊 Cartera total  
+- 📈 Cartera por ejecutivo  
+- 🟢 Clientes al corriente  
+- 🟡 Clientes en atraso  
+- 🔴 Cartera vencida  
+
+También:
+
+- 💰 Cobros esperados del día  
+- 💵 Cobros reales del día  
+- 📉 Diferencia (faltante)  
+
+🔹 2. Validación de pagos (CRÍTICO)
+
+Cuando un ejecutivo registra un pago:
+
+- El sistema lo marca como: Pendiente de validación
+
+El administrador debe:
+
+- Confirmar que el depósito ya está en cuenta  
+- Validar el monto  
+
+👉 Solo después de validar:
+
+- El pago se aplica oficialmente  
+- Se actualiza saldo  
+- Se refleja en reportes  
+
+🔹 3. Control de caja por ejecutivo
+
+El administrador debe ver:
+
+- 💸 Cuánto debería tener en caja  
+- 📊 Pagos registrados  
+- Diferencias  
+
+🔹 4. Control de flujo
+
+El sistema debe mostrar:
+
+- Cuánto dinero entró (cobranza)  
+- Cuánto dinero salió (desembolsos)  
+- Flujo neto del día, semana y mes  
+
+🔹 5. Control de cartera y riesgo
+
+El administrador puede ver:
+
+- Clientes con mayor atraso  
+- Multas acumuladas  
+- Clientes con incumplimientos  
+- Score de riesgo por cliente  
+
+🔹 6. Control de ejecutivos
+
+Debe poder analizar:
+
+- 📈 Colocación por ejecutivo  
+- 💰 Cobranza por ejecutivo  
+- 📉 Nivel de atraso de su cartera  
+- 🏆 Ranking de desempeño  
+
+🔹 7. Decisiones clave
+
+El administrador decide:
+
+- Quién se puede renovar  
+- A quién se le limita crédito  
+- A quién se le deja de prestar  
+- Qué clientes pasan a cartera vencida  
+
+🔹 8. Utilidad del negocio
+
+El sistema debe permitir ver:
+
+- 📊 Utilidad por semana  
+- 📊 Utilidad por mes  
+- 📊 Utilidad anual  
+
+Considerando:
+
+- Intereses  
+- Comisiones  
+- Pérdidas por impago  
+
+🔹 9. Alertas importantes
+
+El administrador debe recibir alertas cuando:
+
+- Un cliente entra en atraso crítico  
+- Un ejecutivo tiene cartera en riesgo  
+- Hay diferencias en caja  
+- Se detectan patrones de impago  
+
+🔹 10. Historial y auditoría
+
+Todo debe quedar registrado:
+
+- Quién registró cada pago  
+- Quién lo validó  
+- Fecha y hora  
+- Cambios realizados  
+
+🔹 Objetivo del administrador
+
+👉 Tener control total del negocio  
+👉 Validar el dinero real  
+👉 Detectar riesgos  
+👉 Tomar decisiones estratégicas  
+
+Con este bloque se completa el flujo:
+
+- Cliente (cómo nace y evoluciona)  
+- Ejecutivo (cómo opera)  
+- Administrador (cómo controla)  
+
+Esto nos permite construir un sistema alineado totalmente a la operación real.
+
+Quedo atento 🙌
