@@ -4,10 +4,11 @@ import type { User } from "@workspace/api-client-react/src/generated/api.schemas
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 
-const DEMO_CREDS: Record<string, { username: string; password: string; label: string }> = {
-  admin:     { username: "admin",      password: "admin123", label: "Administrador"       },
-  ejecutivo1: { username: "ejecutivo1", password: "exec123",  label: "Asesor 1 — Carlos"  },
-  ejecutivo2: { username: "ejecutivo2", password: "exec123",  label: "Asesor 2 — Daniela" },
+export const DEMO_CREDS: Record<string, { username: string; password: string; label: string }> = {
+  admin:      { username: "admin",      password: "admin123",  label: "Administrador"        },
+  ejecutivo1: { username: "ejecutivo1", password: "exec123",   label: "Asesor — Carlos"      },
+  ejecutivo2: { username: "ejecutivo2", password: "exec123",   label: "Asesor — Daniela"     },
+  cliente1:   { username: "cliente1",   password: "client123", label: "Cliente — Ana López"  },
 };
 
 type AuthContextType = {
@@ -28,35 +29,28 @@ function roleHome(role: string) {
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [initialized, setInitialized] = useState(false);
-  const [, setLocation] = useLocation();
-  const queryClient = useQueryClient();
-  const autoAttempted = useRef(false);
+  const [user, setUser]           = useState<User | null>(null);
+  const [initialized, setInit]    = useState(false);
+  const [, setLocation]           = useLocation();
+  const queryClient               = useQueryClient();
+  const checked                   = useRef(false);
 
   const { data: meData, isLoading } = useGetMe({ query: { retry: false, staleTime: 30_000 } });
   const loginMut  = useLogin();
   const logoutMut = useLogout();
 
   useEffect(() => {
+    if (checked.current) return;
+    if (isLoading) return;
+    checked.current = true;
+
     if (meData) {
       setUser(meData);
-      setInitialized(true);
-    } else if (!isLoading) {
+      setInit(true);
+    } else {
+      // No session — go to login
       setUser(null);
-      if (!autoAttempted.current) {
-        autoAttempted.current = true;
-        loginMut
-          .mutateAsync({ data: { username: "admin", password: "admin123" } })
-          .then(res => {
-            localStorage.setItem("hapi_token", res.token);
-            setUser(res.user);
-          })
-          .catch(() => {})
-          .finally(() => setInitialized(true));
-      } else {
-        setInitialized(true);
-      }
+      setInit(true);
     }
   }, [meData, isLoading]);
 

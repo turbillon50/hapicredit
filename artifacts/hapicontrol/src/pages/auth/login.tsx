@@ -1,204 +1,187 @@
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { RiUserLine, RiLockPasswordLine, RiShieldCheckLine, RiInformationLine } from "react-icons/ri";
+import {
+  RiShieldCheckLine,
+  RiUserLine,
+  RiGroupLine,
+  RiBankCardLine,
+  RiArrowRightSLine,
+  RiInformationLine,
+} from "react-icons/ri";
 
-const DEMO = [
-  { key: "admin",      label: "Admin",        color: "#1a3a6b", sub: "Acceso total" },
-  { key: "ejecutivo1", label: "Asesor 1",     color: "#065f46", sub: "Carlos" },
-  { key: "ejecutivo2", label: "Asesor 2",     color: "#7c3aed", sub: "Daniela" },
+const ROLES = [
+  {
+    key: "admin",
+    icon: <RiShieldCheckLine />,
+    label: "Administrador",
+    sub: "Visión global — cartera, finanzas, asesores",
+    bg: "linear-gradient(135deg, #0f2552, #1a3a6b)",
+    border: "rgba(59,130,246,0.25)",
+    tag: "Control total",
+    tagColor: "#3b82f6",
+  },
+  {
+    key: "ejecutivo1",
+    icon: <RiGroupLine />,
+    label: "Asesor de campo",
+    sub: "Carlos Mendoza — mis clientes, cobros y comisiones",
+    bg: "linear-gradient(135deg, #064e3b, #065f46)",
+    border: "rgba(16,185,129,0.25)",
+    tag: "Ejecutivo 1",
+    tagColor: "#10b981",
+  },
+  {
+    key: "ejecutivo2",
+    icon: <RiUserLine />,
+    label: "Asesor de campo",
+    sub: "Daniela Ruiz — mis clientes, cobros y comisiones",
+    bg: "linear-gradient(135deg, #3b0764, #6d28d9)",
+    border: "rgba(139,92,246,0.25)",
+    tag: "Ejecutivo 2",
+    tagColor: "#a78bfa",
+  },
+  {
+    key: "cliente1",
+    icon: <RiBankCardLine />,
+    label: "Cliente",
+    sub: "Ana López — mi crédito, pagos e historial",
+    bg: "linear-gradient(135deg, #1c1917, #292524)",
+    border: "rgba(251,191,36,0.25)",
+    tag: "Portal cliente",
+    tagColor: "#fbbf24",
+  },
 ];
 
 export default function Login() {
-  const { login, demoLogin } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [demoLoading, setDemoLoading] = useState<string | null>(null);
-  const [error, setError] = useState("");
+  const { demoLogin } = useAuth();
+  const [loading, setLoading] = useState<string | null>(null);
   const [showInstall, setShowInstall] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-    try {
-      await login(username, password);
-    } catch {
-      setError("Usuario o contraseña incorrectos.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDemo = async (key: string) => {
-    setDemoLoading(key);
+  const handleSelect = async (key: string) => {
+    if (loading) return;
+    setLoading(key);
     try {
       await demoLogin(key);
     } finally {
-      setDemoLoading(null);
+      setLoading(null);
     }
   };
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
-      style={{
-        background: "linear-gradient(160deg, var(--navy-950) 0%, var(--navy-800) 55%, var(--navy-700) 100%)",
-      }}
+      className="min-h-screen flex flex-col items-center justify-center px-5 py-10 relative overflow-hidden"
+      style={{ background: "linear-gradient(160deg, #0a1628 0%, #0f2040 60%, #0a1628 100%)" }}
     >
-      {/* Background circles */}
-      <div className="absolute w-[480px] h-[480px] rounded-full top-[-140px] right-[-160px] opacity-10"
-        style={{ background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)" }} />
-      <div className="absolute w-[300px] h-[300px] rounded-full bottom-[-80px] left-[-80px] opacity-10"
-        style={{ background: "radial-gradient(circle, #1e4d8c 0%, transparent 70%)" }} />
+      {/* Background glow */}
+      <div className="absolute w-[600px] h-[600px] rounded-full top-[-200px] right-[-200px] pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(37,99,235,0.12) 0%, transparent 70%)" }} />
+      <div className="absolute w-[400px] h-[400px] rounded-full bottom-[-100px] left-[-100px] pointer-events-none"
+        style={{ background: "radial-gradient(circle, rgba(16,185,129,0.08) 0%, transparent 70%)" }} />
 
-      <div className="w-full max-w-sm px-6 z-10">
-        {/* Logo */}
+      <div className="w-full max-w-md z-10">
+
+        {/* Header */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
-            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+          <div
+            className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
+            style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}
+          >
             <RiShieldCheckLine className="text-white text-3xl" />
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight">HapiCredit</h1>
-          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
-            Sistema de gestión interna
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">HapiCredit</h1>
+          <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
+            Selecciona con qué perfil deseas entrar
           </p>
         </div>
 
-        {/* Form card */}
-        <div
-          className="rounded-2xl p-6 mb-5"
-          style={{
-            background: "rgba(255,255,255,0.07)",
-            border: "1px solid rgba(255,255,255,0.1)",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-          }}
-        >
-          <form onSubmit={handleLogin} className="flex flex-col gap-4">
-            <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.6)" }}>
-                USUARIO
-              </label>
-              <div className="relative">
-                <RiUserLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
-                <input
-                  type="text"
-                  placeholder="Nombre de usuario"
-                  value={username}
-                  onChange={e => setUsername(e.target.value)}
-                  className="input-base"
-                  style={{ paddingLeft: "40px", background: "rgba(255,255,255,0.9)" }}
-                  autoComplete="username"
-                  required
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.6)" }}>
-                CONTRASEÑA
-              </label>
-              <div className="relative">
-                <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
-                <input
-                  type="password"
-                  placeholder="Contraseña"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="input-base"
-                  style={{ paddingLeft: "40px", background: "rgba(255,255,255,0.9)" }}
-                  autoComplete="current-password"
-                  required
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="text-xs text-red-300 bg-red-900/30 rounded-xl px-3 py-2 border border-red-800/30">
-                {error}
-              </div>
-            )}
-
+        {/* Role cards */}
+        <div className="flex flex-col gap-3">
+          {ROLES.map(role => (
             <button
-              type="submit"
-              disabled={loading}
-              className="h-12 rounded-xl font-semibold text-white text-[15px] flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-60 mt-1"
-              style={{ background: "var(--accent)" }}
-            >
-              {loading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
-              {loading ? "Ingresando..." : "Ingresar"}
-            </button>
-          </form>
-        </div>
-
-        {/* Demo access */}
-        <div className="text-center mb-3">
-          <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
-            — Acceso de demostración —
-          </span>
-        </div>
-        <div className="flex gap-3 mb-6">
-          {DEMO.map(d => (
-            <button
-              key={d.key}
-              onClick={() => handleDemo(d.key)}
-              disabled={!!demoLoading}
-              className="flex-1 py-3 px-2 rounded-xl text-center transition-all active:scale-95 disabled:opacity-60 pressable"
+              key={role.key}
+              onClick={() => handleSelect(role.key)}
+              disabled={!!loading}
+              className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.98] disabled:opacity-60 pressable"
               style={{
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.12)",
+                background: role.bg,
+                border: `1px solid ${role.border}`,
+                boxShadow: "0 4px 24px rgba(0,0,0,0.3)",
               }}
             >
-              {demoLoading === d.key ? (
-                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto block" />
-              ) : (
-                <>
-                  <div className="text-white font-semibold text-xs">{d.label}</div>
-                  <div className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{d.sub}</div>
-                </>
-              )}
+              <div className="flex items-center gap-4">
+                {/* Icon */}
+                <div
+                  className="w-12 h-12 rounded-xl flex items-center justify-center text-xl text-white shrink-0"
+                  style={{ background: "rgba(255,255,255,0.12)" }}
+                >
+                  {loading === role.key ? (
+                    <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ) : role.icon}
+                </div>
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-white font-bold text-[15px]">{role.label}</span>
+                    <span
+                      className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                      style={{ background: "rgba(255,255,255,0.12)", color: role.tagColor }}
+                    >
+                      {role.tag}
+                    </span>
+                  </div>
+                  <div className="text-xs leading-snug" style={{ color: "rgba(255,255,255,0.5)" }}>
+                    {role.sub}
+                  </div>
+                </div>
+
+                {/* Arrow */}
+                <RiArrowRightSLine
+                  className="text-xl shrink-0 transition-opacity"
+                  style={{ color: "rgba(255,255,255,0.3)" }}
+                />
+              </div>
             </button>
           ))}
         </div>
 
-        {/* Install guide */}
-        <button
-          onClick={() => setShowInstall(s => !s)}
-          className="flex items-center justify-center gap-2 w-full py-3 pressable"
-          style={{ color: "rgba(255,255,255,0.35)" }}
-        >
-          <RiInformationLine className="text-sm" />
-          <span className="text-xs">
-            {showInstall ? "Ocultar instrucciones" : "Cómo instalar la app"}
-          </span>
-        </button>
-
-        {showInstall && (
-          <div
-            className="mt-3 rounded-2xl p-5 text-sm"
-            style={{
-              background: "rgba(255,255,255,0.06)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "rgba(255,255,255,0.7)",
-            }}
+        {/* Install hint */}
+        <div className="mt-8 text-center">
+          <button
+            onClick={() => setShowInstall(s => !s)}
+            className="flex items-center justify-center gap-2 mx-auto pressable py-2 px-4"
+            style={{ color: "rgba(255,255,255,0.25)" }}
           >
-            <p className="font-semibold text-white mb-3">Instalar en tu dispositivo</p>
-            <div className="flex flex-col gap-2.5">
-              <div>
-                <p className="font-medium text-white text-xs mb-1">iPhone / iPad</p>
-                <p className="text-xs leading-relaxed">
-                  Abre en Safari → toca el ícono de compartir → "Añadir a pantalla de inicio"
-                </p>
-              </div>
-              <div>
-                <p className="font-medium text-white text-xs mb-1">Android</p>
-                <p className="text-xs leading-relaxed">
-                  Abre en Chrome → menú (⋮) → "Instalar app" o "Añadir a pantalla de inicio"
-                </p>
+            <RiInformationLine className="text-sm" />
+            <span className="text-xs">Cómo instalar la app en tu celular</span>
+          </button>
+
+          {showInstall && (
+            <div
+              className="mt-3 rounded-2xl p-5 text-left"
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.08)",
+              }}
+            >
+              <p className="text-xs font-bold text-white mb-3">Instalar en tu dispositivo</p>
+              <div className="flex flex-col gap-2 text-xs" style={{ color: "rgba(255,255,255,0.55)" }}>
+                <div>
+                  <span className="text-white font-medium">iPhone / iPad — </span>
+                  Safari → ícono compartir → "Añadir a pantalla de inicio"
+                </div>
+                <div>
+                  <span className="text-white font-medium">Android — </span>
+                  Chrome → menú (⋮) → "Instalar app"
+                </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
+        <div className="mt-6 text-center text-[11px]" style={{ color: "rgba(255,255,255,0.15)" }}>
+          Grupo CAFJA · HapiCredit · Sistema interno
+        </div>
       </div>
     </div>
   );

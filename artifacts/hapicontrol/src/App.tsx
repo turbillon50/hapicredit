@@ -39,7 +39,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
-        <Redirect to="/admin" />
+        <Redirect to="/login" />
       </Route>
       <Route path="/login" component={Login} />
 

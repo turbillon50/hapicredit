@@ -40,9 +40,10 @@ const clientNav: NavItem[] = [
 ];
 
 const DEMO_OPTIONS = [
-  { key: "admin",      label: "Administrador",    sub: "Acceso total al sistema",    color: "#1a3a6b" },
-  { key: "ejecutivo1", label: "Asesor 1 — Carlos",  sub: "Ejecutivo de campo",       color: "#065f46" },
-  { key: "ejecutivo2", label: "Asesor 2 — Daniela", sub: "Ejecutivo de campo",       color: "#7c3aed" },
+  { key: "admin",      label: "Administrador",      sub: "Acceso total al sistema",    color: "#1a3a6b" },
+  { key: "ejecutivo1", label: "Asesor — Carlos",    sub: "Ejecutivo de campo",         color: "#065f46" },
+  { key: "ejecutivo2", label: "Asesor — Daniela",   sub: "Ejecutivo de campo",         color: "#7c3aed" },
+  { key: "cliente1",   label: "Cliente — Ana",      sub: "Portal del cliente",         color: "#92400e" },
 ];
 
 function useNavItems(role: string | undefined): NavItem[] {
