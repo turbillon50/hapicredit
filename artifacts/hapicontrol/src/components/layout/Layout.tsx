@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import {
   RiHomeLine, RiAddCircleLine, RiBankCardLine, RiUserLine,
-  RiInboxLine, RiFileListLine, RiGroupLine, RiLineChartLine,
-  RiLockLine, RiArrowLeftLine, RiAlarmWarningLine,
+  RiInboxLine, RiFileListLine, RiGroupLine,
+  RiSettings3Line, RiArrowLeftLine, RiAlarmWarningLine,
 } from "react-icons/ri";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -15,6 +15,7 @@ const clientNav: NavItem[] = [
   { icon: <RiAddCircleLine />,   label: "Solicitar",  path: "/solicitar"  },
   { icon: <RiBankCardLine />,    label: "Mi Crédito", path: "/mi-credito" },
   { icon: <RiUserLine />,        label: "Perfil",     path: "/perfil"     },
+  { icon: <RiSettings3Line />,   label: "Admin",      path: "/admin"      },
 ];
 
 const adminNav: NavItem[] = [
@@ -58,53 +59,45 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col min-h-[100dvh]" style={{ background: "var(--surface-2)" }}>
 
-      {/* ── Header ── */}
-      <header
-        className="sticky top-0 z-30 flex items-center justify-between px-4 shrink-0"
-        style={{
-          background: "var(--navy-900)",
-          borderBottom: "1px solid rgba(255,255,255,0.06)",
-          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
-          paddingBottom: "8px",
-          minHeight: "56px",
-        }}
+      <div
+        className="sticky top-0 z-30 shrink-0"
+        style={{ background: "var(--navy-900)" }}
       >
-        {isAdmin ? (
-          <>
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2 text-white/70 pressable"
-            >
-              <RiArrowLeftLine className="text-lg" />
-              <span className="text-xs font-medium">Volver</span>
-            </button>
-            <div className="text-white font-bold text-sm tracking-tight">Administrador</div>
-            <div className="w-16" />
-          </>
-        ) : (
-          <>
-            <div>
-              <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
-              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>Grupo CAFJA</div>
-            </div>
-            <button
-              onClick={() => navigate("/admin")}
-              className="flex items-center justify-center w-9 h-9 rounded-xl pressable"
-              style={{ background: "rgba(255,255,255,0.08)" }}
-              title="Modo administrador"
-            >
-              <RiLockLine className="text-white/50 text-base" />
-            </button>
-          </>
-        )}
-      </header>
+        <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
+        <header
+          className="flex items-center justify-between px-4"
+          style={{
+            borderBottom: "1px solid rgba(255,255,255,0.06)",
+            height: "56px",
+          }}
+        >
+          {isAdmin ? (
+            <>
+              <button
+                onClick={() => navigate("/")}
+                className="flex items-center gap-2 text-white/70 pressable py-3"
+              >
+                <RiArrowLeftLine className="text-lg" />
+                <span className="text-sm font-medium">Volver</span>
+              </button>
+              <div className="text-white font-bold text-sm tracking-tight">Administrador</div>
+              <div className="w-16" />
+            </>
+          ) : (
+            <>
+              <div>
+                <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
+                <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>Grupo CAFJA</div>
+              </div>
+            </>
+          )}
+        </header>
+      </div>
 
-      {/* ── Content ── */}
       <main className="flex-1 overflow-y-auto pb-20">
         {children}
       </main>
 
-      {/* ── Bottom Nav ── */}
       <nav
         className="fixed bottom-0 left-0 right-0 z-30 flex"
         style={{
@@ -116,6 +109,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       >
         {navItems.map(item => {
           const active = isActive(item.path, location);
+          const isAdminTab = item.path === "/admin" && !isAdmin;
           return (
             <Link
               key={item.path}
@@ -124,14 +118,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
             >
               <span
                 className="text-[22px] transition-colors"
-                style={{ color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)") }}
+                style={{ color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : isAdminTab ? "rgba(100,116,139,0.5)" : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)") }}
               >
                 {item.icon}
               </span>
               <span
                 className="text-[10px] transition-colors"
                 style={{
-                  color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)"),
+                  color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : isAdminTab ? "rgba(100,116,139,0.5)" : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)"),
                   fontWeight: active ? 700 : 500,
                 }}
               >
