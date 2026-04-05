@@ -263,6 +263,89 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
   });
 });
 
+// ─── GET /api/me/client — link logged-in client user to their client record ───
+router.get("/me/client", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  const [client] = await db
+    .select({
+      id: clientsTable.id,
+      fullName: clientsTable.fullName,
+      phone: clientsTable.phone,
+      altPhone: clientsTable.altPhone,
+      address: clientsTable.address,
+      curp: clientsTable.curp,
+      status: clientsTable.status,
+      guarantorName: clientsTable.guarantorName,
+      guarantorPhone: clientsTable.guarantorPhone,
+      registeredAt: clientsTable.registeredAt,
+      executiveName: usersTable.fullName,
+    })
+    .from(clientsTable)
+    .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
+    .where(eq(clientsTable.fullName, user.fullName));
+
+  if (!client) { res.status(404).json({ error: "No client record linked to this user" }); return; }
+
+  res.json({ ...client, riskLevel: calcRiskLevel({ status: client.status } as typeof clientsTable.$inferSelect) });
+});
+
+// ─── GET /api/clients/:id/documents — list uploaded documents ─────────────
+router.get("/clients/:id/documents", requireAuth, async (req, res): Promise<void> => {
+  const clientId = parseInt(req.params.id, 10);
+  if (isNaN(clientId)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const docs = await db
+    .select({
+      id: notesTable.id,
+      clientId: notesTable.clientId,
+      authorId: notesTable.authorId,
+      authorName: usersTable.fullName,
+      noteType: notesTable.noteType,
+      content: notesTable.content,
+      createdAt: notesTable.createdAt,
+    })
+    .from(notesTable)
+    .leftJoin(usersTable, eq(notesTable.authorId, usersTable.id))
+    .where(and(eq(notesTable.clientId, clientId), eq(notesTable.noteType, "document")))
+    .orderBy(notesTable.createdAt);
+
+  res.json(docs);
+});
+
+// ─── POST /api/clients/:id/documents — upload a document (base64) ─────────
+router.post("/clients/:id/documents", requireAuth, async (req, res): Promise<void> => {
+  const clientId = parseInt(req.params.id, 10);
+  if (isNaN(clientId)) { res.status(400).json({ error: "Invalid id" }); return; }
+
+  const { filename, mimeType, base64, label } = req.body;
+  if (!filename || !base64) {
+    res.status(400).json({ error: "filename y base64 son requeridos" });
+    return;
+  }
+
+  const content = JSON.stringify({ filename, mimeType: mimeType ?? "application/octet-stream", base64, label: label ?? filename, uploadedAt: new Date().toISOString() });
+
+  const [note] = await db.insert(notesTable).values({
+    clientId,
+    authorId: req.userId!,
+    noteType: "document",
+    content,
+  }).returning();
+
+  res.status(201).json({ ...note });
+});
+
+// ─── DELETE /api/clients/:id/documents/:docId ─────────────────────────────
+router.delete("/clients/:id/documents/:docId", requireAuth, async (req, res): Promise<void> => {
+  const docId = parseInt(req.params.docId, 10);
+  if (isNaN(docId)) { res.status(400).json({ error: "Invalid docId" }); return; }
+
+  await db.delete(notesTable).where(and(eq(notesTable.id, docId), eq(notesTable.noteType, "document")));
+  res.json({ ok: true });
+});
+
 router.get("/clients/:id/risk-score", requireAuth, async (req, res): Promise<void> => {
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const clientId = parseInt(raw, 10);

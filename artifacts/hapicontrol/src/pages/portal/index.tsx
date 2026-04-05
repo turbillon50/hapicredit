@@ -1,11 +1,17 @@
+import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
-import { useListCredits, useListPayments } from "@workspace/api-client-react";
 import { Badge } from "@/components/hapi/Badge";
 import { ProgressBar } from "@/components/hapi/ProgressBar";
-import { SkeletonHero, SkeletonCard, SkeletonList } from "@/components/hapi/Skeleton";
+import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
-import { RiBankCardLine, RiCalendarLine, RiCheckLine, RiTimeLine } from "react-icons/ri";
+import {
+  RiBankCardLine, RiCalendarLine, RiCheckLine, RiTimeLine,
+  RiFileTextLine, RiAlertLine,
+} from "react-icons/ri";
+
+const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -17,155 +23,220 @@ const fmtDate = (d: string | null | undefined) => {
 
 const daysDiff = (d: string | null | undefined) => {
   if (!d) return null;
-  const diff = Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000);
-  return diff;
+  return Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000);
+};
+
+const STATUS_LABEL: Record<string, { label: string; variant: "success" | "warning" | "danger" | "info" }> = {
+  active:   { label: "Activo",    variant: "success" },
+  pending:  { label: "Pendiente", variant: "warning" },
+  rejected: { label: "Rechazado", variant: "danger"  },
+  closed:   { label: "Pagado",    variant: "info"     },
 };
 
 export default function ClientPortal() {
   const { user } = useAuth();
 
-  const { data: credits = [], isLoading: loadingCredits } = useListCredits({
-    clientId: user?.clientId as any,
-  }, { query: {} });
+  const { data: client, isLoading: loadingClient } = useQuery<any>({
+    queryKey: ["me-client"],
+    queryFn: () => fetch(`${API}/me/client`, { headers: auth() }).then(r => r.json()),
+  });
 
-  const credit = (credits as any[])[0];
+  const { data: credits = [], isLoading: loadingCredits } = useQuery<any[]>({
+    queryKey: ["client-credits", client?.id],
+    queryFn: () => fetch(`${API}/credits?clientId=${client!.id}`, { headers: auth() }).then(r => r.json()),
+    enabled: !!client?.id,
+  });
 
-  const { data: payments = [], isLoading: loadingPayments } = useListPayments({
-    creditId: credit?.id,
-  }, { query: { enabled: !!credit?.id } });
+  const activeCredit = (credits as any[]).find(c => c.status === "active");
+  const pendingCredits = (credits as any[]).filter(c => c.status === "pending");
+  const allCredits = credits as any[];
 
-  const paid   = (payments as any[]).filter(p => p.status === "completed").length;
-  const total  = credit?.termWeeks ?? 0;
+  const { data: payments = [], isLoading: loadingPayments } = useQuery<any[]>({
+    queryKey: ["client-payments", activeCredit?.id],
+    queryFn: () => fetch(`${API}/payments?creditId=${activeCredit!.id}`, { headers: auth() }).then(r => r.json()),
+    enabled: !!activeCredit?.id,
+  });
+
+  const paid   = (payments as any[]).filter(p => p.paymentStatus === "completed" || p.status === "completed").length;
+  const total  = activeCredit?.termWeeks ?? 0;
   const pct    = total > 0 ? (paid / total) * 100 : 0;
-  const nextDays = daysDiff(credit?.nextPaymentDate);
+  const nextDays = daysDiff(activeCredit?.nextPaymentDate);
+
+  const isLoading = loadingClient || loadingCredits;
 
   return (
     <Layout>
-      <div className="flex flex-col gap-4 pb-4">
+      <div className="flex flex-col gap-5 pb-6">
 
         {/* Hero */}
-        {loadingCredits ? (
-          <div className="mx-4 mt-2"><SkeletonHero /></div>
-        ) : !credit ? (
-          <div className="mx-4 mt-2">
-            <EmptyState
-              icon={<RiBankCardLine />}
-              title="Sin crédito activo"
-              description="No tienes un crédito activo en este momento."
-            />
-          </div>
+        {isLoading ? (
+          <SkeletonHero />
         ) : (
-          <div className="mx-4 mt-2">
-            <div className="hero-gradient rounded-2xl p-5 text-white">
-              <div className="text-xs font-semibold uppercase tracking-widest opacity-60 mb-1">
-                Mi crédito activo
-              </div>
-              <div className="text-4xl font-bold tracking-tight fade-up mb-1">
-                {fmt(parseFloat(credit.amount ?? "0"))}
-              </div>
-              <div className="text-sm opacity-70 mb-4">Monto original del crédito</div>
+          <div
+            className="mx-4 mt-4 md:mt-0 rounded-3xl p-5 text-white"
+            style={{ background: "linear-gradient(135deg, var(--navy-900) 0%, #1e40af 100%)" }}
+          >
+            <div className="text-xs uppercase tracking-widest opacity-60 mb-1">Hola,</div>
+            <div className="text-xl font-extrabold leading-tight mb-1">
+              {user?.fullName?.split(" ")[0] ?? "Cliente"}
+            </div>
+            <div className="text-xs opacity-50 mb-4">
+              Asesor: {client?.executiveName ?? "—"}  ·  Miembro desde {client?.registeredAt
+                ? new Date(client.registeredAt).toLocaleDateString("es-MX", { month: "short", year: "numeric" })
+                : "—"}
+            </div>
 
-              <div className="bg-white/10 rounded-xl p-4">
-                <div className="flex justify-between items-baseline mb-3">
+            {activeCredit ? (
+              <>
+                <div className="flex justify-between items-end mb-1">
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-widest opacity-60">Saldo pendiente</div>
-                    <div className="text-xl font-bold">{fmt(parseFloat(credit.remainingBalance ?? "0"))}</div>
+                    <div className="text-xs opacity-60">Saldo pendiente</div>
+                    <div className="text-3xl font-extrabold">{fmt(activeCredit.remainingBalance)}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] font-semibold uppercase tracking-widest opacity-60">Pago semanal</div>
-                    <div className="text-lg font-semibold opacity-90">{fmt(parseFloat(credit.weeklyPayment ?? "0"))}</div>
+                    <div className="text-xs opacity-60">Pago semanal</div>
+                    <div className="text-xl font-bold">{fmt(activeCredit.weeklyPayment)}</div>
                   </div>
                 </div>
-                <ProgressBar value={pct} animate height={8} />
-                <div className="text-xs opacity-60 mt-1.5">
-                  {paid} de {total} pagos realizados
+                <ProgressBar value={pct} size="sm" className="mt-3 mb-2" />
+                <div className="flex justify-between text-xs opacity-60">
+                  <span>{paid} de {total} pagos completados</span>
+                  <span>{Math.round(pct)}%</span>
                 </div>
+              </>
+            ) : (
+              <div className="text-center py-4 opacity-60">
+                <RiBankCardLine className="text-4xl mx-auto mb-2" />
+                <div className="text-sm">Sin crédito activo</div>
               </div>
-            </div>
+            )}
           </div>
         )}
 
-        {/* Next payment */}
-        {credit && (
-          <div className="px-4">
+        {/* Próximo pago */}
+        {activeCredit && nextDays !== null && (
+          <div className="mx-4">
             <div
-              className="card border-l-4"
-              style={{
-                borderLeftColor: nextDays !== null && nextDays <= 0 ? "var(--danger)"
-                  : nextDays !== null && nextDays <= 3 ? "var(--warning)"
-                  : "var(--success)",
-              }}
+              className="flex items-center gap-3 p-4 rounded-2xl"
+              style={{ background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "#f0fdf4" }}
             >
-              <div className="flex items-center gap-2 mb-1">
-                <RiCalendarLine className="text-gray-500 text-base" />
-                <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">Próximo pago</span>
-              </div>
-              <div className="text-[15px] font-bold text-gray-900 capitalize">
-                {fmtDate(credit.nextPaymentDate)}
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <div className="text-2xl font-bold" style={{ color: "var(--accent)" }}>
-                  {fmt(parseFloat(credit.weeklyPayment ?? "0"))}
+              {nextDays <= 1
+                ? <RiAlertLine className="text-red-500 text-2xl shrink-0" />
+                : nextDays <= 3
+                  ? <RiTimeLine className="text-yellow-500 text-2xl shrink-0" />
+                  : <RiCalendarLine className="text-green-500 text-2xl shrink-0" />
+              }
+              <div>
+                <div className="text-sm font-bold text-gray-900">
+                  {nextDays < 0
+                    ? `Pago vencido hace ${Math.abs(nextDays)} día(s)`
+                    : nextDays === 0
+                      ? "Pago vence hoy"
+                      : `Próximo pago en ${nextDays} día(s)`
+                  }
                 </div>
-                {nextDays !== null && (
-                  <Badge
-                    variant={nextDays <= 0 ? "danger" : nextDays <= 3 ? "warning" : "success"}
-                    size="md"
-                  >
-                    {nextDays <= 0 ? "Vencido" : nextDays === 1 ? "Mañana" : `En ${nextDays} días`}
-                  </Badge>
-                )}
+                <div className="text-xs text-gray-500">{fmtDate(activeCredit.nextPaymentDate)} · {fmt(activeCredit.weeklyPayment)}</div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Payment history */}
-        <div className="px-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
-            Historial de pagos
+        {/* Créditos pendientes de aprobación */}
+        {pendingCredits.length > 0 && (
+          <div className="mx-4 flex flex-col gap-2">
+            <div className="text-sm font-bold text-gray-700">Solicitudes en revisión</div>
+            {pendingCredits.map(c => (
+              <div key={c.id} className="card flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl shrink-0">
+                  <RiTimeLine />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900">{fmt(c.amount)}</div>
+                  <div className="text-xs text-gray-500">{c.termWeeks} semanas · {c.notes ?? "Sin notas"}</div>
+                </div>
+                <Badge variant="warning" size="sm">En revisión</Badge>
+              </div>
+            ))}
           </div>
-          {loadingPayments ? (
-            <SkeletonList count={3} />
-          ) : (payments as any[]).length === 0 ? (
-            <EmptyState
-              icon={<RiTimeLine />}
-              title="Sin pagos registrados"
-              description="Aquí aparecerán tus pagos una vez que se registren."
-            />
-          ) : (
-            <div className="flex flex-col gap-2">
-              {(payments as any[]).slice().reverse().map((pay: any) => {
-                const done = pay.status === "completed";
-                return (
-                  <div key={pay.id} className="card flex items-center gap-3 py-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center text-base shrink-0"
-                      style={{
-                        background: done ? "#d1fae5" : "#fef3c7",
-                        color: done ? "#065f46" : "#92400e",
-                      }}
-                    >
-                      {done ? <RiCheckLine /> : <RiTimeLine />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900">{fmt(parseFloat(pay.amountPaid ?? "0"))}</div>
-                      <div className="text-xs text-gray-500">
-                        {pay.paymentDate
-                          ? new Date(pay.paymentDate + "T12:00:00").toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })
-                          : "—"}
-                      </div>
-                    </div>
-                    <Badge variant={done ? "success" : "warning"} size="sm">
-                      {done ? "Pagado" : "Pendiente"}
-                    </Badge>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
+        )}
 
+        {/* Historial de todos los créditos */}
+        {allCredits.length > 0 && (
+          <div className="mx-4 flex flex-col gap-3">
+            <div className="text-sm font-bold text-gray-700">Historial de créditos</div>
+            {allCredits.map(c => {
+              const st = STATUS_LABEL[c.status] ?? { label: c.status, variant: "info" as const };
+              return (
+                <div key={c.id} className="card">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-bold text-gray-900">Crédito #{c.id}</div>
+                    <Badge variant={st.variant} size="sm">{st.label}</Badge>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-gray-50 rounded-xl py-2">
+                      <div className="text-[10px] text-gray-400 uppercase">Monto</div>
+                      <div className="text-xs font-bold">{fmt(c.amount)}</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl py-2">
+                      <div className="text-[10px] text-gray-400 uppercase">Plazo</div>
+                      <div className="text-xs font-bold">{c.termWeeks} sem</div>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl py-2">
+                      <div className="text-[10px] text-gray-400 uppercase">Semanal</div>
+                      <div className="text-xs font-bold">{fmt(c.weeklyPayment)}</div>
+                    </div>
+                  </div>
+                  {c.notes && (
+                    <div className="mt-2 text-xs text-gray-500 italic">"{c.notes}"</div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {!isLoading && allCredits.length === 0 && (
+          <div className="mx-4">
+            <EmptyState
+              icon={<RiBankCardLine />}
+              title="Sin créditos"
+              description="No tienes ningún crédito registrado. Puedes solicitar uno desde el menú."
+            />
+          </div>
+        )}
+
+        {/* Pagos recientes */}
+        {payments.length > 0 && (
+          <div className="mx-4 flex flex-col gap-3">
+            <div className="text-sm font-bold text-gray-700">Últimos pagos</div>
+            {(payments as any[]).slice(-5).reverse().map((p: any) => (
+              <div key={p.id} className="flex items-center gap-3 card">
+                <div
+                  className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 ${p.paymentStatus === "completed" || p.status === "completed" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}
+                >
+                  {p.paymentStatus === "completed" || p.status === "completed" ? <RiCheckLine /> : <RiTimeLine />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900">
+                    {fmt(parseFloat(p.amountPaid ?? p.amount ?? 0))}
+                  </div>
+                  <div className="text-xs text-gray-400">
+                    {p.paymentDate
+                      ? new Date(p.paymentDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" })
+                      : "—"
+                    }
+                  </div>
+                </div>
+                <Badge
+                  variant={p.paymentStatus === "completed" || p.status === "completed" ? "success" : "warning"}
+                  size="sm"
+                >
+                  {p.paymentStatus === "completed" || p.status === "completed" ? "Pagado" : "Pendiente"}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </Layout>
   );

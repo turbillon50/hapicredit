@@ -10,7 +10,7 @@ import {
   RiInboxLine, RiCheckLine, RiCloseLine, RiEyeLine,
   RiMoneyDollarCircleLine, RiCalendarLine, RiPhoneLine,
   RiFileTextLine, RiUserLine, RiLoader4Line, RiGroupLine,
-  RiIdCardLine,
+  RiIdCardLine, RiMapPinLine,
 } from "react-icons/ri";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";

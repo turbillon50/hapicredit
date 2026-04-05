@@ -9,8 +9,10 @@ import { EmptyState } from "@/components/hapi/EmptyState";
 import {
   RiArrowLeftLine, RiPhoneLine, RiMapPinLine, RiUser3Line,
   RiCheckLine, RiTimeLine, RiFileTextLine, RiAlarmWarningLine,
-  RiMoneyDollarCircleLine, RiCalendarLine,
+  RiMoneyDollarCircleLine, RiCalendarLine, RiImageLine, RiEyeLine,
+  RiCloseLine,
 } from "react-icons/ri";
+import { useState } from "react";
 import { Link } from "wouter";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -47,12 +49,15 @@ export default function AdminExpediente() {
     </Layout>
   );
 
+  const [docPreview, setDocPreview] = useState<any | null>(null);
   const credits = client.credits ?? [];
-  const payments = client.payments ?? [];
-  const notes = client.notes ?? [];
-  const commitments = client.commitments ?? [];
+  const payments = client.recentPayments ?? client.payments ?? [];
+  const allNotes: any[] = client.recentNotes ?? client.notes ?? [];
+  const docNotes = allNotes.filter((n: any) => n.noteType === "document");
+  const notes = allNotes.filter((n: any) => n.noteType !== "document");
+  const commitments = client.openCommitments ?? client.commitments ?? [];
   const activeCredit = credits.find((c: any) => c.status === "active");
-  const paid = payments.filter((p: any) => p.status === "completed").length;
+  const paid = payments.filter((p: any) => p.paymentStatus === "completed" || p.status === "completed").length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct = total > 0 ? (paid / total) * 100 : 0;
 
@@ -196,6 +201,48 @@ export default function AdminExpediente() {
           )}
         </div>
 
+        {/* Documentos del expediente */}
+        {docNotes.length > 0 && (
+          <div className="px-4">
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
+              Documentos cargados ({docNotes.length})
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {docNotes.map((n: any) => {
+                let parsed: any = null;
+                try { parsed = JSON.parse(n.content); } catch {}
+                if (!parsed) return null;
+                const isImage = parsed.mimeType?.startsWith("image/");
+                return (
+                  <div
+                    key={n.id}
+                    className="card p-0 overflow-hidden cursor-pointer pressable"
+                    onClick={() => isImage && setDocPreview(parsed)}
+                  >
+                    {isImage ? (
+                      <img
+                        src={`data:${parsed.mimeType};base64,${parsed.base64}`}
+                        alt={parsed.label}
+                        className="w-full h-24 object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
+                        <RiFileTextLine className="text-3xl text-gray-400" />
+                      </div>
+                    )}
+                    <div className="px-2 py-1.5">
+                      <div className="text-xs font-semibold text-gray-800 truncate">{parsed.label}</div>
+                      <div className="text-[10px] text-gray-400">
+                        {n.authorName ?? "Cliente"} · {fmtDate(parsed.uploadedAt?.split("T")[0])}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {notes.length > 0 && (
           <div className="px-4">
             <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
@@ -243,6 +290,35 @@ export default function AdminExpediente() {
         )}
 
       </div>
+
+      {/* Doc preview modal */}
+      {docPreview && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{ background: "rgba(0,0,0,0.85)" }}
+          onClick={() => setDocPreview(null)}
+        >
+          <div className="relative max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setDocPreview(null)}
+              className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg z-10"
+            >
+              <RiCloseLine className="text-gray-800 text-xl" />
+            </button>
+            <div className="rounded-2xl overflow-hidden shadow-2xl">
+              <div className="bg-gray-900 px-4 py-3">
+                <div className="text-white text-sm font-semibold">{docPreview.label}</div>
+                <div className="text-gray-400 text-xs">{docPreview.filename}</div>
+              </div>
+              <img
+                src={`data:${docPreview.mimeType};base64,${docPreview.base64}`}
+                alt={docPreview.label}
+                className="w-full max-h-[60vh] object-contain bg-black"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

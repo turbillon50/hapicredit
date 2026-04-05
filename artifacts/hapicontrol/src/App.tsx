@@ -22,6 +22,7 @@ import ExecutiveComisiones from "@/pages/executive/comisiones";
 
 import ClientPortal      from "@/pages/portal/index";
 import ClientSolicitar   from "@/pages/portal/solicitar";
+import ClientExpediente  from "@/pages/portal/expediente";
 
 import Registro from "@/pages/public/registro";
 
@@ -128,7 +129,7 @@ function Router() {
       </Route>
       <Route path="/portal/expediente">
         <ProtectedRoute allowedRoles={["client"]}>
-          <ClientPortal />
+          <ClientExpediente />
         </ProtectedRoute>
       </Route>
 
