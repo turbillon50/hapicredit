@@ -72,6 +72,41 @@ router.get("/dashboard/executive", requireAuth, async (req, res): Promise<void> 
   // Clients due today (simplification: all active clients with payments today)
   const clientsDueToday = todayPayments.length > 0 ? todayPayments.length : Math.floor(totalAssigned * 0.15);
 
+  const COMMISSION_RATE = 0.05;
+  const allCredits     = await db.select().from(creditsTable).where(eq(creditsTable.executiveId, execId));
+  const monthStartStr  = monthStart();
+  const monthCredits   = allCredits.filter(c => c.disbursementDate >= monthStartStr);
+  const prevMonthStart = (() => {
+    const d = new Date();
+    d.setDate(1);
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().split("T")[0];
+  })();
+  const prevMonthCredits = allCredits.filter(c => c.disbursementDate >= prevMonthStart && c.disbursementDate < monthStartStr);
+
+  const placementAllTime   = allCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+  const placementThisMonth = monthCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+  const placementPrevMonth = prevMonthCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+  const commissionAllTime   = Math.round(placementAllTime   * COMMISSION_RATE);
+  const commissionThisMonth = Math.round(placementThisMonth * COMMISSION_RATE);
+  const commissionPrevMonth = Math.round(placementPrevMonth * COMMISSION_RATE);
+
+  const allPayments   = await db.select().from(paymentsTable).where(eq(paymentsTable.executiveId, execId));
+  const monthPayments = allPayments.filter(p => p.paymentDate >= monthStartStr);
+  const collectionAllTime   = allPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+  const collectionThisMonth = monthPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+
+  const targetMonth = activeCredits.reduce((s, c) => s + parseFloat(c.weeklyPayment) * 4, 0);
+
+  const creditBreakdown = monthCredits.map(c => ({
+    creditId: c.id,
+    clientId: c.clientId,
+    amount:   parseFloat(c.amount),
+    commission: Math.round(parseFloat(c.amount) * COMMISSION_RATE),
+    disbursementDate: c.disbursementDate,
+    status: c.status,
+  }));
+
   res.json({
     executiveId: execId,
     executiveName: exec.fullName,
@@ -83,7 +118,15 @@ router.get("/dashboard/executive", requireAuth, async (req, res): Promise<void> 
     pendingPromises: pendingCommitments.length,
     cashOnHand: Math.max(0, cashOnHand),
     placementThisWeek,
+    placementThisMonth,
     alertCount: alerts.length,
+    commissionAllTime,
+    commissionThisMonth,
+    commissionPrevMonth,
+    collectionAllTime,
+    collectionThisMonth,
+    targetMonth,
+    creditBreakdown,
   });
 });
 
@@ -184,11 +227,54 @@ router.get("/dashboard/executive-ranking", requireAuth, requireRole("admin"), as
     };
   }));
 
-  // Sort by collection desc
-  rankings.sort((a, b) => b.collection - a.collection);
-  rankings.forEach((r, i) => r.rank = i + 1);
+  const COMMISSION_RATE = 0.05;
+  const monthStartStr = monthStart();
+  const weekStartStr  = weekStart();
 
-  res.json(rankings);
+  const enriched = await Promise.all(rankings.map(async r => {
+    const allCredits = await db.select().from(creditsTable).where(eq(creditsTable.executiveId, r.executiveId));
+    const activeCredits = allCredits.filter(c => c.status === "active" || c.status === "pending");
+    const monthCredits  = allCredits.filter(c => c.disbursementDate >= monthStartStr);
+    const weekCredits   = allCredits.filter(c => c.disbursementDate >= weekStartStr);
+
+    const allPayments   = await db.select().from(paymentsTable).where(eq(paymentsTable.executiveId, r.executiveId));
+    const monthPayments = allPayments.filter(p => p.paymentDate >= monthStartStr);
+    const weekPayments  = allPayments.filter(p => p.paymentDate >= weekStartStr);
+    const allClients    = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.executiveId, r.executiveId));
+
+    const placementAll   = allCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+    const placementMonth = monthCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+    const placementWeek  = weekCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+
+    const collectedAll   = allPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+    const collectedMonth = monthPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+    const collectedWeek  = weekPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+
+    const targetMonth = activeCredits.reduce((s, c) => s + parseFloat(c.weeklyPayment) * 4, 0);
+    const targetWeek  = activeCredits.reduce((s, c) => s + parseFloat(c.weeklyPayment), 0);
+
+    return {
+      ...r,
+      collection: collectedAll,
+      totalClients:       allClients.length,
+      activeCredits:      activeCredits.length,
+      placementThisWeek:  placementWeek,
+      placementThisMonth: placementMonth,
+      collectedThisWeek:  collectedWeek,
+      collectedThisMonth: collectedMonth,
+      targetWeek,
+      targetMonth,
+      commissionAllTime:   Math.round(placementAll   * COMMISSION_RATE),
+      commissionThisMonth: Math.round(placementMonth * COMMISSION_RATE),
+      commissionThisWeek:  Math.round(placementWeek  * COMMISSION_RATE),
+      commissionEarned:    Math.round(placementMonth * COMMISSION_RATE),
+    };
+  }));
+
+  enriched.sort((a, b) => b.collectedThisMonth - a.collectedThisMonth);
+  enriched.forEach((r, i) => r.rank = i + 1);
+
+  res.json(enriched);
 });
 
 router.get("/dashboard/portfolio-aging", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {

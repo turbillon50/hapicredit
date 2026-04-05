@@ -1,126 +1,142 @@
 import { Layout } from "@/components/layout/Layout";
-import {
-  getGetAdminDashboardQueryKey,
-  useGetAdminDashboard
-} from "@workspace/api-client-react";
+import { useGetAdminDashboard } from "@workspace/api-client-react";
 import { Link } from "wouter";
+import { StatCard } from "@/components/hapi/StatCard";
+import { ProgressBar } from "@/components/hapi/ProgressBar";
+import { SkeletonCard, SkeletonHero } from "@/components/hapi/Skeleton";
 import {
-  RiBriefcase4Line, RiFundsLine, RiPercentLine,
-  RiLineChartLine, RiGroupLine, RiAlarmWarningLine,
-  RiArrowRightSLine, RiFileWarningLine, RiMoneyDollarCircleLine,
+  RiPercentLine, RiMoneyDollarCircleLine, RiAddCircleLine,
+  RiGroupLine, RiArrowRightSLine, RiFileListLine,
+  RiAlarmWarningLine, RiLineChartLine,
 } from "react-icons/ri";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
+const ACCESOS = [
+  { path: "/admin/cartera",    icon: <RiFileListLine />,     label: "Cartera detallada",     sub: "Saldos, fechas, pagos por cliente",      color: "#dbeafe", ic: "#1e40af" },
+  { path: "/admin/morosos",    icon: <RiAlarmWarningLine />, label: "Morosos",                sub: "Clientes en atraso y vencidos",           color: "#fee2e2", ic: "#991b1b" },
+  { path: "/admin/financiero", icon: <RiLineChartLine />,    label: "Análisis financiero",    sub: "Tasas, utilidad, proyecciones",           color: "#d1fae5", ic: "#065f46" },
+  { path: "/admin/asesores",   icon: <RiGroupLine />,        label: "Ranking de asesores",    sub: "Desempeño y cobranza por ejecutivo",      color: "#f3e8ff", ic: "#6d28d9" },
+];
+
 export default function AdminDashboard() {
-  const { data: d, isLoading } = useGetAdminDashboard({
-    query: { queryKey: getGetAdminDashboardQueryKey() }
-  });
+  const { data, isLoading } = useGetAdminDashboard({ query: {} });
+  const d = data as any;
 
-  if (isLoading || !d) {
-    return (
-      <Layout title="HapiControl">
-        <div className="space-y-4">
-          <div className="h-[200px] rounded-2xl skeleton" />
-          <div className="grid grid-cols-2 gap-3">
-            {[0,1,2,3].map(i => <div key={i} className="h-[100px] rounded-2xl skeleton" />)}
-          </div>
-          <div className="space-y-3">
-            {[0,1,2].map(i => <div key={i} className="h-[60px] rounded-2xl skeleton" />)}
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  const pct = d.expectedToday > 0 ? Math.min(100, (d.collectionToday / d.expectedToday) * 100) : 0;
+  const collectPct = d ? Math.min(100, (d.collectionToday / Math.max(1, d.expectedToday)) * 100) : 0;
+  const moraPct    = d ? d.delinquencyRate ?? (d.clientsOverdue / Math.max(1, d.activeClients)) * 100 : 0;
 
   return (
-    <Layout title="HapiControl">
-      <div className="space-y-5">
+    <Layout>
+      <div className="flex flex-col gap-4 pb-4">
 
-        {/* Hero card */}
-        <div className="rounded-2xl overflow-hidden relative" style={{ background: "linear-gradient(145deg, #0a1628 0%, #132f5e 55%, #1e4a87 100%)" }}>
-          <div className="absolute top-0 right-0 w-[200px] h-[200px] rounded-full" style={{ background: "radial-gradient(circle, rgba(36,84,163,0.35) 0%, transparent 70%)", transform: "translate(40%,-30%)" }} />
-          <div className="p-5 relative z-10">
-            <p className="text-[10px] font-bold uppercase tracking-[0.15em] mb-2" style={{ color: "rgba(255,255,255,0.4)" }}>Cartera activa</p>
-            <p className="text-[34px] font-extrabold text-white leading-none tracking-tight">{fmt(d.totalPortfolio)}</p>
-
-            <div className="flex items-center gap-5 mt-4">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: "#34d399" }} />
-                <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>{d.activeClients} activos</span>
+        {/* Hero */}
+        {isLoading ? (
+          <div className="mx-4 mt-2"><SkeletonHero /></div>
+        ) : (
+          <div className="mx-4 mt-2">
+            <div className="hero-gradient rounded-2xl p-5 text-white">
+              <div className="text-xs font-semibold uppercase tracking-widest mb-1 opacity-60">
+                Cartera activa
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full" style={{ background: "#f87171" }} />
-                <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.55)" }}>{d.clientsOverdue + d.clientsDefaulted} mora</span>
+              <div className="text-4xl font-bold tracking-tight leading-none mb-1 fade-up">
+                {fmt(d?.totalPortfolio ?? 0)}
               </div>
-            </div>
-
-            <div className="mt-5 mb-1">
-              <div className="flex justify-between mb-1.5">
-                <span className="text-[10px] font-medium" style={{ color: "rgba(255,255,255,0.35)" }}>Cobranza del día</span>
-                <span className="text-[11px] font-bold text-white">{fmt(d.collectionToday)} <span style={{ color: "rgba(255,255,255,0.35)", fontWeight: 400, fontSize: "10px" }}>/ {fmt(d.expectedToday)}</span></span>
+              <div className="flex items-center gap-3 mt-3 mb-4">
+                <span className="text-xs opacity-70">
+                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1" />
+                  {d?.activeClients ?? 0} activos
+                </span>
+                <span className="text-xs opacity-70">
+                  <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1" />
+                  {d?.clientsOverdue ?? 0} mora
+                </span>
+                <span className="text-xs opacity-70">
+                  <span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1" />
+                  {d?.clientsDefaulted ?? 0} vencidos
+                </span>
               </div>
-              <div className="w-full h-[5px] rounded-full" style={{ background: "rgba(255,255,255,0.1)" }}>
-                <div className="h-full rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: "linear-gradient(90deg, #34d399, #10b981)" }} />
+              <div className="mt-2">
+                <div className="flex justify-between text-xs opacity-70 mb-1.5">
+                  <span>Cobranza del día</span>
+                  <span>{fmt(d?.collectionToday ?? 0)} / {fmt(d?.expectedToday ?? 0)}</span>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.2)" }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${collectPct}%`, background: collectPct >= 80 ? "#10b981" : collectPct >= 50 ? "#f59e0b" : "#ef4444" }}
+                  />
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
 
-        {/* Metrics grid */}
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: "Mora", value: `${d.delinquencyRate}%`, sub: `${d.clientsDefaulted} vencidos`, icon: RiAlarmWarningLine, color: "#dc2626", bg: "#fef2f2" },
-            { label: "Utilidad sem.", value: fmt(d.weeklyUtility), sub: "Esta semana", icon: RiFundsLine, color: "#059669", bg: "#ecfdf5" },
-            { label: "Colocación", value: fmt(d.placementThisWeek), sub: "Esta semana", icon: RiMoneyDollarCircleLine, color: "#2454a3", bg: "#eef3fb" },
-            { label: "Asesores", value: String(d.totalExecutives), sub: `${d.alertCount} alertas`, icon: RiGroupLine, color: "#7c3aed", bg: "#f5f3ff" },
-          ].map((m) => {
-            const Icon = m.icon;
-            return (
-              <div key={m.label} className="bg-white rounded-2xl p-4 shadow-card hover:shadow-card-md transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: m.bg }}>
-                    <Icon className="w-4 h-4" style={{ color: m.color }} />
-                  </div>
-                </div>
-                <p className="text-[20px] font-extrabold text-foreground leading-none tracking-tight">{m.value}</p>
-                <p className="text-[11px] font-semibold text-foreground/80 mt-1">{m.label}</p>
-                <p className="text-[10px] text-muted-foreground">{m.sub}</p>
-              </div>
-            );
-          })}
-        </div>
+        {/* Stat cards */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3 px-4">
+            {[1,2,3,4].map(i => <SkeletonCard key={i} rows={2} />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 px-4">
+            <StatCard
+              icon={<RiPercentLine />}
+              iconBg="rgba(239,68,68,0.1)"
+              iconColor="var(--danger)"
+              label="Índice de mora"
+              value={`${moraPct.toFixed(1)}%`}
+              subLabel={`${d?.clientsOverdue ?? 0} clientes`}
+            />
+            <StatCard
+              icon={<RiMoneyDollarCircleLine />}
+              iconBg="rgba(16,185,129,0.1)"
+              iconColor="var(--success)"
+              label="Utilidad semanal"
+              value={fmt(d?.profitThisWeek ?? 0)}
+              subLabel="Esta semana"
+            />
+            <StatCard
+              icon={<RiAddCircleLine />}
+              iconBg="rgba(37,99,235,0.1)"
+              iconColor="var(--accent)"
+              label="Colocación semanal"
+              value={fmt(d?.placementThisWeek ?? 0)}
+              subLabel="Esta semana"
+            />
+            <StatCard
+              icon={<RiGroupLine />}
+              iconBg="rgba(109,40,217,0.1)"
+              iconColor="#7c3aed"
+              label="Asesores activos"
+              value={d?.totalActiveExecutives ?? 0}
+              subLabel={`${d?.executivesWithAlerts ?? 0} con alertas`}
+            />
+          </div>
+        )}
 
-        {/* Quick nav */}
-        <div className="space-y-2">
-          {[
-            { href: "/admin/portfolio-detail", label: "Cartera detallada", sub: "Saldos, fechas, pagos por cliente", icon: RiBriefcase4Line, accent: "#1a3a6b" },
-            { href: "/admin/morosos", label: "Morosos", sub: "Clientes en atraso y vencidos", icon: RiFileWarningLine, accent: "#dc2626" },
-            { href: "/admin/financiero", label: "Análisis financiero", sub: "Tasas, utilidad, proyecciones", icon: RiLineChartLine, accent: "#059669" },
-            { href: "/admin/executives", label: "Ranking de asesores", sub: "Desempeño y cobranza", icon: RiGroupLine, accent: "#7c3aed" },
-            { href: "/admin/caja", label: "Control de caja", sub: "Flujo por asesor", icon: RiFundsLine, accent: "#b45309" },
-          ].map((item) => {
-            const Icon = item.icon;
-            return (
-              <Link key={item.href} href={item.href}>
-                <div className="bg-white rounded-2xl px-4 py-3.5 shadow-card flex items-center justify-between active:bg-secondary/60 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: `${item.accent}10` }}>
-                      <Icon className="w-[18px] h-[18px]" style={{ color: item.accent }} />
-                    </div>
-                    <div>
-                      <p className="text-[13px] font-semibold text-foreground leading-tight">{item.label}</p>
-                      <p className="text-[11px] text-muted-foreground leading-tight mt-0.5">{item.sub}</p>
-                    </div>
-                  </div>
-                  <RiArrowRightSLine className="w-4 h-4 text-muted-foreground/40" />
+        {/* Quick access */}
+        <div className="px-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
+            Accesos rápidos
+          </div>
+          <div className="flex flex-col gap-2">
+            {ACCESOS.map(a => (
+              <Link key={a.path} href={a.path} className="card flex items-center gap-4 py-4 px-4 pressable">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                  style={{ background: a.color, color: a.ic }}
+                >
+                  {a.icon}
                 </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-[14px] font-semibold text-gray-900">{a.label}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{a.sub}</div>
+                </div>
+                <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
               </Link>
-            );
-          })}
+            ))}
+          </div>
         </div>
 
       </div>

@@ -1,0 +1,159 @@
+CONTEXTO DEL PRODUCTO
+
+Construye HapiControl, una PWA (Progressive Web App) interna de gestión de cartera crediticia y CRM para una empresa de microcrédito (Grupo CAFJA / HapiCredit). La app debe verse y sentirse como una app bancaria de primer nivel — referencia estética: BBVA México app o Nubank. Funciona en navegador mobile y desktop, es instalable como app nativa en iOS y Android, y está 100% en español latinoamericano.
+
+STACK TÉCNICO
+
+Frontend: React + Vite + TypeScript
+Estilos: Tailwind CSS v3 (sin componentes externos de UI — todo custom)
+Iconos: react-icons únicamente (familias: ri, fi, hi2, md, bi) — CERO lucide-react
+Animaciones: Framer Motion para transiciones de página y micro-interacciones
+Estado global: React Context + useReducer
+Fetching: TanStack Query (react-query) con hooks tipados
+Router: React Router v6 con lazy loading por ruta
+PWA: vite-plugin-pwa, manifest completo, service worker, iconos 192px / 512px / maskable
+Fuentes: Inter via Google Fonts (weights: 400, 500, 600, 700)
+Backend ya existe: API REST en Express con PostgreSQL. Solo conectar.
+SISTEMA DE DISEÑO — OBLIGATORIO
+
+Paleta de colores (CSS variables en :root):
+
+--navy-950: #040e21
+--navy-900: #0a1628
+--navy-800: #0f1f3d
+--navy-700: #1a3a6b
+--navy-600: #1e4d8c
+--accent:   #2563eb   (azul eléctrico)
+--accent-light: #3b82f6
+--success:  #10b981
+--warning:  #f59e0b
+--danger:   #ef4444
+--surface:  #ffffff
+--surface-2: #f8fafc
+--text-primary: #0f172a
+--text-secondary: #64748b
+--text-muted: #94a3b8
+
+Tipografía:
+
+Display hero: 32px bold, letter-spacing -0.5px
+Título sección: 20px semibold
+Body: 15px regular
+Caption/label: 12px medium, uppercase, letter-spacing 0.5px
+Elevación (sombras):
+
+--shadow-sm: 0 1px 3px rgba(0,0,0,0.08)
+--shadow-md: 0 4px 16px rgba(0,0,0,0.10)
+--shadow-lg: 0 8px 32px rgba(0,0,0,0.14)
+--shadow-card: 0 2px 8px rgba(15,31,61,0.08), 0 1px 3px rgba(15,31,61,0.05)
+
+Radios:
+
+Cards: 16px
+Botones: 12px
+Chips/badges: 999px (pill)
+Bottom sheet / modales: 24px top-left, top-right
+Componentes base que DEBES construir como sistema reutilizable:
+
+<Card> — white card con shadow-card, padding 20px
+<StatCard> — card con icono circular, número grande, label, delta (↑↓ con color)
+<Badge> — pill semáforo: success | warning | danger | info | neutral
+<Button> — variantes: primary | secondary | ghost | danger, tamaños sm | md | lg
+<BottomSheet> — drawer desde abajo con overlay, handle, spring animation
+<Skeleton> — loading placeholder animado (shimmer) para cada componente
+<Avatar> — iniciales con color generado por hash del nombre
+<DataTable> — tabla mobile-first: en mobile muestra cards apiladas, en desktop tabla clásica
+<ProgressBar> — barra de progreso con color semáforo y animación al montar
+<EmptyState> — ilustración + título + descripción + CTA cuando no hay datos
+LAYOUT Y NAVEGACIÓN
+
+Mobile (< 768px) — PRIORIDAD
+
+Header fijo: logo HapiCredit (texto), nombre del usuario logueado, ícono candado para cambiar rol
+Contenido con padding-bottom 90px para no solapar el BottomNav
+BottomNav fijo en la parte inferior, altura 72px, con safe area (padding-bottom: env(safe-area-inset-bottom))
+Fondo blanco, top border sutil, 5 tabs con ícono + label
+Tab activo: ícono en --accent, label bold, dot indicator o underline
+Transición suave entre tabs
+Transiciones de página: slide horizontal (Framer Motion AnimatePresence + variants)
+Desktop (≥ 768px)
+
+Sidebar izquierdo fijo, 260px ancho, fondo --navy-900, texto blanco
+Logo en la parte superior
+Items de navegación con ícono + label, hover con fondo azul semi-transparente, activo con fondo --accent
+Avatar + nombre + rol del usuario en la parte inferior del sidebar
+Área de contenido con max-width 1200px, centrada, padding 32px
+Header top minimal o eliminado (el sidebar lo reemplaza)
+Las cards estadísticas en grid 2x2 o 4x1 según breakpoint
+DataTable muestra tabla completa en desktop
+ROLES Y AUTENTICACIÓN
+
+3 roles con vistas completamente diferentes:
+
+admin — acceso total, ve toda la cartera, todos los ejecutivos, métricas globales
+ejecutivo/asesor — ve solo sus clientes asignados, su cobranza del día, sus comisiones
+cliente — ve solo su crédito activo, historial de pagos, próxima cuota
+Auth flow:
+
+Token JWT almacenado en localStorage bajo la key hapi_token
+Cada request lleva header Authorization: Bearer <token> — configurar el cliente fetch global al inicio de la app
+Pantalla de login: full-screen, fondo degradado navy, logo centrado, form con email + password, botón de acceso
+En modo demo: 3 botones de acceso rápido visibles debajo del form (Acceder como Admin / Asesor / Cliente)
+Al montar: intentar auto-login como admin (demo mode) para navegación libre
+Lock icon en header abre BottomSheet con selector de rol (demo switcher)
+Rutas protegidas por rol con redirect a login si no autenticado
+Credenciales demo:
+
+admin / admin123
+ejecutivo1 / exec123
+ejecutivo2 / exec123
+PÁGINAS — ADMIN
+
+/admin — Resumen (Dashboard)
+Hero card con gradiente navy, muestra:
+
+Cartera total activa (número grande, animado con CountUp al montar)
+Barra de progreso: % cobrado del día vs. meta
+Pills: N activos · N en mora · N vencidos
+Grid de StatCards (2 columnas mobile, 4 desktop):
+
+% Mora — porcentaje, delta vs. semana anterior, color semáforo
+Utilidad semanal — $ cobrado en comisiones/intereses esta semana
+Colocación semanal — $ desembolsados esta semana
+Asesores activos — N asesores, N con alertas
+Sección "Accesos rápidos" — lista de cards tipo menú:
+
+Cartera detallada → /admin/cartera
+Morosos → /admin/morosos
+Análisis financiero → /admin/financiero
+Ranking de asesores → /admin/asesores
+/admin/cartera — Cartera Detallada
+Header con: título, total de créditos activos, filtros (búsqueda por nombre, filtro por ejecutivo, filtro por estatus)
+
+DataTable / card list con una fila por crédito activo:
+
+Nombre del cliente + avatar iniciales
+Monto original | Saldo pendiente
+Próxima fecha de pago (resaltada en rojo si es hoy o pasó)
+Días en mora (badge: 0=verde, 1-7=amarillo, 8-30=naranja, >30=rojo)
+Ejecutivo asignado
+Tap en fila abre detalle del cliente en BottomSheet o página separada
+/admin/morosos — Clientes en Mora
+Tabs: Vencidos / En riesgo / Al corriente
+
+Lista ordenada por días de atraso (mayor a menor), cada item:
+
+Badge urgencia grande (color según días): CRÍTICO / ALTO / MEDIO
+Nombre cliente, días atrasados, monto vencido
+Ejecutivo responsable con avatar
+Botones de acción: llamar (icono teléfono), registrar promesa de pago
+Contador en cada tab (número de clientes)
+
+/admin/asesores — Ranking de Asesores
+Header con período seleccionable (esta semana / este mes)
+
+Lista de asesores ordenada por desempeño:
+
+Posición (#1, #2, etc.) con corona dorada para el #1
+Avatar + nombre
+Barra de progreso: cr

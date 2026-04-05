@@ -63,6 +63,66 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
   res.json(rows.map(formatCredit));
 });
 
+// ─── Apply for a credit (creates pending application) ────────────────────────
+router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  const { clientId, amount, termWeeks, purpose, executiveId: bodyExecId } = req.body;
+
+  const amt = parseFloat(amount);
+  const weeks = parseInt(termWeeks, 10);
+
+  if (!clientId || isNaN(amt) || isNaN(weeks) || amt <= 0 || weeks <= 0) {
+    res.status(400).json({ error: "clientId, amount y termWeeks son requeridos y deben ser válidos" });
+    return;
+  }
+
+  // 10% flat interest rate for microcredit
+  const totalToRepay = amt * 1.10;
+  const weeklyPayment = totalToRepay / weeks;
+  const disbursementDate = new Date().toISOString().split("T")[0];
+  const executiveId = req.userRole === "executive" ? req.userId : (bodyExecId ? parseInt(bodyExecId, 10) : null);
+
+  const [credit] = await db.insert(creditsTable).values({
+    clientId: parseInt(clientId, 10),
+    executiveId,
+    amount: amt.toString(),
+    disbursementDate,
+    termWeeks: weeks,
+    weeklyPayment: weeklyPayment.toFixed(2),
+    totalToRepay: totalToRepay.toFixed(2),
+    remainingBalance: totalToRepay.toFixed(2),
+    status: "pending",
+    notes: purpose ?? null,
+  }).returning();
+
+  res.status(201).json(formatCredit({ ...credit, clientName: null, executiveName: null }));
+});
+
+// ─── Review (approve / reject) a pending application ─────────────────────────
+router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
+
+  const { action } = req.body;
+  if (action !== "approve" && action !== "reject") {
+    res.status(400).json({ error: "action debe ser 'approve' o 'reject'" });
+    return;
+  }
+
+  const newStatus = action === "approve" ? "active" : "rejected";
+  const updates: Record<string, unknown> = { status: newStatus };
+  if (action === "approve") updates.disbursementDate = new Date().toISOString().split("T")[0];
+
+  const [credit] = await db.update(creditsTable)
+    .set(updates as any)
+    .where(eq(creditsTable.id, id))
+    .returning();
+
+  if (!credit) { res.status(404).json({ error: "Credit not found" }); return; }
+
+  res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
+});
+
+// ─── Standard Create ──────────────────────────────────────────────────────────
 router.post("/credits", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
   const parsed = CreateCreditBody.safeParse(req.body);
   if (!parsed.success) {

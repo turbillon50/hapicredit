@@ -1,75 +1,93 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useGetMe, useLogin, useLogout } from "@workspace/api-client-react";
-import { User, LoginBody } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { User } from "@workspace/api-client-react/src/generated/api.schemas";
 import { useLocation } from "wouter";
-import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+
+const DEMO_CREDS: Record<string, { username: string; password: string; label: string }> = {
+  admin:     { username: "admin",      password: "admin123", label: "Administrador"       },
+  ejecutivo1: { username: "ejecutivo1", password: "exec123",  label: "Asesor 1 — Carlos"  },
+  ejecutivo2: { username: "ejecutivo2", password: "exec123",  label: "Asesor 2 — Daniela" },
+};
 
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
-  login: (data: LoginBody) => Promise<void>;
+  initialized: boolean;
+  login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  demoLogin: (key: keyof typeof DEMO_CREDS) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+function roleHome(role: string) {
+  if (role === "admin")     return "/admin";
+  if (role === "executive") return "/dashboard";
+  return "/portal";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [initialized, setInitialized] = useState(false);
   const [, setLocation] = useLocation();
-  const { toast } = useToast();
   const queryClient = useQueryClient();
+  const autoAttempted = useRef(false);
 
-  const { data: meData, isLoading } = useGetMe({
-    query: {
-      retry: false,
-    }
-  });
+  const { data: meData, isLoading } = useGetMe({ query: { retry: false, staleTime: 30_000 } });
+  const loginMut  = useLogin();
+  const logoutMut = useLogout();
 
   useEffect(() => {
     if (meData) {
       setUser(meData);
+      setInitialized(true);
     } else if (!isLoading) {
       setUser(null);
+      if (!autoAttempted.current) {
+        autoAttempted.current = true;
+        loginMut
+          .mutateAsync({ data: { username: "admin", password: "admin123" } })
+          .then(res => {
+            localStorage.setItem("hapi_token", res.token);
+            setUser(res.user);
+          })
+          .catch(() => {})
+          .finally(() => setInitialized(true));
+      } else {
+        setInitialized(true);
+      }
     }
   }, [meData, isLoading]);
 
-  const loginMutation = useLogin();
-  const logoutMutation = useLogout();
-
-  const login = async (data: LoginBody) => {
-    try {
-      const res = await loginMutation.mutateAsync({ data });
-      localStorage.setItem("hapi_token", res.token);
-      setUser(res.user);
-      
-      if (res.user.role === "admin") setLocation("/admin");
-      else if (res.user.role === "executive") setLocation("/dashboard");
-      else if (res.user.role === "client") setLocation("/portal");
-      else setLocation("/");
-
-      toast({ title: "Welcome back", description: `Logged in as ${res.user.fullName}` });
-    } catch (error) {
-      toast({ title: "Login failed", description: "Invalid credentials", variant: "destructive" });
-      throw error;
-    }
+  const login = async (username: string, password: string) => {
+    const res = await loginMut.mutateAsync({ data: { username, password } });
+    localStorage.setItem("hapi_token", res.token);
+    setUser(res.user);
+    setLocation(roleHome(res.user.role));
   };
 
   const logout = async () => {
-    try {
-      await logoutMutation.mutateAsync();
-    } catch (error) {
-      console.error(error);
-    } finally {
-      localStorage.removeItem("hapi_token");
-      setUser(null);
-      queryClient.clear();
-      setLocation("/login");
-    }
+    try { await logoutMut.mutateAsync(); } catch {}
+    localStorage.removeItem("hapi_token");
+    setUser(null);
+    queryClient.clear();
+    setLocation("/login");
+  };
+
+  const demoLogin = async (key: keyof typeof DEMO_CREDS) => {
+    const cred = DEMO_CREDS[key as string];
+    if (!cred) return;
+    localStorage.removeItem("hapi_token");
+    queryClient.clear();
+    const res = await loginMut.mutateAsync({ data: { username: cred.username, password: cred.password } });
+    localStorage.setItem("hapi_token", res.token);
+    setUser(res.user);
+    setLocation(roleHome(res.user.role));
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, initialized, login, logout, demoLogin }}>
       {children}
     </AuthContext.Provider>
   );

@@ -1,37 +1,36 @@
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
-import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/login";
+import NotFound from "@/pages/not-found";
 
-import ClientPortal from "@/pages/portal/index";
+import AdminDashboard    from "@/pages/admin/dashboard";
+import AdminCartera      from "@/pages/admin/cartera";
+import AdminMorosos      from "@/pages/admin/morosos";
+import AdminAsesores     from "@/pages/admin/executives";
+import AdminFinanciero   from "@/pages/admin/financiero";
+import AdminSolicitudes  from "@/pages/admin/solicitudes";
+import AdminExpediente   from "@/pages/admin/expediente";
 
-import ExecutiveDashboard from "@/pages/executive/dashboard";
-import ExecutiveClients from "@/pages/executive/clients";
-import ExecutiveClientNew from "@/pages/executive/client-new";
-import ExecutiveClientDetail from "@/pages/executive/client-detail";
-import ExecutivePaymentsNew from "@/pages/executive/payments-new";
-import ExecutiveCommitments from "@/pages/executive/commitments";
-import ExecutiveAlerts from "@/pages/executive/alerts";
+import ExecutiveDashboard  from "@/pages/executive/dashboard";
+import ExecutiveClients    from "@/pages/executive/clients";
+import ExecutiveCobrar     from "@/pages/executive/cobrar";
+import AltaCliente         from "@/pages/executive/alta-cliente";
+import ExecutiveComisiones from "@/pages/executive/comisiones";
 
-import AdminDashboard from "@/pages/admin/dashboard";
-import AdminClients from "@/pages/admin/clients";
-import AdminPortfolioDetail from "@/pages/admin/portfolio-detail";
-import AdminMorosos from "@/pages/admin/morosos";
-import AdminFinanciero from "@/pages/admin/financiero";
-import AdminExecutives from "@/pages/admin/executives";
-import AdminCaja from "@/pages/admin/caja";
-import AdminReports from "@/pages/admin/reports";
+import ClientPortal      from "@/pages/portal/index";
+import ClientSolicitar   from "@/pages/portal/solicitar";
+
+import Registro from "@/pages/public/registro";
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       retry: 1,
       refetchOnWindowFocus: false,
+      staleTime: 30_000,
     },
   },
 });
@@ -40,63 +39,32 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
-        <Redirect to="/login" />
+        <Redirect to="/admin" />
       </Route>
       <Route path="/login" component={Login} />
 
-      {/* Client Portal */}
-      <Route path="/portal">
-        <ProtectedRoute allowedRoles={["client"]}>
-          <ClientPortal />
-        </ProtectedRoute>
-      </Route>
+      {/* ─── Public ─── */}
+      <Route path="/registro" component={Registro} />
 
-      {/* Executive Routes */}
-      <Route path="/dashboard">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveDashboard />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/clients">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveClients />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/clients/new">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveClientNew />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/clients/:id">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveClientDetail />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/payments/new">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutivePaymentsNew />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/commitments">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveCommitments />
-        </ProtectedRoute>
-      </Route>
-      <Route path="/alerts">
-        <ProtectedRoute allowedRoles={["executive"]}>
-          <ExecutiveAlerts />
-        </ProtectedRoute>
-      </Route>
-
-      {/* Admin Routes */}
-      <Route path="/admin/clients">
+      {/* ─── Admin ─── */}
+      <Route path="/admin">
         <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminClients />
+          <AdminDashboard />
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/portfolio-detail">
+      <Route path="/admin/cartera">
         <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminPortfolioDetail />
+          <AdminCartera />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/solicitudes">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminSolicitudes />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/expediente/:id">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminExpediente />
         </ProtectedRoute>
       </Route>
       <Route path="/admin/morosos">
@@ -104,29 +72,63 @@ function Router() {
           <AdminMorosos />
         </ProtectedRoute>
       </Route>
+      <Route path="/admin/asesores">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminAsesores />
+        </ProtectedRoute>
+      </Route>
       <Route path="/admin/financiero">
         <ProtectedRoute allowedRoles={["admin"]}>
           <AdminFinanciero />
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/executives">
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminExecutives />
+
+      {/* ─── Executive ─── */}
+      <Route path="/dashboard">
+        <ProtectedRoute allowedRoles={["executive"]}>
+          <ExecutiveDashboard />
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/caja">
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminCaja />
+      <Route path="/dashboard/clientes">
+        <ProtectedRoute allowedRoles={["executive"]}>
+          <ExecutiveClients />
         </ProtectedRoute>
       </Route>
-      <Route path="/admin/reports">
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminReports />
+      <Route path="/dashboard/cobrar">
+        <ProtectedRoute allowedRoles={["executive"]}>
+          <ExecutiveCobrar />
         </ProtectedRoute>
       </Route>
-      <Route path="/admin">
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminDashboard />
+      <Route path="/dashboard/expediente/:id">
+        <ProtectedRoute allowedRoles={["executive", "admin"]}>
+          <AdminExpediente />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/alta-cliente">
+        <ProtectedRoute allowedRoles={["executive", "admin"]}>
+          <AltaCliente />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/dashboard/comisiones">
+        <ProtectedRoute allowedRoles={["executive"]}>
+          <ExecutiveComisiones />
+        </ProtectedRoute>
+      </Route>
+
+      {/* ─── Client ─── */}
+      <Route path="/portal">
+        <ProtectedRoute allowedRoles={["client"]}>
+          <ClientPortal />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/solicitar">
+        <ProtectedRoute allowedRoles={["client"]}>
+          <ClientSolicitar />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/portal/expediente">
+        <ProtectedRoute allowedRoles={["client"]}>
+          <ClientPortal />
         </ProtectedRoute>
       </Route>
 
@@ -135,19 +137,14 @@ function Router() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <AuthProvider>
-            <Router />
-          </AuthProvider>
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <AuthProvider>
+          <Router />
+        </AuthProvider>
+      </WouterRouter>
     </QueryClientProvider>
   );
 }
-
-export default App;

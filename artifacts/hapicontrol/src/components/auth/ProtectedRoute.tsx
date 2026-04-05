@@ -10,24 +10,28 @@ export function ProtectedRoute({
   children: React.ReactNode; 
   allowedRoles: string[];
 }) {
-  const { user, isLoading } = useAuth();
+  const { user, initialized } = useAuth();
   const [, setLocation] = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !user) {
+    if (!initialized) return;
+    if (!user) {
       setLocation("/login");
-    } else if (!isLoading && user && !allowedRoles.includes(user.role)) {
-      if (user.role === "admin") setLocation("/admin");
+    } else if (!allowedRoles.includes(user.role)) {
+      if (user.role === "admin")     setLocation("/admin");
       else if (user.role === "executive") setLocation("/dashboard");
-      else if (user.role === "client") setLocation("/portal");
+      else if (user.role === "client")    setLocation("/portal");
       else setLocation("/");
     }
-  }, [user, isLoading, setLocation, allowedRoles]);
+  }, [user, initialized, setLocation, allowedRoles]);
 
-  if (isLoading) {
+  if (!initialized) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-background">
-        <RiLoader4Line className="w-8 h-8 text-primary animate-spin" />
+      <div className="min-h-[100dvh] flex items-center justify-center" style={{ background: "var(--navy-900)" }}>
+        <div className="flex flex-col items-center gap-4">
+          <RiLoader4Line className="w-10 h-10 text-white animate-spin" />
+          <div className="text-sm text-white/50">Iniciando sesión...</div>
+        </div>
       </div>
     );
   }

@@ -1,138 +1,219 @@
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
-import {
-  getGetExecutiveDashboardQueryKey,
-  useGetExecutiveDashboard
-} from "@workspace/api-client-react";
+import { useGetExecutiveDashboard } from "@workspace/api-client-react";
+import { SkeletonHero, SkeletonCard } from "@/components/hapi/Skeleton";
+import { Badge } from "@/components/hapi/Badge";
 import { Link } from "wouter";
 import {
-  RiTeamLine,
-  RiAlarmWarningLine,
-  RiMoneyDollarCircleLine,
-  RiWallet3Line,
-  RiCalendarCheckLine,
-  RiArrowRightLine,
-  RiAddCircleLine,
+  RiGroupLine, RiAlarmWarningLine, RiMoneyDollarCircleLine,
+  RiCalendarLine, RiArrowRightSLine, RiUserLine, RiAddLine,
+  RiLineChartLine, RiCoinLine, RiCheckboxCircleLine,
 } from "react-icons/ri";
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
+
+const today = () =>
+  new Date().toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+
+const mesActual = () =>
+  new Date().toLocaleDateString("es-MX", { month: "long", year: "numeric" });
 
 export default function ExecutiveDashboard() {
   const { user } = useAuth();
-  const firstName = user?.fullName?.split(" ")[0] ?? user?.username ?? "";
+  const { data, isLoading } = useGetExecutiveDashboard({ query: {} });
+  const d = data as any;
 
-  const { data: d, isLoading } = useGetExecutiveDashboard(
-    { executiveId: user?.id },
-    { query: { enabled: !!user?.id, queryKey: getGetExecutiveDashboardQueryKey({ executiveId: user?.id }) } }
-  );
+  const collectPct = d
+    ? Math.min(100, (d.totalCollectedToday / Math.max(1, d.totalExpectedToday)) * 100)
+    : 0;
 
-  if (isLoading || !d) {
-    return (
-      <Layout title={`Hola, ${firstName}`}>
-        <div className="space-y-4 animate-pulse">
-          <div className="h-40 bg-white rounded-2xl shadow-card" />
-          <div className="grid grid-cols-2 gap-3">
-            {[0,1,2,3].map(i => <div key={i} className="h-24 bg-white rounded-2xl shadow-card" />)}
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
-  const pct = Math.min(100, d.totalExpectedToday > 0
-    ? (d.totalCollectedToday / d.totalExpectedToday) * 100 : 0);
-
-  const metrics = [
-    { label: "Clientes hoy", value: d.clientsDueToday, icon: RiTeamLine, color: "#2454a3", bg: "#eef3fb" },
-    { label: "En atraso", value: d.clientsOverdue, icon: RiAlarmWarningLine, color: "#dc2626", bg: "#fef2f2" },
-    { label: "Compromisos", value: d.pendingPromises, icon: RiCalendarCheckLine, color: "#b45309", bg: "#fffbeb" },
-    { label: "Caja", value: fmt(d.cashOnHand), icon: RiWallet3Line, color: "#15803d", bg: "#f0fdf4", small: true },
-  ];
+  const monthPct = d && d.targetMonth > 0
+    ? Math.min(100, (d.collectionThisMonth / d.targetMonth) * 100)
+    : 0;
 
   return (
-    <Layout title={`Hola, ${firstName}`}>
-      <div className="space-y-4">
+    <Layout>
+      <div className="flex flex-col gap-4 pb-6">
 
-        <div className="rounded-2xl p-5 shadow-card-md relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0f1f3d 0%, #1a3a6b 60%, #2454a3 100%)" }}>
-          <div className="absolute -top-6 -right-6 w-28 h-28 rounded-full opacity-10" style={{ background: "rgba(255,255,255,0.3)" }} />
-          <div className="absolute -bottom-8 -right-2 w-20 h-20 rounded-full opacity-8" style={{ background: "rgba(255,255,255,0.2)" }} />
+        {/* ── Hero de cobro diario ── */}
+        {isLoading ? (
+          <div className="mx-4 mt-2"><SkeletonHero /></div>
+        ) : (
+          <div className="mx-4 mt-2">
+            <div className="hero-gradient rounded-2xl p-5 text-white">
+              <div className="text-xs opacity-60 capitalize mb-0.5">{today()}</div>
+              <div className="text-[22px] font-bold tracking-tight leading-tight">
+                Hola, {user?.fullName?.split(" ")[0] ?? "Asesor"}
+              </div>
+              <div className="text-sm opacity-70 mb-4">Resumen del día</div>
 
-          <p className="text-[11px] font-semibold uppercase tracking-widest mb-1" style={{ color: "rgba(255,255,255,0.55)" }}>
-            Cobranza del día
-          </p>
-          <p className="text-[32px] font-bold text-white leading-tight tracking-tight">
-            {fmt(d.totalCollectedToday)}
-          </p>
-          <p className="text-[12px] mt-0.5" style={{ color: "rgba(255,255,255,0.55)" }}>
-            de {fmt(d.totalExpectedToday)} programados
-          </p>
+              {/* Cobro del día */}
+              <div className="bg-white/10 rounded-xl p-4 mb-3">
+                <div className="flex justify-between items-baseline mb-2">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase tracking-widest opacity-60">Cobrado hoy</div>
+                    <div className="text-2xl font-extrabold">{fmt(d?.totalCollectedToday ?? 0)}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] font-semibold uppercase tracking-widest opacity-60">Esperado</div>
+                    <div className="text-lg font-semibold opacity-80">{fmt(d?.totalExpectedToday ?? 0)}</div>
+                  </div>
+                </div>
+                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.2)" }}>
+                  <div
+                    className="h-full rounded-full transition-all duration-700"
+                    style={{ width: `${collectPct}%`, background: collectPct >= 80 ? "#10b981" : collectPct >= 50 ? "#f59e0b" : "#ef4444" }}
+                  />
+                </div>
+                <div className="text-xs opacity-60 mt-1.5 text-right">{collectPct.toFixed(0)}% de la meta diaria</div>
+              </div>
 
-          <div className="mt-4">
-            <div className="flex justify-between text-[11px] mb-1.5" style={{ color: "rgba(255,255,255,0.55)" }}>
-              <span>Avance</span>
-              <span className="font-semibold text-white">{pct.toFixed(0)}%</span>
-            </div>
-            <div className="w-full rounded-full h-1.5" style={{ background: "rgba(255,255,255,0.15)" }}>
+              {/* Comisión del mes — destacada */}
               <div
-                className="h-1.5 rounded-full transition-all"
-                style={{ width: `${pct}%`, background: pct >= 80 ? "#34d399" : pct >= 50 ? "#fbbf24" : "#f87171" }}
+                className="rounded-xl p-4 flex items-center gap-3"
+                style={{ background: "rgba(16,185,129,0.18)" }}
+              >
+                <div className="w-10 h-10 rounded-xl bg-green-400/30 flex items-center justify-center text-green-200 text-xl shrink-0">
+                  <RiCoinLine />
+                </div>
+                <div className="flex-1">
+                  <div className="text-[10px] font-semibold uppercase tracking-widest text-green-200">
+                    Tu comisión — {mesActual()}
+                  </div>
+                  <div className="text-2xl font-extrabold text-white">
+                    {fmt(d?.commissionThisMonth ?? 0)}
+                  </div>
+                  <div className="text-xs text-green-200 opacity-80">
+                    Acumulado total: {fmt(d?.commissionAllTime ?? 0)}
+                  </div>
+                </div>
+                <Link href="/dashboard/comisiones">
+                  <div className="text-green-200 opacity-70 hover:opacity-100 pressable">
+                    <RiArrowRightSLine className="text-xl" />
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── KPIs del mes ── */}
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3 px-4">
+            {[1,2,3,4].map(i => <SkeletonCard key={i} rows={2} />)}
+          </div>
+        ) : (
+          <div className="px-4">
+            <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
+              {mesActual()}
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                {
+                  icon: <RiGroupLine />, bg: "#dbeafe", color: "#1e40af",
+                  label: "Clientes asignados", value: d?.totalAssignedClients ?? 0, sub: "Total en cartera",
+                },
+                {
+                  icon: <RiAlarmWarningLine />, bg: "#fee2e2", color: "#dc2626",
+                  label: "En mora", value: d?.clientsOverdue ?? 0, sub: "Requieren visita",
+                },
+                {
+                  icon: <RiLineChartLine />, bg: "#dcfce7", color: "#16a34a",
+                  label: "Colocación del mes", value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado",
+                },
+                {
+                  icon: <RiCalendarLine />, bg: "#fef3c7", color: "#d97706",
+                  label: "Cobros pendientes", value: d?.clientsDueToday ?? 0, sub: "Clientes por cobrar",
+                },
+              ].map(s => (
+                <div key={s.label} className="card">
+                  <div
+                    className="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-2"
+                    style={{ background: s.bg, color: s.color }}
+                  >
+                    {s.icon}
+                  </div>
+                  <div className="text-lg font-extrabold text-gray-900">{s.value}</div>
+                  <div className="text-[11px] font-semibold text-gray-500 mt-0.5">{s.label}</div>
+                  <div className="text-[10px] text-gray-400">{s.sub}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── Meta del mes ── */}
+        {!isLoading && d?.targetMonth > 0 && (
+          <div className="mx-4 card">
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-widest text-gray-400">Meta de cobro mensual</div>
+                <div className="text-lg font-extrabold text-gray-900">
+                  {fmt(d.collectionThisMonth)} <span className="text-sm font-normal text-gray-400">/ {fmt(d.targetMonth)}</span>
+                </div>
+              </div>
+              <Badge variant={monthPct >= 80 ? "success" : monthPct >= 50 ? "warning" : "danger"} size="md">
+                {monthPct.toFixed(0)}%
+              </Badge>
+            </div>
+            <div className="w-full h-3 rounded-full overflow-hidden bg-gray-100">
+              <div
+                className="h-full rounded-full transition-all duration-700"
+                style={{
+                  width: `${monthPct}%`,
+                  background: monthPct >= 80 ? "#10b981" : monthPct >= 50 ? "#f59e0b" : "#ef4444",
+                }}
               />
             </div>
           </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {metrics.map((m) => {
-            const Icon = m.icon;
-            return (
-              <div key={m.label} className="bg-white rounded-2xl p-4 shadow-card">
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center mb-3" style={{ background: m.bg }}>
-                  <Icon className="w-5 h-5" style={{ color: m.color }} />
-                </div>
-                <p className={`font-bold leading-tight text-foreground ${m.small ? "text-[15px]" : "text-[26px]"}`}>
-                  {m.value}
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{m.label}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {d.alertCount > 0 && (
-          <Link href="/alerts">
-            <div className="bg-white rounded-2xl p-4 shadow-card flex items-center justify-between border-l-4 border-warning">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-amber-50 flex items-center justify-center">
-                  <RiAlarmWarningLine className="w-5 h-5 text-warning" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-semibold text-foreground">{d.alertCount} alerta{d.alertCount !== 1 ? "s" : ""} pendiente{d.alertCount !== 1 ? "s" : ""}</p>
-                  <p className="text-[11px] text-muted-foreground">Requieren atención</p>
-                </div>
-              </div>
-              <RiArrowRightLine className="w-4 h-4 text-muted-foreground" />
-            </div>
-          </Link>
         )}
 
-        <div className="grid grid-cols-2 gap-3">
-          <Link href="/payments/new">
-            <div className="bg-white rounded-2xl p-4 shadow-card flex items-center gap-3 active:bg-secondary transition-colors">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#eef3fb" }}>
-                <RiMoneyDollarCircleLine className="w-5 h-5 text-primary" />
-              </div>
-              <span className="text-[13px] font-semibold text-foreground">Registrar pago</span>
-            </div>
-          </Link>
-          <Link href="/clients/new">
-            <div className="bg-white rounded-2xl p-4 shadow-card flex items-center gap-3 active:bg-secondary transition-colors">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: "#f0fdf4" }}>
-                <RiAddCircleLine className="w-5 h-5 text-success" />
-              </div>
-              <span className="text-[13px] font-semibold text-foreground">Nuevo cliente</span>
-            </div>
-          </Link>
+        {/* ── Acciones rápidas ── */}
+        <div className="px-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
+            Acciones rápidas
+          </div>
+          <div className="flex flex-col gap-2">
+            {[
+              {
+                href: "/dashboard/clientes",
+                icon: <RiUserLine />, bg: "#dbeafe", color: "#1e40af",
+                title: "Mis clientes",
+                sub: `${d?.totalAssignedClients ?? 0} clientes en cartera`,
+              },
+              {
+                href: "/dashboard/cobrar",
+                icon: <RiMoneyDollarCircleLine />, bg: "#d1fae5", color: "#065f46",
+                title: "Registrar cobro",
+                sub: "Registrar pago de un cliente",
+              },
+              {
+                href: "/dashboard/alta-cliente",
+                icon: <RiAddLine />, bg: "#ede9fe", color: "#6d28d9",
+                title: "Alta de cliente",
+                sub: "Registrar nuevo cliente y crédito",
+              },
+              {
+                href: "/dashboard/comisiones",
+                icon: <RiCoinLine />, bg: "#dcfce7", color: "#16a34a",
+                title: "Mis comisiones",
+                sub: `Este mes: ${fmt(d?.commissionThisMonth ?? 0)}`,
+              },
+            ].map(item => (
+              <Link key={item.href} href={item.href} className="card flex items-center gap-4 py-4 pressable">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                  style={{ background: item.bg, color: item.color }}>
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-gray-900">{item.title}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{item.sub}</div>
+                </div>
+                <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
+              </Link>
+            ))}
+          </div>
         </div>
 
       </div>

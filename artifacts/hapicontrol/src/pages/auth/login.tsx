@@ -1,91 +1,204 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { RiShieldLine } from "react-icons/ri";
-import { InstallGuide } from "@/components/InstallGuide";
+import { RiUserLine, RiLockPasswordLine, RiShieldCheckLine, RiInformationLine } from "react-icons/ri";
 
-const DEMO_ROLES = [
-  { label: "Administrador", username: "admin", password: "admin123", color: "#1a3a6b", sub: "Acceso total al sistema" },
-  { label: "Asesor 1 — Carlos", username: "ejecutivo1", password: "exec123", color: "#0f5132", sub: "Ejecutivo de campo" },
-  { label: "Asesor 2 — Daniela", username: "ejecutivo2", password: "exec123", color: "#5b21b6", sub: "Ejecutivo de campo" },
+const DEMO = [
+  { key: "admin",      label: "Admin",        color: "#1a3a6b", sub: "Acceso total" },
+  { key: "ejecutivo1", label: "Asesor 1",     color: "#065f46", sub: "Carlos" },
+  { key: "ejecutivo2", label: "Asesor 2",     color: "#7c3aed", sub: "Daniela" },
 ];
 
 export default function Login() {
-  const { login, user } = useAuth();
-  const [loadingRole, setLoadingRole] = useState<string | null>(null);
-  const autoLoginDone = useRef(false);
+  const { login, demoLogin } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState<string | null>(null);
+  const [error, setError] = useState("");
+  const [showInstall, setShowInstall] = useState(false);
 
-  useEffect(() => {
-    if (!user && !autoLoginDone.current) {
-      autoLoginDone.current = true;
-      handleDemo(DEMO_ROLES[0]);
-    }
-  }, []);
-
-  const handleDemo = async (role: typeof DEMO_ROLES[0]) => {
-    setLoadingRole(role.label);
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
     try {
-      await login({ username: role.username, password: role.password });
+      await login(username, password);
     } catch {
-      setLoadingRole(null);
+      setError("Usuario o contraseña incorrectos.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDemo = async (key: string) => {
+    setDemoLoading(key);
+    try {
+      await demoLogin(key);
+    } finally {
+      setDemoLoading(null);
     }
   };
 
   return (
-    <div className="min-h-[100dvh] flex flex-col" style={{ background: "linear-gradient(160deg, #080f1e 0%, #0f1f3d 45%, #1a3a6b 100%)" }}>
-      <div className="flex-1 flex flex-col items-center justify-center px-5 pt-safe pb-8">
-        <div className="w-full max-w-sm">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden"
+      style={{
+        background: "linear-gradient(160deg, var(--navy-950) 0%, var(--navy-800) 55%, var(--navy-700) 100%)",
+      }}
+    >
+      {/* Background circles */}
+      <div className="absolute w-[480px] h-[480px] rounded-full top-[-140px] right-[-160px] opacity-10"
+        style={{ background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)" }} />
+      <div className="absolute w-[300px] h-[300px] rounded-full bottom-[-80px] left-[-80px] opacity-10"
+        style={{ background: "radial-gradient(circle, #1e4d8c 0%, transparent 70%)" }} />
 
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-[72px] h-[72px] rounded-[20px] mb-4" style={{ background: "rgba(255,255,255,0.1)", backdropFilter: "blur(16px)", border: "1px solid rgba(255,255,255,0.15)" }}>
-              <span className="text-white font-bold text-[22px] tracking-tight" style={{ fontFamily: "Georgia, serif", letterSpacing: "-0.5px" }}>HC</span>
-            </div>
-            <h1 className="text-[26px] font-bold text-white tracking-tight">HapiControl</h1>
-            <p className="text-[12px] mt-1" style={{ color: "rgba(255,255,255,0.4)" }}>Plataforma de gestión de cartera</p>
+      <div className="w-full max-w-sm px-6 z-10">
+        {/* Logo */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4"
+            style={{ background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.15)" }}>
+            <RiShieldCheckLine className="text-white text-3xl" />
           </div>
-
-          <div className="rounded-2xl overflow-hidden" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <div className="px-4 pt-4 pb-4">
-              <div className="flex items-center gap-2 mb-3">
-                <RiShieldLine className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
-                <p className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: "rgba(255,255,255,0.45)" }}>
-                  Seleccionar perfil
-                </p>
-              </div>
-              <div className="space-y-2">
-                {DEMO_ROLES.map(role => (
-                  <button
-                    key={role.label}
-                    onClick={() => handleDemo(role)}
-                    disabled={!!loadingRole}
-                    className="w-full h-[52px] rounded-xl flex items-center justify-between px-4 transition-all active:scale-[0.98] disabled:opacity-60"
-                    style={{ background: role.color, boxShadow: `0 2px 12px ${role.color}55` }}
-                  >
-                    <div className="text-left">
-                      <p className="text-[14px] font-semibold text-white leading-none">{role.label}</p>
-                      <p className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.6)" }}>{role.sub}</p>
-                    </div>
-                    {loadingRole === role.label ? (
-                      <svg className="w-5 h-5 animate-spin text-white/70" viewBox="0 0 24 24" fill="none">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-                      </svg>
-                    ) : (
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="opacity-50">
-                        <path d="M6 4L10 8L6 12" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <InstallGuide />
-
-          <p className="text-center text-[10px] mt-4" style={{ color: "rgba(255,255,255,0.2)" }}>
-            HapiControl · Grupo CAFJA / HapiCredit · Demo
+          <h1 className="text-3xl font-bold text-white tracking-tight">HapiCredit</h1>
+          <p className="text-sm mt-1" style={{ color: "rgba(255,255,255,0.5)" }}>
+            Sistema de gestión interna
           </p>
         </div>
+
+        {/* Form card */}
+        <div
+          className="rounded-2xl p-6 mb-5"
+          style={{
+            background: "rgba(255,255,255,0.07)",
+            border: "1px solid rgba(255,255,255,0.1)",
+            backdropFilter: "blur(16px)",
+            WebkitBackdropFilter: "blur(16px)",
+          }}
+        >
+          <form onSubmit={handleLogin} className="flex flex-col gap-4">
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.6)" }}>
+                USUARIO
+              </label>
+              <div className="relative">
+                <RiUserLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                <input
+                  type="text"
+                  placeholder="Nombre de usuario"
+                  value={username}
+                  onChange={e => setUsername(e.target.value)}
+                  className="input-base"
+                  style={{ paddingLeft: "40px", background: "rgba(255,255,255,0.9)" }}
+                  autoComplete="username"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-semibold mb-1.5" style={{ color: "rgba(255,255,255,0.6)" }}>
+                CONTRASEÑA
+              </label>
+              <div className="relative">
+                <RiLockPasswordLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                <input
+                  type="password"
+                  placeholder="Contraseña"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  className="input-base"
+                  style={{ paddingLeft: "40px", background: "rgba(255,255,255,0.9)" }}
+                  autoComplete="current-password"
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-xs text-red-300 bg-red-900/30 rounded-xl px-3 py-2 border border-red-800/30">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="h-12 rounded-xl font-semibold text-white text-[15px] flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-60 mt-1"
+              style={{ background: "var(--accent)" }}
+            >
+              {loading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
+              {loading ? "Ingresando..." : "Ingresar"}
+            </button>
+          </form>
+        </div>
+
+        {/* Demo access */}
+        <div className="text-center mb-3">
+          <span className="text-xs" style={{ color: "rgba(255,255,255,0.35)" }}>
+            — Acceso de demostración —
+          </span>
+        </div>
+        <div className="flex gap-3 mb-6">
+          {DEMO.map(d => (
+            <button
+              key={d.key}
+              onClick={() => handleDemo(d.key)}
+              disabled={!!demoLoading}
+              className="flex-1 py-3 px-2 rounded-xl text-center transition-all active:scale-95 disabled:opacity-60 pressable"
+              style={{
+                background: "rgba(255,255,255,0.08)",
+                border: "1px solid rgba(255,255,255,0.12)",
+              }}
+            >
+              {demoLoading === d.key ? (
+                <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto block" />
+              ) : (
+                <>
+                  <div className="text-white font-semibold text-xs">{d.label}</div>
+                  <div className="text-[10px] mt-0.5" style={{ color: "rgba(255,255,255,0.45)" }}>{d.sub}</div>
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Install guide */}
+        <button
+          onClick={() => setShowInstall(s => !s)}
+          className="flex items-center justify-center gap-2 w-full py-3 pressable"
+          style={{ color: "rgba(255,255,255,0.35)" }}
+        >
+          <RiInformationLine className="text-sm" />
+          <span className="text-xs">
+            {showInstall ? "Ocultar instrucciones" : "Cómo instalar la app"}
+          </span>
+        </button>
+
+        {showInstall && (
+          <div
+            className="mt-3 rounded-2xl p-5 text-sm"
+            style={{
+              background: "rgba(255,255,255,0.06)",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "rgba(255,255,255,0.7)",
+            }}
+          >
+            <p className="font-semibold text-white mb-3">Instalar en tu dispositivo</p>
+            <div className="flex flex-col gap-2.5">
+              <div>
+                <p className="font-medium text-white text-xs mb-1">iPhone / iPad</p>
+                <p className="text-xs leading-relaxed">
+                  Abre en Safari → toca el ícono de compartir → "Añadir a pantalla de inicio"
+                </p>
+              </div>
+              <div>
+                <p className="font-medium text-white text-xs mb-1">Android</p>
+                <p className="text-xs leading-relaxed">
+                  Abre en Chrome → menú (⋮) → "Instalar app" o "Añadir a pantalla de inicio"
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

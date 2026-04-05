@@ -1,107 +1,128 @@
 import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
-import { getListClientsQueryKey, useListClients } from "@workspace/api-client-react";
-import { Link } from "wouter";
-import { RiSearchLine, RiAddCircleLine, RiArrowRightLine } from "react-icons/ri";
+import { useListClients } from "@workspace/api-client-react";
+import { Avatar } from "@/components/hapi/Avatar";
+import { Badge, statusBadge } from "@/components/hapi/Badge";
+import { EmptyState } from "@/components/hapi/EmptyState";
+import { SkeletonList } from "@/components/hapi/Skeleton";
+import { useLocation } from "wouter";
+import { RiSearchLine, RiUserLine, RiArrowRightSLine, RiAddLine } from "react-icons/ri";
 
-const statusLabels: Record<string, string> = {
-  current: "Al corriente",
-  overdue: "En atraso",
-  at_risk: "En riesgo",
-  defaulted: "Vencido",
-  inactive: "Inactivo",
-};
+const fmt = (n: number) =>
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
-function Initials({ name }: { name: string }) {
-  const parts = name.trim().split(" ");
-  const text = parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : name.slice(0, 2);
-  return <span className="text-[13px] font-bold text-white uppercase">{text}</span>;
-}
-
-const avatarColors: Record<string, string> = {
-  current: "#1a3a6b",
-  overdue: "#b45309",
-  at_risk: "#d97706",
-  defaulted: "#dc2626",
-  inactive: "#94a3b8",
-};
+const STATUS_FILTER: { key: string; label: string }[] = [
+  { key: "todos",     label: "Todos"      },
+  { key: "current",   label: "Al corriente" },
+  { key: "overdue",   label: "En atraso"  },
+  { key: "defaulted", label: "Vencido"    },
+];
 
 export default function ExecutiveClients() {
   const { user } = useAuth();
+  const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
+  const [statusF, setStatusF] = useState("todos");
 
-  const { data: clients, isLoading } = useListClients(
-    { executiveId: user?.id },
-    { query: { enabled: !!user?.id, queryKey: getListClientsQueryKey({ executiveId: user?.id }) } }
-  );
+  const { data: clients = [], isLoading } = useListClients({
+    executiveId: user?.id,
+  }, { query: {} });
 
-  const filtered = clients?.filter(c =>
-    c.fullName.toLowerCase().includes(search.toLowerCase()) ||
-    c.phone?.includes(search)
-  ) ?? [];
+  const filtered = (clients as any[]).filter(c => {
+    const q = search.toLowerCase();
+    const matchSearch = c.fullName?.toLowerCase().includes(q) || c.phone?.includes(q);
+    const matchStatus = statusF === "todos" || c.status === statusF;
+    return matchSearch && matchStatus;
+  });
 
   return (
-    <Layout title="Mi Cartera">
-      <div className="space-y-4">
+    <Layout>
+      <div className="flex flex-col gap-4 pb-4">
 
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder="Buscar cliente o teléfono..."
-              className="w-full h-10 pl-9 pr-4 bg-white border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all shadow-card"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+        {/* Header */}
+        <div className="px-4 pt-4 md:pt-0 flex items-center gap-3">
+          <div className="flex-1">
+            <h1 className="text-xl font-bold text-gray-900">Mis Clientes</h1>
+            <p className="text-sm text-gray-500 mt-0.5">{(clients as any[]).length} clientes en cartera</p>
           </div>
-          <Link href="/clients/new">
-            <button className="h-10 w-10 flex items-center justify-center bg-primary rounded-xl shadow-card active:opacity-80 transition-opacity">
-              <RiAddCircleLine className="w-5 h-5 text-white" />
-            </button>
-          </Link>
+          <button
+            onClick={() => navigate("/dashboard/alta-cliente")}
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-sm font-semibold pressable"
+            style={{ background: "var(--accent)" }}
+          >
+            <RiAddLine className="text-base" /> Nuevo
+          </button>
         </div>
 
-        {isLoading ? (
-          <div className="space-y-3 animate-pulse">
-            {[0,1,2,3].map(i => <div key={i} className="h-[70px] bg-white rounded-2xl shadow-card" />)}
+        {/* Search */}
+        <div className="px-4 flex flex-col gap-2.5">
+          <div className="relative">
+            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <input
+              type="search"
+              placeholder="Buscar por nombre o teléfono..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="input-base search"
+            />
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="bg-white rounded-2xl shadow-card p-10 text-center">
-            <p className="text-[13px] text-muted-foreground">
-              {search ? "Sin resultados para tu búsqueda" : "No tienes clientes asignados"}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-2.5">
-            {filtered.map(client => (
-              <Link key={client.id} href={`/clients/${client.id}`}>
-                <div className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3 active:bg-secondary transition-colors">
-                  <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: avatarColors[client.status] ?? "#1a3a6b" }}>
-                    <Initials name={client.fullName} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-[14px] font-semibold text-foreground truncate">{client.fullName}</p>
-                    <p className="text-[11px] text-muted-foreground mt-0.5">{client.phone}</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className={`text-[10px] font-semibold px-2 py-1 rounded-full status-${client.status}`}>
-                      {statusLabels[client.status] ?? client.status}
-                    </span>
-                    <RiArrowRightLine className="w-3.5 h-3.5 text-muted-foreground/50" />
-                  </div>
-                </div>
-              </Link>
+          <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
+            {STATUS_FILTER.map(sf => (
+              <button
+                key={sf.key}
+                onClick={() => setStatusF(sf.key)}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all pressable ${statusF === sf.key ? "text-white" : "bg-gray-100 text-gray-600"}`}
+                style={statusF === sf.key ? { background: "var(--accent)" } : {}}
+              >
+                {sf.label}
+              </button>
             ))}
           </div>
-        )}
+        </div>
 
-        {!isLoading && clients && clients.length > 0 && (
-          <p className="text-center text-[11px] text-muted-foreground">
-            {filtered.length} de {clients.length} clientes
-          </p>
-        )}
+        {/* List */}
+        <div className="px-4">
+          {isLoading ? (
+            <SkeletonList count={5} />
+          ) : filtered.length === 0 ? (
+            <EmptyState
+              icon={<RiUserLine />}
+              title="Sin clientes"
+              description="No se encontraron clientes con ese filtro."
+            />
+          ) : (
+            <div className="flex flex-col gap-3">
+              {filtered.map((client: any) => {
+                const sb = statusBadge(client.status);
+                return (
+                  <div key={client.id} className="card pressable" onClick={() => navigate(`/dashboard/expediente/${client.id}`)}>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={client.fullName} size="md" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-gray-900 truncate">{client.fullName}</span>
+                          <Badge variant={sb.variant} size="sm">{sb.label}</Badge>
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          {client.phone && (
+                            <span className="text-xs text-gray-500">{client.phone}</span>
+                          )}
+                          {client.loanBalance && (
+                            <span className="text-xs font-semibold" style={{ color: "var(--accent)" }}>
+                              {fmt(parseFloat(client.loanBalance))}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
     </Layout>
   );
