@@ -222,6 +222,191 @@ router.get("/dashboard/portfolio-aging", requireAuth, requireRole("admin"), asyn
   })));
 });
 
+// ─── NEW: Portfolio Detail ────────────────────────────────────────────────────
+router.get("/dashboard/admin/portfolio-detail", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
+  const clients = await db.select().from(clientsTable);
+  const credits = await db.select().from(creditsTable);
+  const executives = await db.select().from(usersTable).where(eq(usersTable.role, "executive"));
+  const payments = await db.select().from(paymentsTable);
+
+  const execMap = new Map(executives.map(e => [e.id, e.fullName]));
+
+  const todayDate = new Date();
+  todayDate.setHours(0, 0, 0, 0);
+
+  const rows = clients.map(client => {
+    const activeCredit = credits.find(c => c.clientId === client.id && c.status === "active");
+    const allClientPayments = payments.filter(p => p.clientId === client.id);
+    const totalPaid = allClientPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+    const latePayments = allClientPayments.filter(p => p.paymentStatus === "late" || p.paymentStatus === "missed").length;
+
+    let nextPaymentDate: string | null = null;
+    let daysOverdue = 0;
+    let interestRate = 0;
+    let totalInterest = 0;
+    let weeklyInterest = 0;
+    let remainingBalance = 0;
+    let weeklyPayment = 0;
+    let creditAmount = 0;
+    let termWeeks = 0;
+    let currentPaymentNum = 0;
+    let openingFee = 0;
+    let disbursementDate: string | null = null;
+    let expectedTotal = 0;
+
+    if (activeCredit) {
+      remainingBalance = parseFloat(activeCredit.remainingBalance);
+      weeklyPayment = parseFloat(activeCredit.weeklyPayment);
+      creditAmount = parseFloat(activeCredit.amount);
+      termWeeks = activeCredit.termWeeks;
+      currentPaymentNum = activeCredit.currentPaymentNumber;
+      openingFee = activeCredit.openingFee ? parseFloat(activeCredit.openingFee) : 0;
+      expectedTotal = parseFloat(activeCredit.totalToRepay);
+      disbursementDate = activeCredit.disbursementDate;
+
+      // Next payment due = disbursement + (currentPaymentNumber + 1) * 7 days
+      const disbDate = new Date(activeCredit.disbursementDate);
+      disbDate.setDate(disbDate.getDate() + (currentPaymentNum + 1) * 7);
+      nextPaymentDate = disbDate.toISOString().split("T")[0];
+
+      // Days overdue
+      if (disbDate < todayDate) {
+        const msPerDay = 24 * 60 * 60 * 1000;
+        daysOverdue = Math.floor((todayDate.getTime() - disbDate.getTime()) / msPerDay);
+      }
+
+      // Interest calculations
+      totalInterest = expectedTotal - creditAmount - openingFee;
+      interestRate = creditAmount > 0 ? Math.round((totalInterest / creditAmount) * 1000) / 10 : 0;
+      weeklyInterest = termWeeks > 0 ? totalInterest / termWeeks : 0;
+    }
+
+    // Late fee accumulated
+    const totalLateFees = allClientPayments.reduce((s, p) => s + (p.lateFee ? parseFloat(p.lateFee) : 0), 0);
+
+    return {
+      clientId: client.id,
+      clientName: client.fullName,
+      clientStatus: client.status,
+      clientPhone: client.phone,
+      executiveName: execMap.get(client.executiveId ?? 0) ?? "Sin asignar",
+      executiveId: client.executiveId,
+      creditAmount,
+      remainingBalance,
+      weeklyPayment,
+      termWeeks,
+      currentPaymentNum,
+      paymentsLeft: Math.max(0, termWeeks - currentPaymentNum),
+      openingFee,
+      expectedTotal,
+      totalInterest: Math.round(totalInterest * 100) / 100,
+      weeklyInterest: Math.round(weeklyInterest * 100) / 100,
+      interestRate,
+      totalPaid: Math.round(totalPaid * 100) / 100,
+      totalLateFees,
+      latePayments,
+      nextPaymentDate,
+      daysOverdue,
+      disbursementDate,
+      hasActiveCredit: !!activeCredit,
+    };
+  });
+
+  res.json(rows);
+});
+
+// ─── NEW: Financial Summary ───────────────────────────────────────────────────
+router.get("/dashboard/admin/financial-summary", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
+  const allCredits = await db.select().from(creditsTable);
+  const allPayments = await db.select().from(paymentsTable);
+  const executives = await db.select().from(usersTable).where(eq(usersTable.role, "executive"));
+
+  const activeCredits = allCredits.filter(c => c.status === "active");
+  const completedCredits = allCredits.filter(c => c.status === "completed");
+  const defaultedCredits = allCredits.filter(c => c.status === "defaulted");
+
+  // Interest calculations
+  const calcInterest = (c: typeof allCredits[0]) =>
+    parseFloat(c.totalToRepay) - parseFloat(c.amount) - (c.openingFee ? parseFloat(c.openingFee) : 0);
+
+  const totalInterestExpected = activeCredits.reduce((s, c) => s + Math.max(0, calcInterest(c)), 0);
+  const totalInterestFromCompleted = completedCredits.reduce((s, c) => s + Math.max(0, calcInterest(c)), 0);
+  const totalOpeningFees = allCredits.reduce((s, c) => s + (c.openingFee ? parseFloat(c.openingFee) : 0), 0);
+  const totalLateFees = allPayments.reduce((s, p) => s + (p.lateFee ? parseFloat(p.lateFee) : 0), 0);
+
+  const totalPrincipalPlaced = allCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+  const totalRecovered = allPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+  const totalLostToDefault = defaultedCredits.reduce((s, c) => s + parseFloat(c.remainingBalance), 0);
+
+  // Average interest rate
+  const ratesArr = activeCredits.map(c => {
+    const interest = calcInterest(c);
+    const principal = parseFloat(c.amount);
+    return principal > 0 ? (interest / principal) * 100 : 0;
+  });
+  const avgInterestRate = ratesArr.length > 0
+    ? Math.round((ratesArr.reduce((s, r) => s + r, 0) / ratesArr.length) * 10) / 10
+    : 0;
+
+  // Weekly & monthly projections
+  const weeklyInterestIncome = activeCredits.reduce((s, c) => {
+    const interest = Math.max(0, calcInterest(c));
+    return s + (c.termWeeks > 0 ? interest / c.termWeeks : 0);
+  }, 0);
+  const monthlyInterestIncome = weeklyInterestIncome * 4.33;
+  const annualProjection = weeklyInterestIncome * 52;
+
+  // Per executive breakdown
+  const execBreakdown = await Promise.all(executives.map(async exec => {
+    const execCredits = allCredits.filter(c => c.executiveId === exec.id);
+    const execPayments = allPayments.filter(p => p.executiveId === exec.id);
+    const execActive = execCredits.filter(c => c.status === "active");
+    const execClients = await db.select().from(clientsTable).where(eq(clientsTable.executiveId, exec.id));
+
+    const portfolio = execActive.reduce((s, c) => s + parseFloat(c.remainingBalance), 0);
+    const placed = execCredits.reduce((s, c) => s + parseFloat(c.amount), 0);
+    const collected = execPayments.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+    const interestGenerated = execCredits.reduce((s, c) => s + Math.max(0, calcInterest(c)), 0);
+    const weeklyIncome = execActive.reduce((s, c) => {
+      const int = Math.max(0, calcInterest(c));
+      return s + (c.termWeeks > 0 ? int / c.termWeeks : 0);
+    }, 0);
+    const overdueClients = execClients.filter(c => c.status === "overdue" || c.status === "defaulted").length;
+    const collectionRate = placed > 0 ? Math.round((collected / placed) * 100 * 10) / 10 : 0;
+
+    return {
+      executiveId: exec.id,
+      executiveName: exec.fullName,
+      totalClients: execClients.length,
+      overdueClients,
+      portfolio: Math.round(portfolio * 100) / 100,
+      placed: Math.round(placed * 100) / 100,
+      collected: Math.round(collected * 100) / 100,
+      interestGenerated: Math.round(interestGenerated * 100) / 100,
+      weeklyIncome: Math.round(weeklyIncome * 100) / 100,
+      collectionRate,
+    };
+  }));
+
+  res.json({
+    totalPrincipalPlaced: Math.round(totalPrincipalPlaced * 100) / 100,
+    totalRecovered: Math.round(totalRecovered * 100) / 100,
+    totalLostToDefault: Math.round(totalLostToDefault * 100) / 100,
+    totalInterestExpected: Math.round(totalInterestExpected * 100) / 100,
+    totalInterestFromCompleted: Math.round(totalInterestFromCompleted * 100) / 100,
+    totalOpeningFees: Math.round(totalOpeningFees * 100) / 100,
+    totalLateFees: Math.round(totalLateFees * 100) / 100,
+    avgInterestRate,
+    weeklyInterestIncome: Math.round(weeklyInterestIncome * 100) / 100,
+    monthlyInterestIncome: Math.round(monthlyInterestIncome * 100) / 100,
+    annualProjection: Math.round(annualProjection * 100) / 100,
+    activeCredits: activeCredits.length,
+    completedCredits: completedCredits.length,
+    defaultedCredits: defaultedCredits.length,
+    execBreakdown,
+  });
+});
+
 router.get("/dashboard/collection-trend", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
   const allCredits = await db.select().from(creditsTable).where(eq(creditsTable.status, "active"));
   const avgWeekly = allCredits.reduce((s, c) => s + parseFloat(c.weeklyPayment), 0);

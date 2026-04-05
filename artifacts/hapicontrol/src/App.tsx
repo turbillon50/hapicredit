@@ -1,4 +1,4 @@
-import { Switch, Route, Router as WouterRouter } from "wouter";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,7 +7,6 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 
 import NotFound from "@/pages/not-found";
 import Login from "@/pages/auth/login";
-import PublicLanding from "@/pages/index";
 
 import ClientPortal from "@/pages/portal/index";
 
@@ -21,6 +20,9 @@ import ExecutiveAlerts from "@/pages/executive/alerts";
 
 import AdminDashboard from "@/pages/admin/dashboard";
 import AdminClients from "@/pages/admin/clients";
+import AdminPortfolioDetail from "@/pages/admin/portfolio-detail";
+import AdminMorosos from "@/pages/admin/morosos";
+import AdminFinanciero from "@/pages/admin/financiero";
 import AdminExecutives from "@/pages/admin/executives";
 import AdminCaja from "@/pages/admin/caja";
 import AdminReports from "@/pages/admin/reports";
@@ -37,7 +39,9 @@ const queryClient = new QueryClient({
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={PublicLanding} />
+      <Route path="/">
+        <Redirect to="/login" />
+      </Route>
       <Route path="/login" component={Login} />
 
       {/* Client Portal */}
@@ -85,14 +89,24 @@ function Router() {
       </Route>
 
       {/* Admin Routes */}
-      <Route path="/admin">
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <AdminDashboard />
-        </ProtectedRoute>
-      </Route>
       <Route path="/admin/clients">
         <ProtectedRoute allowedRoles={["admin"]}>
           <AdminClients />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/portfolio-detail">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminPortfolioDetail />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/morosos">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminMorosos />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin/financiero">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminFinanciero />
         </ProtectedRoute>
       </Route>
       <Route path="/admin/executives">
@@ -108,6 +122,11 @@ function Router() {
       <Route path="/admin/reports">
         <ProtectedRoute allowedRoles={["admin"]}>
           <AdminReports />
+        </ProtectedRoute>
+      </Route>
+      <Route path="/admin">
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <AdminDashboard />
         </ProtectedRoute>
       </Route>
 

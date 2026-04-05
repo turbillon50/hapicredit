@@ -3,13 +3,13 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   RiHome4Line, RiHome4Fill,
   RiTeamLine, RiTeamFill,
-  RiMoneyDollarCircleLine, RiMoneyDollarCircleFill,
   RiAlarmWarningLine, RiAlarmWarningFill,
   RiCalendarCheckLine, RiCalendarCheckFill,
   RiPieChart2Line, RiPieChart2Fill,
   RiUserSettingsLine, RiUserSettingsFill,
-  RiSafeLine, RiFillFill,
-  RiBarChart2Line, RiBarChart2Fill,
+  RiMoneyDollarCircleLine, RiMoneyDollarCircleFill,
+  RiLineChartLine, RiLineChartFill,
+  RiFileWarningLine, RiFileWarningFill,
 } from "react-icons/ri";
 
 type NavLink = {
@@ -29,10 +29,10 @@ const executiveLinks: NavLink[] = [
 
 const adminLinks: NavLink[] = [
   { href: "/admin", label: "Resumen", icon: RiPieChart2Line, iconActive: RiPieChart2Fill },
-  { href: "/admin/clients", label: "Cartera", icon: RiTeamLine, iconActive: RiTeamFill },
+  { href: "/admin/portfolio-detail", label: "Cartera", icon: RiTeamLine, iconActive: RiTeamFill },
+  { href: "/admin/morosos", label: "Morosos", icon: RiFileWarningLine, iconActive: RiFileWarningFill },
   { href: "/admin/executives", label: "Asesores", icon: RiUserSettingsLine, iconActive: RiUserSettingsFill },
-  { href: "/admin/caja", label: "Caja", icon: RiSafeLine, iconActive: RiSafeLine },
-  { href: "/admin/reports", label: "Reportes", icon: RiBarChart2Line, iconActive: RiBarChart2Fill },
+  { href: "/admin/financiero", label: "Financiero", icon: RiLineChartLine, iconActive: RiLineChartFill },
 ];
 
 export function BottomNav() {
@@ -49,8 +49,11 @@ export function BottomNav() {
   if (links.length === 0) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border pb-safe" style={{ boxShadow: "0 -1px 0 rgba(0,0,0,0.06), 0 -4px 12px rgba(15,25,50,0.06)" }}>
-      <nav className="flex justify-around items-center h-[60px] max-w-lg mx-auto px-1">
+    <div
+      className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border pb-safe"
+      style={{ boxShadow: "0 -1px 0 rgba(0,0,0,0.06), 0 -4px 16px rgba(15,25,50,0.07)" }}
+    >
+      <nav className="flex justify-around items-center h-[58px] max-w-lg mx-auto px-1">
         {links.map((link) => {
           const isActive =
             location === link.href ||
@@ -65,11 +68,13 @@ export function BottomNav() {
                 isActive ? "text-primary" : "text-muted-foreground"
               }`}
             >
-              <Icon className="w-[22px] h-[22px]" />
-              <span className={`text-[9.5px] font-medium leading-none ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+              {isActive && (
+                <span className="absolute top-0 left-1/2 -translate-x-1/2 w-6 h-[2px] rounded-b-full bg-primary" />
+              )}
+              <Icon className="w-[21px] h-[21px]" />
+              <span className={`text-[9px] font-semibold leading-none tracking-tight ${isActive ? "text-primary" : "text-muted-foreground"}`}>
                 {link.label}
               </span>
-              {isActive && <span className="nav-active-dot" />}
             </Link>
           );
         })}
