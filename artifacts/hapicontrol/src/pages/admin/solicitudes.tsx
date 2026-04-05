@@ -241,7 +241,7 @@ export default function AdminSolicitudes() {
                 <div className="bg-gray-50 rounded-xl p-3 text-center">
                   <div className="text-xs text-gray-500 mb-1">Plazo · Semanal</div>
                   <div className="text-base font-bold text-gray-800">
-                    {credit.termWeeks} sem · {fmt((credit.requestedAmount * 1.10) / credit.termWeeks)}
+                    {credit.termWeeks} sem · {fmt(credit.weeklyPayment ?? ((credit.requestedAmount / 1000) * (credit.termWeeks === 8 ? 175 : 120)))}
                   </div>
                 </div>
               </div>
@@ -348,7 +348,10 @@ export default function AdminSolicitudes() {
               <div className="bg-gray-50 rounded-xl p-3 flex flex-col gap-1.5">
                 {[
                   ["Plazo", `${credit.termWeeks} semanas`],
-                  ["Total a pagar", fmt(credit.amount * 1.10)],
+                  ["Pago semanal", fmt(credit.weeklyPayment)],
+                  ["Total a pagar", fmt(credit.weeklyPayment * credit.termWeeks)],
+                  ["Comisión (10%)", fmt(credit.amount * 0.10)],
+                  ["Desembolso", fmt(credit.amount - credit.amount * 0.10)],
                   ["Propósito", credit.notes ?? "—"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">

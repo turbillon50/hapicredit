@@ -57,7 +57,7 @@ export default function MiCredito() {
     enabled: !!activeCredit?.id,
   });
 
-  const paid  = (payments as any[]).filter(p => p.paymentStatus === "completed" || p.status === "completed").length;
+  const paid  = (payments as any[]).filter(p => p.paymentStatus === "on_time" || p.paymentStatus === "completed" || p.paymentStatus === "late" || p.paymentStatus === "partial").length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct   = total > 0 ? (paid / total) * 100 : 0;
   const nextDays = daysDiff(activeCredit?.nextPaymentDate);
@@ -195,20 +195,25 @@ export default function MiCredito() {
             {payments.length > 0 && (
               <div className="mx-4 flex flex-col gap-3">
                 <div className="text-sm font-bold text-gray-700">Últimos pagos</div>
-                {(payments as any[]).slice(-5).reverse().map((p: any) => (
-                  <div key={p.id} className="flex items-center gap-3 card">
-                    <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 ${(p.paymentStatus ?? p.status) === "completed" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}>
-                      {(p.paymentStatus ?? p.status) === "completed" ? <RiCheckLine /> : <RiTimeLine />}
+                {(payments as any[]).slice(-5).reverse().map((p: any) => {
+                  const st = p.paymentStatus ?? p.status;
+                  const isPaid = st === "on_time" || st === "completed" || st === "late" || st === "partial";
+                  const isPending = st === "pending_validation";
+                  return (
+                    <div key={p.id} className="flex items-center gap-3 card">
+                      <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 ${isPaid ? "bg-green-100 text-green-600" : isPending ? "bg-yellow-100 text-yellow-600" : "bg-gray-100 text-gray-400"}`}>
+                        {isPaid ? <RiCheckLine /> : <RiTimeLine />}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-gray-900">{fmt(parseFloat(p.amountPaid ?? p.amount ?? 0))}</div>
+                        <div className="text-xs text-gray-400">{p.paymentDate ? new Date(p.paymentDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" }) : "\u2014"}</div>
+                      </div>
+                      <Badge variant={isPaid ? "success" : isPending ? "warning" : "info"} size="sm">
+                        {isPaid ? "Pagado" : isPending ? "En validación" : "Pendiente"}
+                      </Badge>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-semibold text-gray-900">{fmt(parseFloat(p.amountPaid ?? p.amount ?? 0))}</div>
-                      <div className="text-xs text-gray-400">{p.paymentDate ? new Date(p.paymentDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" }) : "\u2014"}</div>
-                    </div>
-                    <Badge variant={(p.paymentStatus ?? p.status) === "completed" ? "success" : "warning"} size="sm">
-                      {(p.paymentStatus ?? p.status) === "completed" ? "Pagado" : "Pendiente"}
-                    </Badge>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </>

@@ -6,13 +6,15 @@ import Solicitar        from "@/pages/solicitar";
 import MiCredito        from "@/pages/mi-credito";
 import Perfil           from "@/pages/perfil";
 
-import AdminDashboard   from "@/pages/admin/dashboard";
-import AdminCartera     from "@/pages/admin/cartera";
-import AdminMorosos     from "@/pages/admin/morosos";
-import AdminAsesores    from "@/pages/admin/executives";
-import AdminFinanciero  from "@/pages/admin/financiero";
-import AdminSolicitudes from "@/pages/admin/solicitudes";
-import AdminExpediente  from "@/pages/admin/expediente";
+import AdminDashboard    from "@/pages/admin/dashboard";
+import AdminCartera      from "@/pages/admin/cartera";
+import AdminMorosos      from "@/pages/admin/morosos";
+import AdminAsesores     from "@/pages/admin/executives";
+import AdminFinanciero   from "@/pages/admin/financiero";
+import AdminSolicitudes  from "@/pages/admin/solicitudes";
+import AdminExpediente   from "@/pages/admin/expediente";
+import AdminValidarPagos from "@/pages/admin/validar-pagos";
+import AdminCaja         from "@/pages/admin/caja";
 
 import NotFound         from "@/pages/not-found";
 
@@ -41,8 +43,10 @@ function Router() {
       <Route path="/admin/cartera"        component={AdminCartera} />
       <Route path="/admin/morosos"        component={AdminMorosos} />
       <Route path="/admin/asesores"       component={AdminAsesores} />
-      <Route path="/admin/financiero"     component={AdminFinanciero} />
-      <Route path="/admin/expediente/:id" component={AdminExpediente} />
+      <Route path="/admin/financiero"       component={AdminFinanciero} />
+      <Route path="/admin/validar-pagos"   component={AdminValidarPagos} />
+      <Route path="/admin/caja"            component={AdminCaja} />
+      <Route path="/admin/expediente/:id"  component={AdminExpediente} />
 
       {/* Legacy redirects */}
       <Route path="/login"><Redirect to="/" /></Route>

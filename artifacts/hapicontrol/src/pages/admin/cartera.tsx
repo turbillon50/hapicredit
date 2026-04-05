@@ -6,10 +6,12 @@ import { Badge, statusBadge } from "@/components/hapi/Badge";
 import { Avatar } from "@/components/hapi/Avatar";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
-import { RiSearchLine, RiFileListLine, RiCalendarLine } from "react-icons/ri";
+import { RiSearchLine, RiFileListLine, RiCalendarLine, RiAlarmWarningLine } from "react-icons/ri";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
+
+const DAILY_FINE = 200;
 
 const fmt = (n: number | null | undefined) =>
   n == null ? "—" : new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -23,59 +25,82 @@ const fmtDate = (d: string | null) => {
 type CarteraItem = {
   clientId: number;
   clientName: string;
+  clientStatus: string;
   executiveName: string;
-  creditId: number;
-  originalAmount: number;
+  creditAmount: number;
   remainingBalance: number;
+  weeklyPayment: number;
+  termWeeks: number;
+  currentPaymentNum: number;
+  openingFee: number;
   nextPaymentDate: string | null;
   daysOverdue: number;
-  overdueAmount: number;
-  status: string;
+  disbursementDate: string | null;
+  hasActiveCredit: boolean;
+  totalLateFees: number;
 };
 
 function fetchPortfolio(): Promise<CarteraItem[]> {
   return fetch(`${API}/dashboard/admin/portfolio-detail`, { headers: auth() }).then(r => r.json());
 }
 
-function overdueVariant(days: number) {
-  if (days > 30) return "danger";
-  if (days > 7)  return "orange";
-  if (days > 0)  return "warning";
-  return "success";
+function semaphoreColor(status: string, daysOverdue: number) {
+  if (status === "defaulted" || daysOverdue >= 31) return { bg: "#1a1a1a", text: "#fff", label: "Cartera vencida", dot: "#000" };
+  if (status === "overdue" || daysOverdue >= 16)   return { bg: "#fee2e2", text: "#991b1b", label: "Atraso crítico", dot: "#ef4444" };
+  if (status === "at_risk" || daysOverdue >= 1)    return { bg: "#fef3c7", text: "#92400e", label: "Atraso leve", dot: "#f59e0b" };
+  return                                           { bg: "#d1fae5", text: "#065f46", label: "Al corriente", dot: "#22c55e" };
 }
+
+type StatusFilter = "todos" | "current" | "at_risk" | "overdue" | "defaulted";
 
 export default function AdminCartera() {
   const [, navigate] = useLocation();
   const [search, setSearch] = useState("");
   const [execFilter, setExecFilter] = useState("todos");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("todos");
 
   const { data = [], isLoading } = useQuery({
     queryKey: ["portfolio-detail"],
     queryFn: fetchPortfolio,
   });
 
-  const executives = [...new Set(data.map(d => d.executiveName))];
+  const activeData = (data as CarteraItem[]).filter(d => d.hasActiveCredit);
+  const executives = [...new Set(activeData.map(d => d.executiveName))];
 
-  const filtered = data.filter(item => {
+  const filtered = activeData.filter(item => {
     const q = search.toLowerCase();
     const matchName = item.clientName.toLowerCase().includes(q);
     const matchExec = execFilter === "todos" || item.executiveName === execFilter;
-    return matchName && matchExec;
+    const matchStatus = statusFilter === "todos" ||
+      (statusFilter === "current" && item.daysOverdue === 0 && item.clientStatus === "current") ||
+      (statusFilter === "at_risk" && (item.clientStatus === "at_risk" || (item.daysOverdue >= 1 && item.daysOverdue < 16))) ||
+      (statusFilter === "overdue" && (item.clientStatus === "overdue" || (item.daysOverdue >= 16 && item.daysOverdue < 31))) ||
+      (statusFilter === "defaulted" && (item.clientStatus === "defaulted" || item.daysOverdue >= 31));
+    return matchName && matchExec && matchStatus;
   });
+
+  const totalPortfolio = activeData.reduce((s, d) => s + d.remainingBalance, 0);
+  const totalFines = activeData.filter(d => d.daysOverdue > 0).reduce((s, d) => s + d.daysOverdue * DAILY_FINE, 0);
+
+  const STATUS_TABS: { key: StatusFilter; label: string; color: string }[] = [
+    { key: "todos",     label: "Todos",      color: "var(--accent)" },
+    { key: "current",   label: "Al corriente", color: "#22c55e" },
+    { key: "at_risk",   label: "Riesgo",     color: "#f59e0b" },
+    { key: "overdue",   label: "Mora",        color: "#ef4444" },
+    { key: "defaulted", label: "Vencida",     color: "#000" },
+  ];
 
   return (
     <Layout>
       <div className="flex flex-col gap-4 pb-4">
 
-        {/* Header */}
         <div className="px-4 pt-4 md:pt-0">
           <h1 className="text-xl font-bold text-gray-900">Cartera Detallada</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {data.length} crédito{data.length !== 1 ? "s" : ""} activo{data.length !== 1 ? "s" : ""}
+            {activeData.length} crédito{activeData.length !== 1 ? "s" : ""} activo{activeData.length !== 1 ? "s" : ""} · Cartera: {fmt(totalPortfolio)}
           </p>
         </div>
 
-        {/* Filters */}
         <div className="px-4 flex flex-col gap-2.5">
           <div className="relative">
             <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
@@ -87,10 +112,27 @@ export default function AdminCartera() {
               className="input-base search"
             />
           </div>
+
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+            {STATUS_TABS.map(t => {
+              const active = statusFilter === t.key;
+              return (
+                <button
+                  key={t.key}
+                  onClick={() => setStatusFilter(t.key)}
+                  className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all pressable ${active ? "text-white" : "bg-gray-100 text-gray-600"}`}
+                  style={active ? { background: t.color } : {}}
+                >
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-0.5">
             <button
               onClick={() => setExecFilter("todos")}
-              className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all pressable ${execFilter === "todos" ? "text-white" : "bg-gray-100 text-gray-600"}`}
+              className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all pressable ${execFilter === "todos" ? "text-white" : "bg-gray-50 text-gray-500 border border-gray-200"}`}
               style={execFilter === "todos" ? { background: "var(--accent)" } : {}}
             >
               Todos
@@ -99,7 +141,7 @@ export default function AdminCartera() {
               <button
                 key={ex}
                 onClick={() => setExecFilter(ex)}
-                className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold transition-all pressable ${execFilter === ex ? "text-white" : "bg-gray-100 text-gray-600"}`}
+                className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-medium transition-all pressable ${execFilter === ex ? "text-white" : "bg-gray-50 text-gray-500 border border-gray-200"}`}
                 style={execFilter === ex ? { background: "var(--accent)" } : {}}
               >
                 {ex.split(" ")[0]}
@@ -108,7 +150,6 @@ export default function AdminCartera() {
           </div>
         </div>
 
-        {/* List */}
         <div className="px-4">
           {isLoading ? (
             <SkeletonList count={5} />
@@ -121,43 +162,71 @@ export default function AdminCartera() {
           ) : (
             <div className="flex flex-col gap-3">
               {filtered.map(item => {
-                const sb = statusBadge(item.status);
-                const dvv = overdueVariant(item.daysOverdue);
+                const sem = semaphoreColor(item.clientStatus, item.daysOverdue);
+                const fines = item.daysOverdue > 0 ? item.daysOverdue * DAILY_FINE : 0;
+                const progress = item.termWeeks > 0 ? (item.currentPaymentNum / item.termWeeks) * 100 : 0;
                 const isPastDue = item.nextPaymentDate && new Date(item.nextPaymentDate) < new Date();
                 return (
-                  <div key={item.creditId} className="card pressable" onClick={() => navigate(`/admin/expediente/${item.clientId}`)}>
-                    {/* Top row */}
+                  <div key={item.clientId} className="card pressable" onClick={() => navigate(`/admin/expediente/${item.clientId}`)}>
                     <div className="flex items-center gap-3 mb-3">
                       <Avatar name={item.clientName} size="md" />
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-gray-900 truncate">{item.clientName}</div>
                         <div className="text-xs text-gray-500">{item.executiveName}</div>
                       </div>
-                      <Badge variant={sb.variant} size="sm">{sb.label}</Badge>
+                      <span
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold"
+                        style={{ background: sem.bg, color: sem.text }}
+                      >
+                        {sem.label}
+                      </span>
                     </div>
 
-                    {/* Amounts */}
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div>
-                        <div className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">Monto original</div>
-                        <div className="text-sm font-bold text-gray-800">{fmt(item.originalAmount)}</div>
+                    <div className="grid grid-cols-3 gap-2 mb-3 text-center">
+                      <div className="bg-gray-50 rounded-xl py-2">
+                        <div className="text-[10px] font-semibold text-gray-400 uppercase">Monto</div>
+                        <div className="text-sm font-bold text-gray-800">{fmt(item.creditAmount)}</div>
                       </div>
-                      <div>
-                        <div className="text-[10px] font-semibold text-gray-400 uppercase mb-0.5">Saldo pendiente</div>
+                      <div className="bg-gray-50 rounded-xl py-2">
+                        <div className="text-[10px] font-semibold text-gray-400 uppercase">Saldo</div>
                         <div className="text-sm font-bold text-gray-800">{fmt(item.remainingBalance)}</div>
                       </div>
+                      <div className="bg-gray-50 rounded-xl py-2">
+                        <div className="text-[10px] font-semibold text-gray-400 uppercase">Semanal</div>
+                        <div className="text-sm font-bold text-gray-800">{fmt(item.weeklyPayment)}</div>
+                      </div>
                     </div>
 
-                    {/* Dates row */}
-                    <div className="flex items-center justify-between pt-2.5 border-t border-gray-100">
+                    <div className="mb-2.5">
+                      <div className="flex justify-between text-[10px] text-gray-400 mb-1">
+                        <span>Progreso: {item.currentPaymentNum}/{item.termWeeks} pagos</span>
+                        <span>{Math.round(progress)}%</span>
+                      </div>
+                      <div className="w-full h-1.5 rounded-full bg-gray-100">
+                        <div
+                          className="h-full rounded-full transition-all"
+                          style={{ width: `${progress}%`, background: progress >= 80 ? "#22c55e" : "var(--accent)" }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                       <div className="flex items-center gap-1.5 text-xs" style={{ color: isPastDue ? "var(--danger)" : "var(--text-secondary)" }}>
                         <RiCalendarLine className="text-sm" />
-                        <span>Próx. pago: <strong>{fmtDate(item.nextPaymentDate)}</strong></span>
-                        {isPastDue && <span className="text-[10px] font-bold text-red-500">VENCIDO</span>}
+                        <span>Próx: <strong>{fmtDate(item.nextPaymentDate)}</strong></span>
                       </div>
-                      {item.daysOverdue > 0 && (
-                        <Badge variant={dvv as any} size="sm">{item.daysOverdue}d mora</Badge>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {fines > 0 && (
+                          <span className="text-[10px] font-bold text-orange-600 flex items-center gap-0.5">
+                            <RiAlarmWarningLine /> {fmt(fines)} multas
+                          </span>
+                        )}
+                        {item.daysOverdue > 0 && (
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: sem.bg, color: sem.text }}>
+                            {item.daysOverdue}d
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );

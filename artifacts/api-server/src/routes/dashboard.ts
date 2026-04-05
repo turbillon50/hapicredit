@@ -145,7 +145,9 @@ router.get("/dashboard/admin", requireAuth, requireRole("admin"), async (_req, r
 
   const todayStr = today();
   const allPaymentsToday = await db.select().from(paymentsTable).where(eq(paymentsTable.paymentDate, todayStr));
-  const collectionToday = allPaymentsToday.reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+  const collectionToday = allPaymentsToday
+    .filter(p => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected")
+    .reduce((s, p) => s + parseFloat(p.amountPaid), 0);
   const expectedToday = activeCredits.reduce((s, c) => s + parseFloat(c.weeklyPayment), 0);
 
   const weekStartStr = weekStart();
@@ -172,21 +174,68 @@ router.get("/dashboard/admin", requireAuth, requireRole("admin"), async (_req, r
   const executives = await db.select().from(usersTable).where(eq(usersTable.role, "executive"));
   const alerts = await db.select().from(alertsTable).where(eq(alertsTable.isResolved, false));
 
+  const allPayments = await db.select().from(paymentsTable);
+  const pendingValidation = allPayments.filter(p => p.paymentStatus === "pending_validation").length;
+  const validatedPayments = allPayments.filter(p => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected");
+  const collectionWeek = allPayments
+    .filter(p => p.paymentDate >= weekStartStr && p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected")
+    .reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+  const collectionMonth = allPayments
+    .filter(p => p.paymentDate >= monthStartStr && p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected")
+    .reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+
+  const totalLateFees = allPayments.reduce((s, p) => s + (p.lateFee ? parseFloat(p.lateFee) : 0), 0);
+
+  const disbursementsWeek = weekCredits.reduce((s, c) => {
+    const fee = c.openingFee ? parseFloat(c.openingFee) : 0;
+    return s + parseFloat(c.amount) - fee;
+  }, 0);
+  const disbursementsMonth = monthCredits.reduce((s, c) => {
+    const fee = c.openingFee ? parseFloat(c.openingFee) : 0;
+    return s + parseFloat(c.amount) - fee;
+  }, 0);
+
+  const netFlowWeek = collectionWeek - disbursementsWeek;
+  const netFlowMonth = collectionMonth - disbursementsMonth;
+
+  const pendingApprovals = allCredits.filter(c => c.status === "pending").length;
+
+  const clientsCurrent = allClients.filter(c => c.status === "current").length;
+  const clientsAtRisk = allClients.filter(c => c.status === "at_risk").length;
+
+  const profitWeek = openingFeeWeek + collectionWeek - disbursementsWeek;
+  const profitMonth = openingFeeMonth + collectionMonth - disbursementsMonth;
+
   res.json({
     totalPortfolio,
     activeClients,
+    clientsCurrent,
+    clientsAtRisk,
     clientsOverdue,
     clientsDefaulted,
     collectionToday,
     expectedToday,
+    collectionWeek,
+    collectionMonth,
     placementThisWeek,
     placementThisMonth,
-    weeklyUtility,
-    monthlyUtility,
+    weeklyUtility: profitWeek,
+    monthlyUtility: profitMonth,
     lossesFromDefault,
     delinquencyRate: Math.round(delinquencyRate * 10) / 10,
     totalExecutives: executives.length,
     alertCount: alerts.length,
+    pendingValidation,
+    pendingApprovals,
+    totalLateFees,
+    disbursementsWeek,
+    disbursementsMonth,
+    netFlowWeek,
+    netFlowMonth,
+    profitThisWeek: profitWeek,
+    profitThisMonth: profitMonth,
+    totalActiveExecutives: executives.length,
+    executivesWithAlerts: executives.filter(e => alerts.some(a => a.executiveId === e.id)).length,
   });
 });
 

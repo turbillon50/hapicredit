@@ -75,9 +75,20 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     return;
   }
 
-  // 10% flat interest rate for microcredit
-  const totalToRepay = amt * 1.10;
-  const weeklyPayment = totalToRepay / weeks;
+  if (weeks !== 8 && weeks !== 13) {
+    res.status(400).json({ error: "Solo se permiten plazos de 8 o 13 semanas" });
+    return;
+  }
+
+  const RATE_8 = 175;
+  const RATE_13 = 120;
+  const COMMISSION = 0.10;
+
+  const rate = weeks === 8 ? RATE_8 : RATE_13;
+  const thousands = amt / 1000;
+  const weeklyPayment = thousands * rate;
+  const totalToRepay = weeklyPayment * weeks;
+  const openingFee = amt * COMMISSION;
   const disbursementDate = new Date().toISOString().split("T")[0];
   const executiveId = req.userRole === "executive" ? req.userId : (bodyExecId ? parseInt(bodyExecId, 10) : null);
 
@@ -88,6 +99,7 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     disbursementDate,
     termWeeks: weeks,
     weeklyPayment: weeklyPayment.toFixed(2),
+    openingFee: openingFee.toFixed(2),
     totalToRepay: totalToRepay.toFixed(2),
     remainingBalance: totalToRepay.toFixed(2),
     status: "pending",
