@@ -1,164 +1,110 @@
-import { useState } from "react";
+import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
-import { useAuth } from "@/hooks/use-auth";
-import { BottomSheet } from "@/components/hapi/BottomSheet";
-import { Avatar } from "@/components/hapi/Avatar";
 import {
-  RiDashboardLine, RiFileListLine, RiAlarmWarningLine,
-  RiGroupLine, RiLineChartLine, RiUserLine,
-  RiMoneyDollarCircleLine, RiBankCardLine,
-  RiSwapLine, RiLogoutBoxLine,
-  RiAddCircleLine, RiFolderOpenLine, RiInboxLine, RiCoinLine,
-  RiHomeLine,
+  RiHomeLine, RiAddCircleLine, RiBankCardLine, RiUserLine,
+  RiInboxLine, RiFileListLine, RiGroupLine, RiLineChartLine,
+  RiLockLine, RiArrowLeftLine, RiAlarmWarningLine,
 } from "react-icons/ri";
+
+const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
 type NavItem = { icon: React.ReactNode; label: string; path: string };
 
-const adminNav: NavItem[] = [
-  { icon: <RiHomeLine />,              label: "Resumen",      path: "/admin"               },
-  { icon: <RiFileListLine />,          label: "Cartera",      path: "/admin/cartera"       },
-  { icon: <RiInboxLine />,             label: "Solicitudes",  path: "/admin/solicitudes"   },
-  { icon: <RiAlarmWarningLine />,      label: "Morosos",      path: "/admin/morosos"       },
-  { icon: <RiLineChartLine />,         label: "Financiero",   path: "/admin/financiero"    },
-];
-
-const adminNavExtra: NavItem[] = [
-  { icon: <RiGroupLine />,             label: "Asesores",     path: "/admin/asesores"      },
-];
-
-const execNav: NavItem[] = [
-  { icon: <RiHomeLine />,              label: "Mi Panel",   path: "/dashboard"              },
-  { icon: <RiUserLine />,              label: "Clientes",   path: "/dashboard/clientes"     },
-  { icon: <RiMoneyDollarCircleLine />, label: "Cobrar",     path: "/dashboard/cobrar"       },
-  { icon: <RiCoinLine />,              label: "Comisiones", path: "/dashboard/comisiones"   },
-];
-
 const clientNav: NavItem[] = [
-  { icon: <RiHomeLine />,              label: "Mi Crédito",  path: "/portal"              },
-  { icon: <RiAddCircleLine />,         label: "Solicitar",   path: "/portal/solicitar"    },
-  { icon: <RiFolderOpenLine />,        label: "Expediente",  path: "/portal/expediente"   },
+  { icon: <RiHomeLine />,        label: "Inicio",     path: "/"           },
+  { icon: <RiAddCircleLine />,   label: "Solicitar",  path: "/solicitar"  },
+  { icon: <RiBankCardLine />,    label: "Mi Crédito", path: "/mi-credito" },
+  { icon: <RiUserLine />,        label: "Perfil",     path: "/perfil"     },
 ];
 
-const DEMO_OPTIONS = [
-  { key: "admin",      label: "Administrador",      sub: "Acceso total al sistema",    color: "#1a3a6b" },
-  { key: "ejecutivo1", label: "Asesor — Carlos",    sub: "Ejecutivo de campo",         color: "#065f46" },
-  { key: "ejecutivo2", label: "Asesor — Daniela",   sub: "Ejecutivo de campo",         color: "#7c3aed" },
-  { key: "cliente1",   label: "Cliente — Ana",      sub: "Portal del cliente",         color: "#92400e" },
+const adminNav: NavItem[] = [
+  { icon: <RiHomeLine />,        label: "Panel",       path: "/admin"             },
+  { icon: <RiInboxLine />,       label: "Solicitudes", path: "/admin/solicitudes" },
+  { icon: <RiFileListLine />,    label: "Cartera",     path: "/admin/cartera"     },
+  { icon: <RiAlarmWarningLine />,label: "Morosos",     path: "/admin/morosos"     },
+  { icon: <RiGroupLine />,       label: "Asesores",    path: "/admin/asesores"    },
 ];
-
-function useNavItems(role: string | undefined): NavItem[] {
-  if (role === "admin")     return adminNav;
-  if (role === "executive") return execNav;
-  return clientNav;
-}
-
-function useSidebarNavItems(role: string | undefined): NavItem[] {
-  if (role === "admin") return [...adminNav, ...adminNavExtra];
-  return useNavItems(role);
-}
 
 function isActive(path: string, current: string) {
-  if (path === "/admin"     && current === "/admin")     return true;
-  if (path === "/dashboard" && current === "/dashboard") return true;
-  if (path !== "/admin" && path !== "/dashboard")        return current.startsWith(path);
+  if (path === "/" && current === "/") return true;
+  if (path === "/admin" && current === "/admin") return true;
+  if (path !== "/" && path !== "/admin") return current.startsWith(path);
   return false;
 }
 
-const roleLabel: Record<string, string> = {
-  admin:     "Administrador",
-  executive: "Asesor",
-  client:    "Cliente",
-};
+async function ensureAdminToken() {
+  const existing = localStorage.getItem("hapi_token");
+  if (existing) return;
+  try {
+    const res = await fetch(`${API}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: "admin", password: "admin123" }),
+    });
+    const data = await res.json();
+    if (data.token) localStorage.setItem("hapi_token", data.token);
+  } catch {}
+}
 
 export function Layout({ children }: { children: React.ReactNode }) {
-  const { user, demoLogin, logout } = useAuth();
-  const [location] = useLocation();
-  const [sheetOpen, setSheetOpen] = useState(false);
-  const navItems     = useNavItems(user?.role);
-  const sidebarItems = useSidebarNavItems(user?.role);
+  const [location, navigate] = useLocation();
+  const isAdmin = location.startsWith("/admin");
+  const navItems = isAdmin ? adminNav : clientNav;
+
+  useEffect(() => {
+    ensureAdminToken();
+  }, []);
 
   return (
-    <div className="flex h-full" style={{ background: "var(--surface-2)" }}>
+    <div className="flex flex-col min-h-[100dvh]" style={{ background: "var(--surface-2)" }}>
 
-      {/* ── Desktop Sidebar (only on large screens) ── */}
-      <aside
-        className="hidden lg:flex flex-col fixed top-0 left-0 h-full w-[240px] z-30"
-        style={{ background: "var(--navy-900)", borderRight: "1px solid rgba(255,255,255,0.06)" }}
-      >
-        <div className="px-5 pt-6 pb-5 border-b" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-          <div className="text-white font-bold text-xl tracking-tight">HapiCredit</div>
-          <div className="text-xs mt-0.5" style={{ color: "rgba(255,255,255,0.4)" }}>
-            {roleLabel[user?.role ?? ""] ?? "Sistema de gestión"}
-          </div>
-        </div>
-
-        <nav className="flex-1 px-3 py-4 overflow-y-auto scrollbar-hide">
-          {sidebarItems.map(item => (
-            <Link
-              key={item.path}
-              href={item.path}
-              className={`nav-item mb-1 ${isActive(item.path, location) ? "active" : ""}`}
-            >
-              <span className="text-lg shrink-0">{item.icon}</span>
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="px-3 pb-5 pt-3 border-t" style={{ borderColor: "rgba(255,255,255,0.07)" }}>
-          <div className="flex items-center gap-3 px-2 mb-3">
-            <Avatar name={user?.fullName ?? "U"} size="sm" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-white truncate">{user?.fullName}</div>
-              <div className="text-[11px]" style={{ color: "rgba(255,255,255,0.4)" }}>
-                {roleLabel[user?.role ?? ""] ?? ""}
-              </div>
-            </div>
-          </div>
-          <button onClick={() => setSheetOpen(true)} className="nav-item w-full mb-1">
-            <RiSwapLine className="text-lg" /> Cambiar rol
-          </button>
-          <button onClick={logout} className="nav-item w-full" style={{ color: "rgba(239,68,68,0.8)" }}>
-            <RiLogoutBoxLine className="text-lg" /> Salir
-          </button>
-        </div>
-      </aside>
-
-      {/* ── Header (shown below lg) ── */}
+      {/* ── Header ── */}
       <header
-        className="lg:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-14"
+        className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 shrink-0"
         style={{ background: "var(--navy-900)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
       >
-        <div>
-          <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
-          <div className="text-[10px] capitalize" style={{ color: "rgba(255,255,255,0.4)" }}>
-            {roleLabel[user?.role ?? ""] ?? ""}  ·  {user?.fullName?.split(" ")[0] ?? ""}
-          </div>
-        </div>
-        <button
-          onClick={() => setSheetOpen(true)}
-          className="flex items-center gap-2 px-3 h-9 rounded-xl text-xs font-semibold pressable"
-          style={{ background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.8)" }}
-        >
-          <RiSwapLine className="text-base" />
-          Cambiar rol
-        </button>
+        {isAdmin ? (
+          <>
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2 text-white/70 pressable"
+            >
+              <RiArrowLeftLine className="text-lg" />
+              <span className="text-xs font-medium">Volver</span>
+            </button>
+            <div className="text-white font-bold text-sm tracking-tight">Administrador</div>
+            <div className="w-16" />
+          </>
+        ) : (
+          <>
+            <div>
+              <div className="text-white font-bold text-base tracking-tight leading-none">HapiCredit</div>
+              <div className="text-[10px]" style={{ color: "rgba(255,255,255,0.35)" }}>Grupo CAFJA</div>
+            </div>
+            <button
+              onClick={() => navigate("/admin")}
+              className="flex items-center justify-center w-9 h-9 rounded-xl pressable"
+              style={{ background: "rgba(255,255,255,0.08)" }}
+              title="Modo administrador"
+            >
+              <RiLockLine className="text-white/50 text-base" />
+            </button>
+          </>
+        )}
       </header>
 
-      {/* ── Main content ── */}
-      <main className="flex-1 lg:ml-[240px] overflow-y-auto pt-14 lg:pt-0 pb-20">
-        <div className="lg:p-8 min-h-full">
-          {children}
-        </div>
+      {/* ── Content ── */}
+      <main className="flex-1 overflow-y-auto pb-20">
+        {children}
       </main>
 
-      {/* ── Bottom Nav — always visible below lg ── */}
+      {/* ── Bottom Nav ── */}
       <nav
-        className="lg:hidden fixed bottom-0 left-0 right-0 z-30 flex"
+        className="fixed bottom-0 left-0 right-0 z-30 flex"
         style={{
-          background: "#fff",
-          borderTop: "1px solid rgba(15,31,61,0.08)",
-          boxShadow: "0 -2px 20px rgba(15,31,61,0.1)",
+          background: isAdmin ? "var(--navy-900)" : "#fff",
+          borderTop: isAdmin ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,31,61,0.08)",
+          boxShadow: isAdmin ? "none" : "0 -2px 20px rgba(15,31,61,0.08)",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
@@ -172,78 +118,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
             >
               <span
                 className="text-[22px] transition-colors"
-                style={{ color: active ? "var(--accent)" : "var(--text-muted)" }}
+                style={{ color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)") }}
               >
                 {item.icon}
               </span>
               <span
-                className="text-[10px] font-medium transition-colors"
-                style={{ color: active ? "var(--accent)" : "var(--text-muted)", fontWeight: active ? 700 : 500 }}
+                className="text-[10px] transition-colors"
+                style={{
+                  color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)"),
+                  fontWeight: active ? 700 : 500,
+                }}
               >
                 {item.label}
               </span>
               {active && (
                 <span
                   className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
-                  style={{ background: "var(--accent)" }}
+                  style={{ background: isAdmin ? "#60a5fa" : "var(--accent)" }}
                 />
               )}
             </Link>
           );
         })}
-
-        {/* Cambiar rol — siempre al final */}
-        <button
-          onClick={() => setSheetOpen(true)}
-          className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 pressable relative"
-        >
-          <span className="text-[22px]" style={{ color: "var(--text-muted)" }}>
-            <RiSwapLine />
-          </span>
-          <span className="text-[10px] font-medium" style={{ color: "var(--text-muted)" }}>
-            Cambiar
-          </span>
-        </button>
       </nav>
-
-      {/* ── Role Switcher Sheet ── */}
-      <BottomSheet isOpen={sheetOpen} onClose={() => setSheetOpen(false)} title="Cambiar perfil">
-        <p className="text-sm text-gray-500 mb-4">
-          Selecciona el rol con el que quieres navegar.
-        </p>
-        <div className="flex flex-col gap-3">
-          {DEMO_OPTIONS.map(opt => (
-            <button
-              key={opt.key}
-              onClick={async () => {
-                setSheetOpen(false);
-                await demoLogin(opt.key);
-              }}
-              className="flex items-center gap-4 p-4 rounded-2xl border border-gray-100 pressable text-left w-full"
-              style={{ background: "#f8fafc" }}
-            >
-              <div
-                className="w-11 h-11 rounded-xl flex items-center justify-center text-white font-bold text-lg shrink-0"
-                style={{ background: opt.color }}
-              >
-                {opt.label[0]}
-              </div>
-              <div>
-                <div className="text-sm font-semibold text-gray-900">{opt.label}</div>
-                <div className="text-xs text-gray-500">{opt.sub}</div>
-              </div>
-            </button>
-          ))}
-        </div>
-        <button
-          onClick={async () => { setSheetOpen(false); await logout(); }}
-          className="flex items-center gap-3 w-full mt-4 p-4 rounded-2xl pressable text-left"
-          style={{ background: "#fff5f5" }}
-        >
-          <RiLogoutBoxLine className="text-red-500 text-xl" />
-          <span className="text-sm font-medium text-red-600">Salir al selector de roles</span>
-        </button>
-      </BottomSheet>
     </div>
   );
 }

@@ -28,6 +28,7 @@ const fmtDate = (d: string | null | undefined) =>
 
 export default function AdminExpediente() {
   const { id } = useParams<{ id: string }>();
+  const [docPreview, setDocPreview] = useState<any | null>(null);
 
   const { data: client, isLoading } = useQuery<any>({
     queryKey: ["client", id],
@@ -49,7 +50,6 @@ export default function AdminExpediente() {
     </Layout>
   );
 
-  const [docPreview, setDocPreview] = useState<any | null>(null);
   const credits = client.credits ?? [];
   const payments = client.recentPayments ?? client.payments ?? [];
   const allNotes: any[] = client.recentNotes ?? client.notes ?? [];
