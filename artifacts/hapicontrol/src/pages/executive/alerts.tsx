@@ -1,14 +1,19 @@
 import { Layout } from "@/components/layout/Layout";
 import { useListAlerts } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { RiAlarmWarningLine, RiInformationLine, RiErrorWarningLine } from "react-icons/ri";
+import { IconAlerta, IconInfo } from "@/components/hapi/HapiIcons";
 
-const typeConfig: Record<string, { label: string; icon: React.ElementType; cls: string }> = {
-  overdue:    { label: "En atraso",   icon: RiAlarmWarningLine,  cls: "bg-red-50 text-red-600 border-l-red-400" },
-  at_risk:    { label: "En riesgo",   icon: RiErrorWarningLine,  cls: "bg-amber-50 text-amber-600 border-l-amber-400" },
-  renewal:    { label: "Renovación",  icon: RiInformationLine,   cls: "bg-blue-50 text-blue-600 border-l-blue-400" },
-  no_payment: { label: "Sin pago",    icon: RiAlarmWarningLine,  cls: "bg-red-50 text-red-600 border-l-red-400" },
+const typeConfig: Record<string, { label: string; iconKey: string; cls: string }> = {
+  overdue:    { label: "En atraso",   iconKey: "alerta",  cls: "bg-red-50 text-red-600 border-l-red-400" },
+  at_risk:    { label: "En riesgo",   iconKey: "alerta",  cls: "bg-amber-50 text-amber-600 border-l-amber-400" },
+  renewal:    { label: "Renovación",  iconKey: "info",    cls: "bg-blue-50 text-blue-600 border-l-blue-400" },
+  no_payment: { label: "Sin pago",    iconKey: "alerta",  cls: "bg-red-50 text-red-600 border-l-red-400" },
 };
+
+function AlertIcon({ iconKey, size = 18 }: { iconKey: string; size?: number }) {
+  if (iconKey === "info") return <IconInfo size={size} />;
+  return <IconAlerta size={size} />;
+}
 
 export default function ExecutiveAlerts() {
   const { user } = useAuth();
@@ -26,18 +31,17 @@ export default function ExecutiveAlerts() {
           ))
         ) : alerts?.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-card p-10 text-center">
-            <RiAlarmWarningLine className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <div className="flex justify-center mb-3 opacity-30"><IconAlerta size={40} color="#9ca3af" /></div>
             <p className="text-[13px] text-muted-foreground">Sin alertas activas</p>
           </div>
         ) : (
           alerts?.map((alert: any) => {
             const cfg = typeConfig[alert.type] ?? typeConfig.overdue;
-            const Icon = cfg.icon;
             const date = new Date(alert.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
             return (
               <div key={alert.id} className={`bg-white rounded-2xl shadow-card p-4 flex items-center gap-3 border-l-4 ${cfg.cls}`}>
                 <div className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.cls}`}>
-                  <Icon className="w-4.5 h-4.5" />
+                  <AlertIcon iconKey={cfg.iconKey} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-semibold text-foreground truncate">{alert.clientName}</p>

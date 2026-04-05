@@ -5,9 +5,8 @@ import {
   IconFormulario, IconReloj, IconDesembolso, IconPagos,
   IconCorazon, IconEquipo, IconEscudo, IconCrecimiento,
   IconCelular, IconTelefono, IconUbicacion, IconFlecha,
-  IconFlechaAbajo, IconPerfil, IconAdmin,
+  IconFlechaAbajo, IconPerfil, IconAdmin, IconMaletin,
 } from "@/components/hapi/HapiIcons";
-import { RiBriefcaseLine } from "react-icons/ri";
 import logoSrc from "@assets/IMG_0626_1775411853416.jpeg";
 const logoPngUrl = `${import.meta.env.BASE_URL}logo-hapicredit.png`;
 
@@ -31,7 +30,7 @@ const ROLES = [
     key: "ejecutivo",
     label: "Ejecutivo",
     desc: "Gestiona tu cartera, registra cobros y da seguimiento a clientes",
-    icon: <RiBriefcaseLine />,
+    icon: <IconMaletin size={22} color="#fff" />,
     gradient: "linear-gradient(135deg,#059669,#34d399)",
     href: "/admin/cartera",
   },

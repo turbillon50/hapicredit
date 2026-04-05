@@ -15,24 +15,44 @@ const USERS = [
   { username: "admin",      password: "admin123",  fullName: "Administrador Principal", email: "admin@hapicredit.mx",   role: "admin"     },
   { username: "ejecutivo1", password: "exec123",   fullName: "Carlos Mendoza García",   email: "carlos@hapicredit.mx",  role: "executive" },
   { username: "ejecutivo2", password: "exec123",   fullName: "Daniela Ruiz Torres",     email: "daniela@hapicredit.mx", role: "executive" },
+  { username: "ejecutivo3", password: "exec123",   fullName: "Fernando Ortiz Salinas",  email: "fernando@hapicredit.mx", role: "executive" },
+  { username: "ejecutivo4", password: "exec123",   fullName: "Patricia Vega Morales",   email: "patricia@hapicredit.mx", role: "executive" },
 ];
 
 interface ClientSeed {
   fullName: string; phone: string; altPhone?: string; address: string;
   curp: string; status: string; guarantorName: string; guarantorPhone: string;
   creditAmount: number; termWeeks: 8 | 13; creditStatus: string;
-  paidWeeks: number;
+  paidWeeks: number; execIndex: number;
 }
 
 const CLIENTS: ClientSeed[] = [
-  { fullName: "María Elena Rodríguez Vega", phone: "5512345678", address: "Calle Reforma 123, CDMX", curp: "ROVM880415MDFDRR01", status: "current", guarantorName: "Pedro Rodríguez", guarantorPhone: "5511223344", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 3 },
-  { fullName: "José Luis Martínez Pérez", phone: "5523456789", address: "Av. Juárez 456, Ecatepec", curp: "MAPJ900520HMCRRL05", status: "current", guarantorName: "Laura Martínez", guarantorPhone: "5522334455", creditAmount: 8000, termWeeks: 13, creditStatus: "active", paidWeeks: 5 },
-  { fullName: "Ana Patricia Flores Soto", phone: "5534567890", address: "Calle 5 de Mayo 78, Neza", curp: "FOSA850710MDFLTJ02", status: "at_risk", guarantorName: "Miguel Flores", guarantorPhone: "5533445566", creditAmount: 3000, termWeeks: 8, creditStatus: "active", paidWeeks: 6 },
-  { fullName: "Roberto Carlos Díaz Luna", phone: "5545678901", address: "Blvd. López Mateos 90, Tlalnepantla", curp: "DILR920315HMCZNO03", status: "current", guarantorName: "Carmen Díaz", guarantorPhone: "5544556677", creditAmount: 10000, termWeeks: 13, creditStatus: "active", paidWeeks: 2 },
-  { fullName: "Guadalupe Hernández Torres", phone: "5556789012", address: "Calle Morelos 34, Iztapalapa", curp: "HETG870825MDFRRQ04", status: "overdue", guarantorName: "Javier Hernández", guarantorPhone: "5555667788", creditAmount: 4000, termWeeks: 8, creditStatus: "active", paidWeeks: 4 },
-  { fullName: "Francisco Javier López García", phone: "5567890123", address: "Av. Central 567, Chimalhuacán", curp: "LOGF880930HMCPRR05", status: "current", guarantorName: "Rosa López", guarantorPhone: "5566778899", creditAmount: 6000, termWeeks: 13, creditStatus: "active", paidWeeks: 10 },
-  { fullName: "Martha Alicia Ramírez Cruz", phone: "5578901234", address: "Calle Hidalgo 12, Texcoco", curp: "RACM910405MDFMRL06", status: "current", guarantorName: "Luis Ramírez", guarantorPhone: "5577889900", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 7 },
-  { fullName: "Juan Manuel Sánchez Vargas", phone: "5589012345", address: "Privada Allende 89, Coacalco", curp: "SAVJ930612HMCNRN07", status: "defaulted", guarantorName: "Teresa Sánchez", guarantorPhone: "5588990011", creditAmount: 7000, termWeeks: 13, creditStatus: "active", paidWeeks: 1 },
+  // --- Ejecutivo 1: Carlos Mendoza (5 clientes) ---
+  { fullName: "María Elena Rodríguez Vega", phone: "5512345678", address: "Calle Reforma 123, CDMX", curp: "ROVM880415MDFDRR01", status: "current", guarantorName: "Pedro Rodríguez", guarantorPhone: "5511223344", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 3, execIndex: 0 },
+  { fullName: "José Luis Martínez Pérez", phone: "5523456789", address: "Av. Juárez 456, Ecatepec", curp: "MAPJ900520HMCRRL05", status: "current", guarantorName: "Laura Martínez", guarantorPhone: "5522334455", creditAmount: 8000, termWeeks: 13, creditStatus: "active", paidWeeks: 5, execIndex: 0 },
+  { fullName: "Ana Patricia Flores Soto", phone: "5534567890", address: "Calle 5 de Mayo 78, Neza", curp: "FOSA850710MDFLTJ02", status: "at_risk", guarantorName: "Miguel Flores", guarantorPhone: "5533445566", creditAmount: 3000, termWeeks: 8, creditStatus: "active", paidWeeks: 6, execIndex: 0 },
+  { fullName: "Roberto Carlos Díaz Luna", phone: "5545678901", address: "Blvd. López Mateos 90, Tlalnepantla", curp: "DILR920315HMCZNO03", status: "current", guarantorName: "Carmen Díaz", guarantorPhone: "5544556677", creditAmount: 10000, termWeeks: 13, creditStatus: "active", paidWeeks: 2, execIndex: 0 },
+  { fullName: "Guadalupe Hernández Torres", phone: "5556789012", address: "Calle Morelos 34, Iztapalapa", curp: "HETG870825MDFRRQ04", status: "overdue", guarantorName: "Javier Hernández", guarantorPhone: "5555667788", creditAmount: 4000, termWeeks: 8, creditStatus: "active", paidWeeks: 4, execIndex: 0 },
+
+  // --- Ejecutivo 2: Daniela Ruiz (4 clientes) ---
+  { fullName: "Francisco Javier López García", phone: "5567890123", address: "Av. Central 567, Chimalhuacán", curp: "LOGF880930HMCPRR05", status: "current", guarantorName: "Rosa López", guarantorPhone: "5566778899", creditAmount: 6000, termWeeks: 13, creditStatus: "active", paidWeeks: 10, execIndex: 1 },
+  { fullName: "Martha Alicia Ramírez Cruz", phone: "5578901234", address: "Calle Hidalgo 12, Texcoco", curp: "RACM910405MDFMRL06", status: "current", guarantorName: "Luis Ramírez", guarantorPhone: "5577889900", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 7, execIndex: 1 },
+  { fullName: "Juan Manuel Sánchez Vargas", phone: "5589012345", address: "Privada Allende 89, Coacalco", curp: "SAVJ930612HMCNRN07", status: "defaulted", guarantorName: "Teresa Sánchez", guarantorPhone: "5588990011", creditAmount: 7000, termWeeks: 13, creditStatus: "active", paidWeeks: 1, execIndex: 1 },
+  { fullName: "Lucía Fernanda Castillo Ríos", phone: "5590123456", address: "Calle Insurgentes 200, CDMX", curp: "CARL940718MDFSTC08", status: "at_risk", guarantorName: "Raúl Castillo", guarantorPhone: "5599001122", creditAmount: 4000, termWeeks: 8, creditStatus: "active", paidWeeks: 5, execIndex: 1 },
+
+  // --- Ejecutivo 3: Fernando Ortiz (7 clientes) ---
+  { fullName: "Eduardo Ramón Peña Solís", phone: "5501234567", address: "Calle Zaragoza 45, Toluca", curp: "PESE870312HMCNLD09", status: "current", guarantorName: "Isabel Peña", guarantorPhone: "5500112233", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 8, execIndex: 2 },
+  { fullName: "Verónica Juárez Medina", phone: "5502345678", address: "Av. Revolución 78, Naucalpan", curp: "JUMV890625MDFRDZ10", status: "overdue", guarantorName: "Alberto Juárez", guarantorPhone: "5501223344", creditAmount: 6000, termWeeks: 13, creditStatus: "active", paidWeeks: 3, execIndex: 2 },
+  { fullName: "Miguel Ángel Torres Reyes", phone: "5503456789", address: "Privada Constitución 12, Pachuca", curp: "TORM910830HMCRRY11", status: "current", guarantorName: "Sofía Torres", guarantorPhone: "5502334455", creditAmount: 3000, termWeeks: 8, creditStatus: "active", paidWeeks: 6, execIndex: 2 },
+  { fullName: "Carmen Rosa Delgado Fuentes", phone: "5504567890", address: "Calle Libertad 334, Puebla", curp: "DEFC880115MDFLFN12", status: "current", guarantorName: "Jorge Delgado", guarantorPhone: "5503445566", creditAmount: 8000, termWeeks: 13, creditStatus: "active", paidWeeks: 11, execIndex: 2 },
+  { fullName: "Alejandro Ríos Mendoza", phone: "5505678901", address: "Av. Universidad 890, CDMX", curp: "RIMA920420HMCRSM13", status: "at_risk", guarantorName: "Elena Ríos", guarantorPhone: "5504556677", creditAmount: 10000, termWeeks: 13, creditStatus: "active", paidWeeks: 4, execIndex: 2 },
+  { fullName: "Sandra Ivette Morales Luna", phone: "5506789012", address: "Calle Madero 56, Querétaro", curp: "MOLS900708MDFRNL14", status: "defaulted", guarantorName: "Ricardo Morales", guarantorPhone: "5505667788", creditAmount: 5000, termWeeks: 8, creditStatus: "active", paidWeeks: 2, execIndex: 2 },
+  { fullName: "Raúl Enrique Navarro Gil", phone: "5507890123", address: "Blvd. Ávila Camacho 120, CDMX", curp: "NAGR850925HMCVRL15", status: "current", guarantorName: "Marta Navarro", guarantorPhone: "5506778899", creditAmount: 7000, termWeeks: 13, creditStatus: "active", paidWeeks: 9, execIndex: 2 },
+
+  // --- Ejecutivo 4: Patricia Vega (3 clientes) ---
+  { fullName: "Diana Laura Espinoza Ponce", phone: "5508901234", address: "Calle Victoria 67, León", curp: "EIPD930215MDFSPN16", status: "current", guarantorName: "Óscar Espinoza", guarantorPhone: "5507889900", creditAmount: 4000, termWeeks: 8, creditStatus: "active", paidWeeks: 7, execIndex: 3 },
+  { fullName: "Héctor Hugo Guerrero Paz", phone: "5509012345", address: "Av. Chapultepec 445, CDMX", curp: "GUPH880530HMCRRP17", status: "overdue", guarantorName: "Ana Guerrero", guarantorPhone: "5508990011", creditAmount: 6000, termWeeks: 13, creditStatus: "active", paidWeeks: 2, execIndex: 3 },
+  { fullName: "Norma Angélica Cruz Ibarra", phone: "5510123456", address: "Privada Juárez 23, Morelia", curp: "CUIN910812MDFRRB18", status: "current", guarantorName: "Manuel Cruz", guarantorPhone: "5509001122", creditAmount: 3000, termWeeks: 8, creditStatus: "active", paidWeeks: 5, execIndex: 3 },
 ];
 
 export async function seedIfNeeded() {
@@ -45,16 +65,18 @@ export async function seedIfNeeded() {
       }
     }
 
-    const [exec1] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, "ejecutivo1"));
-    const [exec2] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, "ejecutivo2"));
-    const execs = [exec1?.id, exec2?.id].filter(Boolean) as number[];
+    const execUsernames = ["ejecutivo1", "ejecutivo2", "ejecutivo3", "ejecutivo4"];
+    const execs: (number | undefined)[] = [];
+    for (const un of execUsernames) {
+      const [e] = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, un));
+      execs.push(e?.id);
+    }
 
-    for (let i = 0; i < CLIENTS.length; i++) {
-      const c = CLIENTS[i];
+    for (const c of CLIENTS) {
       const existing = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, c.fullName));
       if (existing.length) continue;
 
-      const execId = execs[i % execs.length] ?? null;
+      const execId = execs[c.execIndex] ?? null;
 
       const [newClient] = await db.insert(clientsTable).values({
         fullName: c.fullName,

@@ -6,9 +6,9 @@ import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
-  RiBankCardLine, RiCalendarLine, RiCheckLine, RiTimeLine,
-  RiFileTextLine, RiAlertLine,
-} from "react-icons/ri";
+  IconTarjeta, IconCalendario, IconCheck, IconReloj,
+  IconDocumento, IconAlerta,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -106,7 +106,7 @@ export default function ClientPortal() {
               </>
             ) : (
               <div className="text-center py-4 opacity-60">
-                <RiBankCardLine className="text-4xl mx-auto mb-2" />
+                <span className="mx-auto mb-2"><IconTarjeta size={36} color="rgba(255,255,255,0.6)" /></span>
                 <div className="text-sm">Sin crédito activo</div>
               </div>
             )}
@@ -121,10 +121,10 @@ export default function ClientPortal() {
               style={{ background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "#f0fdf4" }}
             >
               {nextDays <= 1
-                ? <RiAlertLine className="text-red-500 text-2xl shrink-0" />
+                ? <span className="shrink-0"><IconAlerta size={24} color="#ef4444" /></span>
                 : nextDays <= 3
-                  ? <RiTimeLine className="text-yellow-500 text-2xl shrink-0" />
-                  : <RiCalendarLine className="text-green-500 text-2xl shrink-0" />
+                  ? <span className="shrink-0"><IconReloj size={24} color="#eab308" /></span>
+                  : <span className="shrink-0"><IconCalendario size={24} color="#22c55e" /></span>
               }
               <div>
                 <div className="text-sm font-bold text-gray-900">
@@ -148,7 +148,7 @@ export default function ClientPortal() {
             {pendingCredits.map(c => (
               <div key={c.id} className="card flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl shrink-0">
-                  <RiTimeLine />
+                  <IconReloj size={16} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-gray-900">{fmt(c.amount)}</div>
@@ -198,7 +198,7 @@ export default function ClientPortal() {
         {!isLoading && allCredits.length === 0 && (
           <div className="mx-4">
             <EmptyState
-              icon={<RiBankCardLine />}
+              icon={<IconTarjeta size={24} />}
               title="Sin créditos"
               description="No tienes ningún crédito registrado. Puedes solicitar uno desde el menú."
             />
@@ -214,7 +214,7 @@ export default function ClientPortal() {
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 ${p.paymentStatus === "completed" || p.status === "completed" ? "bg-green-100 text-green-600" : "bg-gray-100 text-gray-400"}`}
                 >
-                  {p.paymentStatus === "completed" || p.status === "completed" ? <RiCheckLine /> : <RiTimeLine />}
+                  {p.paymentStatus === "completed" || p.status === "completed" ? <IconCheck size={16} /> : <IconReloj size={16} />}
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-gray-900">

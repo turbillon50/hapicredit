@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Avatar } from "@/components/hapi/Avatar";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
-import { RiSearchLine, RiFileListLine, RiCalendarLine, RiAlarmWarningLine, RiLayoutGridLine, RiListCheck } from "react-icons/ri";
+import { IconCartera, IconCalendario, IconAlerta } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -122,13 +122,13 @@ function CreditCard({ item, navigate }: { item: CarteraItem; navigate: (path: st
 
       <div className="flex items-center justify-between pt-2 border-t border-gray-100">
         <div className="flex items-center gap-1.5 text-xs" style={{ color: isPastDue ? "var(--danger)" : "var(--text-secondary)" }}>
-          <RiCalendarLine className="text-sm" />
+          <IconCalendario size={14} />
           <span>Prox: <strong>{fmtDate(item.nextPaymentDate)}</strong></span>
         </div>
         <div className="flex items-center gap-2">
           {fines > 0 && (
             <span className="text-[10px] font-bold text-orange-600 flex items-center gap-0.5">
-              <RiAlarmWarningLine /> {fmt(fines)} multas
+              <IconAlerta size={14} /> {fmt(fines)} multas
             </span>
           )}
           {item.daysOverdue > 0 && (
@@ -217,7 +217,7 @@ export default function AdminCartera() {
               style={viewMode === "day" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
               title="Agrupar por dia"
             >
-              <RiCalendarLine className={`text-base ${viewMode === "day" ? "text-blue-600" : "text-gray-400"}`} />
+              <IconCalendario size={16} color={viewMode === "day" ? "#2563eb" : "#9ca3af"} />
             </button>
             <button
               onClick={() => setViewMode("list")}
@@ -225,14 +225,14 @@ export default function AdminCartera() {
               style={viewMode === "list" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
               title="Lista"
             >
-              <RiListCheck className={`text-base ${viewMode === "list" ? "text-blue-600" : "text-gray-400"}`} />
+              <IconCartera size={16} color={viewMode === "list" ? "#2563eb" : "#9ca3af"} />
             </button>
           </div>
         </div>
 
         <div className="px-4 flex flex-col gap-2.5">
           <div className="relative">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9ca3af" strokeWidth="2"/><path d="M16 16l5 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/></svg></span>
             <input
               type="search"
               placeholder="Buscar cliente..."
@@ -284,7 +284,7 @@ export default function AdminCartera() {
             <SkeletonList count={5} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              icon={<RiFileListLine />}
+              icon={<IconCartera />}
               title="Sin resultados"
               description="No se encontraron creditos con ese filtro."
             />
@@ -298,7 +298,7 @@ export default function AdminCartera() {
                         className="w-8 h-8 rounded-lg flex items-center justify-center"
                         style={{ background: "rgba(37,99,235,0.1)" }}
                       >
-                        <RiCalendarLine className="text-blue-600" />
+                        <IconCalendario size={14} color="#2563eb" />
                       </div>
                       <div>
                         <div className="text-sm font-bold text-gray-900">{group.label}</div>

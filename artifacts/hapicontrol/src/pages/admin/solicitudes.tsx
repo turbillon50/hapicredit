@@ -7,11 +7,11 @@ import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
 import { BottomSheet } from "@/components/hapi/BottomSheet";
 import {
-  RiInboxLine, RiCheckLine, RiCloseLine, RiEyeLine,
-  RiMoneyDollarCircleLine, RiCalendarLine, RiPhoneLine,
-  RiFileTextLine, RiUserLine, RiLoader4Line, RiGroupLine,
-  RiIdCardLine, RiMapPinLine,
-} from "react-icons/ri";
+  IconBandeja, IconCheck, IconCerrar, IconOjo,
+  IconMoneda, IconCalendario, IconTelefono,
+  IconDocumento, IconPersona, IconLoader, IconGrupo,
+  IconID, IconUbicacion,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -120,7 +120,7 @@ export default function AdminSolicitudes() {
           {tab === "public" && (
             loadingPublic ? <SkeletonList count={4} /> :
             publicFiltered.length === 0 ? (
-              <EmptyState icon={<RiInboxLine />} title="Sin solicitudes" description="Aún no hay afiliaciones recibidas." />
+              <EmptyState icon={<IconBandeja size={18} />} title="Sin solicitudes" description="Aún no hay afiliaciones recibidas." />
             ) : (
               <div className="flex flex-col gap-3">
                 {publicFiltered.slice().reverse().map((app: PublicApp) => {
@@ -167,7 +167,7 @@ export default function AdminSolicitudes() {
           {tab === "internal" && (
             loadingInternal ? <SkeletonList count={3} /> :
             (pendingCredits as PendingCredit[]).length === 0 ? (
-              <EmptyState icon={<RiFileTextLine />} title="Sin solicitudes internas" description="No hay créditos pendientes de aprobación." />
+              <EmptyState icon={<IconDocumento size={18} />} title="Sin solicitudes internas" description="No hay créditos pendientes de aprobación." />
             ) : (
               <div className="flex flex-col gap-3">
                 {(pendingCredits as PendingCredit[]).map((credit: PendingCredit) => (
@@ -249,10 +249,10 @@ export default function AdminSolicitudes() {
               <div className="flex flex-col gap-1.5 bg-gray-50 rounded-xl p-3">
                 <div className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">Datos personales</div>
                 {[
-                  [<RiUserLine />, "CURP", info.curp || "No proporcionado"],
-                  [<RiMapPinLine />, "Domicilio", info.address],
-                  [<RiPhoneLine />, "Tel. alt.", info.altPhone || "—"],
-                  [<RiFileTextLine />, "Destino", credit.purpose],
+                  [<IconPersona size={14} />, "CURP", info.curp || "No proporcionado"],
+                  [<IconUbicacion size={14} />, "Domicilio", info.address],
+                  [<IconTelefono size={14} />, "Tel. alt.", info.altPhone || "—"],
+                  [<IconDocumento size={18} />, "Destino", credit.purpose],
                 ].map(([icon, label, val]) => (
                   <div key={String(label)} className="flex items-start gap-2 text-sm">
                     <span className="text-gray-400 mt-0.5 text-base">{icon}</span>
@@ -283,7 +283,7 @@ export default function AdminSolicitudes() {
                     <div key={d.key} className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">{d.label}</span>
                       {docsMeta[d.key]?.provided
-                        ? <span className="text-green-600 font-semibold flex items-center gap-1"><RiCheckLine className="text-xs" /> Cargado</span>
+                        ? <span className="text-green-600 font-semibold flex items-center gap-1"><IconCheck size={12} /> Cargado</span>
                         : <span className="text-gray-400 text-xs">No enviado</span>
                       }
                     </div>
@@ -315,7 +315,7 @@ export default function AdminSolicitudes() {
                   href={`tel:${app.phone}`}
                   className="flex items-center justify-center gap-2 py-3 rounded-2xl border-2 border-gray-200 text-sm font-semibold text-gray-700 pressable"
                 >
-                  <RiPhoneLine /> Llamar a {info.fullName?.split(" ")[0] ?? app.name}
+                  <IconTelefono size={14} /> Llamar a {info.fullName?.split(" ")[0] ?? app.name}
                 </a>
               </div>
             </div>
@@ -369,8 +369,8 @@ export default function AdminSolicitudes() {
                   style={{ background: "#10b981" }}
                 >
                   {reviewMut.isPending && reviewing === credit.id
-                    ? <RiLoader4Line className="animate-spin" />
-                    : <RiCheckLine />
+                    ? <IconLoader size={16} />
+                    : <IconCheck size={16} />
                   }
                   Aprobar crédito
                 </button>
@@ -379,7 +379,7 @@ export default function AdminSolicitudes() {
                   disabled={reviewMut.isPending}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold pressable border-2 border-red-200 text-red-600"
                 >
-                  <RiCloseLine /> Rechazar solicitud
+                  <IconCerrar size={16} /> Rechazar solicitud
                 </button>
               </div>
             </div>

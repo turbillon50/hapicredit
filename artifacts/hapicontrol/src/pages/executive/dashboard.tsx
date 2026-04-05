@@ -5,10 +5,9 @@ import { SkeletonHero, SkeletonCard } from "@/components/hapi/Skeleton";
 import { Badge } from "@/components/hapi/Badge";
 import { Link } from "wouter";
 import {
-  RiGroupLine, RiAlarmWarningLine, RiMoneyDollarCircleLine,
-  RiCalendarLine, RiArrowRightSLine, RiUserLine, RiAddLine,
-  RiLineChartLine, RiCoinLine, RiCheckboxCircleLine,
-} from "react-icons/ri";
+  IconGrupo, IconAlerta, IconMoneda, IconCalendario,
+  IconFlecha, IconPersona, IconMas, IconFinanzas, IconCheck,
+} from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
@@ -36,7 +35,6 @@ export default function ExecutiveDashboard() {
     <Layout>
       <div className="flex flex-col gap-4 pb-6">
 
-        {/* ── Hero de cobro diario ── */}
         {isLoading ? (
           <div className="mx-4 mt-2"><SkeletonHero /></div>
         ) : (
@@ -48,7 +46,6 @@ export default function ExecutiveDashboard() {
               </div>
               <div className="text-sm opacity-70 mb-4">Resumen del día</div>
 
-              {/* Cobro del día */}
               <div className="bg-white/10 rounded-xl p-4 mb-3">
                 <div className="flex justify-between items-baseline mb-2">
                   <div>
@@ -69,13 +66,12 @@ export default function ExecutiveDashboard() {
                 <div className="text-xs opacity-60 mt-1.5 text-right">{collectPct.toFixed(0)}% de la meta diaria</div>
               </div>
 
-              {/* Comisión del mes — destacada */}
               <div
                 className="rounded-xl p-4 flex items-center gap-3"
                 style={{ background: "rgba(16,185,129,0.18)" }}
               >
-                <div className="w-10 h-10 rounded-xl bg-green-400/30 flex items-center justify-center text-green-200 text-xl shrink-0">
-                  <RiCoinLine />
+                <div className="w-10 h-10 rounded-xl bg-green-400/30 flex items-center justify-center shrink-0">
+                  <IconMoneda size={20} color="#bbf7d0" />
                 </div>
                 <div className="flex-1">
                   <div className="text-[10px] font-semibold uppercase tracking-widest text-green-200">
@@ -90,7 +86,7 @@ export default function ExecutiveDashboard() {
                 </div>
                 <Link href="/dashboard/comisiones">
                   <div className="text-green-200 opacity-70 hover:opacity-100 pressable">
-                    <RiArrowRightSLine className="text-xl" />
+                    <IconFlecha size={20} color="#bbf7d0" />
                   </div>
                 </Link>
               </div>
@@ -98,7 +94,6 @@ export default function ExecutiveDashboard() {
           </div>
         )}
 
-        {/* ── KPIs del mes ── */}
         {isLoading ? (
           <div className="grid grid-cols-2 gap-3 px-4">
             {[1,2,3,4].map(i => <SkeletonCard key={i} rows={2} />)}
@@ -111,25 +106,25 @@ export default function ExecutiveDashboard() {
             <div className="grid grid-cols-2 gap-3">
               {[
                 {
-                  icon: <RiGroupLine />, bg: "#dbeafe", color: "#1e40af",
+                  icon: <IconGrupo size={18} />, bg: "#dbeafe", color: "#1e40af",
                   label: "Clientes asignados", value: d?.totalAssignedClients ?? 0, sub: "Total en cartera",
                 },
                 {
-                  icon: <RiAlarmWarningLine />, bg: "#fee2e2", color: "#dc2626",
+                  icon: <IconAlerta size={18} />, bg: "#fee2e2", color: "#dc2626",
                   label: "En mora", value: d?.clientsOverdue ?? 0, sub: "Requieren visita",
                 },
                 {
-                  icon: <RiLineChartLine />, bg: "#dcfce7", color: "#16a34a",
+                  icon: <IconFinanzas size={18} />, bg: "#dcfce7", color: "#16a34a",
                   label: "Colocación del mes", value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado",
                 },
                 {
-                  icon: <RiCalendarLine />, bg: "#fef3c7", color: "#d97706",
+                  icon: <IconCalendario size={18} />, bg: "#fef3c7", color: "#d97706",
                   label: "Cobros pendientes", value: d?.clientsDueToday ?? 0, sub: "Clientes por cobrar",
                 },
               ].map(s => (
                 <div key={s.label} className="card">
                   <div
-                    className="w-9 h-9 rounded-xl flex items-center justify-center text-lg mb-2"
+                    className="w-9 h-9 rounded-xl flex items-center justify-center mb-2"
                     style={{ background: s.bg, color: s.color }}
                   >
                     {s.icon}
@@ -143,7 +138,6 @@ export default function ExecutiveDashboard() {
           </div>
         )}
 
-        {/* ── Meta del mes ── */}
         {!isLoading && d?.targetMonth > 0 && (
           <div className="mx-4 card">
             <div className="flex justify-between items-center mb-3">
@@ -169,7 +163,6 @@ export default function ExecutiveDashboard() {
           </div>
         )}
 
-        {/* ── Acciones rápidas ── */}
         <div className="px-4">
           <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
             Acciones rápidas
@@ -178,31 +171,31 @@ export default function ExecutiveDashboard() {
             {[
               {
                 href: "/dashboard/clientes",
-                icon: <RiUserLine />, bg: "#dbeafe", color: "#1e40af",
+                icon: <IconPersona size={18} />, bg: "#dbeafe", color: "#1e40af",
                 title: "Mis clientes",
                 sub: `${d?.totalAssignedClients ?? 0} clientes en cartera`,
               },
               {
                 href: "/dashboard/cobrar",
-                icon: <RiMoneyDollarCircleLine />, bg: "#d1fae5", color: "#065f46",
+                icon: <IconMoneda size={18} />, bg: "#d1fae5", color: "#065f46",
                 title: "Registrar cobro",
                 sub: "Registrar pago de un cliente",
               },
               {
                 href: "/dashboard/alta-cliente",
-                icon: <RiAddLine />, bg: "#ede9fe", color: "#6d28d9",
+                icon: <IconMas size={18} />, bg: "#ede9fe", color: "#6d28d9",
                 title: "Alta de cliente",
                 sub: "Registrar nuevo cliente y crédito",
               },
               {
                 href: "/dashboard/comisiones",
-                icon: <RiCoinLine />, bg: "#dcfce7", color: "#16a34a",
+                icon: <IconMoneda size={18} />, bg: "#dcfce7", color: "#16a34a",
                 title: "Mis comisiones",
                 sub: `Este mes: ${fmt(d?.commissionThisMonth ?? 0)}`,
               },
             ].map(item => (
               <Link key={item.href} href={item.href} className="card flex items-center gap-4 py-4 pressable">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ background: item.bg, color: item.color }}>
                   {item.icon}
                 </div>
@@ -210,7 +203,7 @@ export default function ExecutiveDashboard() {
                   <div className="text-sm font-semibold text-gray-900">{item.title}</div>
                   <div className="text-xs text-gray-500 mt-0.5">{item.sub}</div>
                 </div>
-                <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
+                <IconFlecha size={20} color="#9ca3af" />
               </Link>
             ))}
           </div>

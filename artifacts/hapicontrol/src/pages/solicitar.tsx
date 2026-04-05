@@ -1,13 +1,13 @@
 import { useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import {
-  RiArrowRightLine, RiArrowLeftLine, RiCheckboxCircleLine,
-  RiLoader4Line, RiErrorWarningLine, RiUpload2Line,
-  RiCheckLine, RiUserLine, RiPhoneLine, RiMapPinLine,
-  RiMoneyDollarCircleLine, RiFileTextLine, RiImageLine,
-  RiWhatsappLine, RiDeleteBinLine, RiStoreLine,
-  RiGroupLine, RiCameraLine,
-} from "react-icons/ri";
+  IconFlecha, IconAtras, IconCheck,
+  IconLoader, IconAlerta, IconSubir,
+  IconDobleCheck, IconPerfil, IconTelefono, IconUbicacion,
+  IconMoneda, IconDocumento, IconCamara as IconImagen,
+  IconWhatsapp, IconBorrar, IconTienda,
+  IconGrupo, IconCamara,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
@@ -187,7 +187,7 @@ export default function Solicitar() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 py-10 text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-            <RiCheckboxCircleLine className="text-4xl text-green-500" />
+            <IconDobleCheck size={36} color="#22c55e" />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Solicitud enviada</h2>
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
@@ -210,7 +210,7 @@ export default function Solicitar() {
             className="flex items-center justify-center gap-2 w-full max-w-xs rounded-2xl py-3.5 text-white text-sm font-semibold pressable"
             style={{ background: "#25d366" }}
           >
-            <RiWhatsappLine className="text-xl" /> Contactar por WhatsApp
+            <IconWhatsapp size={20} color="#fff" /> Contactar por WhatsApp
           </a>
         </div>
       </Layout>
@@ -472,12 +472,12 @@ export default function Solicitar() {
                         {uploaded.mimeType.startsWith("image/") ? (
                           <img src={uploaded.preview} alt={d.label} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center"><RiFileTextLine className="text-gray-400" /></div>
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center"><IconDocumento size={16} color="#9ca3af" /></div>
                         )}
                       </div>
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 shrink-0">
-                        {d.key === "selfie_ine" ? <RiCameraLine className="text-xl" /> : <RiImageLine className="text-xl" />}
+                        {d.key === "selfie_ine" ? <IconCamara size={20} /> : <IconImagen size={20} />}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -486,7 +486,7 @@ export default function Solicitar() {
                       </div>
                       {uploaded ? (
                         <div className="text-xs text-green-600 font-semibold flex items-center gap-1">
-                          <RiCheckLine /> {uploaded.filename}
+                          <IconCheck size={14} /> {uploaded.filename}
                         </div>
                       ) : (
                         <div className="text-xs text-gray-400">No cargado</div>
@@ -494,7 +494,7 @@ export default function Solicitar() {
                     </div>
                     {uploaded ? (
                       <button onClick={() => removeDoc(d.key)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "#fff0f0" }}>
-                        <RiDeleteBinLine className="text-red-500 text-sm" />
+                        <IconBorrar size={14} color="#ef4444" />
                       </button>
                     ) : (
                       <button
@@ -502,7 +502,7 @@ export default function Solicitar() {
                         className="px-3 py-1.5 rounded-lg text-xs font-semibold pressable"
                         style={{ background: "#f0f7ff", color: "var(--accent)" }}
                       >
-                        <RiUpload2Line className="inline mr-1" />Subir
+                        <IconSubir size={12} className="inline mr-1" />Subir
                       </button>
                     )}
                   </div>
@@ -571,7 +571,7 @@ export default function Solicitar() {
                     <div key={d.key} className="flex items-center justify-between text-sm">
                       <span className="text-gray-600">{d.label}</span>
                       {uploaded
-                        ? <span className="text-green-600 font-semibold text-xs flex items-center gap-1"><RiCheckLine /> Listo</span>
+                        ? <span className="text-green-600 font-semibold text-xs flex items-center gap-1"><IconCheck size={14} /> Listo</span>
                         : <span className="text-gray-400 text-xs">{d.required ? "Pendiente" : "Opcional"}</span>
                       }
                     </div>
@@ -582,7 +582,7 @@ export default function Solicitar() {
 
             {error && (
               <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
-                <RiErrorWarningLine className="text-red-500 text-xl shrink-0" />
+                <span className="shrink-0"><IconAlerta size={20} color="#ef4444" /></span>
                 <p className="text-sm text-red-700">{error}</p>
               </div>
             )}
@@ -593,11 +593,11 @@ export default function Solicitar() {
               className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl text-white text-sm font-bold pressable"
               style={{ background: canSubmit && !submitting ? "linear-gradient(135deg,#1e40af,#3b82f6)" : "#e5e7eb", color: canSubmit && !submitting ? "white" : "#9ca3af" }}
             >
-              {submitting ? <><RiLoader4Line className="animate-spin" /> Enviando...</> : "Enviar solicitud"}
+              {submitting ? <><IconLoader size={16} className="animate-spin" /> Enviando...</> : "Enviar solicitud"}
             </button>
 
             <button onClick={() => setStep(3)} className="text-center text-sm text-gray-400 pressable py-2">
-              <RiArrowLeftLine className="inline mr-1" /> Regresar
+              <IconAtras size={14} className="inline mr-1" /> Regresar
             </button>
           </div>
         )}
@@ -625,7 +625,7 @@ function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext: () 
           onClick={onBack}
           className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold border-2 border-gray-200 text-gray-600 pressable"
         >
-          <RiArrowLeftLine /> Atrás
+          <IconAtras size={16} /> Atrás
         </button>
       )}
       <button
@@ -634,7 +634,7 @@ function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext: () 
         className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
         style={{ background: canNext ? "var(--accent)" : "#e5e7eb", color: canNext ? "white" : "#9ca3af" }}
       >
-        Siguiente <RiArrowRightLine />
+        Siguiente <IconFlecha size={16} color="#fff" />
       </button>
     </div>
   );

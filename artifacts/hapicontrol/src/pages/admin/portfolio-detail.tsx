@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { RiSearchLine, RiArrowRightLine, RiCalendarLine } from "react-icons/ri";
+import { IconFlecha, IconCalendario } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
@@ -67,7 +67,7 @@ export default function AdminPortfolioDetail() {
       <div className="space-y-4">
 
         <div className="relative">
-          <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9ca3af" strokeWidth="2"/><path d="M16 16l5 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/></svg></span>
           <input
             type="search"
             placeholder="Buscar cliente..."
@@ -113,7 +113,7 @@ export default function AdminPortfolioDetail() {
                       <span className={`text-[9px] font-bold px-2 py-1 rounded-full ${statusCls[row.clientStatus] ?? ""}`}>
                         {statusLabels[row.clientStatus] ?? row.clientStatus}
                       </span>
-                      <RiArrowRightLine className="w-3.5 h-3.5 text-muted-foreground/50" />
+                      <IconFlecha size={14} color="#9ca3af" />
                     </div>
                   </div>
 
@@ -139,7 +139,7 @@ export default function AdminPortfolioDetail() {
                       </div>
                       <div className="flex items-center justify-between text-[10px] text-muted-foreground">
                         <span className="flex items-center gap-1">
-                          <RiCalendarLine className="w-3 h-3" />
+                          <IconCalendario size={12} />
                           Próx. pago: {fmtDate(row.nextPaymentDate)}
                         </span>
                         <span>Pago {row.currentPaymentNum}/{row.termWeeks} · Tasa {row.interestRate}%</span>

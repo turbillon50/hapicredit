@@ -3,9 +3,9 @@ import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  RiMoneyDollarCircleLine, RiArrowRightLine, RiCheckboxCircleLine,
-  RiLoader4Line, RiErrorWarningLine, RiFileTextLine,
-} from "react-icons/ri";
+  IconMoneda, IconFlecha, IconCheck,
+  IconLoader, IconAlerta, IconDocumento,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({
@@ -67,7 +67,7 @@ export default function ClientSolicitar() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 py-10 text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-            <RiCheckboxCircleLine className="text-4xl text-green-500" />
+            <IconCheck size={36} color="#22c55e" />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">¡Solicitud enviada!</h2>
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
@@ -186,7 +186,7 @@ export default function ClientSolicitar() {
 
         {error && (
           <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
-            <RiErrorWarningLine className="text-red-500 text-xl shrink-0" />
+            <span className="shrink-0"><IconAlerta size={20} color="#ef4444" /></span>
             <p className="text-sm text-red-700">{error}</p>
           </div>
         )}
@@ -201,8 +201,8 @@ export default function ClientSolicitar() {
           }}
         >
           {mut.isPending
-            ? <><RiLoader4Line className="animate-spin" /> Enviando...</>
-            : <><RiFileTextLine /> Enviar solicitud</>
+            ? <><IconLoader size={16} className="animate-spin" /> Enviando...</>
+            : <><IconDocumento size={16} /> Enviar solicitud</>
           }
         </button>
       </div>

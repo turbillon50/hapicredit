@@ -4,7 +4,7 @@ import { useCreateClient } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { RiUserAddLine } from "react-icons/ri";
+import { IconPersonaMas } from "@/components/hapi/HapiIcons";
 
 const fields = [
   { key: "fullName",        label: "Nombre completo",   type: "text",   required: true, ph: "Ej. María García López" },
@@ -104,7 +104,7 @@ export default function ExecutiveClientNew() {
           className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
           style={{ background: "linear-gradient(135deg, #1a3a6b, #2454a3)" }}
         >
-          <RiUserAddLine className="w-5 h-5" />
+          <IconPersonaMas size={20} color="#fff" />
           {createClient.isPending ? "Registrando..." : "Registrar cliente"}
         </button>
       </form>

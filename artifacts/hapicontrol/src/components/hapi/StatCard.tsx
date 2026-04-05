@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { RiArrowUpLine, RiArrowDownLine } from 'react-icons/ri';
+import { IconFlechaArriba, IconFlechaAbajo } from '@/components/hapi/HapiIcons';
 
 interface StatCardProps {
   icon: React.ReactNode;
@@ -50,7 +50,7 @@ export function StatCard({ icon, iconBg, iconColor, label, value, prefix = '', s
         </div>
         {delta !== undefined && (
           <div className={`flex items-center gap-0.5 text-[11px] font-semibold px-1.5 py-0.5 rounded-md ${positive ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-            {positive ? <RiArrowUpLine className="text-xs" /> : <RiArrowDownLine className="text-xs" />}
+            {positive ? <IconFlechaArriba size={12} /> : <IconFlechaAbajo size={12} />}
             {Math.abs(delta).toFixed(1)}%
           </div>
         )}

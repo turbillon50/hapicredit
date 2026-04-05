@@ -5,10 +5,10 @@ import { Badge } from "@/components/hapi/Badge";
 import { SkeletonList } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
-  RiFolderOpenLine, RiUpload2Line, RiFileLine,
-  RiImageLine, RiFileTextLine, RiDeleteBinLine,
-  RiCheckLine, RiLoader4Line, RiEyeLine, RiCloseLine,
-} from "react-icons/ri";
+  IconCarpeta, IconSubir, IconDocumento as IconArchivo,
+  IconCamara as IconImagen, IconDocumento, IconBorrar,
+  IconCheck, IconLoader, IconOjo, IconCerrar,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -33,9 +33,9 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 function docIcon(mimeType: string) {
-  if (mimeType.startsWith("image/")) return <RiImageLine className="text-blue-500" />;
-  if (mimeType === "application/pdf")  return <RiFileTextLine className="text-red-500" />;
-  return <RiFileLine className="text-gray-500" />;
+  if (mimeType.startsWith("image/")) return <IconImagen size={16} color="#3b82f6" />;
+  if (mimeType === "application/pdf")  return <IconDocumento size={16} color="#ef4444" />;
+  return <IconArchivo size={16} color="#6b7280" />;
 }
 
 type Doc = {
@@ -141,7 +141,7 @@ export default function ClientExpediente() {
                 <div key={key} className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">{label}</span>
                   {uploaded
-                    ? <span className="flex items-center gap-1 text-green-600 font-semibold text-xs"><RiCheckLine /> Cargado</span>
+                    ? <span className="flex items-center gap-1 text-green-600 font-semibold text-xs"><IconCheck size={14} /> Cargado</span>
                     : <span className="text-gray-400 text-xs">Pendiente</span>
                   }
                 </div>
@@ -153,7 +153,7 @@ export default function ClientExpediente() {
         {/* Upload */}
         <div className="card border-2 border-dashed border-blue-200" style={{ background: "#f0f7ff" }}>
           <div className="flex items-center gap-2 mb-3">
-            <RiUpload2Line className="text-blue-500 text-xl" />
+            <IconSubir size={20} color="#3b82f6" />
             <div className="text-sm font-bold text-gray-800">Cargar nuevo documento</div>
           </div>
 
@@ -186,7 +186,7 @@ export default function ClientExpediente() {
               className="flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold pressable cursor-pointer"
               style={{ background: "var(--accent)", color: "#fff", opacity: uploading ? 0.6 : 1 }}
             >
-              {uploading ? <RiLoader4Line className="animate-spin" /> : <RiUpload2Line />}
+              {uploading ? <IconLoader size={16} className="animate-spin" /> : <IconSubir size={16} />}
               {uploading ? "Subiendo..." : "Seleccionar foto o archivo"}
             </label>
 
@@ -207,7 +207,7 @@ export default function ClientExpediente() {
             <SkeletonList count={3} />
           ) : (docs as Doc[]).length === 0 ? (
             <EmptyState
-              icon={<RiFolderOpenLine />}
+              icon={<IconCarpeta size={24} />}
               title="Expediente vacío"
               description="Aún no has cargado ningún documento. Usa el botón de arriba para empezar."
             />
@@ -251,7 +251,7 @@ export default function ClientExpediente() {
                           className="w-9 h-9 rounded-xl flex items-center justify-center pressable"
                           style={{ background: "#f0f7ff" }}
                         >
-                          <RiEyeLine className="text-blue-500 text-base" />
+                          <IconOjo size={16} color="#3b82f6" />
                         </button>
                       )}
                       <button
@@ -259,7 +259,7 @@ export default function ClientExpediente() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center pressable"
                         style={{ background: "#fff0f0" }}
                       >
-                        <RiDeleteBinLine className="text-red-500 text-base" />
+                        <IconBorrar size={16} color="#ef4444" />
                       </button>
                     </div>
                   </div>
@@ -282,7 +282,7 @@ export default function ClientExpediente() {
               onClick={() => setPreview(null)}
               className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg z-10"
             >
-              <RiCloseLine className="text-gray-800 text-xl" />
+              <IconCerrar size={20} color="#1f2937" />
             </button>
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <div className="bg-gray-900 px-4 py-3">

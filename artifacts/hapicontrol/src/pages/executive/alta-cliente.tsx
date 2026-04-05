@@ -4,12 +4,12 @@ import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  RiArrowLeftLine, RiArrowRightLine, RiCheckLine,
-  RiCameraLine, RiUploadCloud2Line, RiCloseLine,
-  RiUser3Line, RiGroupLine, RiIdCardLine, RiMoneyDollarCircleLine,
-  RiLoader4Line, RiCheckboxCircleLine, RiErrorWarningLine,
-  RiFilePdf2Line, RiPhoneLine, RiMapPinLine,
-} from "react-icons/ri";
+  IconAtras, IconFlecha, IconCheck,
+  IconCamara, IconSubir, IconCerrar,
+  IconPersona, IconGrupo, IconID, IconMoneda,
+  IconLoader, IconAlerta,
+  IconDocumento, IconTelefono, IconUbicacion,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({
@@ -113,7 +113,7 @@ function DocCapture({
         </div>
         {value && (
           <button onClick={() => onChange(null)} className="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center text-red-400">
-            <RiCloseLine />
+            <IconCerrar size={16} />
           </button>
         )}
       </div>
@@ -122,17 +122,17 @@ function DocCapture({
         <div className="relative rounded-xl overflow-hidden border-2 border-green-400">
           {isPdf ? (
             <div className="flex items-center gap-3 bg-green-50 p-3">
-              <RiFilePdf2Line className="text-3xl text-red-500" />
+              <IconDocumento size={28} color="#ef4444" />
               <div>
                 <div className="text-sm font-semibold text-gray-800">PDF cargado</div>
-                <div className="text-xs text-green-600 font-medium flex items-center gap-1"><RiCheckLine /> Listo</div>
+                <div className="text-xs text-green-600 font-medium flex items-center gap-1">< IconCheck size={14} /> Listo</div>
               </div>
             </div>
           ) : (
             <>
               <img src={value} alt={label} className="w-full max-h-36 object-cover" />
               <div className="absolute top-2 right-2 bg-green-500 text-white rounded-full p-1">
-                <RiCheckLine className="text-sm" />
+                <IconCheck size={14} />
               </div>
             </>
           )}
@@ -145,7 +145,7 @@ function DocCapture({
             className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold text-white pressable"
             style={{ background: "#1e40af" }}
           >
-            {loading ? <RiLoader4Line className="animate-spin" /> : <RiCameraLine />}
+            {loading ? <IconLoader size={16} /> : <IconCamara size={16} />}
             Cámara
           </button>
           <button
@@ -153,7 +153,7 @@ function DocCapture({
             onClick={() => { ref.current?.removeAttribute("capture"); ref.current?.click(); }}
             className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-200 pressable"
           >
-            <RiUploadCloud2Line /> Archivo
+            <IconSubir size={16} /> Archivo
           </button>
         </div>
       )}
@@ -266,7 +266,7 @@ export default function AltaCliente() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 py-10 text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-            <RiCheckboxCircleLine className="text-5xl text-green-500" />
+            <IconCheck size={48} color="#22c55e" />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">¡Cliente registrado!</h2>
           <p className="text-sm text-gray-500 mb-6 max-w-xs">
@@ -302,7 +302,7 @@ export default function AltaCliente() {
               className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl text-white text-sm font-bold pressable"
               style={{ background: "var(--accent)" }}
             >
-              Ver expediente <RiArrowRightLine />
+              Ver expediente <IconFlecha size={16} />
             </button>
             <button
               onClick={() => {
@@ -331,7 +331,7 @@ export default function AltaCliente() {
             onClick={() => step > 1 ? setStep(s => s - 1) : navigate("/dashboard/clientes")}
             className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center pressable"
           >
-            <RiArrowLeftLine className="text-gray-600 text-base" />
+            <IconAtras size={16} color="#4b5563" />
           </button>
           <div className="flex-1">
             <h1 className="text-lg font-bold text-gray-900">Alta de cliente</h1>
@@ -347,7 +347,7 @@ export default function AltaCliente() {
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-base">
-                  <RiUser3Line />
+                  <IconPersona size={16} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-gray-900">Datos personales</h2>
@@ -380,7 +380,7 @@ export default function AltaCliente() {
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 text-base">
-                  <RiGroupLine />
+                  <IconGrupo size={16} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-gray-900">Datos del aval</h2>
@@ -389,7 +389,7 @@ export default function AltaCliente() {
               </div>
 
               <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
-                <RiErrorWarningLine className="text-amber-500 text-xl shrink-0 mt-0.5" />
+                <span className="shrink-0 mt-0.5"><IconAlerta size={20} color="#f59e0b" /></span>
                 <div className="text-sm text-amber-700">
                   El aval debe ser mayor de edad y diferente al solicitante. Confirma sus datos en persona.
                 </div>
@@ -410,7 +410,7 @@ export default function AltaCliente() {
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center text-green-600 text-base">
-                  <RiIdCardLine />
+                  <IconID size={16} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-gray-900">Documentos KYC</h2>
@@ -435,10 +435,7 @@ export default function AltaCliente() {
                 className="rounded-2xl p-3 flex items-center gap-3"
                 style={{ background: docsOk ? "#d1fae5" : "#f8fafc" }}
               >
-                <RiCheckboxCircleLine
-                  className="text-2xl shrink-0"
-                  style={{ color: docsOk ? "#10b981" : "#cbd5e1" }}
-                />
+                <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "#cbd5e1"} /></span>
                 <div className="text-sm">
                   <div className="font-semibold text-gray-800">
                     {docsOk ? "Documentos requeridos completos" : `Faltan ${requiredDocs.filter(f => !docs[f.key]).length} documentos obligatorios`}
@@ -455,7 +452,7 @@ export default function AltaCliente() {
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-base">
-                  <RiMoneyDollarCircleLine />
+                  <IconMoneda size={16} />
                 </div>
                 <div>
                   <h2 className="text-base font-bold text-gray-900">Configurar crédito</h2>
@@ -537,10 +534,10 @@ export default function AltaCliente() {
               <div className="card bg-blue-50 border border-blue-100">
                 <div className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-3">Resumen del alta</div>
                 {[
-                  [<RiUser3Line />, fullName],
-                  [<RiPhoneLine />, phone],
-                  [<RiMapPinLine />, address],
-                  [<RiGroupLine />, `Aval: ${guarantorName} — ${guarantorPhone}`],
+                  [<IconPersona size={16} />, fullName],
+                  [<IconTelefono size={16} />, phone],
+                  [<IconUbicacion size={16} />, address],
+                  [<IconGrupo size={16} />, `Aval: ${guarantorName} — ${guarantorPhone}`],
                 ].map(([icon, val], i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-gray-700 mb-1.5">
                     <span className="text-blue-400 text-base">{icon}</span>
@@ -551,7 +548,7 @@ export default function AltaCliente() {
 
               {error && (
                 <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
-                  <RiErrorWarningLine className="text-red-500 text-xl shrink-0" />
+                  <span className="shrink-0"><IconAlerta size={20} color="#ef4444" /></span>
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}
@@ -565,7 +562,7 @@ export default function AltaCliente() {
                 onClick={() => setStep(s => s - 1)}
                 className="flex items-center gap-2 px-5 py-4 rounded-2xl border-2 border-gray-200 bg-white text-gray-700 text-sm font-semibold pressable"
               >
-                <RiArrowLeftLine /> Atrás
+                <IconAtras size={16} /> Atrás
               </button>
             )}
             {step < TOTAL && (
@@ -578,7 +575,7 @@ export default function AltaCliente() {
                   color: canContinue() ? "white" : "#9ca3af",
                 }}
               >
-                Continuar <RiArrowRightLine />
+                Continuar <IconFlecha size={16} />
               </button>
             )}
             {step === TOTAL && (
@@ -592,8 +589,8 @@ export default function AltaCliente() {
                 }}
               >
                 {submitting
-                  ? <><RiLoader4Line className="animate-spin" /> Registrando...</>
-                  : <><RiCheckLine /> Dar de alta</>
+                  ? <><IconLoader size={16} /> Registrando...</>
+                  : <>< IconCheck size={14} /> Dar de alta</>
                 }
               </button>
             )}

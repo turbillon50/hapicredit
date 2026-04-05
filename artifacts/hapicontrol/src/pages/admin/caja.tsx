@@ -1,6 +1,6 @@
 import { Layout } from "@/components/layout/Layout";
 import { useGetCajaSummary } from "@workspace/api-client-react";
-import { RiSafeLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
+import { IconCaja, IconCrecimiento, IconFlechaAbajo } from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -38,7 +38,7 @@ export default function AdminCaja() {
             <div key={exec.id} className="bg-white rounded-2xl shadow-card p-4">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
-                  <RiSafeLine className="w-4.5 h-4.5 text-primary" />
+                  <IconCaja size={18} color="var(--accent)" />
                 </div>
                 <p className="text-[13px] font-semibold text-foreground">{exec.fullName}</p>
               </div>

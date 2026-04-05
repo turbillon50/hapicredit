@@ -7,7 +7,7 @@ import { Badge, statusBadge } from "@/components/hapi/Badge";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
 import { useLocation } from "wouter";
-import { RiSearchLine, RiUserLine, RiArrowRightSLine, RiAddLine } from "react-icons/ri";
+import { IconBuscar, IconPersona, IconFlecha, IconMas } from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -40,7 +40,6 @@ export default function ExecutiveClients() {
     <Layout>
       <div className="flex flex-col gap-4 pb-4">
 
-        {/* Header */}
         <div className="px-4 pt-4 md:pt-0 flex items-center gap-3">
           <div className="flex-1">
             <h1 className="text-xl font-bold text-gray-900">Mis Clientes</h1>
@@ -51,14 +50,13 @@ export default function ExecutiveClients() {
             className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-white text-sm font-semibold pressable"
             style={{ background: "var(--accent)" }}
           >
-            <RiAddLine className="text-base" /> Nuevo
+            <IconMas size={16} color="#fff" /> Nuevo
           </button>
         </div>
 
-        {/* Search */}
         <div className="px-4 flex flex-col gap-2.5">
           <div className="relative">
-            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+            <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="#9ca3af" /></span>
             <input
               type="search"
               placeholder="Buscar por nombre o teléfono..."
@@ -81,13 +79,12 @@ export default function ExecutiveClients() {
           </div>
         </div>
 
-        {/* List */}
         <div className="px-4">
           {isLoading ? (
             <SkeletonList count={5} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              icon={<RiUserLine />}
+              icon={<IconPersona />}
               title="Sin clientes"
               description="No se encontraron clientes con ese filtro."
             />
@@ -115,7 +112,7 @@ export default function ExecutiveClients() {
                           )}
                         </div>
                       </div>
-                      <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
+                      <IconFlecha size={20} color="#9ca3af" />
                     </div>
                   </div>
                 );

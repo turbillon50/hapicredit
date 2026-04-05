@@ -3,7 +3,7 @@ import { Layout } from "@/components/layout/Layout";
 import { useAuth } from "@/hooks/use-auth";
 import { useListClients, useCreatePayment } from "@workspace/api-client-react";
 import { Button } from "@/components/hapi/Button";
-import { RiCheckLine, RiMoneyDollarCircleLine, RiSearchLine } from "react-icons/ri";
+import { IconCheck, IconMoneda, IconBuscar } from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -69,7 +69,7 @@ export default function ExecutiveCobrar() {
             className="flex items-center gap-3 rounded-2xl px-4 py-3.5 mb-5 text-sm font-semibold"
             style={{ background: "#d1fae5", color: "#065f46" }}
           >
-            <RiCheckLine className="text-xl shrink-0" />
+            <IconCheck size={20} />
             Pago registrado correctamente.
           </div>
         )}
@@ -87,7 +87,7 @@ export default function ExecutiveCobrar() {
                 style={{ borderColor: "var(--accent)", background: "#eff6ff" }}
                 onClick={() => { setSelectedClient(null); setClientSearch(""); }}
               >
-                <RiMoneyDollarCircleLine className="text-blue-600 text-xl" />
+                <IconMoneda size={20} color="#2563eb" />
                 <div className="flex-1">
                   <div className="text-sm font-semibold text-gray-900">{selectedClient.fullName}</div>
                   <div className="text-xs text-blue-600">Toca para cambiar</div>
@@ -96,7 +96,7 @@ export default function ExecutiveCobrar() {
             ) : (
               <div>
                 <div className="relative mb-2">
-                  <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg" />
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="#9ca3af" /></span>
                   <input
                     type="text"
                     placeholder="Buscar cliente por nombre..."
@@ -193,7 +193,7 @@ export default function ExecutiveCobrar() {
             fullWidth
             loading={payMut.isPending}
           >
-            <RiCheckLine className="text-lg" />
+            <IconCheck size={18} />
             Confirmar cobro
           </Button>
         </form>

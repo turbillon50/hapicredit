@@ -1,9 +1,9 @@
 import { useState } from "react";
 import {
-  RiShieldCheckLine, RiArrowRightLine, RiCheckboxCircleLine,
-  RiLoader4Line, RiErrorWarningLine, RiPhoneLine, RiUser3Line,
-  RiWhatsappLine, RiLockLine,
-} from "react-icons/ri";
+  IconEscudo, IconFlecha, IconCheck,
+  IconLoader, IconAlerta, IconTelefono, IconPerfil,
+  IconWhatsapp, IconCandado,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
@@ -55,7 +55,7 @@ export default function Registro() {
           className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4 text-3xl text-white"
           style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)" }}
         >
-          <RiShieldCheckLine />
+          <IconEscudo size={30} color="#fff" />
         </div>
         <h1 className="text-3xl font-extrabold text-white tracking-tight mb-2">HapiCredit</h1>
         <p className="text-white/70 text-sm max-w-xs leading-relaxed">
@@ -68,7 +68,7 @@ export default function Registro() {
         {done ? (
           <div className="bg-white rounded-3xl p-8 shadow-xl text-center">
             <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <RiCheckboxCircleLine className="text-4xl text-green-500" />
+              <IconCheck size={36} color="#22c55e" />
             </div>
             <h2 className="text-2xl font-extrabold text-gray-900 mb-2">¡Gracias por tu interés!</h2>
             <p className="text-sm text-gray-500 mb-5">
@@ -85,7 +85,7 @@ export default function Registro() {
                 className="flex items-center justify-center gap-2 w-full rounded-2xl py-3.5 text-white text-sm font-semibold"
                 style={{ background: "#25d366" }}
               >
-                <RiWhatsappLine className="text-xl" /> Escríbenos por WhatsApp
+                <IconWhatsapp size={20} color="#fff" /> Escríbenos por WhatsApp
               </a>
               <button
                 onClick={() => { setDone(null); setName(""); setPhone(""); setAmount(""); }}
@@ -128,7 +128,7 @@ export default function Registro() {
                   Nombre completo <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <RiUser3Line className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><IconPerfil size={16} color="#9ca3af" /></span>
                   <input
                     type="text"
                     value={name}
@@ -144,7 +144,7 @@ export default function Registro() {
                   Teléfono celular <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <RiPhoneLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-base" />
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2"><IconTelefono size={16} color="#9ca3af" /></span>
                   <input
                     type="tel"
                     value={phone}
@@ -174,7 +174,7 @@ export default function Registro() {
 
               {error && (
                 <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-xl p-3">
-                  <RiErrorWarningLine className="text-red-500 text-base shrink-0" />
+                  <span className="shrink-0"><IconAlerta size={16} color="#ef4444" /></span>
                   <p className="text-xs text-red-700">{error}</p>
                 </div>
               )}
@@ -189,14 +189,14 @@ export default function Registro() {
                 }}
               >
                 {submitting
-                  ? <><RiLoader4Line className="animate-spin" /> Enviando...</>
-                  : <>Quiero ser cliente <RiArrowRightLine /></>
+                  ? <><IconLoader size={16} className="animate-spin" /> Enviando...</>
+                  : <>Quiero ser cliente <IconFlecha size={16} color="#fff" /></>
                 }
               </button>
             </div>
 
             <div className="flex items-center justify-center gap-1.5">
-              <RiLockLine className="text-gray-300 text-sm" />
+              <IconCandado size={14} color="#d1d5db" />
               <p className="text-xs text-gray-400">Tu información es confidencial y está protegida</p>
             </div>
           </>

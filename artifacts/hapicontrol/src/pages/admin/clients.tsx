@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useListClients } from "@workspace/api-client-react";
 import { Link } from "wouter";
-import { RiSearchLine, RiArrowRightLine } from "react-icons/ri";
+import { IconFlecha } from "@/components/hapi/HapiIcons";
 
 const statusLabels: Record<string, string> = {
   current: "Al corriente",
@@ -52,7 +52,7 @@ export default function AdminClients() {
         </div>
 
         <div className="relative">
-          <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <span className="absolute left-3 top-1/2 -translate-y-1/2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9ca3af" strokeWidth="2"/><path d="M16 16l5 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/></svg></span>
           <input
             type="search"
             placeholder="Buscar cliente..."
@@ -84,7 +84,7 @@ export default function AdminClients() {
                     <span className={`text-[9px] font-semibold px-2 py-1 rounded-full status-${client.status}`}>
                       {statusLabels[client.status] ?? client.status}
                     </span>
-                    <RiArrowRightLine className="w-3.5 h-3.5 text-muted-foreground/50" />
+                    <IconFlecha size={14} color="#9ca3af" />
                   </div>
                 </div>
               </Link>

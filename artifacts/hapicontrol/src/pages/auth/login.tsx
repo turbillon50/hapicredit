@@ -2,18 +2,18 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  RiShieldCheckLine,
-  RiUserLine,
-  RiGroupLine,
-  RiBankCardLine,
-  RiArrowRightSLine,
-  RiInformationLine,
-} from "react-icons/ri";
+  IconEscudo,
+  IconPerfil,
+  IconGrupo,
+  IconTarjeta,
+  IconFlecha,
+  IconInfo,
+} from "@/components/hapi/HapiIcons";
 
 const ROLES = [
   {
     key: "admin",
-    icon: <RiShieldCheckLine />,
+    icon: <IconEscudo size={20} color="#fff" />,
     label: "Administrador",
     sub: "Visión global — cartera, finanzas, asesores",
     bg: "linear-gradient(135deg, #0f2552, #1a3a6b)",
@@ -23,7 +23,7 @@ const ROLES = [
   },
   {
     key: "ejecutivo1",
-    icon: <RiGroupLine />,
+    icon: <IconGrupo size={20} color="#fff" />,
     label: "Asesor de campo",
     sub: "Carlos Mendoza — mis clientes, cobros y comisiones",
     bg: "linear-gradient(135deg, #064e3b, #065f46)",
@@ -33,7 +33,7 @@ const ROLES = [
   },
   {
     key: "ejecutivo2",
-    icon: <RiUserLine />,
+    icon: <IconPerfil size={20} color="#fff" />,
     label: "Asesor de campo",
     sub: "Daniela Ruiz — mis clientes, cobros y comisiones",
     bg: "linear-gradient(135deg, #3b0764, #6d28d9)",
@@ -43,7 +43,7 @@ const ROLES = [
   },
   {
     key: "cliente1",
-    icon: <RiBankCardLine />,
+    icon: <IconTarjeta size={20} color="#fff" />,
     label: "Cliente",
     sub: "Ana López — mi crédito, pagos e historial",
     bg: "linear-gradient(135deg, #1c1917, #292524)",
@@ -94,7 +94,7 @@ export default function Login() {
             className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5"
             style={{ background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)" }}
           >
-            <RiShieldCheckLine className="text-white text-3xl" />
+            <IconEscudo size={30} color="#fff" />
           </div>
           <h1 className="text-4xl font-extrabold text-white tracking-tight">HapiCredit</h1>
           <p className="text-sm mt-2" style={{ color: "rgba(255,255,255,0.4)" }}>
@@ -144,10 +144,9 @@ export default function Login() {
                 </div>
 
                 {/* Arrow */}
-                <RiArrowRightSLine
-                  className="text-xl shrink-0 transition-opacity"
-                  style={{ color: "rgba(255,255,255,0.3)" }}
-                />
+                <span className="shrink-0 transition-opacity" style={{ color: "rgba(255,255,255,0.3)" }}>
+                  <IconFlecha size={20} color="rgba(255,255,255,0.3)" />
+                </span>
               </div>
             </button>
           ))}
@@ -160,7 +159,7 @@ export default function Login() {
             className="flex items-center justify-center gap-2 mx-auto pressable py-2 px-4"
             style={{ color: "rgba(255,255,255,0.25)" }}
           >
-            <RiInformationLine className="text-sm" />
+            <IconInfo size={14} />
             <span className="text-xs">Cómo instalar la app en tu celular</span>
           </button>
 

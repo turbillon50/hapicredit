@@ -7,11 +7,11 @@ import {
   useListCredits,
 } from "@workspace/api-client-react";
 import {
-  RiPhoneLine,
-  RiMapPinLine,
-  RiMoneyDollarCircleLine,
-  RiCalendarLine,
-} from "react-icons/ri";
+  IconTelefono,
+  IconUbicacion,
+  IconMoneda,
+  IconCalendario,
+} from "@/components/hapi/HapiIcons";
 
 const statusLabels: Record<string, string> = {
   current: "Al corriente",
@@ -113,7 +113,7 @@ export default function ExecutiveClientDetail() {
           {client.phone && (
             <a href={`tel:${client.phone}`} className="flex items-center gap-3">
               <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center">
-                <RiPhoneLine className="w-4.5 h-4.5 text-primary" />
+                <IconTelefono size={18} color="var(--accent)" />
               </div>
               <span className="text-[14px] text-foreground">{client.phone}</span>
             </a>
@@ -121,7 +121,7 @@ export default function ExecutiveClientDetail() {
           {client.address && (
             <div className="flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
-                <RiMapPinLine className="w-4.5 h-4.5 text-primary" />
+                <IconUbicacion size={18} color="var(--accent)" />
               </div>
               <span className="text-[13px] text-muted-foreground leading-relaxed">{client.address}</span>
             </div>
@@ -132,7 +132,7 @@ export default function ExecutiveClientDetail() {
           <Link href={`/payments/new?clientId=${client.id}`}>
             <div className="bg-white rounded-2xl shadow-card p-4 flex flex-col items-center gap-2 text-center active:bg-secondary transition-colors">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <RiMoneyDollarCircleLine className="w-5 h-5 text-primary" />
+                <IconMoneda size={20} color="var(--accent)" />
               </div>
               <span className="text-[12px] font-semibold text-foreground">Registrar pago</span>
             </div>
@@ -140,7 +140,7 @@ export default function ExecutiveClientDetail() {
           <Link href="/commitments">
             <div className="bg-white rounded-2xl shadow-card p-4 flex flex-col items-center gap-2 text-center active:bg-secondary transition-colors">
               <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                <RiCalendarLine className="w-5 h-5 text-warning" />
+                <IconCalendario size={20} color="#f59e0b" />
               </div>
               <span className="text-[12px] font-semibold text-foreground">Compromiso</span>
             </div>

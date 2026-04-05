@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Avatar } from "@/components/hapi/Avatar";
 import {
-  RiPhoneLine, RiMapPinLine, RiIdCardLine,
-  RiInformationLine,
-  RiUpload2Line, RiFolderOpenLine,
-  RiFileTextLine, RiDeleteBinLine,
-  RiEyeLine, RiCloseLine, RiLoader4Line,
-} from "react-icons/ri";
+  IconTelefono, IconUbicacion, IconID,
+  IconInfo,
+  IconSubir, IconCarpeta,
+  IconDocumento, IconBorrar,
+  IconOjo, IconCerrar, IconLoader,
+} from "@/components/hapi/HapiIcons";
 import { useState, useRef } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
@@ -99,10 +99,10 @@ export default function Perfil() {
           <div className="card flex flex-col gap-3">
             <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Información personal</div>
             {[
-              [<RiPhoneLine />, "Teléfono",  client.phone],
-              [<RiPhoneLine />, "Tel. alterno", client.altPhone || "\u2014"],
-              [<RiMapPinLine />, "Domicilio",  client.address || "\u2014"],
-              [<RiIdCardLine />, "CURP",       client.curp || "\u2014"],
+              [<IconTelefono size={16} />, "Teléfono",  client.phone],
+              [<IconTelefono size={16} />, "Tel. alterno", client.altPhone || "\u2014"],
+              [<IconUbicacion size={16} />, "Domicilio",  client.address || "\u2014"],
+              [<IconID size={16} />, "CURP",       client.curp || "\u2014"],
             ].map(([icon, label, val]) => (
               <div key={String(label)} className="flex items-start gap-3 text-sm">
                 <span className="text-gray-400 mt-0.5 text-base">{icon}</span>
@@ -118,7 +118,7 @@ export default function Perfil() {
         {/* Document upload */}
         <div className="card border-2 border-dashed border-blue-200" style={{ background: "#f0f7ff" }}>
           <div className="flex items-center gap-2 mb-3">
-            <RiUpload2Line className="text-blue-500 text-xl" />
+            <IconSubir size={20} color="#3b82f6" />
             <div className="text-sm font-bold text-gray-800">Cargar documento</div>
           </div>
           <div className="flex flex-col gap-3">
@@ -137,7 +137,7 @@ export default function Perfil() {
               className="flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold pressable cursor-pointer"
               style={{ background: "var(--accent)", color: "#fff", opacity: uploading ? 0.6 : 1 }}
             >
-              {uploading ? <RiLoader4Line className="animate-spin" /> : <RiUpload2Line />}
+              {uploading ? <IconLoader size={16} className="animate-spin" /> : <IconSubir size={16} />}
               {uploading ? "Subiendo..." : "Seleccionar archivo"}
             </label>
             {uploadMsg && (
@@ -151,13 +151,13 @@ export default function Perfil() {
         {/* Documents list */}
         <div>
           <div className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
-            <RiFolderOpenLine className="text-base" /> Mis documentos
+            <IconCarpeta size={16} /> Mis documentos
           </div>
           {loadingDocs ? (
             <div className="text-xs text-gray-400 text-center py-6">Cargando...</div>
           ) : (docs as any[]).length === 0 ? (
             <div className="text-center py-8 text-gray-400">
-              <RiFolderOpenLine className="text-3xl mx-auto mb-2" />
+              <span className="mx-auto mb-2"><IconCarpeta size={30} color="#9ca3af" /></span>
               <div className="text-sm">Sin documentos cargados</div>
             </div>
           ) : (
@@ -175,7 +175,7 @@ export default function Perfil() {
                       </div>
                     ) : (
                       <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-2xl shrink-0">
-                        <RiFileTextLine className="text-gray-400" />
+                        <IconDocumento size={24} color="#9ca3af" />
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
@@ -185,11 +185,11 @@ export default function Perfil() {
                     <div className="flex gap-1.5 shrink-0">
                       {isImage && (
                         <button onClick={() => setPreview(parsed)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "#f0f7ff" }}>
-                          <RiEyeLine className="text-blue-500 text-sm" />
+                          <IconOjo size={14} color="#3b82f6" />
                         </button>
                       )}
                       <button onClick={() => deleteMut.mutate(doc.id)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "#fff0f0" }}>
-                        <RiDeleteBinLine className="text-red-500 text-sm" />
+                        <IconBorrar size={14} color="#ef4444" />
                       </button>
                     </div>
                   </div>
@@ -201,7 +201,7 @@ export default function Perfil() {
 
         {/* App info */}
         <div className="card flex items-start gap-3" style={{ background: "#f8fafc" }}>
-          <RiInformationLine className="text-gray-400 text-xl mt-0.5 shrink-0" />
+          <span className="mt-0.5 shrink-0"><IconInfo size={20} color="#9ca3af" /></span>
           <div>
             <div className="text-sm font-semibold text-gray-700">HapiCredit v1.0</div>
             <div className="text-xs text-gray-400 leading-relaxed mt-1">
@@ -216,7 +216,7 @@ export default function Perfil() {
         <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(0,0,0,0.8)" }} onClick={() => setPreview(null)}>
           <div className="relative max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
             <button onClick={() => setPreview(null)} className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg z-10">
-              <RiCloseLine className="text-gray-800 text-xl" />
+              <IconCerrar size={20} color="#1f2937" />
             </button>
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <div className="bg-gray-900 px-4 py-3">

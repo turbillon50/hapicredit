@@ -3,13 +3,13 @@ import { Link } from "wouter";
 import { useCreatePublicRequest } from "@workspace/api-client-react";
 import { useToast } from "@/hooks/use-toast";
 import {
-  RiWhatsappLine,
-  RiShieldCheckLine,
-  RiSmartphoneLine,
-  RiBarChartLine,
-  RiArrowRightLine,
-  RiCheckLine,
-} from "react-icons/ri";
+  IconWhatsapp,
+  IconEscudo,
+  IconCelular,
+  IconGrafica,
+  IconFlecha,
+  IconCheck,
+} from "@/components/hapi/HapiIcons";
 
 export default function PublicLanding() {
   const [name, setName] = useState("");
@@ -71,7 +71,7 @@ export default function PublicLanding() {
                 className="h-12 px-6 rounded-xl font-semibold text-[14px] text-white flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                 style={{ background: "#16a34a" }}
               >
-                <RiWhatsappLine className="w-5 h-5" />
+                <IconWhatsapp size={20} color="#fff" />
                 WhatsApp
               </a>
               <button
@@ -79,7 +79,7 @@ export default function PublicLanding() {
                 className="h-12 px-6 rounded-xl font-semibold text-[14px] text-foreground border border-border flex items-center justify-center gap-2 hover:bg-secondary transition-colors"
               >
                 Más información
-                <RiArrowRightLine className="w-4 h-4" />
+                <IconFlecha size={16} />
               </button>
             </div>
           </div>
@@ -91,17 +91,17 @@ export default function PublicLanding() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
                 {
-                  icon: RiSmartphoneLine,
+                  icon: IconCelular,
                   title: "100% desde el celular",
                   desc: "Consulta saldos, registra pagos y visualiza tu cartera en tiempo real desde cualquier dispositivo.",
                 },
                 {
-                  icon: RiShieldCheckLine,
+                  icon: IconEscudo,
                   title: "Transparencia total",
                   desc: "Cada movimiento queda registrado con fecha, hora y asesor responsable. Control antifraude integrado.",
                 },
                 {
-                  icon: RiBarChartLine,
+                  icon: IconGrafica,
                   title: "Análisis en tiempo real",
                   desc: "Dashboards con cobros del día, índice de mora, proyecciones y ranking de asesores.",
                 },
@@ -110,7 +110,7 @@ export default function PublicLanding() {
                 return (
                   <div key={f.title} className="bg-white rounded-2xl p-6 shadow-card">
                     <div className="w-11 h-11 rounded-xl mb-4 flex items-center justify-center" style={{ background: "#eef3fb" }}>
-                      <Icon className="w-5.5 h-5.5 text-primary" />
+                      <Icon size={22} color="var(--accent)" />
                     </div>
                     <h3 className="text-[15px] font-semibold text-foreground mb-2">{f.title}</h3>
                     <p className="text-[13px] text-muted-foreground leading-relaxed">{f.desc}</p>
@@ -139,7 +139,7 @@ export default function PublicLanding() {
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-3">
                     <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                      <RiCheckLine className="w-3 h-3 text-primary" />
+                      <IconCheck size={12} color="var(--accent)" />
                     </div>
                     <span className="text-[13px] text-foreground">{item}</span>
                   </div>

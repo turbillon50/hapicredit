@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RiSmartphoneLine, RiCloseLine, RiShareLine, RiMore2Fill, RiAddLine } from "react-icons/ri";
+import { IconCelular, IconCerrar, IconCompartir, IconPuntos, IconMas } from "@/components/hapi/HapiIcons";
 
 export function InstallGuide() {
   const [open, setOpen] = useState(false);
@@ -11,7 +11,7 @@ export function InstallGuide() {
         className="flex items-center gap-2 mx-auto mt-4 px-4 py-2 rounded-full transition-all active:scale-95"
         style={{ background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)" }}
       >
-        <RiSmartphoneLine className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.5)" }} />
+        <IconCelular size={14} color="rgba(255,255,255,0.5)" />
         <span className="text-[11px] font-medium" style={{ color: "rgba(255,255,255,0.5)" }}>Instalar en tu celular</span>
       </button>
     );
@@ -36,21 +36,20 @@ export function InstallGuide() {
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary">
-              <RiCloseLine className="w-4 h-4 text-muted-foreground" />
+              <IconCerrar size={16} color="#6b7280" />
             </button>
           </div>
 
-          {/* iOS */}
           <div className="mb-5">
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">iPhone / iPad</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-secondary text-muted-foreground font-semibold">Safari</span>
             </div>
             <div className="space-y-2.5">
-              <Step num={1} icon={<RiShareLine className="w-4 h-4 text-blue-500" />}>
+              <Step num={1} icon={<IconCompartir size={16} color="#3b82f6" />}>
                 Abre esta página en <b>Safari</b> y toca el botón <b>Compartir</b> (cuadro con flecha hacia arriba)
               </Step>
-              <Step num={2} icon={<RiAddLine className="w-4 h-4 text-blue-500" />}>
+              <Step num={2} icon={<IconMas size={16} color="#3b82f6" />}>
                 Desliza hacia abajo y selecciona <b>"Agregar a pantalla de inicio"</b>
               </Step>
               <Step num={3} icon={<span className="text-[13px]">✓</span>}>
@@ -61,17 +60,16 @@ export function InstallGuide() {
 
           <div className="h-px bg-border mb-5" />
 
-          {/* Android */}
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Android</span>
               <span className="text-[9px] px-1.5 py-0.5 rounded-md bg-secondary text-muted-foreground font-semibold">Chrome</span>
             </div>
             <div className="space-y-2.5">
-              <Step num={1} icon={<RiMore2Fill className="w-4 h-4 text-gray-600" />}>
+              <Step num={1} icon={<IconPuntos size={16} color="#4b5563" />}>
                 Abre esta página en <b>Chrome</b> y toca los <b>3 puntos</b> (esquina superior derecha)
               </Step>
-              <Step num={2} icon={<RiSmartphoneLine className="w-4 h-4 text-gray-600" />}>
+              <Step num={2} icon={<IconCelular size={16} color="#4b5563" />}>
                 Selecciona <b>"Instalar aplicación"</b> o <b>"Agregar a pantalla de inicio"</b>
               </Step>
               <Step num={3} icon={<span className="text-[13px]">✓</span>}>

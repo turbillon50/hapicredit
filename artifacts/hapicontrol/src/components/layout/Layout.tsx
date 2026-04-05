@@ -2,11 +2,8 @@ import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil, IconAdmin, IconAtras,
+  IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
 } from "@/components/hapi/HapiIcons";
-import {
-  RiHomeLine, RiInboxLine, RiFileListLine, RiGroupLine,
-  RiAlarmWarningLine,
-} from "react-icons/ri";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
@@ -21,11 +18,11 @@ const clientNav: NavItem[] = [
 ];
 
 const adminNav: NavItem[] = [
-  { icon: <RiHomeLine />,        label: "Panel",       path: "/admin"             },
-  { icon: <RiInboxLine />,       label: "Solicitudes", path: "/admin/solicitudes" },
-  { icon: <RiFileListLine />,    label: "Cartera",     path: "/admin/cartera"     },
-  { icon: <RiAlarmWarningLine />,label: "Morosos",     path: "/admin/morosos"     },
-  { icon: <RiGroupLine />,       label: "Asesores",    path: "/admin/asesores"    },
+  { icon: <IconPanel />,   label: "Panel",       path: "/admin"             },
+  { icon: <IconBandeja />, label: "Solicitudes", path: "/admin/solicitudes" },
+  { icon: <IconCartera />, label: "Cartera",     path: "/admin/cartera"     },
+  { icon: <IconAlerta />,  label: "Morosos",     path: "/admin/morosos"     },
+  { icon: <IconArbol />,   label: "Mi Red",      path: "/admin/arbol"       },
 ];
 
 function isActive(path: string, current: string) {
@@ -37,7 +34,13 @@ function isActive(path: string, current: string) {
 
 async function ensureAdminToken() {
   const existing = localStorage.getItem("hapi_token");
-  if (existing) return;
+  if (existing) {
+    try {
+      const check = await fetch(`${API}/clients`, { headers: { Authorization: `Bearer ${existing}` } });
+      if (check.ok) return;
+    } catch {}
+    localStorage.removeItem("hapi_token");
+  }
   try {
     const res = await fetch(`${API}/auth/login`, {
       method: "POST",

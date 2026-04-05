@@ -6,7 +6,7 @@ import { Badge } from "@/components/hapi/Badge";
 import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
-import { RiGroupLine, RiMedalFill, RiCoinLine, RiArrowUpLine, RiArrowDownLine } from "react-icons/ri";
+import { IconGrupo, IconMedalla, IconMoneda, IconCrecimiento, IconFlechaAbajo } from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number | null | undefined) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
@@ -74,7 +74,7 @@ export default function AdminAsesores() {
           {isLoading ? (
             <SkeletonList count={3} />
           ) : !ranking.length ? (
-            <EmptyState icon={<RiGroupLine />} title="Sin asesores" description="No hay ejecutivos registrados." />
+            <EmptyState icon={<IconGrupo />} title="Sin asesores" description="No hay ejecutivos registrados." />
           ) : (
             <div className="flex flex-col gap-3">
               {ranking.map((exec: any, idx: number) => {
@@ -97,7 +97,7 @@ export default function AdminAsesores() {
                             className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
                             style={{ background: MEDAL[idx] }}
                           >
-                            <RiMedalFill className="text-white text-[10px]" />
+                            <IconMedalla size={10} color="#fff" />
                           </div>
                         )}
                       </div>

@@ -7,10 +7,10 @@ import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
 import { BottomSheet } from "@/components/hapi/BottomSheet";
 import {
-  RiShieldCheckLine, RiCheckLine, RiCloseLine, RiLoader4Line,
-  RiMoneyDollarCircleLine, RiCalendarLine, RiErrorWarningLine,
-  RiAlarmWarningLine, RiUser3Line,
-} from "react-icons/ri";
+  IconValidar, IconCheck, IconCerrar, IconLoader,
+  IconMoneda, IconCalendario, IconAlerta,
+  IconAlerta as IconWarning, IconPersona,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -88,7 +88,7 @@ export default function ValidarPagos() {
         {(payments as PendingPayment[]).length > 0 && (
           <div className="mx-4 rounded-2xl p-4" style={{ background: "#fef3c7", border: "2px solid #fbbf24" }}>
             <div className="flex items-center gap-3">
-              <RiAlarmWarningLine className="text-2xl text-yellow-700" />
+              <IconAlerta size={24} color="#a16207" />
               <div>
                 <div className="text-sm font-bold text-yellow-900">
                   {fmt(totalPending)} por validar
@@ -106,7 +106,7 @@ export default function ValidarPagos() {
             <SkeletonList count={4} />
           ) : (payments as PendingPayment[]).length === 0 ? (
             <EmptyState
-              icon={<RiShieldCheckLine />}
+              icon={<IconValidar size={18} />}
               title="Todo validado"
               description="No hay pagos pendientes de validación. Los ejecutivos no han registrado pagos nuevos."
             />
@@ -148,7 +148,7 @@ export default function ValidarPagos() {
 
                   {p.lateFee != null && p.lateFee > 0 && (
                     <div className="mt-2 flex items-center gap-1.5 text-xs text-orange-700">
-                      <RiAlarmWarningLine /> Incluye multa: {fmt(p.lateFee)}
+                      <IconAlerta size={14} /> Incluye multa: {fmt(p.lateFee)}
                     </div>
                   )}
                 </div>
@@ -217,7 +217,7 @@ export default function ValidarPagos() {
 
               <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
                 <div className="text-sm font-semibold text-yellow-800 mb-1 flex items-center gap-2">
-                  <RiErrorWarningLine /> Validación requerida
+                  <IconAlerta size={14} /> Validación requerida
                 </div>
                 <div className="text-xs text-yellow-700 leading-relaxed">
                   Verifica que el depósito realmente llegó a la cuenta y que el monto es correcto antes de aprobar.
@@ -233,8 +233,8 @@ export default function ValidarPagos() {
                   style={{ background: "#10b981" }}
                 >
                   {validateMut.isPending
-                    ? <RiLoader4Line className="animate-spin" />
-                    : <RiCheckLine />
+                    ? <IconLoader size={16} />
+                    : <IconCheck size={16} />
                   }
                   Aprobar pago — Aplicar al saldo
                 </button>
@@ -243,7 +243,7 @@ export default function ValidarPagos() {
                   disabled={validateMut.isPending}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold pressable border-2 border-red-200 text-red-600"
                 >
-                  <RiCloseLine /> Rechazar pago
+                  <IconCerrar size={16} /> Rechazar pago
                 </button>
               </div>
             </div>

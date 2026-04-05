@@ -1,13 +1,19 @@
 import { Layout } from "@/components/layout/Layout";
 import { getListCommitmentsQueryKey, useListCommitments } from "@workspace/api-client-react";
 import { useAuth } from "@/hooks/use-auth";
-import { RiCalendarCheckLine, RiErrorWarningLine, RiCheckDoubleLine } from "react-icons/ri";
+import { IconCalendario, IconAlerta, IconDobleCheck } from "@/components/hapi/HapiIcons";
 
-const statusConfig: Record<string, { label: string; cls: string; icon: React.ElementType }> = {
-  pending:   { label: "Pendiente",  cls: "commitment-pending",   icon: RiCalendarCheckLine },
-  fulfilled: { label: "Cumplido",   cls: "commitment-fulfilled", icon: RiCheckDoubleLine   },
-  broken:    { label: "Incumplido", cls: "commitment-broken",    icon: RiErrorWarningLine  },
+const statusConfig: Record<string, { label: string; cls: string; iconKey: string }> = {
+  pending:   { label: "Pendiente",  cls: "commitment-pending",   iconKey: "cal" },
+  fulfilled: { label: "Cumplido",   cls: "commitment-fulfilled", iconKey: "ok" },
+  broken:    { label: "Incumplido", cls: "commitment-broken",    iconKey: "warn" },
 };
+
+function CommitIcon({ iconKey, size = 20 }: { iconKey: string; size?: number }) {
+  if (iconKey === "ok") return <IconDobleCheck size={size} />;
+  if (iconKey === "warn") return <IconAlerta size={size} />;
+  return <IconCalendario size={size} />;
+}
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -28,18 +34,17 @@ export default function ExecutiveCommitments() {
           ))
         ) : commitments?.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-card p-10 text-center">
-            <RiCalendarCheckLine className="w-10 h-10 mx-auto mb-3 text-muted-foreground/30" />
+            <div className="flex justify-center mb-3 opacity-30"><IconCalendario size={40} color="#9ca3af" /></div>
             <p className="text-[13px] text-muted-foreground">Sin compromisos registrados</p>
           </div>
         ) : (
           commitments?.map((c: any) => {
             const cfg = statusConfig[c.status] ?? statusConfig.pending;
-            const Icon = cfg.icon;
             const date = new Date(c.promisedDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" });
             return (
               <div key={c.id} className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${cfg.cls}`}>
-                  <Icon className="w-5 h-5" />
+                  <CommitIcon iconKey={cfg.iconKey} />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-[13px] font-semibold text-foreground truncate">{c.clientName}</p>

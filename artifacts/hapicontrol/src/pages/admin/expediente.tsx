@@ -7,11 +7,11 @@ import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { SkeletonList } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
-  RiArrowLeftLine, RiPhoneLine, RiMapPinLine, RiUser3Line,
-  RiCheckLine, RiTimeLine, RiFileTextLine, RiAlarmWarningLine,
-  RiMoneyDollarCircleLine, RiCalendarLine, RiImageLine, RiEyeLine,
-  RiCloseLine,
-} from "react-icons/ri";
+  IconAtras, IconTelefono, IconUbicacion, IconPersona,
+  IconCheck, IconReloj, IconDocumento, IconAlerta,
+  IconMoneda, IconCalendario, IconImagen, IconOjo,
+  IconCerrar,
+} from "@/components/hapi/HapiIcons";
 import { useState } from "react";
 import { Link } from "wouter";
 
@@ -45,7 +45,7 @@ export default function AdminExpediente() {
   if (!client) return (
     <Layout>
       <div className="px-4 py-6">
-        <EmptyState icon={<RiUser3Line />} title="Cliente no encontrado" description="El expediente no existe." />
+        <EmptyState icon={<IconPersona />} title="Cliente no encontrado" description="El expediente no existe." />
       </div>
     </Layout>
   );
@@ -68,7 +68,7 @@ export default function AdminExpediente() {
         <div className="px-4 pt-4 md:pt-0 flex items-center gap-3">
           <Link href="/admin/cartera">
             <button className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center pressable">
-              <RiArrowLeftLine className="text-gray-600 text-base" />
+              <IconAtras size={16} color="#4b5563" />
             </button>
           </Link>
           <div>
@@ -96,19 +96,19 @@ export default function AdminExpediente() {
           <div className="flex flex-col gap-2">
             {client.phone && (
               <div className="flex items-center gap-2 text-sm">
-                <RiPhoneLine className="text-gray-400" />
+                <IconTelefono size={14} color="#9ca3af" />
                 <a href={`tel:${client.phone}`} className="text-blue-600 font-medium">{client.phone}</a>
               </div>
             )}
             {client.address && (
               <div className="flex items-start gap-2 text-sm">
-                <RiMapPinLine className="text-gray-400 mt-0.5 shrink-0" />
+                <IconUbicacion size={14} color="#9ca3af" className="mt-0.5 shrink-0" />
                 <span className="text-gray-600">{client.address}</span>
               </div>
             )}
             {client.curp && (
               <div className="flex items-center gap-2 text-sm">
-                <RiUser3Line className="text-gray-400" />
+                <IconPersona size={14} color="#9ca3af" />
                 <span className="text-gray-600 font-mono text-xs">{client.curp}</span>
               </div>
             )}
@@ -146,7 +146,7 @@ export default function AdminExpediente() {
           </div>
           <div className="flex flex-col gap-2">
             {credits.length === 0 ? (
-              <EmptyState icon={<RiMoneyDollarCircleLine />} title="Sin créditos" description="Este cliente no tiene créditos registrados." />
+              <EmptyState icon={<IconMoneda />} title="Sin creditos" description="Este cliente no tiene creditos registrados." />
             ) : credits.map((c: any) => {
               const sb = statusBadge(c.status);
               return (
@@ -167,7 +167,7 @@ export default function AdminExpediente() {
             Pagos ({payments.length})
           </div>
           {payments.length === 0 ? (
-            <EmptyState icon={<RiCalendarLine />} title="Sin pagos" description="No hay pagos registrados." />
+            <EmptyState icon={<IconCalendario />} title="Sin pagos" description="No hay pagos registrados." />
           ) : (
             <div className="flex flex-col gap-2">
               {payments.slice().reverse().slice(0, 10).map((p: any) => {
@@ -178,7 +178,7 @@ export default function AdminExpediente() {
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
                       style={{ background: done ? "#d1fae5" : "#fef3c7", color: done ? "#065f46" : "#92400e" }}
                     >
-                      {done ? <RiCheckLine /> : <RiTimeLine />}
+                      {done ? <IconCheck size={16} /> : <IconReloj size={16} />}
                     </div>
                     <div className="flex-1">
                       <div className="text-sm font-semibold text-gray-900">{fmt(p.amountPaid)}</div>
@@ -227,7 +227,7 @@ export default function AdminExpediente() {
                       />
                     ) : (
                       <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
-                        <RiFileTextLine className="text-3xl text-gray-400" />
+                        <IconDocumento size={28} color="#9ca3af" />
                       </div>
                     )}
                     <div className="px-2 py-1.5">
@@ -269,9 +269,10 @@ export default function AdminExpediente() {
             <div className="flex flex-col gap-2">
               {commitments.map((c: any) => (
                 <div key={c.id} className="card flex items-start gap-3 py-3">
-                  <RiAlarmWarningLine
-                    className="text-base mt-0.5 shrink-0"
-                    style={{ color: c.status === "kept" ? "var(--success)" : c.status === "broken" ? "var(--danger)" : "var(--warning)" }}
+                  <IconAlerta
+                    size={16}
+                    color={c.status === "kept" ? "var(--success)" : c.status === "broken" ? "var(--danger)" : "var(--warning)"}
+                    className="mt-0.5 shrink-0"
                   />
                   <div className="flex-1">
                     <div className="text-sm font-medium text-gray-800">{c.description}</div>
@@ -303,7 +304,7 @@ export default function AdminExpediente() {
               onClick={() => setDocPreview(null)}
               className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-lg z-10"
             >
-              <RiCloseLine className="text-gray-800 text-xl" />
+              <IconCerrar size={18} color="#1f2937" />
             </button>
             <div className="rounded-2xl overflow-hidden shadow-2xl">
               <div className="bg-gray-900 px-4 py-3">

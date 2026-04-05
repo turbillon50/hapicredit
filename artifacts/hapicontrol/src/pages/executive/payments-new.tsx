@@ -10,7 +10,7 @@ import {
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { RiMoneyDollarCircleLine, RiCheckLine } from "react-icons/ri";
+import { IconMoneda, IconCheck } from "@/components/hapi/HapiIcons";
 
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
@@ -96,7 +96,7 @@ export default function ExecutivePaymentsNew() {
                 </div>
                 {selectedClientId === client.id.toString() && (
                   <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                    <RiCheckLine className="w-3 h-3 text-white" />
+                    <IconCheck size={12} color="#fff" />
                   </div>
                 )}
               </button>
@@ -168,7 +168,7 @@ export default function ExecutivePaymentsNew() {
                 className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
                 style={{ background: "linear-gradient(135deg, #1a3a6b, #2454a3)" }}
               >
-                <RiMoneyDollarCircleLine className="w-5 h-5" />
+                <IconMoneda size={20} color="#fff" />
                 {createPayment.isPending ? "Procesando..." : "Confirmar pago"}
               </button>
             </div>

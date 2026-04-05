@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/hapi/Card";
 import { SkeletonCard } from "@/components/hapi/Skeleton";
 import { Avatar } from "@/components/hapi/Avatar";
-import { RiLineChartLine, RiMoneyDollarCircleLine, RiPercentLine, RiArrowUpLine } from "react-icons/ri";
+import { IconFinanzas, IconMoneda, IconAlerta, IconCrecimiento } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -72,7 +72,7 @@ export default function AdminFinanciero() {
         ) : (
           <div className="px-4 flex flex-col gap-3">
             <KPICard
-              icon={<RiPercentLine />}
+              icon={<IconAlerta size={18} />}
               iconBg="rgba(37,99,235,0.1)"
               iconColor="var(--accent)"
               label="Ingresos por intereses"
@@ -80,7 +80,7 @@ export default function AdminFinanciero() {
               month={d?.interestEarnedMonth ?? 0}
             />
             <KPICard
-              icon={<RiMoneyDollarCircleLine />}
+              icon={<IconMoneda size={18} />}
               iconBg="rgba(16,185,129,0.1)"
               iconColor="var(--success)"
               label="Comisiones de apertura"
@@ -88,7 +88,7 @@ export default function AdminFinanciero() {
               month={d?.openingFeeMonth ?? 0}
             />
             <KPICard
-              icon={<RiLineChartLine />}
+              icon={<IconFinanzas size={18} />}
               iconBg="rgba(109,40,217,0.1)"
               iconColor="#7c3aed"
               label="Utilidad total"
@@ -99,7 +99,7 @@ export default function AdminFinanciero() {
             {/* Projection */}
             <div className="card" style={{ background: "linear-gradient(135deg, var(--navy-800), var(--navy-700))", border: "none" }}>
               <div className="flex items-center gap-2 mb-2">
-                <RiArrowUpLine className="text-emerald-400 text-base" />
+                <IconCrecimiento size={16} color="#34d399" />
                 <span className="text-xs font-semibold text-white/70 uppercase tracking-wide">Proyección mensual</span>
               </div>
               <div className="text-3xl font-bold text-white fade-up">

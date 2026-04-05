@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/use-auth";
 import { Redirect } from "wouter";
-import { RiLoader4Line } from "react-icons/ri";
+import { IconLoader } from "@/components/hapi/HapiIcons";
 
 export function ProtectedRoute({
   children,
@@ -11,7 +11,6 @@ export function ProtectedRoute({
 }) {
   const { user, initialized } = useAuth();
 
-  // No token in storage = go to login immediately, no waiting
   if (!localStorage.getItem("hapi_token")) {
     return <Redirect to="/login" />;
   }
@@ -19,7 +18,7 @@ export function ProtectedRoute({
   if (!initialized) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center" style={{ background: "var(--navy-900)" }}>
-        <RiLoader4Line className="w-10 h-10 text-white animate-spin" />
+        <IconLoader size={40} color="#fff" className="animate-spin" />
       </div>
     );
   }

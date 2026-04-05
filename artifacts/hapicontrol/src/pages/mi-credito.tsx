@@ -5,9 +5,9 @@ import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
-  RiBankCardLine, RiCalendarLine, RiCheckLine, RiTimeLine,
-  RiAlertLine, RiArrowRightLine,
-} from "react-icons/ri";
+  IconTarjeta, IconCalendario, IconCheck, IconReloj,
+  IconAlerta, IconFlecha,
+} from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -71,7 +71,7 @@ export default function MiCredito() {
         ) : !activeCredit && pendingCredits.length === 0 && allCredits.length === 0 ? (
           <div className="px-4 pt-8">
             <EmptyState
-              icon={<RiBankCardLine />}
+              icon={<IconTarjeta size={24} />}
               title="Sin créditos registrados"
               description="Aún no tienes un crédito con nosotros. Solicita uno para empezar."
             />
@@ -80,7 +80,7 @@ export default function MiCredito() {
                 className="w-full mt-6 flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
                 style={{ background: "var(--accent)" }}
               >
-                Solicitar crédito <RiArrowRightLine />
+                Solicitar crédito <IconFlecha size={16} color="#fff" />
               </button>
             </Link>
           </div>
@@ -125,10 +125,10 @@ export default function MiCredito() {
                   style={{ background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "#f0fdf4" }}
                 >
                   {nextDays <= 1
-                    ? <RiAlertLine className="text-red-500 text-2xl shrink-0" />
+                    ? <span className="shrink-0"><IconAlerta size={24} color="#ef4444" /></span>
                     : nextDays <= 3
-                      ? <RiTimeLine className="text-yellow-500 text-2xl shrink-0" />
-                      : <RiCalendarLine className="text-green-500 text-2xl shrink-0" />
+                      ? <span className="shrink-0"><IconReloj size={24} color="#eab308" /></span>
+                      : <span className="shrink-0"><IconCalendario size={24} color="#22c55e" /></span>
                   }
                   <div>
                     <div className="text-sm font-bold text-gray-900">
@@ -147,7 +147,7 @@ export default function MiCredito() {
                 {pendingCredits.map((c: any) => (
                   <div key={c.id} className="card flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-yellow-100 flex items-center justify-center text-yellow-600 text-xl shrink-0">
-                      <RiTimeLine />
+                      <IconReloj size={16} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm font-semibold text-gray-900">{fmt(c.amount)}</div>
@@ -202,7 +202,7 @@ export default function MiCredito() {
                   return (
                     <div key={p.id} className="flex items-center gap-3 card">
                       <div className={`w-9 h-9 rounded-full flex items-center justify-center text-base shrink-0 ${isPaid ? "bg-green-100 text-green-600" : isPending ? "bg-yellow-100 text-yellow-600" : "bg-gray-100 text-gray-400"}`}>
-                        {isPaid ? <RiCheckLine /> : <RiTimeLine />}
+                        {isPaid ? <IconCheck size={16} /> : <IconReloj size={16} />}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-gray-900">{fmt(parseFloat(p.amountPaid ?? p.amount ?? 0))}</div>

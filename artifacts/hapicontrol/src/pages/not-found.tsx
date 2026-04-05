@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { RiErrorWarningLine } from "react-icons/ri";
+import { IconAlerta } from "@/components/hapi/HapiIcons";
 
 export default function NotFound() {
   return (
@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="text-center">
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6"
           style={{ background: "#fee2e2" }}>
-          <RiErrorWarningLine className="text-4xl text-red-500" />
+          <IconAlerta size={36} color="#ef4444" />
         </div>
         <h1 className="text-6xl font-bold text-gray-200 mb-2">404</h1>
         <h2 className="text-xl font-bold text-gray-800 mb-2">Página no encontrada</h2>

@@ -6,7 +6,7 @@ import { Badge, urgencyBadge } from "@/components/hapi/Badge";
 import { Avatar } from "@/components/hapi/Avatar";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import { SkeletonList } from "@/components/hapi/Skeleton";
-import { RiAlarmWarningLine, RiPhoneLine, RiCalendarCheckLine } from "react-icons/ri";
+import { IconAlerta, IconTelefono, IconCalendario } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
@@ -121,8 +121,8 @@ export default function AdminMorosos() {
             <SkeletonList count={4} />
           ) : filtered.length === 0 ? (
             <EmptyState
-              icon={<RiAlarmWarningLine />}
-              title="Sin clientes en esta categoría"
+              icon={<IconAlerta />}
+              title="Sin clientes en esta categoria"
               description="No hay clientes con este nivel de atraso en este momento."
             />
           ) : (
@@ -184,14 +184,14 @@ export default function AdminMorosos() {
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-semibold transition-all pressable"
                         style={{ background: "#dbeafe", color: "#1e40af" }}
                       >
-                        <RiPhoneLine className="text-sm" /> Llamar
+                        <IconTelefono size={14} /> Llamar
                       </button>
                       <button
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-semibold transition-all pressable"
                         style={{ background: "#d1fae5", color: "#065f46" }}
                       >
-                        <RiCalendarCheckLine className="text-sm" /> Promesa
+                        <IconCalendario size={14} /> Promesa
                       </button>
                     </div>
                   </div>

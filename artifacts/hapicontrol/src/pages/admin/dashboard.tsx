@@ -3,14 +3,12 @@ import { useGetAdminDashboard } from "@workspace/api-client-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { StatCard } from "@/components/hapi/StatCard";
-import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { SkeletonCard, SkeletonHero } from "@/components/hapi/Skeleton";
 import {
-  RiPercentLine, RiMoneyDollarCircleLine, RiAddCircleLine,
-  RiGroupLine, RiArrowRightSLine, RiFileListLine,
-  RiAlarmWarningLine, RiLineChartLine, RiCheckboxCircleLine,
-  RiInboxLine, RiExchangeDollarLine, RiShieldCheckLine,
-} from "react-icons/ri";
+  IconAlerta, IconMoneda, IconDesembolso, IconGrupo, IconFlecha,
+  IconValidar, IconBandeja, IconCartera, IconFinanzas, IconCaja,
+  IconMedalla, IconArbol,
+} from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -19,13 +17,14 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
 const ACCESOS = [
-  { path: "/admin/validar-pagos", icon: <RiShieldCheckLine />,    label: "Validar pagos",         sub: "Pagos pendientes de aprobación",          color: "#fef3c7", ic: "#92400e" },
-  { path: "/admin/solicitudes",   icon: <RiInboxLine />,          label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",      color: "#dbeafe", ic: "#1e40af" },
-  { path: "/admin/cartera",       icon: <RiFileListLine />,       label: "Cartera detallada",      sub: "Saldos, fechas, pagos por cliente",       color: "#e0e7ff", ic: "#3730a3" },
-  { path: "/admin/morosos",       icon: <RiAlarmWarningLine />,   label: "Morosos y multas",       sub: "Clientes en atraso, $200/día multa",      color: "#fee2e2", ic: "#991b1b" },
-  { path: "/admin/financiero",    icon: <RiLineChartLine />,      label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",   color: "#d1fae5", ic: "#065f46" },
-  { path: "/admin/asesores",      icon: <RiGroupLine />,          label: "Ranking de asesores",    sub: "Colocación, cobranza, desempeño",         color: "#f3e8ff", ic: "#6d28d9" },
-  { path: "/admin/caja",          icon: <RiExchangeDollarLine />, label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",       color: "#fef9c3", ic: "#854d0e" },
+  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobacion",          color: "#fef3c7", ic: "#92400e" },
+  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y creditos pendientes",      color: "#dbeafe", ic: "#1e40af" },
+  { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas, pagos por cliente",       color: "#e0e7ff", ic: "#3730a3" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, $200/dia multa",      color: "#fee2e2", ic: "#991b1b" },
+  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Analisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",   color: "#d1fae5", ic: "#065f46" },
+  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza, desempeno",         color: "#f3e8ff", ic: "#6d28d9" },
+  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",       color: "#fef9c3", ic: "#854d0e" },
+  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de arbol interactivo",               color: "#e0f2fe", ic: "#0369a1" },
 ];
 
 export default function AdminDashboard() {
@@ -76,7 +75,7 @@ export default function AdminDashboard() {
               </div>
               <div className="mt-3">
                 <div className="flex justify-between text-xs opacity-70 mb-1.5">
-                  <span>Cobranza del día</span>
+                  <span>Cobranza del dia</span>
                   <span>{fmt(d?.collectionToday ?? 0)} / {fmt(d?.expectedToday ?? 0)}</span>
                 </div>
                 <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.2)" }}>
@@ -94,13 +93,13 @@ export default function AdminDashboard() {
           <Link href="/admin/validar-pagos" className="mx-4">
             <div className="rounded-2xl p-4 flex items-center gap-4 pressable" style={{ background: "#fef3c7", border: "2px solid #fbbf24" }}>
               <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#f59e0b" }}>
-                <RiShieldCheckLine className="text-white text-2xl" />
+                <IconValidar size={22} color="#fff" />
               </div>
               <div className="flex-1">
                 <div className="text-sm font-bold text-yellow-900">{pendingCount} pago{pendingCount !== 1 ? "s" : ""} por validar</div>
-                <div className="text-xs text-yellow-700">Requieren tu aprobación antes de aplicarse</div>
+                <div className="text-xs text-yellow-700">Requieren tu aprobacion antes de aplicarse</div>
               </div>
-              <RiArrowRightSLine className="text-yellow-600 text-xl" />
+              <IconFlecha size={18} color="#ca8a04" />
             </div>
           </Link>
         )}
@@ -113,15 +112,15 @@ export default function AdminDashboard() {
           <>
             <div className="grid grid-cols-2 gap-3 px-4">
               <StatCard
-                icon={<RiPercentLine />}
+                icon={<IconAlerta size={18} />}
                 iconBg="rgba(239,68,68,0.1)"
                 iconColor="var(--danger)"
-                label="Índice de mora"
+                label="Indice de mora"
                 value={`${moraPct.toFixed(1)}%`}
                 subLabel={`${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`}
               />
               <StatCard
-                icon={<RiMoneyDollarCircleLine />}
+                icon={<IconMoneda size={18} />}
                 iconBg="rgba(16,185,129,0.1)"
                 iconColor="var(--success)"
                 label="Utilidad semanal"
@@ -129,15 +128,15 @@ export default function AdminDashboard() {
                 subLabel="Esta semana"
               />
               <StatCard
-                icon={<RiAddCircleLine />}
+                icon={<IconDesembolso size={18} />}
                 iconBg="rgba(37,99,235,0.1)"
                 iconColor="var(--accent)"
-                label="Colocación mes"
+                label="Colocacion mes"
                 value={fmt(d?.placementThisMonth ?? 0)}
                 subLabel={`Semana: ${fmt(d?.placementThisWeek ?? 0)}`}
               />
               <StatCard
-                icon={<RiGroupLine />}
+                icon={<IconGrupo size={18} />}
                 iconBg="rgba(109,40,217,0.1)"
                 iconColor="#7c3aed"
                 label="Asesores activos"
@@ -177,7 +176,7 @@ export default function AdminDashboard() {
 
         <div className="px-4">
           <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
-            Control y gestión
+            Control y gestion
           </div>
           <div className="flex flex-col gap-2">
             {ACCESOS.map(a => (
@@ -192,7 +191,7 @@ export default function AdminDashboard() {
                   <div className="text-[14px] font-semibold text-gray-900">{a.label}</div>
                   <div className="text-xs text-gray-500 mt-0.5">{a.sub}</div>
                 </div>
-                <RiArrowRightSLine className="text-gray-400 text-xl shrink-0" />
+                <IconFlecha size={16} color="#9ca3af" />
               </Link>
             ))}
           </div>
