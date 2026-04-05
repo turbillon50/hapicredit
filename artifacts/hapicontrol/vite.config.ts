@@ -35,20 +35,25 @@ export default defineConfig({
     runtimeErrorOverlay(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.svg", "pwa-icon.svg"],
+      includeAssets: ["favicon.svg", "apple-touch-icon.png", "pwa-192.png", "pwa-512.png"],
       manifest: {
-        name: "HapiControl",
+        name: "HapiControl — Gestión de Cartera",
         short_name: "HapiControl",
-        description: "Gestión de cartera de microcréditos",
-        theme_color: "#1a3a6b",
-        background_color: "#f0f4f8",
+        description: "Plataforma de gestión de cartera de microcréditos — Grupo CAFJA / HapiCredit",
+        theme_color: "#0f1f3d",
+        background_color: "#0f1f3d",
         display: "standalone",
         orientation: "portrait",
+        start_url: ".",
+        scope: ".",
+        categories: ["finance", "business"],
         icons: [
-          { src: "/pwa-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any maskable" }
-        ]
+          { src: "pwa-192.png", sizes: "192x192", type: "image/png" },
+          { src: "pwa-512.png", sizes: "512x512", type: "image/png" },
+          { src: "pwa-512-maskable.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+        ],
       },
-      workbox: { globPatterns: ["**/*.{js,css,html,svg,png,woff2}"] }
+      workbox: { globPatterns: ["**/*.{js,css,html,svg,png,woff2}"] },
     }),
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
