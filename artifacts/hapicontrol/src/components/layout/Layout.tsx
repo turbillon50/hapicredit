@@ -60,8 +60,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* ── Header ── */}
       <header
-        className="sticky top-0 z-30 flex items-center justify-between px-4 h-14 shrink-0"
-        style={{ background: "var(--navy-900)", borderBottom: "1px solid rgba(255,255,255,0.06)" }}
+        className="sticky top-0 z-30 flex items-center justify-between px-4 shrink-0"
+        style={{
+          background: "var(--navy-900)",
+          borderBottom: "1px solid rgba(255,255,255,0.06)",
+          paddingTop: "calc(env(safe-area-inset-top, 0px) + 8px)",
+          paddingBottom: "8px",
+          minHeight: "56px",
+        }}
       >
         {isAdmin ? (
           <>
