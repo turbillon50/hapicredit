@@ -2,22 +2,20 @@ import { useState, useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import {
-  RiArrowRightLine, RiShieldCheckLine, RiTimeLine,
-  RiMoneyDollarCircleLine, RiCheckboxCircleLine,
-  RiUserLine, RiBriefcaseLine, RiSettings3Line,
-  RiQuestionLine, RiFileTextLine, RiSmartphoneLine,
-  RiArrowDownSLine, RiTeamLine, RiHandHeartLine,
-  RiLineChartLine, RiPhoneLine, RiMailLine,
-  RiMapPinLine, RiStarLine,
-} from "react-icons/ri";
+  IconFormulario, IconReloj, IconDesembolso, IconPagos,
+  IconCorazon, IconEquipo, IconEscudo, IconCrecimiento,
+  IconCelular, IconTelefono, IconUbicacion, IconFlecha,
+  IconFlechaAbajo, IconPerfil, IconAdmin,
+} from "@/components/hapi/HapiIcons";
+import { RiBriefcaseLine } from "react-icons/ri";
 import logoSrc from "@assets/IMG_0626_1775411853416.jpeg";
 const logoPngUrl = `${import.meta.env.BASE_URL}logo-hapicredit.png`;
 
 const PROCESS_STEPS = [
-  { icon: <RiCheckboxCircleLine />, title: "1. Solicita", desc: "Llena tu solicitud en linea con tus datos y documentos" },
-  { icon: <RiTimeLine />, title: "2. Revision", desc: "Un asesor revisa tu expediente en menos de 24 horas" },
-  { icon: <RiMoneyDollarCircleLine />, title: "3. Aprobacion", desc: "Te notificamos y se desembolsa tu credito" },
-  { icon: <RiHandHeartLine />, title: "4. Pagos semanales", desc: "Realiza tus pagos semanales con tu asesor asignado" },
+  { icon: <IconFormulario size={20} color="#fff" />, title: "1. Solicita", desc: "Llena tu solicitud en linea con tus datos y documentos" },
+  { icon: <IconReloj size={20} color="#fff" />, title: "2. Revision", desc: "Un asesor revisa tu expediente en menos de 24 horas" },
+  { icon: <IconDesembolso size={20} color="#fff" />, title: "3. Aprobacion", desc: "Te notificamos y se desembolsa tu credito" },
+  { icon: <IconPagos size={20} color="#fff" />, title: "4. Pagos semanales", desc: "Realiza tus pagos semanales con tu asesor asignado" },
 ];
 
 const ROLES = [
@@ -25,10 +23,9 @@ const ROLES = [
     key: "cliente",
     label: "Cliente",
     desc: "Solicita tu credito, sube documentos y consulta tu estado de cuenta",
-    icon: <RiUserLine />,
+    icon: <IconPerfil size={22} color="#fff" />,
     gradient: "linear-gradient(135deg,#1a2e5e,#2c4f8e)",
     href: "/solicitar",
-    screens: ["Solicitar credito", "Mi credito", "Perfil"],
   },
   {
     key: "ejecutivo",
@@ -37,16 +34,14 @@ const ROLES = [
     icon: <RiBriefcaseLine />,
     gradient: "linear-gradient(135deg,#059669,#34d399)",
     href: "/admin/cartera",
-    screens: ["Cartera", "Registrar pagos", "Expedientes"],
   },
   {
     key: "administrador",
     label: "Administrador",
     desc: "Panel completo: valida pagos, aprueba creditos, controla caja y analiza KPIs",
-    icon: <RiSettings3Line />,
+    icon: <IconAdmin size={22} color="#fff" />,
     gradient: "linear-gradient(135deg,#7c3aed,#a78bfa)",
     href: "/admin",
-    screens: ["Dashboard", "Validar pagos", "Solicitudes", "Morosos", "Caja"],
   },
 ];
 
@@ -122,10 +117,9 @@ function FaqItem({ q, a }: { q: string; a: string }) {
         className="w-full flex items-center justify-between px-4 py-3.5 text-left pressable"
       >
         <span className="text-sm font-semibold text-gray-800 pr-4">{q}</span>
-        <RiArrowDownSLine
-          className="text-lg text-gray-400 shrink-0 transition-transform"
-          style={{ transform: open ? "rotate(180deg)" : "rotate(0)" }}
-        />
+        <span className="shrink-0 transition-transform text-gray-400" style={{ transform: open ? "rotate(180deg)" : "rotate(0)" }}>
+          <IconFlechaAbajo size={18} />
+        </span>
       </button>
       <div className={`faq-answer ${open ? "open" : ""}`}>
         <div className="px-4 pb-4 text-sm text-gray-600 leading-relaxed">
@@ -175,7 +169,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold pressable mt-5 float-cta"
                 style={{ background: "var(--brand-red)", color: "#fff" }}
               >
-                Solicitar credito <RiArrowRightLine />
+                Solicitar credito <IconFlecha size={16} color="#fff" />
               </button>
             </Link>
           </div>
@@ -209,7 +203,7 @@ export default function Home() {
                       <div className="text-sm font-bold text-gray-900">{role.label}</div>
                       <div className="text-[11px] text-gray-500 leading-tight">{role.desc}</div>
                     </div>
-                    <RiArrowRightLine className="text-gray-300 shrink-0" />
+                    <IconFlecha size={16} color="#d1d5db" className="shrink-0" />
                   </button>
                 ))}
               </div>
@@ -227,22 +221,22 @@ export default function Home() {
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div className="text-center p-3 rounded-xl" style={{ background: "rgba(26,46,94,0.06)" }}>
-                  <RiTeamLine className="text-2xl mx-auto mb-1" style={{ color: "var(--accent)" }} />
+                  <div className="flex justify-center mb-1"><IconEquipo size={26} color="var(--accent)" /></div>
                   <div className="text-xs font-bold text-gray-800">Atencion personal</div>
                   <div className="text-[10px] text-gray-500">Asesor asignado</div>
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ background: "#f0fdf4" }}>
-                  <RiShieldCheckLine className="text-2xl mx-auto mb-1 text-green-600" />
+                  <div className="flex justify-center mb-1"><IconEscudo size={26} color="#16a34a" /></div>
                   <div className="text-xs font-bold text-gray-800">Transparencia</div>
                   <div className="text-[10px] text-gray-500">Sin letras chicas</div>
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ background: "#fefce8" }}>
-                  <RiTimeLine className="text-2xl mx-auto mb-1 text-yellow-600" />
+                  <div className="flex justify-center mb-1"><IconReloj size={26} color="#ca8a04" /></div>
                   <div className="text-xs font-bold text-gray-800">Rapido</div>
                   <div className="text-[10px] text-gray-500">Aprobacion en 24h</div>
                 </div>
                 <div className="text-center p-3 rounded-xl" style={{ background: "rgba(229,57,53,0.06)" }}>
-                  <RiLineChartLine className="text-2xl mx-auto mb-1" style={{ color: "var(--brand-red)" }} />
+                  <div className="flex justify-center mb-1"><IconCrecimiento size={26} color="var(--brand-red)" /></div>
                   <div className="text-xs font-bold text-gray-800">Crecimiento</div>
                   <div className="text-[10px] text-gray-500">Impulsa tu negocio</div>
                 </div>
@@ -256,14 +250,14 @@ export default function Home() {
               <h2 className="text-lg font-extrabold text-gray-900">Como funciona</h2>
             </div>
             <div className="flex flex-col gap-2.5">
-              {PROCESS_STEPS.map((s, i) => (
+              {PROCESS_STEPS.map((s) => (
                 <div
                   key={s.title}
                   className="flex items-start gap-3 bg-white rounded-xl p-3.5 border border-gray-100"
                   style={{ boxShadow: "0 1px 6px rgba(15,31,61,0.04)" }}
                 >
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-lg text-white font-bold shrink-0"
+                    className="w-10 h-10 rounded-lg flex items-center justify-center font-bold shrink-0"
                     style={{ background: "var(--accent)" }}
                   >
                     {s.icon}
@@ -339,8 +333,8 @@ export default function Home() {
             </div>
             <div className="card">
               <div className="flex items-start gap-3 mb-4">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl text-white shrink-0" style={{ background: "var(--accent)" }}>
-                  <RiSmartphoneLine />
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ background: "var(--accent)" }}>
+                  <IconCelular size={22} color="#fff" />
                 </div>
                 <div>
                   <div className="text-sm font-bold text-gray-900">Instala la app en tu celular</div>
@@ -404,11 +398,11 @@ export default function Home() {
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Contacto</div>
               <div className="flex flex-col gap-2 text-sm text-gray-700">
                 <div className="flex items-center justify-center gap-2">
-                  <RiPhoneLine style={{ color: "var(--accent)" }} />
+                  <IconTelefono size={18} color="var(--accent)" />
                   <span>Contacta a tu asesor asignado</span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
-                  <RiMapPinLine style={{ color: "var(--accent)" }} />
+                  <IconUbicacion size={18} color="var(--accent)" />
                   <span>Cobertura en tu localidad</span>
                 </div>
               </div>
@@ -421,7 +415,7 @@ export default function Home() {
                 className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
                 style={{ background: "linear-gradient(135deg,var(--brand-red),var(--brand-red-light))" }}
               >
-                Solicitar mi credito ahora <RiArrowRightLine />
+                Solicitar mi credito ahora <IconFlecha size={16} color="#fff" />
               </button>
             </Link>
           </div>

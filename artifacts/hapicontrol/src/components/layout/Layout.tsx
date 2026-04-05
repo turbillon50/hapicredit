@@ -1,9 +1,11 @@
 import { useEffect } from "react";
 import { useLocation, Link } from "wouter";
 import {
-  RiHomeLine, RiAddCircleLine, RiBankCardLine, RiUserLine,
-  RiInboxLine, RiFileListLine, RiGroupLine,
-  RiSettings3Line, RiArrowLeftLine, RiAlarmWarningLine,
+  IconHome, IconSolicitar, IconMiCredito, IconPerfil, IconAdmin, IconAtras,
+} from "@/components/hapi/HapiIcons";
+import {
+  RiHomeLine, RiInboxLine, RiFileListLine, RiGroupLine,
+  RiAlarmWarningLine,
 } from "react-icons/ri";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -11,11 +13,11 @@ const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 type NavItem = { icon: React.ReactNode; label: string; path: string };
 
 const clientNav: NavItem[] = [
-  { icon: <RiHomeLine />,        label: "Inicio",     path: "/"           },
-  { icon: <RiAddCircleLine />,   label: "Solicitar",  path: "/solicitar"  },
-  { icon: <RiBankCardLine />,    label: "Mi Credito", path: "/mi-credito" },
-  { icon: <RiUserLine />,        label: "Perfil",     path: "/perfil"     },
-  { icon: <RiSettings3Line />,   label: "Admin",      path: "/admin"      },
+  { icon: <IconHome />,        label: "Inicio",     path: "/"           },
+  { icon: <IconSolicitar />,   label: "Solicitar",  path: "/solicitar"  },
+  { icon: <IconMiCredito />,   label: "Mi Credito", path: "/mi-credito" },
+  { icon: <IconPerfil />,      label: "Perfil",     path: "/perfil"     },
+  { icon: <IconAdmin />,       label: "Admin",      path: "/admin"      },
 ];
 
 const adminNav: NavItem[] = [
@@ -97,7 +99,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
                 onClick={() => navigate("/")}
                 className="flex items-center gap-2 text-white/70 pressable py-3"
               >
-                <RiArrowLeftLine className="text-lg" />
+                <IconAtras size={18} />
                 <span className="text-sm font-medium">Inicio</span>
               </button>
               <div className="flex items-center gap-2">
@@ -156,6 +158,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {navItems.map(item => {
           const active = isActive(item.path, location);
           const isAdminTab = item.path === "/admin" && !isAdmin;
+          const iconColor = active
+            ? (isAdmin ? "#60a5fa" : "var(--accent)")
+            : isAdminTab
+              ? "rgba(100,116,139,0.5)"
+              : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)");
           return (
             <Link
               key={item.path}
@@ -163,15 +170,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
               className="flex-1 flex flex-col items-center justify-center py-2.5 gap-0.5 pressable relative"
             >
               <span
-                className="text-[22px] transition-colors"
-                style={{ color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : isAdminTab ? "rgba(100,116,139,0.5)" : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)") }}
+                className="transition-colors"
+                style={{ color: iconColor }}
               >
                 {item.icon}
               </span>
               <span
                 className="text-[10px] transition-colors"
                 style={{
-                  color: active ? (isAdmin ? "#60a5fa" : "var(--accent)") : isAdminTab ? "rgba(100,116,139,0.5)" : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)"),
+                  color: iconColor,
                   fontWeight: active ? 700 : 500,
                 }}
               >
