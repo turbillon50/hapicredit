@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   RiShieldCheckLine,
   RiUserLine,
@@ -54,8 +55,15 @@ const ROLES = [
 
 export default function Login() {
   const { demoLogin } = useAuth();
+  const queryClient = useQueryClient();
   const [loading, setLoading] = useState<string | null>(null);
   const [showInstall, setShowInstall] = useState(false);
+
+  // Always wipe any previous session the moment the login screen mounts
+  useEffect(() => {
+    localStorage.removeItem("hapi_token");
+    queryClient.clear();
+  }, []);
 
   const handleSelect = async (key: string) => {
     if (loading) return;
