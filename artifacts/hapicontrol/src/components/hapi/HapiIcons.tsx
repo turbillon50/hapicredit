@@ -186,6 +186,40 @@ export function IconFlechaArriba({ size = 24, color = "currentColor", className 
   );
 }
 
+export function IconFlechaDerecha({ size = 24, color = "currentColor", className }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M9 18l6-6-6-6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+export function IconFlechaIzquierda({ size = 24, color = "currentColor", className }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M15 18l-6-6 6-6" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+}
+
+export function IconNomina({ size = 24, color = "currentColor", className }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <rect x="3" y="4" width="18" height="16" rx="2" stroke={color} strokeWidth="2"/>
+      <path d="M7 8h4M7 12h10M7 16h6" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <circle cx="17" cy="8" r="1.5" fill={color}/>
+    </svg>
+  );
+}
+
+export function IconMas({ size = 24, color = "currentColor", className }: P) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
+      <path d="M12 5v14M5 12h14" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 export function IconAtras({ size = 24, color = "currentColor", className }: P) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
@@ -413,14 +447,6 @@ export function IconImagen({ size = 24, color = "currentColor", className }: P) 
       <rect x="3" y="3" width="18" height="18" rx="2" stroke={color} strokeWidth="1.8"/>
       <circle cx="8.5" cy="8.5" r="2" stroke={color} strokeWidth="1.3"/>
       <path d="M21 15l-5-5L5 21" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
-  );
-}
-
-export function IconMas({ size = 24, color = "currentColor", className }: P) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className}>
-      <path d="M12 5v14M5 12h14" stroke={color} strokeWidth="2" strokeLinecap="round"/>
     </svg>
   );
 }

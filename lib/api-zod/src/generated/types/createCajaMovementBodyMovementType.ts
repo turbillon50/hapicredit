@@ -13,4 +13,7 @@ export const CreateCajaMovementBodyMovementType = {
   collection: "collection",
   delivery: "delivery",
   adjustment: "adjustment",
+  payroll: "payroll",
+  expense: "expense",
+  capital: "capital",
 } as const;

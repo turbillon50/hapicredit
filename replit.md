@@ -36,7 +36,8 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - **Solicitudes** (admin/solicitudes): Public applications + internal pending credits
 - **Financiero** (admin/financiero): Interest analysis, projections, utility
 - **Asesores** (admin/asesores): Executive ranking, placement, collection, delinquency
-- **Caja** (admin/caja): Cash control per executive
+- **Caja** (admin/caja): Cash control per executive, clickable cards navigate to ledger
+- **Movimientos** (admin/movimientos/:id): Per-executive financial ledger ("libro de movimientos") showing all income (client payments), disbursements, payroll (nomina), capital, expenses with running balance. Admin can add gastos (payroll, capital, other expenses). Movement types: collection, delivery, adjustment, payroll, expense, capital.
 - **Expediente** (admin/expediente/:id): Full client record
 
 ## Branding

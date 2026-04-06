@@ -62,6 +62,12 @@ router.post("/caja", requireAuth, requireRole("admin", "executive"), async (req,
 
   const executiveId = req.userRole === "executive" ? req.userId! : parsed.data.executiveId;
 
+  const validTypes = ["collection", "delivery", "adjustment", "payroll", "expense", "capital"];
+  if (!validTypes.includes(parsed.data.movementType)) {
+    res.status(400).json({ error: `Invalid movement type. Valid: ${validTypes.join(", ")}` });
+    return;
+  }
+
   const [movement] = await db.insert(cajaMovementsTable).values({
     ...parsed.data,
     executiveId,
@@ -89,8 +95,12 @@ router.get("/caja/summary", requireAuth, requireRole("admin", "executive"), asyn
       .reduce((sum, m) => sum + parseFloat(m.amount), 0);
 
     const cashOnHand = movements.reduce((sum, m) => {
-      if (m.movementType === "collection") return sum + parseFloat(m.amount);
-      if (m.movementType === "delivery") return sum - parseFloat(m.amount);
+      const amt = parseFloat(m.amount);
+      if (m.movementType === "collection") return sum + amt;
+      if (m.movementType === "delivery") return sum - amt;
+      if (m.movementType === "payroll") return sum - amt;
+      if (m.movementType === "expense") return sum - amt;
+      if (m.movementType === "capital") return sum - amt;
       return sum;
     }, 0);
 

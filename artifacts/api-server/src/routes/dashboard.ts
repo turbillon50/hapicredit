@@ -55,8 +55,12 @@ router.get("/dashboard/executive", requireAuth, async (req, res): Promise<void> 
 
   const cajaMovements = await db.select().from(cajaMovementsTable).where(eq(cajaMovementsTable.executiveId, execId));
   const cashOnHand = cajaMovements.reduce((s, m) => {
-    if (m.movementType === "collection") return s + parseFloat(m.amount);
-    if (m.movementType === "delivery") return s - parseFloat(m.amount);
+    const amt = parseFloat(m.amount);
+    if (m.movementType === "collection") return s + amt;
+    if (m.movementType === "delivery") return s - amt;
+    if (m.movementType === "payroll") return s - amt;
+    if (m.movementType === "expense") return s - amt;
+    if (m.movementType === "capital") return s - amt;
     return s;
   }, 0);
 
@@ -539,6 +543,158 @@ router.get("/dashboard/admin/financial-summary", requireAuth, requireRole("admin
     completedCredits: completedCredits.length,
     defaultedCredits: defaultedCredits.length,
     execBreakdown,
+  });
+});
+
+router.get("/dashboard/admin/executive-ledger", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const executiveId = parseInt(req.query.executiveId as string);
+  if (!executiveId || isNaN(executiveId)) {
+    res.status(400).json({ error: "executiveId is required" });
+    return;
+  }
+
+  const [exec] = await db.select().from(usersTable).where(eq(usersTable.id, executiveId));
+  if (!exec) {
+    res.status(404).json({ error: "Executive not found" });
+    return;
+  }
+
+  const payments = await db.select().from(paymentsTable).where(eq(paymentsTable.executiveId, executiveId));
+  const credits = await db.select().from(creditsTable).where(eq(creditsTable.executiveId, executiveId));
+  const cajaMovements = await db.select().from(cajaMovementsTable).where(eq(cajaMovementsTable.executiveId, executiveId));
+  const clients = await db.select().from(clientsTable).where(eq(clientsTable.executiveId, executiveId));
+  const clientMap = new Map(clients.map(c => [c.id, c.fullName]));
+
+  type LedgerEntry = {
+    id: string;
+    date: string;
+    type: string;
+    description: string;
+    detail: string;
+    amount: number;
+    createdAt: string;
+  };
+
+  const entries: LedgerEntry[] = [];
+
+  for (const p of payments) {
+    if (p.paymentStatus === "pending_validation" || p.paymentStatus === "rejected") continue;
+    const clientName = clientMap.get(p.clientId) ?? "Cliente";
+    const credit = credits.find(c => c.id === p.creditId);
+    const termWeeks = credit?.termWeeks ?? 0;
+    entries.push({
+      id: `pay-${p.id}`,
+      date: p.paymentDate,
+      type: "income",
+      description: "Ingresos por prestamo",
+      detail: `Pago ${p.paymentNumber} de ${termWeeks} ${clientName}`,
+      amount: parseFloat(p.amountPaid),
+      createdAt: p.createdAt.toISOString(),
+    });
+    if (p.lateFee && parseFloat(p.lateFee) > 0) {
+      entries.push({
+        id: `late-${p.id}`,
+        date: p.paymentDate,
+        type: "late_fee",
+        description: "Multas",
+        detail: clientName,
+        amount: parseFloat(p.lateFee),
+        createdAt: p.createdAt.toISOString(),
+      });
+    }
+  }
+
+  for (const c of credits) {
+    if (c.status === "pending" || c.status === "rejected") continue;
+    const clientName = clientMap.get(c.clientId) ?? "Cliente";
+    const netDisbursed = parseFloat(c.amount) - (c.openingFee ? parseFloat(c.openingFee) : 0);
+    entries.push({
+      id: `disb-${c.id}`,
+      date: c.disbursementDate,
+      type: "disbursement",
+      description: "Ingresos por prestamo",
+      detail: `Desembolso de ${clientName}`,
+      amount: -netDisbursed,
+      createdAt: c.createdAt.toISOString(),
+    });
+  }
+
+  for (const m of cajaMovements) {
+    const mType = m.movementType;
+    let type = "expense";
+    let description = m.description ?? "Movimiento";
+    let amount = parseFloat(m.amount);
+
+    if (mType === "payroll") {
+      type = "payroll";
+      description = "Nomina";
+      amount = -Math.abs(amount);
+    } else if (mType === "capital") {
+      type = "capital";
+      description = "Capital Prestamos";
+      amount = -Math.abs(amount);
+    } else if (mType === "expense") {
+      type = "expense";
+      description = m.description ?? "Gasto";
+      amount = -Math.abs(amount);
+    } else if (mType === "collection") {
+      continue;
+    } else if (mType === "delivery") {
+      type = "delivery";
+      description = "Entrega a caja";
+      amount = -Math.abs(amount);
+    } else if (mType === "adjustment") {
+      type = "adjustment";
+      description = m.description ?? "Ajuste";
+    }
+
+    entries.push({
+      id: `caja-${m.id}`,
+      date: m.createdAt.toISOString().split("T")[0],
+      type,
+      description,
+      detail: m.description ?? `Prestamos ${exec.fullName}`,
+      amount,
+      createdAt: m.createdAt.toISOString(),
+    });
+  }
+
+  entries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  let runningBalance = 0;
+  const entriesWithBalance = entries.map(e => {
+    runningBalance += e.amount;
+    return e;
+  });
+
+  const totalBalance = entriesWithBalance.length > 0
+    ? entriesWithBalance[entriesWithBalance.length - 1]
+    : 0;
+
+  const activeCredits = credits.filter(c => c.status === "active");
+  const totalPortfolio = activeCredits.reduce((s, c) => s + parseFloat(c.remainingBalance), 0);
+  const totalDisbursed = credits
+    .filter(c => c.status !== "pending" && c.status !== "rejected")
+    .reduce((s, c) => s + parseFloat(c.amount), 0);
+  const totalCollected = payments
+    .filter(p => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected")
+    .reduce((s, p) => s + parseFloat(p.amountPaid), 0);
+
+  const balance = entries.reduce((s, e) => s + e.amount, 0);
+
+  res.json({
+    executiveId,
+    executiveName: exec.fullName,
+    balance: Math.round(balance * 100) / 100,
+    totalPortfolio: Math.round(totalPortfolio * 100) / 100,
+    totalDisbursed: Math.round(totalDisbursed * 100) / 100,
+    totalCollected: Math.round(totalCollected * 100) / 100,
+    activeCredits: activeCredits.length,
+    totalClients: clients.length,
+    entries: entries.map(e => ({
+      ...e,
+      amount: Math.round(e.amount * 100) / 100,
+    })),
   });
 });
 

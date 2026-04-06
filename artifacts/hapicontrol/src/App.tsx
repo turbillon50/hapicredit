@@ -15,6 +15,7 @@ import AdminSolicitudes  from "@/pages/admin/solicitudes";
 import AdminExpediente   from "@/pages/admin/expediente";
 import AdminValidarPagos from "@/pages/admin/validar-pagos";
 import AdminCaja         from "@/pages/admin/caja";
+import AdminMovimientos  from "@/pages/admin/movimientos";
 import AdminArbol        from "@/pages/admin/arbol";
 
 import NotFound         from "@/pages/not-found";
@@ -47,6 +48,7 @@ function Router() {
       <Route path="/admin/financiero"       component={AdminFinanciero} />
       <Route path="/admin/validar-pagos"   component={AdminValidarPagos} />
       <Route path="/admin/caja"            component={AdminCaja} />
+      <Route path="/admin/movimientos/:id" component={AdminMovimientos} />
       <Route path="/admin/arbol"           component={AdminArbol} />
       <Route path="/admin/expediente/:id"  component={AdminExpediente} />
 

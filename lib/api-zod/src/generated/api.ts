@@ -602,7 +602,7 @@ export const ListCajaMovementsResponseItem = zod.object({
   id: zod.number(),
   executiveId: zod.number(),
   executiveName: zod.string().nullish(),
-  movementType: zod.enum(["collection", "delivery", "adjustment"]),
+  movementType: zod.enum(["collection", "delivery", "adjustment", "payroll", "expense", "capital"]),
   amount: zod.number(),
   description: zod.string().nullish(),
   relatedPaymentId: zod.number().nullish(),
@@ -617,7 +617,7 @@ export const ListCajaMovementsResponse = zod.array(
  */
 export const CreateCajaMovementBody = zod.object({
   executiveId: zod.number(),
-  movementType: zod.enum(["collection", "delivery", "adjustment"]),
+  movementType: zod.enum(["collection", "delivery", "adjustment", "payroll", "expense", "capital"]),
   amount: zod.number(),
   description: zod.string().nullish(),
   relatedPaymentId: zod.number().nullish(),

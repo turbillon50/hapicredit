@@ -427,6 +427,9 @@ export const CajaMovementMovementType = {
   collection: "collection",
   delivery: "delivery",
   adjustment: "adjustment",
+  payroll: "payroll",
+  expense: "expense",
+  capital: "capital",
 } as const;
 
 export interface CajaMovement {
@@ -450,6 +453,9 @@ export const CreateCajaMovementBodyMovementType = {
   collection: "collection",
   delivery: "delivery",
   adjustment: "adjustment",
+  payroll: "payroll",
+  expense: "expense",
+  capital: "capital",
 } as const;
 
 export interface CreateCajaMovementBody {

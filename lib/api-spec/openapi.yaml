@@ -1254,7 +1254,7 @@ components:
           type: ["string", "null"]
         movementType:
           type: string
-          enum: [collection, delivery, adjustment]
+          enum: [collection, delivery, adjustment, payroll, expense, capital]
         amount:
           type: number
         description:
@@ -1272,7 +1272,7 @@ components:
           type: integer
         movementType:
           type: string
-          enum: [collection, delivery, adjustment]
+          enum: [collection, delivery, adjustment, payroll, expense, capital]
         amount:
           type: number
         description:
