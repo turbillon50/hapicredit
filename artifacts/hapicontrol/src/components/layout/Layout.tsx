@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil, IconAdmin, IconAtras,
@@ -76,9 +77,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const isAdmin = location.startsWith("/admin");
   const navItems = isAdmin ? adminNav : clientNav;
   const roleInfo = getRoleInfo(location);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-    ensureAdminToken();
+    ensureAdminToken().then(() => {
+      // Invalidate all queries so they retry with the fresh token
+      queryClient.invalidateQueries();
+    });
   }, []);
 
   return (
