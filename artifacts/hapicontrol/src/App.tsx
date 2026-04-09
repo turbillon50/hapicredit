@@ -1,5 +1,7 @@
-import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useEffect, useRef } from "react";
+import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
+import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { ClerkProvider, SignIn, SignUp, useClerk } from "@clerk/react";
 
 import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
@@ -20,6 +22,17 @@ import AdminArbol        from "@/pages/admin/arbol";
 
 import NotFound         from "@/pages/not-found";
 
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
+const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
+
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function stripBase(path: string): string {
+  return basePath && path.startsWith(basePath)
+    ? path.slice(basePath.length) || "/"
+    : path;
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -30,6 +43,45 @@ const queryClient = new QueryClient({
   },
 });
 
+function SignInPage() {
+  // To update login providers, app branding, or OAuth settings use the Auth
+  // pane in the workspace toolbar.
+  return (
+    <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
+      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+    </div>
+  );
+}
+
+function SignUpPage() {
+  // To update login providers, app branding, or OAuth settings use the Auth
+  // pane in the workspace toolbar.
+  return (
+    <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
+      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
+    </div>
+  );
+}
+
+function ClerkCacheInvalidator() {
+  const { addListener } = useClerk();
+  const qc = useQueryClient();
+  const prevUserIdRef = useRef<string | null | undefined>(undefined);
+
+  useEffect(() => {
+    const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
+      const userId = user?.id ?? null;
+      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
+        qc.clear();
+      }
+      prevUserIdRef.current = userId;
+    });
+    return unsubscribe;
+  }, [addListener, qc]);
+
+  return null;
+}
+
 function Router() {
   return (
     <Switch>
@@ -39,18 +91,22 @@ function Router() {
       <Route path="/mi-credito" component={MiCredito} />
       <Route path="/perfil"     component={Perfil} />
 
+      {/* Clerk auth routes */}
+      <Route path="/sign-in/*?" component={SignInPage} />
+      <Route path="/sign-up/*?" component={SignUpPage} />
+
       {/* Admin */}
       <Route path="/admin"                component={AdminDashboard} />
       <Route path="/admin/solicitudes"    component={AdminSolicitudes} />
       <Route path="/admin/cartera"        component={AdminCartera} />
       <Route path="/admin/morosos"        component={AdminMorosos} />
       <Route path="/admin/asesores"       component={AdminAsesores} />
-      <Route path="/admin/financiero"       component={AdminFinanciero} />
-      <Route path="/admin/validar-pagos"   component={AdminValidarPagos} />
-      <Route path="/admin/caja"            component={AdminCaja} />
+      <Route path="/admin/financiero"     component={AdminFinanciero} />
+      <Route path="/admin/validar-pagos"  component={AdminValidarPagos} />
+      <Route path="/admin/caja"           component={AdminCaja} />
       <Route path="/admin/movimientos/:id" component={AdminMovimientos} />
-      <Route path="/admin/arbol"           component={AdminArbol} />
-      <Route path="/admin/expediente/:id"  component={AdminExpediente} />
+      <Route path="/admin/arbol"          component={AdminArbol} />
+      <Route path="/admin/expediente/:id" component={AdminExpediente} />
 
       {/* Legacy redirects */}
       <Route path="/login"><Redirect to="/" /></Route>
@@ -62,12 +118,39 @@ function Router() {
   );
 }
 
-export default function App() {
+// In dev, the clerk CDN (npm.clerk.dev) is inaccessible. Serve clerk-js locally via public/clerk-js/.
+const clerkJSUrl = `${basePath || ""}/clerk-js/clerk.browser.js`;
+
+function ClerkApp() {
+  const [, setLocation] = useLocation();
+  return (
+    <ClerkProvider
+      publishableKey={clerkPubKey!}
+      proxyUrl={clerkProxyUrl}
+      clerkJSUrl={clerkJSUrl}
+      routerPush={(to: string) => setLocation(stripBase(to))}
+      routerReplace={(to: string) => setLocation(stripBase(to), { replace: true })}
+    >
+      <QueryClientProvider client={queryClient}>
+        <ClerkCacheInvalidator />
+        <Router />
+      </QueryClientProvider>
+    </ClerkProvider>
+  );
+}
+
+function NoClerkApp() {
   return (
     <QueryClientProvider client={queryClient}>
-      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-        <Router />
-      </WouterRouter>
+      <Router />
     </QueryClientProvider>
+  );
+}
+
+export default function App() {
+  return (
+    <WouterRouter base={basePath}>
+      {clerkPubKey ? <ClerkApp /> : <NoClerkApp />}
+    </WouterRouter>
   );
 }
