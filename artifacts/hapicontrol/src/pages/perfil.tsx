@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { Avatar } from "@/components/hapi/Avatar";
 import {
   IconTelefono, IconUbicacion, IconID,
@@ -30,6 +31,7 @@ function fileToBase64(file: File): Promise<string> {
 }
 
 export default function Perfil() {
+  useRequireAuth(["client"]);
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [labelKey, setLabelKey] = useState("ine_front");

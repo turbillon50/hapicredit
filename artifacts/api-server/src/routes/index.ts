@@ -11,11 +11,13 @@ import cajaRouter from "./caja";
 import alertsRouter from "./alerts";
 import dashboardRouter from "./dashboard";
 import publicRouter from "./public";
+import inviteCodesRouter from "./inviteCodes";
 
 const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(authRouter);
+router.use(inviteCodesRouter);
 router.use(usersRouter);
 router.use(clientsRouter);
 router.use(creditsRouter);

@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import { eq } from "drizzle-orm";
-import { db, usersTable, clientsTable, creditsTable, paymentsTable } from "@workspace/db";
+import { eq, isNull } from "drizzle-orm";
+import { db, usersTable, clientsTable, creditsTable, paymentsTable, inviteCodesTable } from "@workspace/db";
 import { logger } from "./logger";
 
 function hash(password: string): string {
@@ -161,6 +161,18 @@ export async function seedIfNeeded() {
         logger.info("Seeded pending credit application");
       }
     }
+
+    // Seed master admin invite codes (2 slots)
+    const ADMIN_CODES = ["HAPI-ADM1", "HAPI-ADM2"];
+    const farFuture = new Date("2099-12-31");
+    for (const code of ADMIN_CODES) {
+      const exists = await db.select({ id: inviteCodesTable.id }).from(inviteCodesTable).where(eq(inviteCodesTable.code, code));
+      if (!exists.length) {
+        await db.insert(inviteCodesTable).values({ code, role: "admin", createdById: null, parentId: null, isActive: true, expiresAt: farFuture });
+        logger.info({ code }, "Seeded admin invite code");
+      }
+    }
+
   } catch (err) {
     logger.error({ err }, "Seed error — continuing");
   }

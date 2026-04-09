@@ -7,7 +7,7 @@ import { SkeletonCard, SkeletonHero } from "@/components/hapi/Skeleton";
 import {
   IconAlerta, IconMoneda, IconDesembolso, IconGrupo, IconFlecha,
   IconValidar, IconBandeja, IconCartera, IconFinanzas, IconCaja,
-  IconMedalla, IconArbol,
+  IconMedalla, IconArbol, IconEquipo,
 } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -25,6 +25,7 @@ const ACCESOS = [
   { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza, desempeno",         color: "#f3e8ff", ic: "#6d28d9" },
   { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",       color: "#fef9c3", ic: "#854d0e" },
   { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de arbol interactivo",               color: "#e0f2fe", ic: "#0369a1" },
+  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Codigos de invitacion",  sub: "Genera y comparte codigos de registro",   color: "#fdf4ff", ic: "#7c3aed" },
 ];
 
 export default function AdminDashboard() {

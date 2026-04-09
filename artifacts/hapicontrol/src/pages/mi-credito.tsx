@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { Badge } from "@/components/hapi/Badge";
 import { ProgressBar } from "@/components/hapi/ProgressBar";
 import { SkeletonHero } from "@/components/hapi/Skeleton";
@@ -34,6 +35,7 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
 };
 
 export default function MiCredito() {
+  useRequireAuth(["client"]);
   const { data: clients = [], isLoading } = useQuery<any[]>({
     queryKey: ["all-clients"],
     queryFn: async () => { const r = await fetch(`${API}/clients`, { headers: auth() }); if (!r.ok) throw new Error("Error al cargar clientes"); return r.json(); },

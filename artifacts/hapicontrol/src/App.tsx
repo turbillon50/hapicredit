@@ -7,6 +7,9 @@ import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
 import MiCredito        from "@/pages/mi-credito";
 import Perfil           from "@/pages/perfil";
+import Registro         from "@/pages/registro";
+import Login            from "@/pages/login";
+import AdminCodigos     from "@/pages/admin/codigos";
 
 import AdminDashboard    from "@/pages/admin/dashboard";
 import AdminCartera      from "@/pages/admin/cartera";
@@ -81,15 +84,19 @@ function ClerkCacheInvalidator() {
 function Router() {
   return (
     <Switch>
-      {/* Client */}
+      {/* Public */}
       <Route path="/"           component={Home} />
-      <Route path="/solicitar"  component={Solicitar} />
-      <Route path="/mi-credito" component={MiCredito} />
-      <Route path="/perfil"     component={Perfil} />
+      <Route path="/registro"   component={Registro} />
+      <Route path="/login"      component={Login} />
 
       {/* Clerk auth routes */}
       <Route path="/sign-in/*?" component={SignInPage} />
       <Route path="/sign-up/*?" component={SignUpPage} />
+
+      {/* Client (protected) */}
+      <Route path="/solicitar"  component={Solicitar} />
+      <Route path="/mi-credito" component={MiCredito} />
+      <Route path="/perfil"     component={Perfil} />
 
       {/* Admin */}
       <Route path="/admin"                component={AdminDashboard} />
@@ -102,10 +109,10 @@ function Router() {
       <Route path="/admin/caja"           component={AdminCaja} />
       <Route path="/admin/movimientos/:id" component={AdminMovimientos} />
       <Route path="/admin/arbol"          component={AdminArbol} />
+      <Route path="/admin/codigos"        component={AdminCodigos} />
       <Route path="/admin/expediente/:id" component={AdminExpediente} />
 
       {/* Legacy redirects */}
-      <Route path="/login"><Redirect to="/" /></Route>
       <Route path="/portal"><Redirect to="/mi-credito" /></Route>
       <Route path="/dashboard"><Redirect to="/admin" /></Route>
 

@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
   IconFlecha, IconAtras, IconCheck,
   IconLoader, IconAlerta, IconSubir,
@@ -62,6 +63,7 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 export default function Solicitar() {
+  useRequireAuth(["client"]);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<string | null>(null);
