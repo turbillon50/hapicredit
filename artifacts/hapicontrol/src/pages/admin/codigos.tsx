@@ -26,6 +26,12 @@ export default function AdminCodigos() {
   const [generating, setGenerating] = useState(false);
   const [newRole, setNewRole] = useState<"executive" | "client">("executive");
   const [copied, setCopied] = useState<string | null>(null);
+  const [emailModal, setEmailModal] = useState<Code | null>(null);
+  const [emailTo, setEmailTo] = useState("");
+  const [emailName, setEmailName] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailError, setEmailError] = useState("");
+  const [emailLoading, setEmailLoading] = useState(false);
   const qc = useQueryClient();
 
   const userRole = (() => { try { return JSON.parse(localStorage.getItem("hapi_user") || "{}").role; } catch { return ""; } })();
@@ -34,7 +40,7 @@ export default function AdminCodigos() {
     queryKey: ["invite-codes-mine"],
     queryFn: async () => {
       const res = await fetch(`${API}/invite-codes/mine`, { headers: auth() });
-      if (!res.ok) throw new Error("Error al cargar códigos");
+      if (!res.ok) throw new Error("Error al cargar codigos");
       return res.json();
     },
   });
@@ -59,7 +65,33 @@ export default function AdminCodigos() {
   }
 
   const shareText = (code: string, role: string) =>
-    `Te invito a registrarte en HapiCredit como ${ROLE_LABEL[role]}.\nUsa este código: ${code}\nhttps://hapicredit.live/registro`;
+    `Te invito a registrarte en HapiCredit como ${ROLE_LABEL[role]}.\nUsa este codigo: ${code}\nhttps://hapicredit.live/registro`;
+
+  function openEmailModal(c: Code) {
+    setEmailModal(c);
+    setEmailTo("");
+    setEmailName("");
+    setEmailSent(false);
+    setEmailError("");
+  }
+
+  async function sendEmail() {
+    if (!emailModal || !emailTo) return;
+    setEmailLoading(true);
+    setEmailError("");
+    try {
+      const res = await fetch(`${API}/invite-codes/send-email`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ code: emailModal.code, toEmail: emailTo, toName: emailName }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setEmailError(data.error || "Error al enviar"); return; }
+      setEmailSent(true);
+    } finally {
+      setEmailLoading(false);
+    }
+  }
 
   const pendingCodes = codes.filter(c => !c.usedAt && c.isActive);
   const usedCodes = codes.filter(c => c.usedAt);
@@ -69,8 +101,8 @@ export default function AdminCodigos() {
       <div style={{ padding: "16px 16px 100px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--navy-800)" }}>Códigos de invitación</h1>
-            <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Genera y comparte códigos para registrar nuevos usuarios</p>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--navy-800)" }}>Codigos de invitacion</h1>
+            <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Genera y comparte codigos para registrar nuevos usuarios</p>
           </div>
           <button
             onClick={() => setGenerating(true)}
@@ -84,9 +116,8 @@ export default function AdminCodigos() {
         {generating && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <div style={{ background: "white", borderRadius: 20, padding: 28, width: "100%", maxWidth: 360 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar código</h3>
-              <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>Selecciona el rol para el que generarás el código:</p>
-
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar codigo</h3>
+              <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>Selecciona el rol para el que generaras el codigo:</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
                 {(userRole === "admin" ? ["executive", "client"] : ["client"]).map(r => (
                   <button
@@ -98,20 +129,58 @@ export default function AdminCodigos() {
                   </button>
                 ))}
               </div>
-
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setGenerating(false)} style={{ flex: 1, padding: "12px", border: "1.5px solid #e2e8f0", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>
-                  Cancelar
-                </button>
-                <button
-                  onClick={() => generateMutation.mutate(newRole)}
-                  disabled={generateMutation.isPending}
-                  style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: generateMutation.isPending ? 0.7 : 1 }}
-                >
+                <button onClick={() => setGenerating(false)} style={{ flex: 1, padding: "12px", border: "1.5px solid #e2e8f0", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                <button onClick={() => generateMutation.mutate(newRole)} disabled={generateMutation.isPending} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: generateMutation.isPending ? 0.7 : 1 }}>
                   {generateMutation.isPending ? "Generando..." : "Generar"}
                 </button>
               </div>
               {generateMutation.isError && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 10 }}>{(generateMutation.error as Error).message}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Email modal */}
+        {emailModal && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", alignItems: "flex-end", justifyContent: "center", padding: 0 }}>
+            <div style={{ background: "white", borderRadius: "20px 20px 0 0", padding: 28, width: "100%", maxWidth: 540 }}>
+              {emailSent ? (
+                <div style={{ textAlign: "center", padding: "20px 0" }}>
+                  <div style={{ fontSize: 40, marginBottom: 12 }}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
+                      <circle cx="12" cy="12" r="12" fill="#dcfce7"/>
+                      <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 8 }}>Correo enviado</h3>
+                  <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>El codigo <strong>{emailModal.code}</strong> fue enviado a <strong>{emailTo}</strong></p>
+                  <button onClick={() => setEmailModal(null)} style={{ padding: "12px 32px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Listo</button>
+                </div>
+              ) : (
+                <>
+                  <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 4 }}>Enviar por correo</h3>
+                  <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+                    Codigo <strong style={{ fontFamily: "monospace", fontSize: 15, letterSpacing: 2 }}>{emailModal.code}</strong> · {ROLE_LABEL[emailModal.role]}
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em" }}>Correo del destinatario *</label>
+                      <input value={emailTo} onChange={e => setEmailTo(e.target.value)} type="email" placeholder="ejemplo@correo.com" style={inputStyle} />
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.05em" }}>Nombre (opcional)</label>
+                      <input value={emailName} onChange={e => setEmailName(e.target.value)} placeholder="Nombre del invitado" style={inputStyle} />
+                    </div>
+                  </div>
+                  {emailError && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid #e2e8f0", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                    <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>
+                      {emailLoading ? "Enviando..." : "Enviar codigo"}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -132,10 +201,16 @@ export default function AdminCodigos() {
                   <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>Expira: {formatDate(c.expiresAt)}</p>
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "#f0fdf4" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
-                      {copied === c.code ? "Copiado" : "Copiar código"}
+                      {copied === c.code ? "Copiado" : "Copiar"}
                     </button>
                     <button
-                      onClick={() => navigator.share?.({ title: "Invitación HapiCredit", text: shareText(c.code, c.role) })}
+                      onClick={() => openEmailModal(c)}
+                      style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+                    >
+                      Por correo
+                    </button>
+                    <button
+                      onClick={() => navigator.share?.({ title: "Invitacion HapiCredit", text: shareText(c.code, c.role) }).catch(() => copyCode(c.code))}
                       style={{ flex: 1, padding: "9px", background: "var(--accent)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: "pointer" }}
                     >
                       Compartir
@@ -176,3 +251,14 @@ export default function AdminCodigos() {
     </Layout>
   );
 }
+
+const inputStyle: React.CSSProperties = {
+  width: "100%",
+  padding: "11px 14px",
+  border: "1.5px solid #e2e8f0",
+  borderRadius: 10,
+  fontSize: 15,
+  marginTop: 6,
+  boxSizing: "border-box",
+  outline: "none",
+};

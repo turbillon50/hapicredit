@@ -3,6 +3,7 @@ import { eq, and, isNull, gt } from "drizzle-orm";
 import { db, inviteCodesTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import crypto from "crypto";
+import { sendInviteCodeEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -118,6 +119,52 @@ router.post("/invite-codes/request", async (req, res): Promise<void> => {
   }).returning();
 
   res.json({ code: newCode.code, expiresAt: newCode.expiresAt });
+});
+
+// Send invite code by email
+router.post("/invite-codes/send-email", requireAuth, async (req, res): Promise<void> => {
+  const { code, toEmail, toName } = req.body;
+  if (!code || !toEmail) {
+    res.status(400).json({ error: "Se requiere codigo y correo destino" });
+    return;
+  }
+
+  const now = new Date();
+  const [found] = await db
+    .select({ code: inviteCodesTable.code, role: inviteCodesTable.role, expiresAt: inviteCodesTable.expiresAt, createdById: inviteCodesTable.createdById })
+    .from(inviteCodesTable)
+    .where(
+      and(
+        eq(inviteCodesTable.code, code.toUpperCase()),
+        eq(inviteCodesTable.isActive, true),
+        isNull(inviteCodesTable.usedById),
+        gt(inviteCodesTable.expiresAt, now),
+      )
+    );
+
+  if (!found) {
+    res.status(404).json({ error: "Codigo invalido, usado o expirado" });
+    return;
+  }
+
+  // Verify ownership
+  if (found.createdById !== req.userId) {
+    res.status(403).json({ error: "No tienes permiso para compartir este codigo" });
+    return;
+  }
+
+  const [inviter] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+
+  await sendInviteCodeEmail({
+    to: toEmail,
+    inviteeName: toName,
+    code: found.code,
+    role: found.role,
+    inviterName: inviter?.fullName || "HapiCredit",
+    expiresAt: found.expiresAt,
+  });
+
+  res.json({ success: true });
 });
 
 export default router;

@@ -4,6 +4,7 @@ import { db, usersTable, sessionsTable, inviteCodesTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { LoginBody } from "@workspace/api-zod";
 import crypto from "crypto";
+import { sendWelcomeEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -110,6 +111,11 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   const token = generateToken();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
   await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
+
+  // Send welcome email asynchronously (non-blocking)
+  if (newUser.email) {
+    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+  }
 
   res.json({
     token,
