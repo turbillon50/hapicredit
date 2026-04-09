@@ -117,6 +117,35 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   });
 });
 
+// Clerk sync — find or create user record after Google/Clerk sign-in
+router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
+  const { clerkId, email, fullName } = req.body;
+  if (!email) { res.status(400).json({ error: "Se requiere email" }); return; }
+
+  // Try to find user by email
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+
+  if (!user) {
+    // No record → user needs to register with invite code first
+    res.json({ needsCode: true });
+    return;
+  }
+
+  if (!user.isActive) {
+    res.status(401).json({ error: "Cuenta inactiva" });
+    return;
+  }
+
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await db.insert(sessionsTable).values({ userId: user.id, token, expiresAt });
+
+  res.json({
+    token,
+    user: { id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role },
+  });
+});
+
 router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {
   const token = req.headers.authorization?.slice(7);
   if (token) await db.delete(sessionsTable).where(eq(sessionsTable.token, token));

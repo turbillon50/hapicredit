@@ -2,7 +2,19 @@
 
 ## Overview
 
-Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CAFJA / HapiCredit. Built in Spanish. The app opens as a client-facing experience (HapiCredit brand) with a full credit application flow. Admin access via "Admin" tab (5th position in bottom nav, no password).
+Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CAFJA / HapiCredit. Built in Spanish. The app uses role-based authentication with invite code registration. Three areas: public landing, client portal, admin/executive panel.
+
+## Auth System
+
+- **3 roles**: `admin`, `executive` (asesor), `client` (acreditado)
+- **Registration**: Requires invite code (role determines access). Master admin codes: `HAPI-ADM1`, `HAPI-ADM2`
+- **Login**: `/login` — username/password OR Google via Clerk (redirect to /sign-in)
+- **Sessions**: JWT stored in `localStorage` (`hapi_token`, `hapi_role`, `hapi_user`). Sessions are persistent (30 days).
+- **Google OAuth**: Clerk handles Google sign-in at `/sign-in`. After Clerk auth, user is synced with our DB via `/auth/clerk-sync`.
+- **Route protection**: Layout.tsx redirects to `/login` for protected routes. Home page redirects logged-in users to their dashboard.
+- **Genealogical tree**: `parentId` on users links to who invited them. `/admin/arbol` shows per-admin tree. `/users/my-tree` API endpoint returns the tree.
+- **Invite code API**: `/invite-codes/generate` (admin/executive), `/invite-codes/validate/:code`, `/invite-codes/request` (public, creates client code), `/invite-codes/mine`
+- **NO auto-login**: The old `ensureAdminToken()` was removed. Only real authenticated users can access protected routes.
 
 ## Real Business Rules (CRITICAL)
 

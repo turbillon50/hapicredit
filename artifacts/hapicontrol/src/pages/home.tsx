@@ -131,14 +131,21 @@ function FaqItem({ q, a }: { q: string; a: string }) {
 
 export default function Home() {
   const [, navigate] = useLocation();
-  const [showSplash, setShowSplash] = useState(true);
+
+  const isLoggedIn = !!localStorage.getItem("hapi_token");
+  const storedRole = localStorage.getItem("hapi_role");
   const [splashSeen] = useState(() => sessionStorage.getItem("hapi_splash") === "1");
+  const [showSplash, setShowSplash] = useState(() => !isLoggedIn && !splashSeen);
+  const [redirecting, setRedirecting] = useState(isLoggedIn);
 
   useEffect(() => {
-    if (splashSeen) {
-      setShowSplash(false);
+    if (isLoggedIn) {
+      if (storedRole === "admin" || storedRole === "executive") navigate("/admin");
+      else navigate("/mi-credito");
     }
-  }, [splashSeen]);
+  }, []);
+
+  if (redirecting) return null;
 
   function handleSplashDone() {
     setShowSplash(false);
@@ -163,14 +170,24 @@ export default function Home() {
             <p className="text-white/70 text-sm max-w-xs mx-auto leading-relaxed mt-1">
               Creditos rapidos y transparentes para hacer crecer tu negocio
             </p>
-            <Link href="/solicitar">
-              <button
-                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-2xl text-sm font-bold pressable mt-5 float-cta"
-                style={{ background: "var(--brand-red)", color: "#fff" }}
-              >
-                Solicitar credito <IconFlecha size={16} color="#fff" />
-              </button>
-            </Link>
+            <div className="flex items-center justify-center gap-3 mt-5">
+              <Link href="/registro">
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-bold pressable float-cta"
+                  style={{ background: "var(--brand-red)", color: "#fff" }}
+                >
+                  Registrarme
+                </button>
+              </Link>
+              <Link href="/login">
+                <button
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl text-sm font-semibold pressable"
+                  style={{ background: "rgba(255,255,255,0.12)", color: "#fff", border: "1px solid rgba(255,255,255,0.2)" }}
+                >
+                  Iniciar sesion
+                </button>
+              </Link>
+            </div>
           </div>
 
           <div className="px-4 -mt-4 relative z-10 anim-section anim-d2">

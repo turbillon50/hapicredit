@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { ClerkProvider, SignIn, SignUp, useClerk } from "@clerk/react";
+import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
 
 import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
@@ -62,21 +62,60 @@ function SignUpPage() {
   );
 }
 
+const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+
 function ClerkCacheInvalidator() {
   const { addListener } = useClerk();
+  const { user: clerkUser, isSignedIn } = useUser();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
+  const syncedRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
       const userId = user?.id ?? null;
       if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
         qc.clear();
+        if (!userId) {
+          // Clerk user signed out — clear our token too
+          localStorage.removeItem("hapi_token");
+          localStorage.removeItem("hapi_role");
+          localStorage.removeItem("hapi_user");
+        }
       }
       prevUserIdRef.current = userId;
     });
     return unsubscribe;
   }, [addListener, qc]);
+
+  // Sync Clerk user with our DB after Google/Clerk sign-in
+  useEffect(() => {
+    if (!isSignedIn || !clerkUser || syncedRef.current) return;
+    const existing = localStorage.getItem("hapi_token");
+    if (existing) { syncedRef.current = true; return; }
+
+    const email = clerkUser.primaryEmailAddress?.emailAddress;
+    const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "";
+    if (!email) return;
+
+    syncedRef.current = true;
+    fetch(`${API}/auth/clerk-sync`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ clerkId: clerkUser.id, email, fullName }),
+    }).then(r => r.json()).then(data => {
+      if (data.token) {
+        localStorage.setItem("hapi_token", data.token);
+        localStorage.setItem("hapi_role", data.user.role);
+        localStorage.setItem("hapi_user", JSON.stringify(data.user));
+        qc.invalidateQueries();
+        const role = data.user.role;
+        window.location.href = (role === "admin" || role === "executive") ? `${basePath}/admin` : `${basePath}/mi-credito`;
+      } else if (data.needsCode) {
+        window.location.href = `${basePath}/registro`;
+      }
+    }).catch(() => { syncedRef.current = false; });
+  }, [isSignedIn, clerkUser]);
 
   return null;
 }
