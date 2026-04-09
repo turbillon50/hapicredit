@@ -44,8 +44,6 @@ const queryClient = new QueryClient({
 });
 
 function SignInPage() {
-  // To update login providers, app branding, or OAuth settings use the Auth
-  // pane in the workspace toolbar.
   return (
     <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
       <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
@@ -54,8 +52,6 @@ function SignInPage() {
 }
 
 function SignUpPage() {
-  // To update login providers, app branding, or OAuth settings use the Auth
-  // pane in the workspace toolbar.
   return (
     <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
       <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
@@ -118,7 +114,6 @@ function Router() {
   );
 }
 
-// In dev, the clerk CDN (npm.clerk.dev) is inaccessible. Serve clerk-js locally via public/clerk-js/.
 const clerkJSUrl = `${basePath || ""}/clerk-js/clerk.browser.js`;
 
 function ClerkApp() {
