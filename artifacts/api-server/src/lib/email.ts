@@ -20,7 +20,7 @@ async function getResendClient(): Promise<{ client: Resend; from: string } | nul
     const conn = data?.items?.[0];
     if (!conn?.settings?.api_key) return null;
 
-    const from = conn.settings.from_email || "HapiCredit <noreply@hapicredit.live>";
+    const from = "HapiCredit <noreply@hapicredit.live>";
     return { client: new Resend(conn.settings.api_key), from };
   } catch {
     return null;
