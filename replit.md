@@ -98,6 +98,19 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - `/admin/financiero` — Financial overview, interest analysis
 - `/admin/caja` — Cash control per executive
 - `/admin/expediente/:id` — Full client record (credits, payments, documents, notes)
+- `/admin/arbol` — Genealogical tree of executives
+- `/admin/codigos` — Invite code management
+- `/admin/movimientos/:id` — Per-executive financial ledger
+
+### Executive Pages (all at /dashboard/* paths)
+- `/dashboard` or `/executive` — Executive dashboard with today's KPIs
+- `/dashboard/clientes` — Executive's client list with search and status filter
+- `/dashboard/expediente/:id` — Client detail with active credit info
+- `/dashboard/cobrar` — Register client payment (auto-loads active credit, requires creditId)
+- `/dashboard/alta-cliente` — 4-step new client registration with document upload
+- `/dashboard/comisiones` — Commission breakdown by credit
+- `/dashboard/alertas` — Alerts for at-risk clients
+- `/dashboard/compromisos` — Payment commitments tracker
 
 ## Key Commands
 

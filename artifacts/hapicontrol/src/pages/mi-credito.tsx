@@ -36,12 +36,15 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
 
 export default function MiCredito() {
   useRequireAuth(["client"]);
-  const { data: clients = [], isLoading } = useQuery<any[]>({
-    queryKey: ["all-clients"],
-    queryFn: async () => { const r = await fetch(`${API}/clients`, { headers: auth() }); if (!r.ok) throw new Error("Error al cargar clientes"); return r.json(); },
+  const { data: client, isLoading } = useQuery<any>({
+    queryKey: ["me-client"],
+    queryFn: async () => {
+      const r = await fetch(`${API}/me/client`, { headers: auth() });
+      if (r.status === 404) return null;
+      if (!r.ok) throw new Error("Error al cargar tu perfil");
+      return r.json();
+    },
   });
-
-  const client = (clients as any[])[0];
 
   const { data: credits = [] } = useQuery<any[]>({
     queryKey: ["client-credits", client?.id],

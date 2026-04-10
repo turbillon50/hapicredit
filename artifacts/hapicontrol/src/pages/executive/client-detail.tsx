@@ -55,7 +55,7 @@ export default function ExecutiveClientDetail() {
 
   if (isLoading || !client) {
     return (
-      <Layout title="Perfil del Cliente" back="/clients">
+      <Layout title="Perfil del Cliente" back="/dashboard/clientes">
         <div className="space-y-4 animate-pulse">
           <div className="h-36 bg-white rounded-2xl shadow-card" />
           <div className="h-28 bg-white rounded-2xl shadow-card" />
@@ -66,7 +66,7 @@ export default function ExecutiveClientDetail() {
   }
 
   return (
-    <Layout title="Perfil del Cliente" back="/clients">
+    <Layout title="Perfil del Cliente" back="/dashboard/clientes">
       <div className="space-y-4">
 
         <div className="bg-white rounded-2xl shadow-card p-5 flex flex-col items-center text-center">
@@ -129,7 +129,7 @@ export default function ExecutiveClientDetail() {
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <Link href={`/payments/new?clientId=${client.id}`}>
+          <Link href={`/dashboard/cobrar`}>
             <div className="bg-white rounded-2xl shadow-card p-4 flex flex-col items-center gap-2 text-center active:bg-secondary transition-colors">
               <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <IconMoneda size={20} color="var(--accent)" />
@@ -137,7 +137,7 @@ export default function ExecutiveClientDetail() {
               <span className="text-[12px] font-semibold text-foreground">Registrar pago</span>
             </div>
           </Link>
-          <Link href="/commitments">
+          <Link href="/dashboard/compromisos">
             <div className="bg-white rounded-2xl shadow-card p-4 flex flex-col items-center gap-2 text-center active:bg-secondary transition-colors">
               <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
                 <IconCalendario size={20} color="#f59e0b" />

@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
+import { AuthProvider } from "@/hooks/use-auth";
 
 import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
@@ -22,6 +23,16 @@ import AdminValidarPagos from "@/pages/admin/validar-pagos";
 import AdminCaja         from "@/pages/admin/caja";
 import AdminMovimientos  from "@/pages/admin/movimientos";
 import AdminArbol        from "@/pages/admin/arbol";
+
+import ExecDashboard    from "@/pages/executive/dashboard";
+import ExecCobrar       from "@/pages/executive/cobrar";
+import ExecAltaCliente  from "@/pages/executive/alta-cliente";
+import ExecClients      from "@/pages/executive/clients";
+import ExecClientDetail from "@/pages/executive/client-detail";
+import ExecPaymentsNew  from "@/pages/executive/payments-new";
+import ExecComisiones   from "@/pages/executive/comisiones";
+import ExecAlerts       from "@/pages/executive/alerts";
+import ExecCommitments  from "@/pages/executive/commitments";
 
 import NotFound         from "@/pages/not-found";
 
@@ -110,7 +121,7 @@ function ClerkCacheInvalidator() {
         localStorage.setItem("hapi_user", JSON.stringify(data.user));
         qc.invalidateQueries();
         const role = data.user.role;
-        window.location.href = (role === "admin" || role === "executive") ? `${basePath}/admin` : `${basePath}/mi-credito`;
+        window.location.href = role === "admin" ? `${basePath}/admin` : role === "executive" ? `${basePath}/executive` : `${basePath}/mi-credito`;
       } else if (data.needsCode) {
         window.location.href = `${basePath}/registro`;
       }
@@ -151,9 +162,20 @@ function Router() {
       <Route path="/admin/codigos"        component={AdminCodigos} />
       <Route path="/admin/expediente/:id" component={AdminExpediente} />
 
+      {/* Executive portal (uses /dashboard/* paths) */}
+      <Route path="/executive"                  component={ExecDashboard} />
+      <Route path="/dashboard"                  component={ExecDashboard} />
+      <Route path="/dashboard/cobrar"           component={ExecCobrar} />
+      <Route path="/dashboard/alta-cliente"     component={ExecAltaCliente} />
+      <Route path="/dashboard/clientes"         component={ExecClients} />
+      <Route path="/dashboard/expediente/:id"   component={ExecClientDetail} />
+      <Route path="/dashboard/pagos/nuevo"      component={ExecPaymentsNew} />
+      <Route path="/dashboard/comisiones"       component={ExecComisiones} />
+      <Route path="/dashboard/alertas"          component={ExecAlerts} />
+      <Route path="/dashboard/compromisos"      component={ExecCommitments} />
+
       {/* Legacy redirects */}
       <Route path="/portal"><Redirect to="/mi-credito" /></Route>
-      <Route path="/dashboard"><Redirect to="/admin" /></Route>
 
       <Route component={NotFound} />
     </Switch>
@@ -173,8 +195,10 @@ function ClerkApp() {
       routerReplace={(to: string) => setLocation(stripBase(to), { replace: true })}
     >
       <QueryClientProvider client={queryClient}>
-        <ClerkCacheInvalidator />
-        <Router />
+        <AuthProvider>
+          <ClerkCacheInvalidator />
+          <Router />
+        </AuthProvider>
       </QueryClientProvider>
     </ClerkProvider>
   );
@@ -183,7 +207,9 @@ function ClerkApp() {
 function NoClerkApp() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Router />
+      <AuthProvider>
+        <Router />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

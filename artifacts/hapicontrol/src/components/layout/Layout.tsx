@@ -4,6 +4,7 @@ import { useLocation, Link } from "wouter";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil,
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
+  IconPersona, IconMoneda, IconMas, IconFinanzas,
 } from "@/components/hapi/HapiIcons";
 
 type NavItem = { icon: React.ReactNode; label: string; path: string };
@@ -23,10 +24,18 @@ const adminNav: NavItem[] = [
   { icon: <IconArbol />,   label: "Mi Red",      path: "/admin/arbol"       },
 ];
 
+const execNav: NavItem[] = [
+  { icon: <IconPanel />,    label: "Panel",      path: "/dashboard"             },
+  { icon: <IconPersona />,  label: "Clientes",   path: "/dashboard/clientes"    },
+  { icon: <IconMoneda />,   label: "Cobrar",     path: "/dashboard/cobrar"      },
+  { icon: <IconMas />,      label: "Alta",       path: "/dashboard/alta-cliente"},
+  { icon: <IconFinanzas />, label: "Comisiones", path: "/dashboard/comisiones"  },
+];
+
 function isActive(path: string, current: string) {
   if (path === "/" && current === "/") return true;
-  if (path === "/admin" && current === "/admin") return true;
-  if (path !== "/" && path !== "/admin") return current.startsWith(path);
+  if ((path === "/admin" && current === "/admin") || (path === "/dashboard" && current === "/dashboard")) return true;
+  if (path !== "/" && path !== "/admin" && path !== "/dashboard") return current.startsWith(path);
   return false;
 }
 
@@ -46,7 +55,7 @@ function getRoleBadge(role: string | null) {
   return null;
 }
 
-export function Layout({ children }: { children: React.ReactNode }) {
+export function Layout({ children, title, back }: { children: React.ReactNode; title?: string; back?: string }) {
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
 
@@ -55,7 +64,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
   const user = (() => { try { return JSON.parse(localStorage.getItem("hapi_user") || "{}"); } catch { return {}; } })();
 
   const isAdmin = location.startsWith("/admin");
-  const navItems = isAdmin ? adminNav : clientNav;
+  const isExec  = location.startsWith("/dashboard") || location.startsWith("/executive");
+  const navItems = isAdmin ? adminNav : isExec ? execNav : clientNav;
   const badge = getRoleBadge(role);
 
   // Route protection
@@ -64,6 +74,12 @@ export function Layout({ children }: { children: React.ReactNode }) {
     const r = localStorage.getItem("hapi_role");
 
     if (location.startsWith("/admin")) {
+      if (!t || !["admin", "executive"].includes(r || "")) {
+        navigate("/login");
+        return;
+      }
+    }
+    if (location.startsWith("/dashboard") || location.startsWith("/executive")) {
       if (!t || !["admin", "executive"].includes(r || "")) {
         navigate("/login");
         return;
@@ -94,28 +110,31 @@ export function Layout({ children }: { children: React.ReactNode }) {
           className="flex items-center justify-between px-4"
           style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", height: "56px" }}
         >
-          {isAdmin ? (
+          {(isAdmin || isExec) ? (
             <>
-              <button onClick={() => navigate("/")} className="flex items-center gap-2 text-white/70 pressable py-3">
+              <button
+                onClick={() => back ? navigate(back) : navigate("/")}
+                className="flex items-center gap-2 text-white/70 pressable py-3 min-w-[56px]"
+              >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M19 12H5M12 5l-7 7 7 7"/>
                 </svg>
-                <span className="text-sm font-medium">Inicio</span>
+                <span className="text-sm font-medium">{back ? "Atras" : "Inicio"}</span>
               </button>
               <div className="flex items-center gap-2">
-                {badge && (
+                {badge && !title && (
                   <div className="px-2 py-0.5 rounded-md text-[10px] font-bold" style={{ background: badge.bg, color: badge.color }}>
                     {badge.label}
                   </div>
                 )}
-                <span className="text-white font-bold text-sm tracking-tight">HapiControl</span>
+                <span className="text-white font-bold text-sm tracking-tight">{title ?? "HapiControl"}</span>
               </div>
               {token ? (
-                <button onClick={handleLogout} className="text-xs text-white/50 pressable py-2 px-1 hover:text-white/80">
+                <button onClick={handleLogout} className="text-xs text-white/50 pressable py-2 px-1 hover:text-white/80 min-w-[40px] text-right">
                   Salir
                 </button>
               ) : (
-                <div className="w-16" />
+                <div className="min-w-[40px]" />
               )}
             </>
           ) : (
@@ -155,17 +174,17 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <nav
         className="fixed bottom-0 left-0 right-0 z-30 flex"
         style={{
-          background: isAdmin ? "var(--navy-800)" : "#fff",
-          borderTop: isAdmin ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,31,61,0.08)",
-          boxShadow: isAdmin ? "none" : "0 -2px 20px rgba(15,31,61,0.08)",
+          background: (isAdmin || isExec) ? "var(--navy-800)" : "#fff",
+          borderTop: (isAdmin || isExec) ? "1px solid rgba(255,255,255,0.08)" : "1px solid rgba(15,31,61,0.08)",
+          boxShadow: (isAdmin || isExec) ? "none" : "0 -2px 20px rgba(15,31,61,0.08)",
           paddingBottom: "env(safe-area-inset-bottom)",
         }}
       >
         {navItems.map(item => {
           const active = isActive(item.path, location);
           const iconColor = active
-            ? (isAdmin ? "#60a5fa" : "var(--accent)")
-            : (isAdmin ? "rgba(255,255,255,0.35)" : "var(--text-muted)");
+            ? ((isAdmin || isExec) ? "#60a5fa" : "var(--accent)")
+            : ((isAdmin || isExec) ? "rgba(255,255,255,0.35)" : "var(--text-muted)");
           return (
             <Link
               key={item.path}

@@ -55,7 +55,7 @@ const DOC_FIELDS: { key: DocKey; label: string; hint: string; required: boolean 
   { key: "ingresos",   label: "Comprobante de ingresos",   hint: "Estado de cuenta o constancia laboral",      required: false },
 ];
 
-const TERMS = [8, 12, 16, 20, 24];
+const TERMS = [8, 13];
 const PURPOSES = [
   "Capital de trabajo / negocio",
   "Educación",
@@ -204,7 +204,7 @@ export default function AltaCliente() {
   const [docs, setDocs] = useState<Partial<Record<DocKey, string | null>>>({});
 
   const [amount, setAmount] = useState(3000);
-  const [termWeeks, setTermWeeks] = useState(12);
+  const [termWeeks, setTermWeeks] = useState(8);
   const [purpose, setPurpose] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
@@ -243,10 +243,10 @@ export default function AltaCliente() {
       const clientData = await clientRes.json();
       if (!clientRes.ok) throw new Error(clientData.error ?? "Error al crear cliente");
 
-      const creditRes = await fetch(`${API}/credits`, {
+      const creditRes = await fetch(`${API}/credits/apply`, {
         method: "POST",
         headers: auth(),
-        body: JSON.stringify({ clientId: clientData.id, amount, termWeeks }),
+        body: JSON.stringify({ clientId: clientData.id, amount, termWeeks, purpose }),
       });
       const creditData = await creditRes.json();
       if (!creditRes.ok) throw new Error(creditData.error ?? "Error al crear crédito");

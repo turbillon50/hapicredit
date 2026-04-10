@@ -45,6 +45,12 @@ router.get("/clients", requireAuth, async (req, res): Promise<void> => {
 
   const conditions = [];
 
+  // Client role cannot list all clients
+  if (req.userRole === "client") {
+    res.status(403).json({ error: "Usa /me/client para ver tu información" });
+    return;
+  }
+
   // Executive sees only their own clients
   if (req.userRole === "executive") {
     conditions.push(eq(clientsTable.executiveId, req.userId!));

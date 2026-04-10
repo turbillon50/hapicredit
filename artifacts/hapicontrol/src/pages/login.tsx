@@ -15,7 +15,7 @@ export default function Login() {
     const token = localStorage.getItem("hapi_token");
     const role = localStorage.getItem("hapi_role");
     if (token) {
-      navigate(role === "admin" || role === "executive" ? "/admin" : "/mi-credito");
+      navigate(role === "admin" ? "/admin" : role === "executive" ? "/executive" : "/mi-credito");
     }
   }, []);
 
@@ -36,7 +36,7 @@ export default function Login() {
       localStorage.setItem("hapi_role", data.user.role);
       localStorage.setItem("hapi_user", JSON.stringify(data.user));
 
-      navigate(data.user.role === "admin" || data.user.role === "executive" ? "/admin" : "/mi-credito");
+      navigate(data.user.role === "admin" ? "/admin" : data.user.role === "executive" ? "/executive" : "/mi-credito");
     } finally {
       setLoading(false);
     }
