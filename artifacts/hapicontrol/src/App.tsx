@@ -173,6 +173,7 @@ function Router() {
       <Route path="/dashboard/comisiones"       component={ExecComisiones} />
       <Route path="/dashboard/alertas"          component={ExecAlerts} />
       <Route path="/dashboard/compromisos"      component={ExecCommitments} />
+      <Route path="/dashboard/codigos"          component={AdminCodigos} />
 
       {/* Legacy redirects */}
       <Route path="/portal"><Redirect to="/mi-credito" /></Route>

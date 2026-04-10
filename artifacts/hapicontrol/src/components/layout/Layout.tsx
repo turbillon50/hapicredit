@@ -25,11 +25,11 @@ const adminNav: NavItem[] = [
 ];
 
 const execNav: NavItem[] = [
-  { icon: <IconPanel />,    label: "Panel",      path: "/dashboard"             },
-  { icon: <IconPersona />,  label: "Clientes",   path: "/dashboard/clientes"    },
-  { icon: <IconMoneda />,   label: "Cobrar",     path: "/dashboard/cobrar"      },
-  { icon: <IconMas />,      label: "Alta",       path: "/dashboard/alta-cliente"},
-  { icon: <IconFinanzas />, label: "Comisiones", path: "/dashboard/comisiones"  },
+  { icon: <IconPanel />,    label: "Panel",      path: "/dashboard"              },
+  { icon: <IconPersona />,  label: "Clientes",   path: "/dashboard/clientes"     },
+  { icon: <IconMoneda />,   label: "Cobrar",     path: "/dashboard/cobrar"       },
+  { icon: <IconMas />,      label: "Alta",       path: "/dashboard/alta-cliente" },
+  { icon: <IconBandeja />,  label: "Codigos",    path: "/dashboard/codigos"      },
 ];
 
 function isActive(path: string, current: string) {

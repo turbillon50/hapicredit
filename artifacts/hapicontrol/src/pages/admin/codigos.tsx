@@ -64,8 +64,20 @@ export default function AdminCodigos() {
     setTimeout(() => setCopied(null), 2000);
   }
 
-  const shareText = (code: string, role: string) =>
-    `Te invito a registrarte en HapiCredit como ${ROLE_LABEL[role]}.\nUsa este codigo: ${code}\nhttps://hapicredit.live/registro`;
+  function openWhatsApp(code: string, role: string) {
+    const roleLabel = ROLE_LABEL[role];
+    const expires = "30 dias";
+    const msg = encodeURIComponent(
+      `*HapiCredit — Invitación de registro*\n\n` +
+      `Hola! Te han dado de alta en la plataforma HapiCredit como *${roleLabel}*.\n\n` +
+      `Tu código de registro (único e intransferible):\n` +
+      `*${code}*\n\n` +
+      `Regístrate aquí:\nhttps://hapicredit.live/registro\n\n` +
+      `_Válido por ${expires}. Código de un solo uso._\n\n` +
+      `*HapiCredit* — Tu crédito, Tu impulso`
+    );
+    window.open(`https://wa.me/?text=${msg}`, "_blank");
+  }
 
   function openEmailModal(c: Code) {
     setEmailModal(c);
@@ -200,20 +212,24 @@ export default function AdminCodigos() {
                   </div>
                   <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>Expira: {formatDate(c.expiresAt)}</p>
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "#f0fdf4" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "#f0fdf4" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                       {copied === c.code ? "Copiado" : "Copiar"}
                     </button>
                     <button
                       onClick={() => openEmailModal(c)}
-                      style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+                      style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: "white", color: "#374151", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
                     >
-                      Por correo
+                      Correo
                     </button>
                     <button
-                      onClick={() => navigator.share?.({ title: "Invitacion HapiCredit", text: shareText(c.code, c.role) }).catch(() => copyCode(c.code))}
-                      style={{ flex: 1, padding: "9px", background: "var(--accent)", color: "white", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: "pointer" }}
+                      onClick={() => openWhatsApp(c.code, c.role)}
+                      style={{ flex: 1, padding: "9px", background: "#25D366", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
                     >
-                      Compartir
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                        <path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.555 4.123 1.526 5.855L0 24l6.337-1.502A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.882 0-3.648-.511-5.163-1.4l-.37-.22-3.762.892.936-3.647-.242-.378A9.937 9.937 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/>
+                      </svg>
+                      WhatsApp
                     </button>
                   </div>
                 </div>
