@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, isNull, gt } from "drizzle-orm";
+import { eq, and, isNull, gt, sql } from "drizzle-orm";
 import { db, inviteCodesTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import crypto from "crypto";
@@ -71,12 +71,13 @@ router.get("/invite-codes/validate/:code", async (req, res): Promise<void> => {
   const { code } = req.params;
   const now = new Date();
 
+  // Case-insensitive lookup: lower(code) = lower(input)
   const [found] = await db
     .select()
     .from(inviteCodesTable)
     .where(
       and(
-        eq(inviteCodesTable.code, code.toUpperCase()),
+        sql`lower(${inviteCodesTable.code}) = lower(${code})`,
         eq(inviteCodesTable.isActive, true),
         isNull(inviteCodesTable.usedById),
         gt(inviteCodesTable.expiresAt, now),
@@ -88,7 +89,7 @@ router.get("/invite-codes/validate/:code", async (req, res): Promise<void> => {
     return;
   }
 
-  // If admin code, check max 2 admins
+  // If admin code (not staff), check max 2 admins
   if (found.role === "admin") {
     const adminCount = await db
       .select({ id: usersTable.id })
@@ -101,7 +102,8 @@ router.get("/invite-codes/validate/:code", async (req, res): Promise<void> => {
     }
   }
 
-  res.json({ valid: true, role: found.role });
+  // Return the actual stored code (so clerk-sync can find it exactly)
+  res.json({ valid: true, role: found.role, code: found.code });
 });
 
 // Request a code (public — no auth needed, generates a client code)

@@ -123,33 +123,86 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   });
 });
 
-// Clerk sync — find or create user record after Google/Clerk sign-in
+// Clerk sync — find or create user record after email/passkey sign-in via Clerk
 router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
-  const { clerkId, email, fullName } = req.body;
+  const { clerkId, email, fullName, role: requestedRole, inviteCode } = req.body;
   if (!email) { res.status(400).json({ error: "Se requiere email" }); return; }
 
-  // Try to find user by email
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  // Try to find existing user by email
+  const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email));
 
-  if (!user) {
-    // No record → user needs to register with invite code first
+  if (existingUser) {
+    if (!existingUser.isActive) { res.status(401).json({ error: "Cuenta inactiva" }); return; }
+    const token = generateToken();
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year — persistent
+    await db.insert(sessionsTable).values({ userId: existingUser.id, token, expiresAt });
+    res.json({ token, user: { id: existingUser.id, username: existingUser.username, fullName: existingUser.fullName, email: existingUser.email, role: existingUser.role } });
+    return;
+  }
+
+  // New user — must have role + valid invite code
+  if (!requestedRole || !inviteCode) {
     res.json({ needsCode: true });
     return;
   }
 
-  if (!user.isActive) {
-    res.status(401).json({ error: "Cuenta inactiva" });
+  const now = new Date();
+  const [invCode] = await db.select().from(inviteCodesTable).where(
+    and(
+      eq(inviteCodesTable.code, inviteCode),
+      eq(inviteCodesTable.isActive, true),
+      isNull(inviteCodesTable.usedById),
+      gt(inviteCodesTable.expiresAt, now),
+    )
+  );
+
+  if (!invCode) {
+    res.status(400).json({ error: "Código inválido, ya usado o expirado" });
     return;
   }
 
-  const token = generateToken();
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  await db.insert(sessionsTable).values({ userId: user.id, token, expiresAt });
+  // "staff" codes accept executive or admin; otherwise must match
+  const isStaff = invCode.role === "staff";
+  if (!isStaff && invCode.role !== requestedRole) {
+    res.status(400).json({ error: "El código no corresponde al rol seleccionado" });
+    return;
+  }
+  if (isStaff && requestedRole !== "executive" && requestedRole !== "admin") {
+    res.status(400).json({ error: "Código de staff solo válido para Asesor o Administrador" });
+    return;
+  }
 
-  res.json({
-    token,
-    user: { id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role },
-  });
+  const finalRole = requestedRole as string;
+
+  // Generate username from email prefix
+  const emailPrefix = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "");
+  let username = emailPrefix;
+  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
+  if (existing.length) username = `${emailPrefix}_${Date.now().toString().slice(-4)}`;
+
+  const [newUser] = await db.insert(usersTable).values({
+    username,
+    passwordHash: null as any, // Clerk manages auth, no local password
+    fullName: fullName || emailPrefix,
+    email,
+    role: finalRole,
+    parentId: invCode.parentId,
+    isActive: true,
+  }).returning();
+
+  await db.update(inviteCodesTable)
+    .set({ usedById: newUser.id, usedAt: new Date(), isActive: false })
+    .where(eq(inviteCodesTable.id, invCode.id));
+
+  if (newUser.email) {
+    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+  }
+
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000); // 1 year
+  await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
+
+  res.json({ token, user: { id: newUser.id, username: newUser.username, fullName: newUser.fullName, email: newUser.email, role: newUser.role } });
 });
 
 router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {

@@ -162,9 +162,19 @@ export async function seedIfNeeded() {
       }
     }
 
-    // Seed master admin invite codes (2 slots)
-    const ADMIN_CODES = ["HAPI-ADM1", "HAPI-ADM2"];
     const farFuture = new Date("2099-12-31");
+
+    // Seed master STAFF invite code — single-use, valid for executive OR admin
+    // Admins/executives use the code "lumamijuvisado" (case-insensitive via toUpperCase in validate)
+    const STAFF_CODE = "lumamijuvisado";
+    const staffExists = await db.select({ id: inviteCodesTable.id }).from(inviteCodesTable).where(eq(inviteCodesTable.code, STAFF_CODE));
+    if (!staffExists.length) {
+      await db.insert(inviteCodesTable).values({ code: STAFF_CODE, role: "staff", createdById: null, parentId: null, isActive: true, expiresAt: farFuture });
+      logger.info({ code: STAFF_CODE }, "Seeded staff invite code (single-use for executive or admin)");
+    }
+
+    // Keep legacy admin codes for backward compatibility
+    const ADMIN_CODES = ["HAPI-ADM1", "HAPI-ADM2"];
     for (const code of ADMIN_CODES) {
       const exists = await db.select({ id: inviteCodesTable.id }).from(inviteCodesTable).where(eq(inviteCodesTable.code, code));
       if (!exists.length) {

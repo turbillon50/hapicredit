@@ -1,20 +1,22 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 
-const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
 
 function roleHome(role: string) {
-  if (role === "admin") return "/admin";
+  if (role === "admin")     return "/admin";
   if (role === "executive") return "/dashboard";
   return "/mi-credito";
 }
 
 export default function Login() {
   const [, navigate] = useLocation();
+  const [tab, setTab] = useState<"clerk" | "legacy">("clerk");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("hapi_token");
@@ -27,17 +29,16 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      const res = await fetch(`${API}/auth/login`, {
+      const res  = await fetch(`${API}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Credenciales incorrectas"); return; }
-
       localStorage.setItem("hapi_token", data.token);
-      localStorage.setItem("hapi_role", data.user.role);
-      localStorage.setItem("hapi_user", JSON.stringify(data.user));
+      localStorage.setItem("hapi_role",  data.user.role);
+      localStorage.setItem("hapi_user",  JSON.stringify(data.user));
       navigate(roleHome(data.user.role));
     } finally {
       setLoading(false);
@@ -48,15 +49,12 @@ export default function Login() {
     <div style={{
       minHeight: "100dvh",
       background: "linear-gradient(160deg, #0f1e3d 0%, #1e2d4f 60%, #162040 100%)",
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      justifyContent: "center",
+      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       padding: "24px",
     }}>
 
       {/* Logo */}
-      <div style={{ marginBottom: 32, textAlign: "center" }}>
+      <div style={{ marginBottom: 28, textAlign: "center" }}>
         <div style={{
           width: 72, height: 72, borderRadius: 20,
           background: "rgba(255,255,255,0.1)",
@@ -80,110 +78,118 @@ export default function Login() {
 
       {/* Card */}
       <div style={{
-        background: "white",
-        borderRadius: 24,
-        padding: "32px 28px",
-        width: "100%",
-        maxWidth: 400,
-        boxShadow: "0 24px 80px rgba(0,0,0,0.3)",
+        background: "white", borderRadius: 24, width: "100%", maxWidth: 400,
+        boxShadow: "0 24px 80px rgba(0,0,0,0.3)", overflow: "hidden",
       }}>
-        <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1e2d4f", marginBottom: 4 }}>
-          Bienvenido
-        </h2>
-        <p style={{ fontSize: 14, color: "#64748b", marginBottom: 28 }}>
-          Ingresa tus credenciales para acceder.
-        </p>
+        {/* Tabs */}
+        <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
+          {[
+            { key: "clerk",  label: "Correo / Passkey" },
+            { key: "legacy", label: "Usuario" },
+          ].map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key as "clerk" | "legacy")}
+              style={{
+                flex: 1, padding: "14px 0", border: "none", background: "none",
+                fontWeight: tab === t.key ? 700 : 500,
+                fontSize: 13, cursor: "pointer",
+                color: tab === t.key ? "#ef4444" : "#94a3b8",
+                borderBottom: tab === t.key ? "2px solid #ef4444" : "2px solid transparent",
+                transition: "all 0.15s",
+              }}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
-          <div>
-            <label style={labelStyle}>Usuario</label>
-            <input
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="Tu nombre de usuario"
-              autoComplete="username"
-              style={inputStyle}
-            />
+        {/* Clerk tab — passkeys + email */}
+        {tab === "clerk" && (
+          <div style={{ padding: "28px 28px 8px" }}>
+            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20, textAlign: "center", lineHeight: 1.6 }}>
+              Inicia sesion con tu correo, contrasena o passkey biometrica.
+            </p>
+            <a
+              href={`${basePath}/sign-in`}
+              style={{
+                display: "block", width: "100%", padding: "14px",
+                background: "#ef4444", color: "white", borderRadius: 12,
+                fontWeight: 700, fontSize: 15, textAlign: "center",
+                textDecoration: "none", boxSizing: "border-box",
+                marginBottom: 12,
+              }}
+            >
+              Continuar con correo o passkey
+            </a>
+            <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginBottom: 20 }}>
+              Tambien puedes usar tu huella digital o Face ID si lo configuraste.
+            </p>
           </div>
+        )}
 
-          <div>
-            <label style={labelStyle}>Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Tu contraseña"
-              autoComplete="current-password"
-              style={inputStyle}
-            />
+        {/* Legacy tab — username + password for existing users */}
+        {tab === "legacy" && (
+          <div style={{ padding: "28px" }}>
+            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
+              Para usuarios con acceso por nombre de usuario.
+            </p>
+            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={labelStyle}>Usuario</label>
+                <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Tu nombre de usuario" autoComplete="username" style={inputStyle} />
+              </div>
+              <div>
+                <label style={labelStyle}>Contraseña</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" autoComplete="current-password" style={inputStyle} />
+              </div>
+              {error && (
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
+                  {error}
+                </div>
+              )}
+              <button
+                type="submit"
+                disabled={loading || !username || !password}
+                style={{
+                  width: "100%", padding: "14px",
+                  background: loading || !username || !password ? "#93a3b8" : "#ef4444",
+                  color: "white", border: "none", borderRadius: 12,
+                  fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
+                  transition: "background 0.2s",
+                }}
+              >
+                {loading ? "Verificando..." : "Iniciar sesion"}
+              </button>
+            </form>
           </div>
+        )}
 
-          {error && (
-            <div style={{
-              background: "#fef2f2", border: "1px solid #fecaca",
-              borderRadius: 10, padding: "10px 14px",
-              color: "#dc2626", fontSize: 13, fontWeight: 500,
-            }}>
-              {error}
-            </div>
-          )}
-
-          <button
-            type="submit"
-            disabled={loading || !username || !password}
-            style={{
-              width: "100%", padding: "14px",
-              background: loading || !username || !password ? "#93a3b8" : "var(--accent)",
-              color: "white", border: "none", borderRadius: 12,
-              fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
-              transition: "background 0.2s",
-              marginTop: 4,
-            }}
-          >
-            {loading ? "Verificando..." : "Iniciar sesión"}
-          </button>
-        </form>
-
-        <div style={{ textAlign: "center", marginTop: 24 }}>
-          <span style={{ fontSize: 13, color: "#94a3b8" }}>¿No tienes cuenta?{" "}</span>
-          <a href="/registro" style={{ fontSize: 13, color: "var(--accent)", fontWeight: 700, textDecoration: "none" }}>
-            Regístrate
+        <div style={{ textAlign: "center", padding: "0 28px 24px" }}>
+          <span style={{ fontSize: 13, color: "#94a3b8" }}>No tienes cuenta?{" "}</span>
+          <a href="/registro" style={{ fontSize: 13, color: "#ef4444", fontWeight: 700, textDecoration: "none" }}>
+            Registrate
           </a>
         </div>
       </div>
 
-      {/* Footer links */}
+      {/* Footer */}
       <div style={{ marginTop: 28, display: "flex", gap: 20 }}>
-        <a href="/privacidad" style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>
-          Aviso de privacidad
-        </a>
-        <a href="/terminos" style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>
-          Términos y condiciones
-        </a>
+        <a href="/privacidad" style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
+        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Términos y condiciones</a>
       </div>
     </div>
   );
 }
 
 const labelStyle: React.CSSProperties = {
-  display: "block",
-  fontSize: 12,
-  fontWeight: 700,
-  color: "#374151",
-  textTransform: "uppercase",
-  letterSpacing: "0.06em",
-  marginBottom: 6,
+  display: "block", fontSize: 12, fontWeight: 700, color: "#374151",
+  textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
 };
 
 const inputStyle: React.CSSProperties = {
-  width: "100%",
-  padding: "13px 16px",
-  border: "1.5px solid #e2e8f0",
-  borderRadius: 12,
-  fontSize: 15,
-  boxSizing: "border-box",
-  outline: "none",
-  color: "#1e2d4f",
-  background: "#f8fafc",
-  transition: "border-color 0.2s",
+  width: "100%", padding: "13px 16px",
+  border: "1.5px solid #e2e8f0", borderRadius: 12,
+  fontSize: 15, boxSizing: "border-box", outline: "none",
+  color: "#1e2d4f", background: "#f8fafc",
 };
