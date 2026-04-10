@@ -55,6 +55,26 @@ function getRoleBadge(role: string | null) {
   return null;
 }
 
+function checkAccess(location: string): "ok" | "login" | string {
+  const t = localStorage.getItem("hapi_token");
+  const r = localStorage.getItem("hapi_role");
+
+  const publicPaths = ["/", "/login", "/registro"];
+  const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
+
+  if (!t) return isPublic ? "ok" : "login";
+
+  if (location.startsWith("/admin") && r !== "admin")
+    return r === "executive" ? "/dashboard" : "/mi-credito";
+  if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive")
+    return r === "admin" ? "/admin" : "/mi-credito";
+  if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {
+    if (r === "admin") return "/admin";
+    if (r === "executive") return "/dashboard";
+  }
+  return "ok";
+}
+
 export function Layout({ children, title, back }: { children: React.ReactNode; title?: string; back?: string }) {
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
@@ -63,33 +83,45 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   const token = localStorage.getItem("hapi_token");
   const user = (() => { try { return JSON.parse(localStorage.getItem("hapi_user") || "{}"); } catch { return {}; } })();
 
+  // Synchronous guard — blocks render before redirect fires
+  const access = checkAccess(location);
+  if (access === "login") { navigate("/login"); return null; }
+  if (access !== "ok") { navigate(access); return null; }
+
   const isAdmin = location.startsWith("/admin");
   const isExec  = location.startsWith("/dashboard") || location.startsWith("/executive");
   const navItems = isAdmin ? adminNav : isExec ? execNav : clientNav;
   const badge = getRoleBadge(role);
 
-  // Route protection
+  // Route protection — strict per role
   useEffect(() => {
     const t = localStorage.getItem("hapi_token");
     const r = localStorage.getItem("hapi_role");
 
+    const publicPaths = ["/", "/login", "/registro"];
+    const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
+
+    if (!t) {
+      if (!isPublic) navigate("/login");
+      return;
+    }
+
+    // Logged in — enforce strict role routing
     if (location.startsWith("/admin")) {
-      if (!t || !["admin", "executive"].includes(r || "")) {
-        navigate("/login");
+      if (r !== "admin") {
+        navigate(r === "executive" ? "/dashboard" : "/mi-credito");
         return;
       }
     }
-    if (location.startsWith("/dashboard") || location.startsWith("/executive")) {
-      if (!t || !["admin", "executive"].includes(r || "")) {
-        navigate("/login");
+    if (location.startsWith("/dashboard") || location === "/executive") {
+      if (r !== "executive") {
+        navigate(r === "admin" ? "/admin" : "/mi-credito");
         return;
       }
     }
     if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {
-      if (!t) {
-        navigate("/login");
-        return;
-      }
+      if (r === "admin") { navigate("/admin"); return; }
+      if (r === "executive") { navigate("/dashboard"); return; }
     }
   }, [location]);
 

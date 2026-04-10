@@ -30,7 +30,7 @@ export default function Registro() {
     const token = localStorage.getItem("hapi_token");
     const role = localStorage.getItem("hapi_role");
     if (token) {
-      navigate(role === "admin" ? "/admin" : role === "executive" ? "/admin" : "/mi-credito");
+      navigate(role === "admin" ? "/admin" : role === "executive" ? "/dashboard" : "/mi-credito");
     }
   }, []);
 
@@ -87,8 +87,10 @@ export default function Registro() {
       localStorage.setItem("hapi_role", data.user.role);
       localStorage.setItem("hapi_user", JSON.stringify(data.user));
 
-      if (data.user.role === "admin" || data.user.role === "executive") {
+      if (data.user.role === "admin") {
         navigate("/admin");
+      } else if (data.user.role === "executive") {
+        navigate("/dashboard");
       } else {
         navigate("/mi-credito");
       }
