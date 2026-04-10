@@ -1,7 +1,5 @@
-import { useEffect, useRef } from "react";
-import { Switch, Route, Router as WouterRouter, Redirect, useLocation } from "wouter";
-import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
+import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/hooks/use-auth";
 
 import Home             from "@/pages/home";
@@ -36,16 +34,7 @@ import ExecCommitments  from "@/pages/executive/commitments";
 
 import NotFound         from "@/pages/not-found";
 
-const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
-const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
-
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
-
-function stripBase(path: string): string {
-  return basePath && path.startsWith(basePath)
-    ? path.slice(basePath.length) || "/"
-    : path;
-}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,80 +46,6 @@ const queryClient = new QueryClient({
   },
 });
 
-function SignInPage() {
-  return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
-      <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
-    </div>
-  );
-}
-
-function SignUpPage() {
-  return (
-    <div style={{ display: "flex", justifyContent: "center", marginTop: "2rem" }}>
-      <SignUp routing="path" path={`${basePath}/sign-up`} signInUrl={`${basePath}/sign-in`} />
-    </div>
-  );
-}
-
-const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
-
-function ClerkCacheInvalidator() {
-  const { addListener } = useClerk();
-  const { user: clerkUser, isSignedIn } = useUser();
-  const qc = useQueryClient();
-  const prevUserIdRef = useRef<string | null | undefined>(undefined);
-  const syncedRef = useRef(false);
-
-  useEffect(() => {
-    const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
-      const userId = user?.id ?? null;
-      if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
-        qc.clear();
-        if (!userId) {
-          // Clerk user signed out — clear our token too
-          localStorage.removeItem("hapi_token");
-          localStorage.removeItem("hapi_role");
-          localStorage.removeItem("hapi_user");
-        }
-      }
-      prevUserIdRef.current = userId;
-    });
-    return unsubscribe;
-  }, [addListener, qc]);
-
-  // Sync Clerk user with our DB after Google/Clerk sign-in
-  useEffect(() => {
-    if (!isSignedIn || !clerkUser || syncedRef.current) return;
-    const existing = localStorage.getItem("hapi_token");
-    if (existing) { syncedRef.current = true; return; }
-
-    const email = clerkUser.primaryEmailAddress?.emailAddress;
-    const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "";
-    if (!email) return;
-
-    syncedRef.current = true;
-    fetch(`${API}/auth/clerk-sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clerkId: clerkUser.id, email, fullName }),
-    }).then(r => r.json()).then(data => {
-      if (data.token) {
-        localStorage.setItem("hapi_token", data.token);
-        localStorage.setItem("hapi_role", data.user.role);
-        localStorage.setItem("hapi_user", JSON.stringify(data.user));
-        qc.invalidateQueries();
-        const role = data.user.role;
-        window.location.href = role === "admin" ? `${basePath}/admin` : role === "executive" ? `${basePath}/executive` : `${basePath}/mi-credito`;
-      } else if (data.needsCode) {
-        window.location.href = `${basePath}/registro`;
-      }
-    }).catch(() => { syncedRef.current = false; });
-  }, [isSignedIn, clerkUser]);
-
-  return null;
-}
-
 function Router() {
   return (
     <Switch>
@@ -139,43 +54,39 @@ function Router() {
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />
 
-      {/* Clerk auth routes */}
-      <Route path="/sign-in/*?" component={SignInPage} />
-      <Route path="/sign-up/*?" component={SignUpPage} />
-
-      {/* Client (protected) */}
+      {/* Client */}
       <Route path="/solicitar"  component={Solicitar} />
       <Route path="/mi-credito" component={MiCredito} />
       <Route path="/perfil"     component={Perfil} />
 
       {/* Admin */}
-      <Route path="/admin"                component={AdminDashboard} />
-      <Route path="/admin/solicitudes"    component={AdminSolicitudes} />
-      <Route path="/admin/cartera"        component={AdminCartera} />
-      <Route path="/admin/morosos"        component={AdminMorosos} />
-      <Route path="/admin/asesores"       component={AdminAsesores} />
-      <Route path="/admin/financiero"     component={AdminFinanciero} />
-      <Route path="/admin/validar-pagos"  component={AdminValidarPagos} />
-      <Route path="/admin/caja"           component={AdminCaja} />
-      <Route path="/admin/movimientos/:id" component={AdminMovimientos} />
-      <Route path="/admin/arbol"          component={AdminArbol} />
-      <Route path="/admin/codigos"        component={AdminCodigos} />
-      <Route path="/admin/expediente/:id" component={AdminExpediente} />
+      <Route path="/admin"                  component={AdminDashboard} />
+      <Route path="/admin/solicitudes"      component={AdminSolicitudes} />
+      <Route path="/admin/cartera"          component={AdminCartera} />
+      <Route path="/admin/morosos"          component={AdminMorosos} />
+      <Route path="/admin/asesores"         component={AdminAsesores} />
+      <Route path="/admin/financiero"       component={AdminFinanciero} />
+      <Route path="/admin/validar-pagos"    component={AdminValidarPagos} />
+      <Route path="/admin/caja"             component={AdminCaja} />
+      <Route path="/admin/movimientos/:id"  component={AdminMovimientos} />
+      <Route path="/admin/arbol"            component={AdminArbol} />
+      <Route path="/admin/codigos"          component={AdminCodigos} />
+      <Route path="/admin/expediente/:id"   component={AdminExpediente} />
 
-      {/* Executive portal (uses /dashboard/* paths) */}
-      <Route path="/executive"                  component={ExecDashboard} />
-      <Route path="/dashboard"                  component={ExecDashboard} />
-      <Route path="/dashboard/cobrar"           component={ExecCobrar} />
-      <Route path="/dashboard/alta-cliente"     component={ExecAltaCliente} />
-      <Route path="/dashboard/clientes"         component={ExecClients} />
-      <Route path="/dashboard/expediente/:id"   component={ExecClientDetail} />
-      <Route path="/dashboard/pagos/nuevo"      component={ExecPaymentsNew} />
-      <Route path="/dashboard/comisiones"       component={ExecComisiones} />
-      <Route path="/dashboard/alertas"          component={ExecAlerts} />
-      <Route path="/dashboard/compromisos"      component={ExecCommitments} />
-      <Route path="/dashboard/codigos"          component={AdminCodigos} />
+      {/* Executive */}
+      <Route path="/executive"              component={ExecDashboard} />
+      <Route path="/dashboard"              component={ExecDashboard} />
+      <Route path="/dashboard/cobrar"       component={ExecCobrar} />
+      <Route path="/dashboard/alta-cliente" component={ExecAltaCliente} />
+      <Route path="/dashboard/clientes"     component={ExecClients} />
+      <Route path="/dashboard/expediente/:id" component={ExecClientDetail} />
+      <Route path="/dashboard/pagos/nuevo"  component={ExecPaymentsNew} />
+      <Route path="/dashboard/comisiones"   component={ExecComisiones} />
+      <Route path="/dashboard/alertas"      component={ExecAlerts} />
+      <Route path="/dashboard/compromisos"  component={ExecCommitments} />
+      <Route path="/dashboard/codigos"      component={AdminCodigos} />
 
-      {/* Legacy redirects */}
+      {/* Legacy */}
       <Route path="/portal"><Redirect to="/mi-credito" /></Route>
 
       <Route component={NotFound} />
@@ -183,42 +94,14 @@ function Router() {
   );
 }
 
-const clerkJSUrl = `${basePath || ""}/clerk-js/clerk.browser.js`;
-
-function ClerkApp() {
-  const [, setLocation] = useLocation();
-  return (
-    <ClerkProvider
-      publishableKey={clerkPubKey!}
-      proxyUrl={clerkProxyUrl}
-      clerkJSUrl={clerkJSUrl}
-      routerPush={(to: string) => setLocation(stripBase(to))}
-      routerReplace={(to: string) => setLocation(stripBase(to), { replace: true })}
-    >
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <ClerkCacheInvalidator />
-          <Router />
-        </AuthProvider>
-      </QueryClientProvider>
-    </ClerkProvider>
-  );
-}
-
-function NoClerkApp() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Router />
-      </AuthProvider>
-    </QueryClientProvider>
-  );
-}
-
 export default function App() {
   return (
     <WouterRouter base={basePath}>
-      {clerkPubKey ? <ClerkApp /> : <NoClerkApp />}
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Router />
+        </AuthProvider>
+      </QueryClientProvider>
     </WouterRouter>
   );
 }
