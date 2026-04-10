@@ -59,8 +59,8 @@ function checkAccess(location: string): "ok" | "login" | string {
   const t = localStorage.getItem("hapi_token");
   const r = localStorage.getItem("hapi_role");
 
-  const publicPaths = ["/", "/login", "/registro"];
-  const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
+  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos"];
+  const isPublic = publicPaths.includes(location);
 
   if (!t) return isPublic ? "ok" : "login";
 

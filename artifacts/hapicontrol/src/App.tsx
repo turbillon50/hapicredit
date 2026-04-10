@@ -32,6 +32,8 @@ import ExecComisiones   from "@/pages/executive/comisiones";
 import ExecAlerts       from "@/pages/executive/alerts";
 import ExecCommitments  from "@/pages/executive/commitments";
 
+import Privacidad       from "@/pages/privacidad";
+import Terminos         from "@/pages/terminos";
 import NotFound         from "@/pages/not-found";
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -53,6 +55,8 @@ function Router() {
       <Route path="/"           component={Home} />
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />
+      <Route path="/privacidad" component={Privacidad} />
+      <Route path="/terminos"   component={Terminos} />
 
       {/* Client */}
       <Route path="/solicitar"  component={Solicitar} />
