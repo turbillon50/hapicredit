@@ -81,8 +81,8 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setExiting(true);
-      setTimeout(onDone, 400);
-    }, 2800);
+      setTimeout(onDone, 200);
+    }, 300);
     return () => clearTimeout(timer);
   }, [onDone]);
 
@@ -136,7 +136,6 @@ export default function Home() {
   const storedRole = localStorage.getItem("hapi_role");
   const [splashSeen] = useState(() => sessionStorage.getItem("hapi_splash") === "1");
   const [showSplash, setShowSplash] = useState(() => !isLoggedIn && !splashSeen);
-  const [redirecting, setRedirecting] = useState(isLoggedIn);
 
   useEffect(() => {
     if (isLoggedIn) {
@@ -145,7 +144,11 @@ export default function Home() {
     }
   }, []);
 
-  if (redirecting) return null;
+  if (isLoggedIn) return (
+    <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "#f8fafc" }}>
+      <div style={{ color: "#94a3b8", fontSize: 14 }}>Redirigiendo...</div>
+    </div>
+  );
 
   function handleSplashDone() {
     setShowSplash(false);

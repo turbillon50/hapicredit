@@ -12,11 +12,11 @@ function roleHome(role: string) {
 
 export default function Login() {
   const [, navigate] = useLocation();
-  const [tab, setTab] = useState<"clerk" | "legacy">("clerk");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("hapi_token");
@@ -72,100 +72,111 @@ export default function Login() {
           Hapi<span style={{ color: "#f87171" }}>Credit</span>
         </div>
         <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 13, marginTop: 4 }}>
-          Tu crédito, Tu impulso
+          Tu credito, Tu impulso
         </div>
       </div>
 
       {/* Card */}
       <div style={{
         background: "white", borderRadius: 24, width: "100%", maxWidth: 400,
-        boxShadow: "0 24px 80px rgba(0,0,0,0.3)", overflow: "hidden",
+        boxShadow: "0 24px 80px rgba(0,0,0,0.3)", padding: "28px 28px 24px",
+        boxSizing: "border-box",
       }}>
-        {/* Tabs */}
-        <div style={{ display: "flex", borderBottom: "1px solid #f1f5f9" }}>
-          {[
-            { key: "clerk",  label: "Correo / Passkey" },
-            { key: "legacy", label: "Usuario" },
-          ].map(t => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key as "clerk" | "legacy")}
-              style={{
-                flex: 1, padding: "14px 0", border: "none", background: "none",
-                fontWeight: tab === t.key ? 700 : 500,
-                fontSize: 13, cursor: "pointer",
-                color: tab === t.key ? "#ef4444" : "#94a3b8",
-                borderBottom: tab === t.key ? "2px solid #ef4444" : "2px solid transparent",
-                transition: "all 0.15s",
-              }}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
 
-        {/* Clerk tab — passkeys + email */}
-        {tab === "clerk" && (
-          <div style={{ padding: "28px 28px 8px" }}>
-            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20, textAlign: "center", lineHeight: 1.6 }}>
-              Inicia sesion con tu correo, contrasena o passkey biometrica.
-            </p>
-            <a
-              href={`${basePath}/sign-in`}
-              style={{
-                display: "block", width: "100%", padding: "14px",
-                background: "#ef4444", color: "white", borderRadius: 12,
-                fontWeight: 700, fontSize: 15, textAlign: "center",
-                textDecoration: "none", boxSizing: "border-box",
-                marginBottom: 12,
-              }}
-            >
-              Continuar con correo o passkey
-            </a>
-            <p style={{ textAlign: "center", fontSize: 12, color: "#94a3b8", marginBottom: 20 }}>
-              Tambien puedes usar tu huella digital o Face ID si lo configuraste.
-            </p>
+        <h2 style={{ fontSize: 18, fontWeight: 800, color: "#1e2d4f", marginBottom: 4, textAlign: "center" }}>
+          Bienvenido de vuelta
+        </h2>
+        <p style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+          Ingresa con tu usuario y contrasena
+        </p>
+
+        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div>
+            <label style={labelStyle}>Usuario</label>
+            <input
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="Tu nombre de usuario"
+              autoComplete="username"
+              style={inputStyle}
+            />
           </div>
-        )}
-
-        {/* Legacy tab — username + password for existing users */}
-        {tab === "legacy" && (
-          <div style={{ padding: "28px" }}>
-            <p style={{ fontSize: 13, color: "#64748b", marginBottom: 20 }}>
-              Para usuarios con acceso por nombre de usuario.
-            </p>
-            <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-              <div>
-                <label style={labelStyle}>Usuario</label>
-                <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Tu nombre de usuario" autoComplete="username" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Contraseña</label>
-                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Tu contraseña" autoComplete="current-password" style={inputStyle} />
-              </div>
-              {error && (
-                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "10px 14px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
-                  {error}
-                </div>
-              )}
+          <div>
+            <label style={labelStyle}>Contrasena</label>
+            <div style={{ position: "relative" }}>
+              <input
+                type={showPass ? "text" : "password"}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="Tu contrasena"
+                autoComplete="current-password"
+                style={{ ...inputStyle, paddingRight: 46 }}
+              />
               <button
-                type="submit"
-                disabled={loading || !username || !password}
+                type="button"
+                onClick={() => setShowPass(v => !v)}
                 style={{
-                  width: "100%", padding: "14px",
-                  background: loading || !username || !password ? "#93a3b8" : "#ef4444",
-                  color: "white", border: "none", borderRadius: 12,
-                  fontWeight: 700, fontSize: 15, cursor: loading ? "wait" : "pointer",
-                  transition: "background 0.2s",
+                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                  background: "none", border: "none", cursor: "pointer", color: "#94a3b8",
+                  fontSize: 13, fontWeight: 600, padding: 0,
                 }}
               >
-                {loading ? "Verificando..." : "Iniciar sesion"}
+                {showPass ? "Ocultar" : "Ver"}
               </button>
-            </form>
+            </div>
           </div>
-        )}
 
-        <div style={{ textAlign: "center", padding: "0 28px 24px" }}>
+          {error && (
+            <div style={{
+              background: "#fef2f2", border: "1px solid #fecaca",
+              borderRadius: 10, padding: "10px 14px",
+              color: "#dc2626", fontSize: 13, fontWeight: 500,
+            }}>
+              {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading || !username || !password}
+            style={{
+              width: "100%", padding: "14px",
+              background: loading || !username || !password ? "#cbd5e1" : "#ef4444",
+              color: "white", border: "none", borderRadius: 12,
+              fontWeight: 700, fontSize: 15,
+              cursor: loading || !username || !password ? "default" : "pointer",
+              transition: "background 0.2s",
+            }}
+          >
+            {loading ? "Verificando..." : "Iniciar sesion"}
+          </button>
+        </form>
+
+        {/* Divider */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: 12,
+          margin: "22px 0 18px",
+        }}>
+          <div style={{ flex: 1, height: 1, background: "#e2e8f0" }} />
+          <span style={{ fontSize: 12, color: "#94a3b8", fontWeight: 600 }}>o</span>
+          <div style={{ flex: 1, height: 1, background: "#e2e8f0" }} />
+        </div>
+
+        {/* Clerk passkey / email */}
+        <a
+          href={`${basePath}/sign-in`}
+          style={{
+            display: "block", width: "100%", padding: "13px",
+            background: "#f1f5f9", color: "#1e2d4f", borderRadius: 12,
+            fontWeight: 700, fontSize: 14, textAlign: "center",
+            textDecoration: "none", boxSizing: "border-box",
+            border: "1.5px solid #e2e8f0",
+          }}
+        >
+          Continuar con correo o passkey
+        </a>
+
+        <div style={{ textAlign: "center", marginTop: 20 }}>
           <span style={{ fontSize: 13, color: "#94a3b8" }}>No tienes cuenta?{" "}</span>
           <a href="/registro" style={{ fontSize: 13, color: "#ef4444", fontWeight: 700, textDecoration: "none" }}>
             Registrate
@@ -176,7 +187,7 @@ export default function Login() {
       {/* Footer */}
       <div style={{ marginTop: 28, display: "flex", gap: 20 }}>
         <a href="/privacidad" style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
-        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Términos y condiciones</a>
+        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Terminos y condiciones</a>
       </div>
     </div>
   );
