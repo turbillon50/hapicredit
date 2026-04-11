@@ -205,6 +205,103 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
   res.json({ token, user: { id: newUser.id, username: newUser.username, fullName: newUser.fullName, email: newUser.email, role: newUser.role } });
 });
 
+// ─── Staff registration (asesor / admin) with reusable master code ───────────
+router.post("/auth/register-staff", async (req, res): Promise<void> => {
+  const { staffPassword, role, username, password, fullName, email } = req.body;
+
+  const masterCode = process.env.STAFF_MASTER_CODE ?? "lulamijuvisado";
+  if (!staffPassword || staffPassword !== masterCode) {
+    res.status(401).json({ error: "Contraseña de acceso incorrecta" });
+    return;
+  }
+
+  if (role !== "executive" && role !== "admin") {
+    res.status(400).json({ error: "Rol inválido para registro de staff" });
+    return;
+  }
+
+  if (!username || !password || !fullName) {
+    res.status(400).json({ error: "Faltan campos obligatorios" });
+    return;
+  }
+
+  if (role === "admin") {
+    const admins = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "admin"));
+    if (admins.length >= 3) {
+      res.status(400).json({ error: "Límite de 3 administradores alcanzado" });
+      return;
+    }
+  }
+
+  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
+  if (existing.length) {
+    res.status(400).json({ error: "Ese nombre de usuario ya está tomado" });
+    return;
+  }
+
+  const [newUser] = await db.insert(usersTable).values({
+    username,
+    passwordHash: hashPassword(password),
+    fullName,
+    email: email || null,
+    role,
+    parentId: null,
+    isActive: true,
+  }).returning();
+
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
+
+  if (newUser.email) {
+    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+  }
+
+  res.json({
+    token,
+    user: { id: newUser.id, username: newUser.username, fullName: newUser.fullName, email: newUser.email, role: newUser.role },
+  });
+});
+
+// ─── Client self-registration (auto code) ─────────────────────────────────────
+router.post("/auth/register-client", async (req, res): Promise<void> => {
+  const { username, password, fullName, email } = req.body;
+
+  if (!username || !password || !fullName) {
+    res.status(400).json({ error: "Faltan campos obligatorios" });
+    return;
+  }
+
+  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
+  if (existing.length) {
+    res.status(400).json({ error: "Ese nombre de usuario ya está tomado" });
+    return;
+  }
+
+  const [newUser] = await db.insert(usersTable).values({
+    username,
+    passwordHash: hashPassword(password),
+    fullName,
+    email: email || null,
+    role: "client",
+    parentId: null,
+    isActive: true,
+  }).returning();
+
+  const token = generateToken();
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+  await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
+
+  if (newUser.email) {
+    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+  }
+
+  res.json({
+    token,
+    user: { id: newUser.id, username: newUser.username, fullName: newUser.fullName, email: newUser.email, role: newUser.role },
+  });
+});
+
 router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {
   const token = req.headers.authorization?.slice(7);
   if (token) await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
