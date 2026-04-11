@@ -59,7 +59,7 @@ const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning"
 };
 
 function CreditCard({ credit, paid, total, pct, clientName }: {
-  credit: any; paid: number; total: number; pct: number; clientName: string;
+  credit: Credit; paid: number; total: number; pct: number; clientName: string;
 }) {
   const radius = 44;
   const circ   = 2 * Math.PI * radius;
@@ -180,7 +180,7 @@ export default function MiCredito() {
 
   const activeCredit   = credits.find(c => c.status === "active");
   const pendingCredits = credits.filter(c => c.status === "pending");
-  const historicCredits = credits.filter(c => c.status !== "active");
+  const historicCredits = credits.filter(c => c.status === "closed" || c.status === "rejected");
 
   const { data: payments = [] } = useQuery<Payment[]>({
     queryKey: ["client-payments", activeCredit?.id],
@@ -311,7 +311,7 @@ export default function MiCredito() {
                   Solicitudes en revision
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {pendingCredits.map((c: any) => (
+                  {pendingCredits.map((c) => (
                     <div
                       key={c.id}
                       style={{
