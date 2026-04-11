@@ -1,17 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useLocation } from "wouter";
 
-const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
-const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
+const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 
-type Role = "admin" | "executive" | "client" | null;
-type Step = "role" | "code" | "form" | "done";
-
-const ROLE_LABEL: Record<string, string> = {
-  admin: "Administrador",
-  executive: "Asesor",
-  client: "Acreditado",
-};
+type Role = "client" | "executive" | "admin";
 
 function roleHome(role: string) {
   if (role === "admin")     return "/admin";
@@ -19,273 +11,453 @@ function roleHome(role: string) {
   return "/mi-credito";
 }
 
+const roles: { id: Role; label: string; sublabel: string; desc: string; color: string; bg: string; border: string }[] = [
+  {
+    id: "client",
+    label: "Acreditado",
+    sublabel: "Cliente de crédito",
+    desc: "Solicita y administra tus créditos personales o de negocio.",
+    color: "#16a34a",
+    bg: "#f0fdf4",
+    border: "#bbf7d0",
+  },
+  {
+    id: "executive",
+    label: "Asesor",
+    sublabel: "Ejecutivo de campo",
+    desc: "Gestiona clientes, cobra pagos y da seguimiento a tu cartera.",
+    color: "#2563eb",
+    bg: "#eff6ff",
+    border: "#bfdbfe",
+  },
+  {
+    id: "admin",
+    label: "Administrador",
+    sublabel: "Control total",
+    desc: "Acceso completo a cartera, reportes, usuarios y árbol de red.",
+    color: "#7c3aed",
+    bg: "#f5f3ff",
+    border: "#ddd6fe",
+  },
+];
+
 export default function Registro() {
   const [, navigate] = useLocation();
-  const [step, setStep]               = useState<Step>("role");
-  const [selectedRole, setSelectedRole] = useState<Role>(null);
-  const [code, setCode]               = useState("");
-  const [codeRole, setCodeRole]       = useState<string | null>(null);
-  const [codeError, setCodeError]     = useState("");
-  const [codeLoading, setCodeLoading] = useState(false);
 
-  // Only used for client (acreditado) — staff goes to Clerk SignUp
-  const [form, setForm] = useState({ fullName: "", email: "", username: "", password: "", password2: "" });
-  const [formError, setFormError] = useState("");
-  const [loading, setLoading]     = useState(false);
+  const [step, setStep]               = useState<1 | 2 | 3>(1);
+  const [role, setRole]               = useState<Role | null>(null);
+  const [staffPass, setStaffPass]     = useState("");
+  const [showPass, setShowPass]       = useState(false);
+  const [staffError, setStaffError]   = useState("");
 
-  useEffect(() => {
-    const token = localStorage.getItem("hapi_token");
-    const role  = localStorage.getItem("hapi_role");
-    if (token) navigate(roleHome(role || ""));
-  }, []);
+  const [fullName, setFullName]       = useState("");
+  const [username, setUsername]       = useState("");
+  const [email, setEmail]             = useState("");
+  const [password, setPassword]       = useState("");
+  const [confirmPass, setConfirmPass] = useState("");
+  const [showPwd, setShowPwd]         = useState(false);
 
-  async function handleValidateCode() {
-    setCodeError("");
-    const trimmed = code.trim();
-    if (!trimmed) { setCodeError("Ingresa el código de acceso"); return; }
-    setCodeLoading(true);
-    try {
-      const res  = await fetch(`${API}/invite-codes/validate/${encodeURIComponent(trimmed)}`);
-      const data = await res.json();
-      if (!res.ok) { setCodeError(data.error || "Código inválido"); return; }
+  const [submitting, setSubmitting]   = useState(false);
+  const [error, setError]             = useState("");
 
-      // "staff" codes work for both executive and admin
-      const isStaff   = data.role === "staff";
-      const roleMatch = isStaff
-        ? (selectedRole === "executive" || selectedRole === "admin")
-        : data.role === selectedRole;
-
-      if (selectedRole && !roleMatch) {
-        setCodeError(`Este código es para ${ROLE_LABEL[data.role] ?? data.role}, no para ${ROLE_LABEL[selectedRole!]}`);
-        return;
-      }
-
-      const exactCode = data.code || trimmed; // Use exact DB code for clerk-sync lookup
-      setCode(exactCode);
-      setCodeRole(data.role);
-
-      if (selectedRole === "client") {
-        setStep("form");
-      } else {
-        // Staff (executive / admin) → Clerk SignUp for passkeys + email
-        sessionStorage.setItem("hapi_pending_role", selectedRole!);
-        sessionStorage.setItem("hapi_pending_code", exactCode);
-        window.location.href = `${basePath}/sign-up`;
-      }
-    } finally {
-      setCodeLoading(false);
+  function selectRole(r: Role) {
+    setRole(r);
+    setStaffPass("");
+    setStaffError("");
+    if (r === "client") {
+      setStep(3);
+    } else {
+      setStep(2);
     }
   }
 
-  async function handleRegister(e: React.FormEvent) {
-    e.preventDefault();
-    setFormError("");
-    if (!form.fullName || !form.username || !form.password) { setFormError("Completa todos los campos obligatorios"); return; }
-    if (form.password !== form.password2) { setFormError("Las contraseñas no coinciden"); return; }
-    if (form.password.length < 6) { setFormError("La contraseña debe tener al menos 6 caracteres"); return; }
+  function validateStaffPass() {
+    if (!staffPass.trim()) { setStaffError("Ingresa la contraseña de acceso"); return; }
+    setStaffError("");
+    setStep(3);
+  }
 
-    setLoading(true);
+  async function handleSubmit() {
+    if (!fullName.trim() || fullName.trim().length < 3) { setError("El nombre debe tener al menos 3 caracteres"); return; }
+    if (!username.trim() || username.trim().length < 3)  { setError("El usuario debe tener al menos 3 caracteres"); return; }
+    if (!/^[a-z0-9_]+$/.test(username.trim()))            { setError("El usuario solo puede tener letras minúsculas, números y guión bajo"); return; }
+    if (password.length < 6)                              { setError("La contraseña debe tener al menos 6 caracteres"); return; }
+    if (password !== confirmPass)                         { setError("Las contraseñas no coinciden"); return; }
+
+    setError("");
+    setSubmitting(true);
     try {
-      const res  = await fetch(`${API}/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code, fullName: form.fullName, email: form.email, username: form.username, password: form.password }),
-      });
+      let endpoint = "";
+      let body: Record<string, string> = { fullName: fullName.trim(), username: username.trim(), password, email: email.trim() };
+
+      if (role === "client") {
+        endpoint = `${API}/auth/register-client`;
+      } else {
+        endpoint = `${API}/auth/register-staff`;
+        body = { ...body, staffPassword: staffPass, role: role! };
+      }
+
+      const res  = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
-      if (!res.ok) { setFormError(data.error || "Error al registrar"); return; }
+      if (!res.ok) { setError(data.error ?? "Error al registrarse"); return; }
 
       localStorage.setItem("hapi_token", data.token);
       localStorage.setItem("hapi_role",  data.user.role);
       localStorage.setItem("hapi_user",  JSON.stringify(data.user));
-      setStep("done");
-      setTimeout(() => navigate(roleHome(data.user.role)), 2000);
+      navigate(roleHome(data.user.role));
+    } catch {
+      setError("Error de conexión. Intenta de nuevo.");
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
   return (
-    <div style={{
-      minHeight: "100dvh",
-      background: "linear-gradient(160deg, #0f1e3d 0%, #1e2d4f 60%, #162040 100%)",
-      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-      padding: "24px",
-    }}>
+    <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#0f1e3d 0%,#1e3a7b 60%,#2563eb 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "32px 20px 40px" }}>
 
       {/* Logo */}
-      <div style={{ marginBottom: 24, textAlign: "center" }}>
-        <svg width="44" height="44" viewBox="0 0 180 180" fill="none">
-          <circle cx="90" cy="52" r="16" fill="white"/>
-          <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
-        </svg>
-        <div style={{ color: "white", fontWeight: 800, fontSize: 20, marginTop: 6 }}>
+      <div style={{ textAlign: "center", marginBottom: 28 }}>
+        <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", border: "1px solid rgba(255,255,255,0.15)" }}>
+          <svg width="36" height="36" viewBox="0 0 180 180" fill="none">
+            <circle cx="90" cy="52" r="16" fill="white"/>
+            <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
+          </svg>
+        </div>
+        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.5px" }}>
           Hapi<span style={{ color: "#f87171" }}>Credit</span>
         </div>
-        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12 }}>Tu crédito, Tu impulso</div>
+        <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 2 }}>Crea tu cuenta</div>
       </div>
 
-      <div style={{ background: "white", borderRadius: 22, padding: "28px 24px", width: "100%", maxWidth: 400, boxShadow: "0 24px 80px rgba(0,0,0,0.3)" }}>
+      {/* Stepper */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 24 }}>
+        {[1, 2, 3].map(n => (
+          <div key={n} style={{ display: "flex", alignItems: "center", gap: 6 }}>
+            <div style={{
+              width: 28, height: 28, borderRadius: "50%",
+              background: step >= n ? "#ef4444" : "rgba(255,255,255,0.15)",
+              color: step >= n ? "white" : "rgba(255,255,255,0.4)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 12, fontWeight: 700, transition: "all 0.2s",
+            }}>{n}</div>
+            {n < 3 && <div style={{ width: 24, height: 2, background: step > n ? "#ef4444" : "rgba(255,255,255,0.2)", transition: "all 0.2s" }} />}
+          </div>
+        ))}
+      </div>
 
-        {/* STEP: ROLE */}
-        {step === "role" && (
-          <>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#1e2d4f", marginBottom: 6 }}>Crear cuenta</h2>
-            <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>Selecciona tu tipo de cuenta para continuar.</p>
+      {/* Card */}
+      <div style={{ background: "white", borderRadius: 24, width: "100%", maxWidth: 420, boxShadow: "0 24px 80px rgba(0,0,0,0.35)", overflow: "hidden" }}>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 24 }}>
-              {([
-                { role: "executive", label: "Soy Asesor",       desc: "Ejecutivo de crédito — requiere código de acceso", color: "#1e40af", bg: "#eff6ff", border: "#bfdbfe" },
-                { role: "client",    label: "Soy Acreditado",   desc: "Cliente con crédito — requiere código de invitación", color: "#166534", bg: "#f0fdf4", border: "#bbf7d0" },
-                { role: "admin",     label: "Soy Administrador", desc: "Acceso institucional — código de administrador", color: "#7c3aed", bg: "#faf5ff", border: "#e9d5ff" },
-              ] as const).map(({ role, label, desc, color, bg, border }) => (
+        {/* ── PASO 1: Selección de rol ── */}
+        {step === 1 && (
+          <div style={{ padding: "28px 24px" }}>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#0f1e3d", marginBottom: 4 }}>¿Cómo vas a usar HapiCredit?</div>
+              <div style={{ fontSize: 13, color: "#64748b" }}>Selecciona el tipo de cuenta que corresponde a tu rol</div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {roles.map(r => (
                 <button
-                  key={role}
-                  onClick={() => { setSelectedRole(role); setCode(""); setCodeError(""); setStep("code"); }}
-                  style={{ padding: "16px 18px", borderRadius: 14, border: `2px solid ${border}`, background: bg, cursor: "pointer", textAlign: "left" }}
+                  key={r.id}
+                  onClick={() => selectRole(r.id)}
+                  style={{
+                    display: "flex", alignItems: "flex-start", gap: 14,
+                    padding: "16px", borderRadius: 16,
+                    border: `1.5px solid ${r.border}`,
+                    background: r.bg, cursor: "pointer",
+                    textAlign: "left", transition: "all 0.15s",
+                  }}
                 >
-                  <div style={{ fontWeight: 700, fontSize: 15, color, marginBottom: 3 }}>{label}</div>
-                  <div style={{ fontSize: 12, color: "#64748b" }}>{desc}</div>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: r.color, display: "flex", alignItems: "center", justifyContent: "center", shrink: 0 } as React.CSSProperties}>
+                    {r.id === "client"    && <UserIcon />}
+                    {r.id === "executive" && <BriefcaseIcon />}
+                    {r.id === "admin"     && <ShieldIcon />}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0f1e3d" }}>{r.label}</div>
+                    <div style={{ fontSize: 11, fontWeight: 600, color: r.color, marginBottom: 4 }}>{r.sublabel}</div>
+                    <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>{r.desc}</div>
+                  </div>
+                  <ChevronRight color="#94a3b8" />
                 </button>
               ))}
             </div>
-
-            <p style={{ textAlign: "center", fontSize: 13, color: "#94a3b8" }}>
-              Ya tienes cuenta?{" "}
-              <a href="/login" style={{ color: "#ef4444", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
-            </p>
-          </>
+            <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+              <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta?{" "}</span>
+              <a href="/login" style={{ fontSize: 13, color: "#ef4444", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
+            </div>
+          </div>
         )}
 
-        {/* STEP: CODE */}
-        {step === "code" && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-              <button onClick={() => { setStep("role"); setSelectedRole(null); setCodeError(""); }}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", fontSize: 13, padding: 0 }}>
-                ← Regresar
-              </button>
-              {selectedRole && (
-                <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: selectedRole === "admin" ? "#ede9fe" : selectedRole === "executive" ? "#dbeafe" : "#dcfce7", color: selectedRole === "admin" ? "#7c3aed" : selectedRole === "executive" ? "#1e40af" : "#166534" }}>
-                  {ROLE_LABEL[selectedRole]}
-                </span>
-              )}
-            </div>
+        {/* ── PASO 2: Contraseña de staff ── */}
+        {step === 2 && (
+          <div style={{ padding: "28px 24px" }}>
+            <button
+              onClick={() => { setStep(1); setRole(null); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", marginBottom: 20, padding: 0 }}
+            >
+              <ChevronLeft color="#64748b" /> Cambiar rol
+            </button>
 
-            <h2 style={{ fontSize: 19, fontWeight: 800, color: "#1e2d4f", marginBottom: 6 }}>Código de acceso</h2>
-            <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>
-              {selectedRole === "client"
-                ? "Ingresa el código que recibiste por WhatsApp o correo."
-                : "Ingresa tu código de acceso institucional."}
-            </p>
-
-            {selectedRole !== "client" && (
-              <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 10, padding: "12px 14px", marginBottom: 18, fontSize: 13, color: "#1e40af" }}>
-                Despues validaremos tu identidad con correo y podras configurar tu huella digital o Face ID.
+            {role && (
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20, padding: "10px 14px", borderRadius: 12, background: roles.find(r => r.id === role)!.bg, border: `1px solid ${roles.find(r => r.id === role)!.border}` }}>
+                <div style={{ width: 32, height: 32, borderRadius: 10, background: roles.find(r => r.id === role)!.color, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  {role === "executive" && <BriefcaseIcon small />}
+                  {role === "admin"     && <ShieldIcon small />}
+                </div>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0f1e3d" }}>{roles.find(r => r.id === role)!.label}</div>
+                  <div style={{ fontSize: 11, color: roles.find(r => r.id === role)!.color, fontWeight: 600 }}>{roles.find(r => r.id === role)!.sublabel}</div>
+                </div>
               </div>
             )}
 
-            <label style={labelStyle}>
-              {selectedRole === "client" ? "Código de invitación" : "Código de acceso"}
-            </label>
-            <input
-              value={code}
-              onChange={e => setCode(e.target.value)}
-              placeholder={selectedRole === "client" ? "Ej: A1B2C3D4" : "Código proporcionado"}
-              maxLength={32}
-              autoFocus
-              style={{ ...inputStyle, marginTop: 8, marginBottom: codeError ? 6 : 20, fontFamily: "monospace", fontSize: 16, fontWeight: 600, textAlign: "center" }}
-              onKeyDown={e => e.key === "Enter" && handleValidateCode()}
-            />
-            {codeError && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>{codeError}</p>}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#0f1e3d", marginBottom: 4 }}>Contraseña de acceso</div>
+              <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
+                Para registrarte como {role === "admin" ? "Administrador" : "Asesor"} necesitas la contraseña de acceso institucional.
+              </div>
+            </div>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={labelStyle}>Contraseña de acceso</label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={staffPass}
+                  onChange={e => { setStaffPass(e.target.value); setStaffError(""); }}
+                  onKeyDown={e => e.key === "Enter" && validateStaffPass()}
+                  placeholder="Contraseña institucional"
+                  style={{ ...inputStyle, paddingRight: 44 }}
+                  autoFocus
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPass(v => !v)}
+                  style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0 }}
+                >
+                  {showPass ? <EyeOffIcon /> : <EyeIcon />}
+                </button>
+              </div>
+              {staffError && <div style={{ marginTop: 6, fontSize: 12, color: "#dc2626", fontWeight: 500 }}>{staffError}</div>}
+            </div>
 
             <button
-              onClick={handleValidateCode}
-              disabled={codeLoading || !code.trim()}
-              style={{ width: "100%", padding: "13px", background: "#ef4444", color: "white", border: "none", borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: "pointer", opacity: codeLoading || !code.trim() ? 0.6 : 1 }}
+              onClick={validateStaffPass}
+              disabled={!staffPass.trim()}
+              style={{
+                ...btnStyle,
+                background: staffPass.trim() ? "#ef4444" : "#e5e7eb",
+                color: staffPass.trim() ? "white" : "#9ca3af",
+              }}
             >
-              {codeLoading ? "Verificando..." : "Continuar"}
+              Continuar
             </button>
-          </>
+          </div>
         )}
 
-        {/* STEP: FORM (clients only) */}
-        {step === "form" && (
-          <>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
-              <button onClick={() => { setStep("code"); setFormError(""); }}
-                style={{ background: "none", border: "none", cursor: "pointer", color: "#64748b", fontSize: 13, padding: 0 }}>
-                ← Regresar
-              </button>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: "#dcfce7", color: "#166534" }}>
-                Acreditado
-              </span>
+        {/* ── PASO 3: Datos personales ── */}
+        {step === 3 && (
+          <div style={{ padding: "28px 24px" }}>
+            <button
+              onClick={() => role === "client" ? setStep(1) : setStep(2)}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", marginBottom: 20, padding: 0 }}
+            >
+              <ChevronLeft color="#64748b" /> Atrás
+            </button>
+
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#0f1e3d", marginBottom: 4 }}>Tus datos</div>
+              <div style={{ fontSize: 13, color: "#64748b" }}>Completa tu información para crear la cuenta</div>
             </div>
 
-            <h2 style={{ fontSize: 19, fontWeight: 800, color: "#1e2d4f", marginBottom: 20 }}>Crea tu cuenta</h2>
-
-            <form onSubmit={handleRegister} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
               <div>
-                <label style={labelStyle}>Nombre completo *</label>
-                <input value={form.fullName} onChange={e => setForm(f => ({ ...f, fullName: e.target.value }))} placeholder="Como aparece en tu INE" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Correo electrónico</label>
-                <input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="correo@ejemplo.com" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Usuario *</label>
-                <input value={form.username} onChange={e => setForm(f => ({ ...f, username: e.target.value.toLowerCase().replace(/\s/g, "") }))} placeholder="usuario_sin_espacios" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Contraseña *</label>
-                <input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} placeholder="Mínimo 6 caracteres" style={inputStyle} />
-              </div>
-              <div>
-                <label style={labelStyle}>Confirmar contraseña *</label>
-                <input type="password" value={form.password2} onChange={e => setForm(f => ({ ...f, password2: e.target.value }))} placeholder="Repite la contraseña" style={inputStyle} />
+                <label style={labelStyle}>Nombre completo <Req /></label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={e => setFullName(e.target.value)}
+                  placeholder="Tu nombre y apellidos"
+                  style={inputStyle}
+                  autoFocus
+                />
               </div>
 
-              {formError && <p style={{ color: "#ef4444", fontSize: 13 }}>{formError}</p>}
+              <div>
+                <label style={labelStyle}>Usuario <Req /></label>
+                <input
+                  type="text"
+                  value={username}
+                  onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))}
+                  placeholder="solo letras, números y _"
+                  style={inputStyle}
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                />
+                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Sin espacios ni caracteres especiales</div>
+              </div>
 
-              <button type="submit" disabled={loading}
-                style={{ width: "100%", padding: "14px", background: "#ef4444", color: "white", border: "none", borderRadius: 12, fontWeight: 700, fontSize: 15, cursor: "pointer", marginTop: 4, opacity: loading ? 0.7 : 1 }}>
-                {loading ? "Creando cuenta..." : "Crear cuenta"}
+              <div>
+                <label style={labelStyle}>Correo electrónico <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 400, textTransform: "none" }}>(opcional)</span></label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="tu@correo.com"
+                  style={inputStyle}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Contraseña <Req /></label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type={showPwd ? "text" : "password"}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    placeholder="Mínimo 6 caracteres"
+                    style={{ ...inputStyle, paddingRight: 44 }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPwd(v => !v)}
+                    style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0 }}
+                  >
+                    {showPwd ? <EyeOffIcon /> : <EyeIcon />}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Confirmar contraseña <Req /></label>
+                <input
+                  type="password"
+                  value={confirmPass}
+                  onChange={e => setConfirmPass(e.target.value)}
+                  placeholder="Repite tu contraseña"
+                  style={{ ...inputStyle, borderColor: confirmPass && confirmPass !== password ? "#fca5a5" : undefined }}
+                />
+              </div>
+
+              {error && (
+                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "10px 14px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={handleSubmit}
+                disabled={submitting || !fullName.trim() || !username.trim() || !password || !confirmPass}
+                style={{
+                  ...btnStyle,
+                  background: submitting || !fullName.trim() || !username.trim() || !password || !confirmPass ? "#e5e7eb" : "#ef4444",
+                  color: submitting || !fullName.trim() || !username.trim() || !password || !confirmPass ? "#9ca3af" : "white",
+                  marginTop: 4,
+                }}
+              >
+                {submitting ? "Creando cuenta..." : "Crear cuenta"}
               </button>
-            </form>
-          </>
-        )}
-
-        {/* STEP: DONE */}
-        {step === "done" && (
-          <div style={{ textAlign: "center", padding: "24px 0" }}>
-            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                <path d="M5 12.5l5 5 9-10" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
             </div>
-            <h2 style={{ fontSize: 20, fontWeight: 800, color: "#1e2d4f", marginBottom: 8 }}>Cuenta creada</h2>
-            <p style={{ fontSize: 14, color: "#64748b" }}>Bienvenido a HapiCredit. Redirigiendo a tu panel...</p>
+
+            <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+              <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta?{" "}</span>
+              <a href="/login" style={{ fontSize: 13, color: "#ef4444", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
+            </div>
           </div>
         )}
       </div>
 
-      {step !== "role" && step !== "done" && (
-        <p style={{ marginTop: 20, fontSize: 13, color: "rgba(255,255,255,0.5)" }}>
-          Ya tienes cuenta?{" "}
-          <a href="/login" style={{ color: "white", fontWeight: 600 }}>Inicia sesión</a>
-        </p>
-      )}
+      <div style={{ marginTop: 24, display: "flex", gap: 20 }}>
+        <a href="/privacidad" style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
+        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, textDecoration: "none" }}>Términos y condiciones</a>
+      </div>
     </div>
   );
 }
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "11px 14px",
-  border: "1.5px solid #e2e8f0", borderRadius: 10,
-  fontSize: 15, marginTop: 6, boxSizing: "border-box", outline: "none",
-};
+function Req() {
+  return <span style={{ color: "#ef4444" }}> *</span>;
+}
+
+function UserIcon({ small }: { small?: boolean }) {
+  const s = small ? 16 : 20;
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+  );
+}
+
+function BriefcaseIcon({ small }: { small?: boolean }) {
+  const s = small ? 16 : 20;
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/>
+      <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/>
+    </svg>
+  );
+}
+
+function ShieldIcon({ small }: { small?: boolean }) {
+  const s = small ? 16 : 20;
+  return (
+    <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  );
+}
+
+function ChevronRight({ color }: { color: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ shrink: 0 } as React.CSSProperties}>
+      <path d="M9 18l6-6-6-6"/>
+    </svg>
+  );
+}
+
+function ChevronLeft({ color }: { color: string }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 18l-6-6 6-6"/>
+    </svg>
+  );
+}
+
+function EyeIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>
+    </svg>
+  );
+}
+
+function EyeOffIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>
+    </svg>
+  );
+}
 
 const labelStyle: React.CSSProperties = {
-  fontSize: 12, fontWeight: 700, color: "#374151",
-  textTransform: "uppercase", letterSpacing: "0.05em",
+  display: "block", fontSize: 11, fontWeight: 700, color: "#374151",
+  textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6,
+};
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "13px 16px",
+  border: "1.5px solid #e2e8f0", borderRadius: 12,
+  fontSize: 15, boxSizing: "border-box", outline: "none",
+  color: "#1e2d4f", background: "#f8fafc",
+};
+
+const btnStyle: React.CSSProperties = {
+  width: "100%", padding: "14px",
+  border: "none", borderRadius: 12,
+  fontWeight: 700, fontSize: 15, cursor: "pointer",
+  transition: "all 0.2s",
 };

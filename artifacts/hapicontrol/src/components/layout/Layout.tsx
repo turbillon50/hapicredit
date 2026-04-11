@@ -62,7 +62,7 @@ function checkAccess(location: string): "ok" | "login" | string {
   const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos"];
   const isPublic = publicPaths.includes(location);
 
-  if (!t) return isPublic ? "ok" : "login";
+  if (!t) return isPublic ? "ok" : "registro";
 
   if (location.startsWith("/admin") && r !== "admin")
     return r === "executive" ? "/dashboard" : "/mi-credito";
@@ -85,7 +85,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
   // Synchronous guard — blocks render before redirect fires
   const access = checkAccess(location);
-  if (access === "login") { navigate("/login"); return null; }
+  if (access === "registro") { navigate("/registro"); return null; }
   if (access !== "ok") { navigate(access); return null; }
 
   const isAdmin = location.startsWith("/admin");
@@ -102,7 +102,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
 
     if (!t) {
-      if (!isPublic) navigate("/login");
+      if (!isPublic) navigate("/registro");
       return;
     }
 
