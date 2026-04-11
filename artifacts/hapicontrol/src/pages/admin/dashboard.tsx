@@ -9,6 +9,27 @@ import {
   IconMedalla, IconArbol, IconEquipo,
 } from "@/components/hapi/HapiIcons";
 
+interface AdminDashboardData {
+  totalPortfolio: number;
+  clientsCurrent: number;
+  activeClients: number;
+  clientsAtRisk: number;
+  clientsOverdue: number;
+  clientsDefaulted: number;
+  collectionToday: number;
+  expectedToday: number;
+  delinquencyRate: number;
+  profitThisWeek: number;
+  placementThisMonth: number;
+  placementThisWeek: number;
+  totalActiveExecutives: number;
+  executivesWithAlerts: number;
+  collectionWeek: number;
+  disbursementsWeek: number;
+  netFlowWeek: number;
+  totalLateFees: number;
+}
+
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
 
@@ -41,7 +62,7 @@ function dot(color: string) {
 
 export default function AdminDashboard() {
   const { data, isLoading } = useGetAdminDashboard({ query: {} });
-  const d = data as any;
+  const d = data as AdminDashboardData | undefined;
 
   const { data: pendingPayments = [] } = useQuery({
     queryKey: ["pending-validation"],

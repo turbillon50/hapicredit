@@ -9,6 +9,19 @@ import {
   IconFlecha, IconPersona, IconMas, IconFinanzas, IconBandeja,
 } from "@/components/hapi/HapiIcons";
 
+interface ExecDashboardData {
+  totalCollectedToday: number;
+  totalExpectedToday: number;
+  commissionThisMonth: number;
+  commissionAllTime: number;
+  totalAssignedClients: number;
+  clientsOverdue: number;
+  placementThisMonth: number;
+  clientsDueToday: number;
+  collectionThisMonth: number;
+  targetMonth: number;
+}
+
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
@@ -21,7 +34,7 @@ const mesActual = () =>
 export default function ExecutiveDashboard() {
   const { user } = useAuth();
   const { data, isLoading } = useGetExecutiveDashboard({ query: {} });
-  const d = data as any;
+  const d = data as ExecDashboardData | undefined;
 
   const firstName  = user?.fullName?.split(" ")[0] ?? "Asesor";
   const collectPct = d

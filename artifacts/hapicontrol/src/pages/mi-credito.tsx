@@ -10,6 +10,31 @@ import {
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
 
+interface Credit {
+  id: number;
+  status: "active" | "pending" | "rejected" | "closed";
+  amount: number;
+  termWeeks: number;
+  weeklyPayment: number;
+  remainingBalance: number;
+  nextPaymentDate: string | null;
+  notes?: string;
+}
+
+interface Payment {
+  id: number;
+  paymentStatus?: string;
+  status?: string;
+  amountPaid?: string;
+  amount?: string;
+  paymentDate?: string;
+}
+
+interface ClientProfile {
+  id: number;
+  fullName: string;
+}
+
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
 
@@ -133,47 +158,46 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
 export default function MiCredito() {
   useRequireAuth(["client"]);
 
-  const { data: client, isLoading } = useQuery<any>({
+  const { data: client, isLoading } = useQuery<ClientProfile | null>({
     queryKey: ["me-client"],
     queryFn: async () => {
       const r = await fetch(`${API}/me/client`, { headers: auth() });
       if (r.status === 404) return null;
       if (!r.ok) throw new Error("Error al cargar tu perfil");
-      return r.json();
+      return r.json() as Promise<ClientProfile>;
     },
   });
 
-  const { data: credits = [] } = useQuery<any[]>({
+  const { data: credits = [] } = useQuery<Credit[]>({
     queryKey: ["client-credits", client?.id],
     queryFn: async () => {
       const r = await fetch(`${API}/credits?clientId=${client!.id}`, { headers: auth() });
       if (!r.ok) throw new Error("Error al cargar creditos");
-      return r.json();
+      return r.json() as Promise<Credit[]>;
     },
     enabled: !!client?.id,
   });
 
-  const { data: payments = [] } = useQuery<any[]>({
-    queryKey: ["client-payments", (credits as any[]).find(c => c.status === "active")?.id],
+  const activeCredit   = credits.find(c => c.status === "active");
+  const pendingCredits = credits.filter(c => c.status === "pending");
+  const historicCredits = credits.filter(c => c.status !== "active");
+
+  const { data: payments = [] } = useQuery<Payment[]>({
+    queryKey: ["client-payments", activeCredit?.id],
     queryFn: async () => {
-      const active = (credits as any[]).find(c => c.status === "active");
-      const r = await fetch(`${API}/payments?creditId=${active!.id}`, { headers: auth() });
+      const r = await fetch(`${API}/payments?creditId=${activeCredit!.id}`, { headers: auth() });
       if (!r.ok) throw new Error("Error al cargar pagos");
-      return r.json();
+      return r.json() as Promise<Payment[]>;
     },
-    enabled: !!(credits as any[]).find(c => c.status === "active")?.id,
+    enabled: !!activeCredit?.id,
   });
 
-  const activeCredit   = (credits as any[]).find(c => c.status === "active");
-  const pendingCredits = (credits as any[]).filter(c => c.status === "pending");
-  const allCredits     = credits as any[];
-
-  const paid  = (payments as any[]).filter(p => ["on_time","completed","late","partial"].includes(p.paymentStatus ?? p.status)).length;
+  const paid  = payments.filter(p => ["on_time","completed","late","partial"].includes(p.paymentStatus ?? p.status ?? "")).length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct   = total > 0 ? (paid / total) * 100 : 0;
   const nextDays = daysDiff(activeCredit?.nextPaymentDate);
 
-  const isEmpty = !isLoading && !activeCredit && pendingCredits.length === 0 && allCredits.length === 0;
+  const isEmpty = !isLoading && !activeCredit && pendingCredits.length === 0 && credits.length === 0;
 
   return (
     <Layout>
@@ -311,13 +335,13 @@ export default function MiCredito() {
             )}
 
             {/* ── Credit history ── */}
-            {allCredits.length > 1 && (
+            {historicCredits.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d5">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Historial de creditos
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {allCredits.filter(c => c.status !== "active").map((c: any) => {
+                  {historicCredits.map((c) => {
                     const st = STATUS_MAP[c.status] ?? { label: c.status, variant: "info" as const };
                     return (
                       <div
@@ -351,14 +375,14 @@ export default function MiCredito() {
             )}
 
             {/* ── Recent payments ── */}
-            {(payments as any[]).length > 0 && (
+            {payments.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d6">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Ultimos pagos
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {(payments as any[]).slice(-5).reverse().map((p: any) => {
-                    const st       = p.paymentStatus ?? p.status;
+                  {payments.slice(-5).reverse().map((p) => {
+                    const st       = p.paymentStatus ?? p.status ?? "";
                     const isPaid   = ["on_time","completed","late","partial"].includes(st);
                     const isPending = st === "pending_validation";
                     return (
@@ -382,7 +406,7 @@ export default function MiCredito() {
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>
-                            {fmt(parseFloat(p.amountPaid ?? p.amount ?? 0))}
+                            {fmt(parseFloat(p.amountPaid ?? p.amount ?? "0"))}
                           </div>
                           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
                             {p.paymentDate
