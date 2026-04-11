@@ -79,10 +79,8 @@ function SplashScreen({ onDone }: { onDone: () => void }) {
   const [exiting, setExiting] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setExiting(true);
-      setTimeout(onDone, 200);
-    }, 300);
+    setExiting(true);
+    const timer = setTimeout(onDone, 200);
     return () => clearTimeout(timer);
   }, [onDone]);
 
@@ -139,7 +137,8 @@ export default function Home() {
 
   useEffect(() => {
     if (isLoggedIn) {
-      if (storedRole === "admin" || storedRole === "executive") navigate("/admin");
+      if (storedRole === "admin") navigate("/admin");
+      else if (storedRole === "executive") navigate("/dashboard");
       else navigate("/mi-credito");
     }
   }, []);
