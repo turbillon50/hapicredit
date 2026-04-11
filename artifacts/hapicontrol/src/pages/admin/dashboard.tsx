@@ -2,7 +2,6 @@ import { Layout } from "@/components/layout/Layout";
 import { useGetAdminDashboard } from "@workspace/api-client-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { StatCard } from "@/components/hapi/StatCard";
 import { SkeletonCard, SkeletonHero } from "@/components/hapi/Skeleton";
 import {
   IconAlerta, IconMoneda, IconDesembolso, IconGrupo, IconFlecha,
@@ -10,23 +9,35 @@ import {
   IconMedalla, IconArbol, IconEquipo,
 } from "@/components/hapi/HapiIcons";
 
-const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
 
 const fmt = (n: number) =>
-  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 const ACCESOS = [
-  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobacion",          color: "#fef3c7", ic: "#92400e" },
-  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y creditos pendientes",      color: "#dbeafe", ic: "#1e40af" },
-  { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas, pagos por cliente",       color: "#e0e7ff", ic: "#3730a3" },
-  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, $200/dia multa",      color: "#fee2e2", ic: "#991b1b" },
-  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Analisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",   color: "#d1fae5", ic: "#065f46" },
-  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza, desempeno",         color: "#f3e8ff", ic: "#6d28d9" },
-  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",       color: "#fef9c3", ic: "#854d0e" },
-  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de arbol interactivo",               color: "#e0f2fe", ic: "#0369a1" },
-  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Codigos de invitacion",  sub: "Genera y comparte codigos de registro",   color: "#fdf4ff", ic: "#7c3aed" },
+  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobacion",        iconBg: "#fef3c7", iconColor: "#92400e" },
+  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y creditos pendientes",     iconBg: "#dbeafe", iconColor: "#1e40af" },
+  { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "#e0e7ff", iconColor: "#3730a3" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, $200/dia multa",     iconBg: "#fee2e2", iconColor: "#991b1b" },
+  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Analisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "#d1fae5", iconColor: "#065f46" },
+  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza y desempeno",       iconBg: "#f3e8ff", iconColor: "#6d28d9" },
+  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "#fef9c3", iconColor: "#854d0e" },
+  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de arbol interactivo",              iconBg: "#e0f2fe", iconColor: "#0369a1" },
+  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Codigos de invitacion",  sub: "Genera y comparte codigos de registro",  iconBg: "#fdf4ff", iconColor: "#7c3aed" },
 ];
+
+function dot(color: string) {
+  return (
+    <span
+      className="pulse-dot"
+      style={{
+        display: "inline-block", width: 6, height: 6,
+        borderRadius: "50%", background: color, marginRight: 5, flexShrink: 0,
+      }}
+    />
+  );
+}
 
 export default function AdminDashboard() {
   const { data, isLoading } = useGetAdminDashboard({ query: {} });
@@ -37,162 +48,248 @@ export default function AdminDashboard() {
     queryFn: () => fetch(`${API}/payments/pending-validation`, { headers: auth() }).then(r => r.json()),
   });
 
-  const collectPct = d ? Math.min(100, (d.collectionToday / Math.max(1, d.expectedToday)) * 100) : 0;
-  const moraPct    = d ? d.delinquencyRate ?? 0 : 0;
+  const collectPct  = d ? Math.min(100, (d.collectionToday / Math.max(1, d.expectedToday)) * 100) : 0;
+  const moraPct     = d ? (d.delinquencyRate ?? 0) : 0;
   const pendingCount = Array.isArray(pendingPayments) ? pendingPayments.length : 0;
 
   return (
     <Layout>
-      <div className="flex flex-col gap-4 pb-4">
+      <div style={{ display: "flex", flexDirection: "column", gap: 16, paddingBottom: 24 }}>
 
+        {/* ── Hero ── */}
         {isLoading ? (
-          <div className="mx-4 mt-2"><SkeletonHero /></div>
+          <div style={{ margin: "12px 16px 0" }}><SkeletonHero /></div>
         ) : (
-          <div className="mx-4 mt-2">
-            <div className="hero-gradient rounded-2xl p-5 text-white">
-              <div className="text-xs font-semibold uppercase tracking-widest mb-1 opacity-60">
+          <div style={{ margin: "12px 16px 0" }}>
+            <div
+              className="anim-section anim-d1"
+              style={{
+                borderRadius: 22, padding: "20px",
+                background: "linear-gradient(140deg,#080f1f 0%,#142246 50%,#1a3059 100%)",
+                position: "relative", overflow: "hidden",
+              }}
+            >
+              <div
+                style={{
+                  position: "absolute", top: -40, right: -40, width: 180, height: 180,
+                  borderRadius: "50%", background: "rgba(232,69,69,0.06)",
+                  pointerEvents: "none",
+                }}
+              />
+              <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
                 Cartera activa
               </div>
-              <div className="text-4xl font-bold tracking-tight leading-none mb-1 fade-up">
+              <div style={{ color: "#fff", fontSize: 36, fontWeight: 800, letterSpacing: "-0.05em", lineHeight: 1, marginBottom: 16 }} className="fade-up">
                 {fmt(d?.totalPortfolio ?? 0)}
               </div>
-              <div className="flex items-center gap-3 mt-3 mb-1 flex-wrap">
-                <span className="text-xs opacity-70">
-                  <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 mr-1" />
-                  {d?.clientsCurrent ?? d?.activeClients ?? 0} al corriente
-                </span>
-                <span className="text-xs opacity-70">
-                  <span className="inline-block w-2 h-2 rounded-full bg-yellow-400 mr-1" />
-                  {d?.clientsAtRisk ?? 0} riesgo
-                </span>
-                <span className="text-xs opacity-70">
-                  <span className="inline-block w-2 h-2 rounded-full bg-orange-400 mr-1" />
-                  {d?.clientsOverdue ?? 0} mora
-                </span>
-                <span className="text-xs opacity-70">
-                  <span className="inline-block w-2 h-2 rounded-full bg-red-400 mr-1" />
-                  {d?.clientsDefaulted ?? 0} vencidos
-                </span>
-              </div>
-              <div className="mt-3">
-                <div className="flex justify-between text-xs opacity-70 mb-1.5">
-                  <span>Cobranza del dia</span>
-                  <span>{fmt(d?.collectionToday ?? 0)} / {fmt(d?.expectedToday ?? 0)}</span>
-                </div>
-                <div className="w-full h-2 rounded-full overflow-hidden" style={{ background: "rgba(255,255,255,0.2)" }}>
+
+              {/* Client health pills */}
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 16 }}>
+                {[
+                  { label: "Al corriente", count: d?.clientsCurrent ?? d?.activeClients ?? 0, color: "#34d399" },
+                  { label: "En riesgo",    count: d?.clientsAtRisk ?? 0,  color: "#fbbf24" },
+                  { label: "En mora",      count: d?.clientsOverdue ?? 0, color: "#f97316" },
+                  { label: "Vencidos",     count: d?.clientsDefaulted ?? 0, color: "#f87171" },
+                ].map(s => (
                   <div
-                    className="h-full rounded-full transition-all duration-700"
-                    style={{ width: `${collectPct}%`, background: collectPct >= 80 ? "#10b981" : collectPct >= 50 ? "#f59e0b" : "#ef4444" }}
+                    key={s.label}
+                    style={{
+                      display: "flex", alignItems: "center",
+                      padding: "4px 10px", borderRadius: 20,
+                      background: "rgba(255,255,255,0.08)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                    }}
+                  >
+                    {dot(s.color)}
+                    <span style={{ fontSize: 11, color: "rgba(255,255,255,0.7)", fontWeight: 600 }}>
+                      {s.count} {s.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Daily collection bar */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Cobranza del dia</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 700 }}>
+                    {fmt(d?.collectionToday ?? 0)} / {fmt(d?.expectedToday ?? 0)}
+                  </span>
+                </div>
+                <div style={{ height: 6, background: "rgba(255,255,255,0.12)", borderRadius: 4, overflow: "hidden" }}>
+                  <div
+                    style={{
+                      height: "100%", borderRadius: 4,
+                      width: `${collectPct}%`,
+                      background: collectPct >= 80 ? "#34d399" : collectPct >= 50 ? "#fbbf24" : "#f87171",
+                      transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)",
+                    }}
                   />
+                </div>
+                <div style={{ textAlign: "right", marginTop: 4, fontSize: 10, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>
+                  {collectPct.toFixed(0)}% de meta diaria
                 </div>
               </div>
             </div>
           </div>
         )}
 
+        {/* ── Pending validation alert ── */}
         {pendingCount > 0 && (
-          <Link href="/admin/validar-pagos" className="mx-4">
-            <div className="rounded-2xl p-4 flex items-center gap-4 pressable" style={{ background: "#fef3c7", border: "2px solid #fbbf24" }}>
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: "#f59e0b" }}>
-                <IconValidar size={22} color="#fff" />
+          <div style={{ margin: "0 16px" }} className="anim-section anim-d2">
+            <Link href="/admin/validar-pagos">
+              <div
+                className="pressable"
+                style={{
+                  display: "flex", alignItems: "center", gap: 14,
+                  padding: "14px 16px", borderRadius: 16,
+                  background: "#fffbeb",
+                  border: "1.5px solid #fcd34d",
+                  boxShadow: "0 2px 12px rgba(245,158,11,0.15)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                    background: "#f59e0b",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(245,158,11,0.35)",
+                  }}
+                >
+                  <IconValidar size={22} color="#fff" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#78350f" }}>
+                    {pendingCount} pago{pendingCount !== 1 ? "s" : ""} por validar
+                  </div>
+                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 1 }}>
+                    Requieren tu aprobacion antes de aplicarse
+                  </div>
+                </div>
+                <IconFlecha size={16} color="#ca8a04" />
               </div>
-              <div className="flex-1">
-                <div className="text-sm font-bold text-yellow-900">{pendingCount} pago{pendingCount !== 1 ? "s" : ""} por validar</div>
-                <div className="text-xs text-yellow-700">Requieren tu aprobacion antes de aplicarse</div>
-              </div>
-              <IconFlecha size={18} color="#ca8a04" />
-            </div>
-          </Link>
+            </Link>
+          </div>
         )}
 
+        {/* ── Stat cards ── */}
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 px-4">
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px" }}>
             {[1,2,3,4].map(i => <SkeletonCard key={i} rows={2} />)}
           </div>
         ) : (
           <>
-            <div className="grid grid-cols-2 gap-3 px-4">
-              <StatCard
-                icon={<IconAlerta size={18} />}
-                iconBg="rgba(239,68,68,0.1)"
-                iconColor="var(--danger)"
-                label="Indice de mora"
-                value={`${moraPct.toFixed(1)}%`}
-                subLabel={`${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`}
-              />
-              <StatCard
-                icon={<IconMoneda size={18} />}
-                iconBg="rgba(16,185,129,0.1)"
-                iconColor="var(--success)"
-                label="Utilidad semanal"
-                value={fmt(d?.profitThisWeek ?? 0)}
-                subLabel="Esta semana"
-              />
-              <StatCard
-                icon={<IconDesembolso size={18} />}
-                iconBg="rgba(37,99,235,0.1)"
-                iconColor="var(--accent)"
-                label="Colocacion mes"
-                value={fmt(d?.placementThisMonth ?? 0)}
-                subLabel={`Semana: ${fmt(d?.placementThisWeek ?? 0)}`}
-              />
-              <StatCard
-                icon={<IconGrupo size={18} />}
-                iconBg="rgba(109,40,217,0.1)"
-                iconColor="#7c3aed"
-                label="Asesores activos"
-                value={d?.totalActiveExecutives ?? 0}
-                subLabel={`${d?.executivesWithAlerts ?? 0} con alertas`}
-              />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px" }} className="anim-section anim-d3">
+              {[
+                {
+                  icon: <IconAlerta size={18} />, iconBg: "#fee2e2", iconColor: "#dc2626",
+                  label: "Indice de mora", value: `${moraPct.toFixed(1)}%`,
+                  sub: `${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`,
+                },
+                {
+                  icon: <IconMoneda size={18} />, iconBg: "#d1fae5", iconColor: "#059669",
+                  label: "Utilidad semanal", value: fmt(d?.profitThisWeek ?? 0),
+                  sub: "Esta semana",
+                },
+                {
+                  icon: <IconDesembolso size={18} />, iconBg: "#dbeafe", iconColor: "#2563eb",
+                  label: "Colocacion mes", value: fmt(d?.placementThisMonth ?? 0),
+                  sub: `Semana: ${fmt(d?.placementThisWeek ?? 0)}`,
+                },
+                {
+                  icon: <IconGrupo size={18} />, iconBg: "#ede9fe", iconColor: "#7c3aed",
+                  label: "Asesores activos", value: d?.totalActiveExecutives ?? 0,
+                  sub: `${d?.executivesWithAlerts ?? 0} con alertas`,
+                },
+              ].map(s => (
+                <div
+                  key={s.label}
+                  style={{
+                    background: "#fff", borderRadius: 16, padding: "16px",
+                    border: "1px solid var(--border)", boxShadow: "var(--shadow-card)",
+                  }}
+                >
+                  <div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: s.iconBg, color: s.iconColor, marginBottom: 10 }}>
+                    {s.icon}
+                  </div>
+                  <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em" }}>{s.value}</div>
+                  <div style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)", marginTop: 2 }}>{s.label}</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 1 }}>{s.sub}</div>
+                </div>
+              ))}
             </div>
 
-            <div className="mx-4 rounded-2xl overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
-              <div className="px-4 py-2.5 text-xs font-bold text-gray-400 uppercase tracking-widest" style={{ background: "#f9fafb" }}>
-                Flujo de efectivo
-              </div>
-              <div className="p-4 flex flex-col gap-2.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Cobranza semana</span>
-                  <span className="font-bold text-green-600">+{fmt(d?.collectionWeek ?? 0)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-500">Desembolsos semana</span>
-                  <span className="font-bold text-red-500">-{fmt(d?.disbursementsWeek ?? 0)}</span>
-                </div>
-                <div className="border-t border-dashed border-gray-200 my-0.5" />
-                <div className="flex justify-between">
-                  <span className="text-gray-700 font-semibold">Flujo neto semana</span>
-                  <span className={`font-extrabold ${(d?.netFlowWeek ?? 0) >= 0 ? "text-green-600" : "text-red-600"}`}>
-                    {fmt(d?.netFlowWeek ?? 0)}
+            {/* Cash flow card */}
+            <div style={{ margin: "0 16px" }} className="anim-section anim-d4">
+              <div style={{ background: "#fff", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+                <div style={{ padding: "12px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
+                  <IconFinanzas size={16} color="var(--accent)" />
+                  <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
+                    Flujo de efectivo
                   </span>
                 </div>
-                <div className="flex justify-between mt-1 pt-1 border-t border-gray-100">
-                  <span className="text-gray-500">Multas acumuladas</span>
-                  <span className="font-bold text-orange-600">{fmt(d?.totalLateFees ?? 0)}</span>
+                <div style={{ padding: "14px 18px", display: "flex", flexDirection: "column", gap: 10 }}>
+                  {[
+                    { label: "Cobranza semana",     value: fmt(d?.collectionWeek ?? 0),   positive: true  },
+                    { label: "Desembolsos semana",   value: fmt(d?.disbursementsWeek ?? 0), positive: false },
+                  ].map(row => (
+                    <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{row.label}</span>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: row.positive ? "#059669" : "#dc2626" }}>
+                        {row.positive ? "+" : "−"}{row.value}
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Flujo neto</span>
+                    <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.04em", color: (d?.netFlowWeek ?? 0) >= 0 ? "#059669" : "#dc2626" }}>
+                      {fmt(d?.netFlowWeek ?? 0)}
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 6, borderTop: "1px dashed var(--border)" }}>
+                    <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Multas acumuladas</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "#f97316" }}>{fmt(d?.totalLateFees ?? 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>
           </>
         )}
 
-        <div className="px-4">
-          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-3 px-1">
+        {/* ── Quick access ── */}
+        <div style={{ padding: "4px 16px 0" }} className="anim-section anim-d5">
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 12 }}>
             Control y gestion
           </div>
-          <div className="flex flex-col gap-2">
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {ACCESOS.map(a => (
-              <Link key={a.path} href={a.path} className="card flex items-center gap-4 py-4 px-4 pressable">
+              <Link key={a.path} href={a.path}>
                 <div
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-lg shrink-0"
-                  style={{ background: a.color, color: a.ic }}
+                  className="pressable"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 14,
+                    padding: "14px 16px", borderRadius: 16,
+                    background: "#fff",
+                    border: "1px solid var(--border)",
+                    boxShadow: "var(--shadow-xs)",
+                  }}
                 >
-                  {a.icon}
+                  <div
+                    style={{
+                      width: 42, height: 42, borderRadius: 13, flexShrink: 0,
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      background: a.iconBg, color: a.iconColor,
+                    }}
+                  >
+                    {a.icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{a.label}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{a.sub}</div>
+                  </div>
+                  <IconFlecha size={16} color="var(--text-muted)" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-[14px] font-semibold text-gray-900">{a.label}</div>
-                  <div className="text-xs text-gray-500 mt-0.5">{a.sub}</div>
-                </div>
-                <IconFlecha size={16} color="#9ca3af" />
               </Link>
             ))}
           </div>
