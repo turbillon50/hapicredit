@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
+import logoImg from "@assets/IMG_0626_1775411853416.jpeg";
 
 const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
@@ -35,10 +36,7 @@ export default function Login() {
         body: JSON.stringify({ username, password }),
       });
       const data = await res.json() as { token?: string; user?: { role: string }; error?: string };
-      if (!res.ok || !data.token || !data.user) {
-        setError(data.error ?? "Credenciales incorrectas");
-        return;
-      }
+      if (!res.ok || !data.token || !data.user) { setError(data.error ?? "Credenciales incorrectas"); return; }
       localStorage.setItem("hapi_token", data.token);
       localStorage.setItem("hapi_role",  data.user.role);
       localStorage.setItem("hapi_user",  JSON.stringify(data.user));
@@ -53,173 +51,197 @@ export default function Login() {
   const canSubmit = !loading && username.trim().length > 0 && password.length > 0;
 
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        background: "linear-gradient(160deg,#080f1f 0%,#142246 55%,#1a3059 100%)",
-        display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center",
-        padding: "24px",
-        fontFamily: "'Inter', -apple-system, sans-serif",
-      }}
-    >
-      {/* ── Brand ── */}
-      <div style={{ marginBottom: 28, textAlign: "center" }}>
-        <div
+    <div style={{
+      minHeight: "100dvh",
+      display: "flex",
+      flexDirection: "column",
+      fontFamily: "'Inter', -apple-system, sans-serif",
+      background: "#fff",
+    }}>
+
+      {/* ── Top visual panel ── */}
+      <div style={{
+        position: "relative",
+        overflow: "hidden",
+        background: "linear-gradient(150deg,#0c1428 0%,#142246 55%,#1a3468 100%)",
+        flex: "0 0 42vh",
+        minHeight: 260,
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        justifyContent: "flex-end",
+        padding: "0 28px 40px",
+      }}>
+        {/* Decorative blobs */}
+        <div style={{ position:"absolute",top:-80,right:-80,width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,69,69,0.22) 0%,transparent 70%)",pointerEvents:"none" }} />
+        <div style={{ position:"absolute",top:30,right:60,width:140,height:140,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,69,69,0.10) 0%,transparent 70%)",pointerEvents:"none" }} />
+
+        {/* Back link */}
+        <a
+          href="/"
           style={{
-            width: 68, height: 68, borderRadius: 20, margin: "0 auto 14px",
-            background: "rgba(255,255,255,0.08)",
-            border: "1px solid rgba(255,255,255,0.12)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            backdropFilter: "blur(10px)",
+            position:"absolute",top:20,left:20,
+            display:"flex",alignItems:"center",gap:6,
+            color:"rgba(255,255,255,0.5)",textDecoration:"none",fontSize:13,fontWeight:600,
           }}
         >
-          <svg width="38" height="38" viewBox="0 0 180 180" fill="none">
-            <circle cx="90" cy="52" r="16" fill="white"/>
-            <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
-          </svg>
-        </div>
-        <div style={{ color: "#fff", fontWeight: 800, fontSize: 26, letterSpacing: "-0.04em" }}>
-          Hapi<span style={{ color: "#e84545" }}>Credit</span>
-        </div>
-        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 13, marginTop: 4 }}>
-          Tu credito, Tu impulso
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+          Inicio
+        </a>
+
+        {/* Logo + Brand */}
+        <div style={{ display:"flex",alignItems:"center",gap:16 }}>
+          <div style={{ width:60,height:60,borderRadius:18,overflow:"hidden",flexShrink:0,boxShadow:"0 6px 24px rgba(0,0,0,0.30)" }}>
+            <img src={logoImg} alt="HapiCredit" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
+          </div>
+          <div>
+            <div style={{ fontWeight:900,fontSize:26,letterSpacing:"-0.05em",color:"#fff",lineHeight:1 }}>
+              Hapi<span style={{ color:"#e84545" }}>Credit</span>
+            </div>
+            <div style={{ fontSize:13,color:"rgba(255,255,255,0.45)",marginTop:4,fontWeight:500 }}>
+              Tu credito, Tu impulso
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* ── Card ── */}
-      <div
-        style={{
-          background: "#fff", borderRadius: 24, width: "100%", maxWidth: 400,
-          boxShadow: "0 24px 80px rgba(0,0,0,0.35)", padding: "28px 26px 24px",
-          boxSizing: "border-box",
-        }}
-      >
-        <h2 style={{ fontSize: 18, fontWeight: 800, color: "#0d1a36", marginBottom: 4, textAlign: "center", letterSpacing: "-0.03em" }}>
+      {/* ── Form sheet ── */}
+      <div style={{
+        flex: 1,
+        background: "#fff",
+        borderRadius: "28px 28px 0 0",
+        marginTop: -28,
+        padding: "32px 24px 40px",
+        boxShadow: "0 -8px 32px rgba(0,0,0,0.10)",
+        position: "relative",
+        zIndex: 2,
+        overflowY: "auto",
+      }}>
+        {/* Drag handle */}
+        <div style={{ width:40,height:4,borderRadius:2,background:"var(--border)",margin:"0 auto 28px" }} />
+
+        <h2 style={{ fontSize:22,fontWeight:900,color:"#111",margin:"0 0 4px",letterSpacing:"-0.04em" }}>
           Bienvenido de vuelta
         </h2>
-        <p style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+        <p style={{ fontSize:14,color:"var(--text-secondary)",margin:"0 0 28px",lineHeight:1.5 }}>
           Ingresa con tu usuario y contrasena
         </p>
 
-        <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+        <form onSubmit={handleLogin} style={{ display:"flex",flexDirection:"column",gap:16 }}>
+          {/* Username */}
           <div>
-            <label style={labelStyle}>Usuario</label>
+            <label style={labelSt}>Usuario</label>
             <input
               value={username}
               onChange={e => setUsername(e.target.value)}
               placeholder="Tu nombre de usuario"
               autoComplete="username"
-              style={inputStyle}
+              style={inputSt}
             />
           </div>
 
+          {/* Password */}
           <div>
-            <label style={labelStyle}>Contrasena</label>
-            <div style={{ position: "relative" }}>
+            <label style={labelSt}>Contrasena</label>
+            <div style={{ position:"relative" }}>
               <input
-                type={showPass ? "text" : "password"}
+                type={showPass?"text":"password"}
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder="Tu contrasena"
                 autoComplete="current-password"
-                style={{ ...inputStyle, paddingRight: 52 }}
+                style={{ ...inputSt,paddingRight:60 }}
               />
               <button
                 type="button"
                 onClick={() => setShowPass(v => !v)}
                 style={{
-                  position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
-                  background: "none", border: "none", cursor: "pointer",
-                  color: "#94a3b8", fontSize: 12, fontWeight: 700, padding: 0,
-                  letterSpacing: "0.01em",
+                  position:"absolute",right:16,top:"50%",transform:"translateY(-50%)",
+                  background:"none",border:"none",cursor:"pointer",
+                  color:"var(--text-muted)",fontSize:12,fontWeight:700,padding:0,
                 }}
               >
-                {showPass ? "Ocultar" : "Ver"}
+                {showPass?"Ocultar":"Ver"}
               </button>
             </div>
           </div>
 
+          {/* Error */}
           {error && (
-            <div
-              style={{
-                background: "#fef2f2", border: "1px solid #fecaca",
-                borderRadius: 10, padding: "10px 14px",
-                color: "#dc2626", fontSize: 13, fontWeight: 500,
-              }}
-            >
+            <div style={{
+              background:"#fef2f2",border:"1px solid #fecaca",borderRadius:12,
+              padding:"12px 16px",color:"#dc2626",fontSize:13,fontWeight:500,
+            }}>
               {error}
             </div>
           )}
 
+          {/* Submit */}
           <button
             type="submit"
             disabled={!canSubmit}
             style={{
-              width: "100%", padding: "14px",
-              background: canSubmit ? "#e84545" : "#e5e7eb",
-              color: canSubmit ? "#fff" : "#9ca3af",
-              border: "none", borderRadius: 14,
-              fontWeight: 700, fontSize: 15,
-              cursor: canSubmit ? "pointer" : "default",
-              transition: "background 0.15s, color 0.15s",
-              fontFamily: "inherit",
-              boxShadow: canSubmit ? "0 2px 12px rgba(232,69,69,0.3)" : "none",
+              width:"100%",padding:"15px",marginTop:4,
+              background: canSubmit?"#e84545":"var(--bg-warm)",
+              color: canSubmit?"#fff":"var(--text-muted)",
+              border:"none",borderRadius:14,
+              fontWeight:700,fontSize:15,
+              cursor: canSubmit?"pointer":"default",
+              fontFamily:"inherit",
+              boxShadow: canSubmit?"0 4px 20px rgba(232,69,69,0.32)":"none",
+              transition:"background 0.15s,color 0.15s,box-shadow 0.15s",
+              letterSpacing:"-0.01em",
             }}
           >
-            {loading ? "Verificando..." : "Iniciar sesion"}
+            {loading?"Verificando...":"Iniciar sesion"}
           </button>
         </form>
 
         {/* Divider */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, margin: "22px 0 18px" }}>
-          <div style={{ flex: 1, height: 1, background: "#e9e8e4" }} />
-          <span style={{ fontSize: 11, color: "#94a3b8", fontWeight: 600 }}>o</span>
-          <div style={{ flex: 1, height: 1, background: "#e9e8e4" }} />
+        <div style={{ display:"flex",alignItems:"center",gap:12,margin:"24px 0 20px" }}>
+          <div style={{ flex:1,height:1,background:"var(--border)" }} />
+          <span style={{ fontSize:11,color:"var(--text-muted)",fontWeight:600 }}>o</span>
+          <div style={{ flex:1,height:1,background:"var(--border)" }} />
         </div>
 
-        {/* Clerk passkey / email button */}
-        <a
-          href={`${basePath}/sign-in`}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center",
-            width: "100%", padding: "13px",
-            background: "#f5f4f1", color: "#0d1a36",
-            borderRadius: 14, fontWeight: 700, fontSize: 14,
-            textDecoration: "none", boxSizing: "border-box",
-            border: "1.5px solid #e9e8e4",
-            transition: "background 0.15s",
-          }}
-        >
+        {/* Clerk email/passkey */}
+        <a href={`${basePath}/sign-in`} style={{
+          display:"flex",alignItems:"center",justifyContent:"center",gap:8,
+          width:"100%",padding:"14px",
+          background:"var(--bg-warm)",color:"#111",
+          borderRadius:14,fontWeight:700,fontSize:14,
+          textDecoration:"none",
+          border:"1.5px solid var(--border)",
+          transition:"background 0.15s",
+          letterSpacing:"-0.01em",
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+          </svg>
           Continuar con correo o passkey
         </a>
 
-        <div style={{ textAlign: "center", marginTop: 22, paddingTop: 16, borderTop: "1px solid #f1f0ed" }}>
-          <span style={{ fontSize: 13, color: "#94a3b8" }}>No tienes cuenta? </span>
-          <a href="/registro" style={{ fontSize: 13, color: "#e84545", fontWeight: 700, textDecoration: "none" }}>
+        {/* Register link */}
+        <div style={{ textAlign:"center",marginTop:28,paddingTop:24,borderTop:"1px solid var(--border)" }}>
+          <span style={{ fontSize:14,color:"var(--text-secondary)" }}>No tienes cuenta? </span>
+          <a href="/registro" style={{ fontSize:14,color:"#e84545",fontWeight:700,textDecoration:"none" }}>
             Registrate
           </a>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div style={{ marginTop: 28, display: "flex", gap: 20 }}>
-        <a href="/privacidad" style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
-        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textDecoration: "none" }}>Terminos y condiciones</a>
       </div>
     </div>
   );
 }
 
-const labelStyle: React.CSSProperties = {
-  display: "block", fontSize: 11, fontWeight: 700, color: "#374151",
-  textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6,
+const labelSt: React.CSSProperties = {
+  display:"block",fontSize:11,fontWeight:700,color:"#374151",
+  textTransform:"uppercase",letterSpacing:"0.07em",marginBottom:8,
 };
 
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "13px 16px",
-  border: "1.5px solid #e2e0db", borderRadius: 12,
-  fontSize: 15, boxSizing: "border-box", outline: "none",
-  color: "#0d1a36", background: "#f8f7f4",
-  fontFamily: "inherit", transition: "border-color 0.15s",
+const inputSt: React.CSSProperties = {
+  width:"100%",padding:"14px 16px",
+  border:"1.5px solid var(--border-mid)",borderRadius:12,
+  fontSize:15,boxSizing:"border-box",outline:"none",
+  color:"#111",background:"var(--bg-warm)",
+  fontFamily:"inherit",transition:"border-color 0.15s,box-shadow 0.15s",
 };

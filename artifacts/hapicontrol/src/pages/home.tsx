@@ -1,400 +1,358 @@
-import { useState, useEffect } from "react";
-import { useLocation, Link } from "wouter";
+import { useState } from "react";
+import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
-import {
-  IconFormulario, IconReloj, IconDesembolso, IconPagos,
-  IconEquipo, IconEscudo, IconCrecimiento,
-  IconCelular, IconTelefono, IconUbicacion, IconFlecha,
-  IconFlechaAbajo,
-} from "@/components/hapi/HapiIcons";
-import logoSrc from "@assets/IMG_0626_1775411853416.jpeg";
+import logoImg from "@assets/IMG_0626_1775411853416.jpeg";
 
-const PROCESS_STEPS = [
-  { icon: <IconFormulario size={20} color="#fff" />, n: "1", title: "Solicita", desc: "Llena tu solicitud en linea con tus datos y documentos" },
-  { icon: <IconReloj size={20} color="#fff" />,      n: "2", title: "Revision", desc: "Un asesor revisa tu expediente en menos de 24 horas" },
-  { icon: <IconDesembolso size={20} color="#fff" />, n: "3", title: "Aprobacion", desc: "Te notificamos y se desembolsa tu credito de inmediato" },
-  { icon: <IconPagos size={20} color="#fff" />,      n: "4", title: "Pagos semanales", desc: "Realiza tus pagos semanales con tu asesor asignado" },
-];
-
-const FAQS = [
-  { q: "Que requisitos necesito para solicitar un credito?",   a: "Necesitas tu INE vigente (frente y reverso), selfie sosteniendo tu INE, comprobante de domicilio reciente, y contar con un aval (obligado solidario). Tambien se solicita informacion de tu negocio y referencias personales." },
-  { q: "Cuanto tiempo tarda la aprobacion?",                    a: "Tu solicitud es revisada en menos de 24 horas habiles. Una vez aprobada, el desembolso se realiza de manera inmediata." },
-  { q: "Cuales son las tasas y comisiones?",                    a: "Se cobra una comision por apertura del 10% sobre el monto solicitado, la cual se descuenta al momento del desembolso. Las tasas son: $175 por semana por cada $1,000 en plazo de 8 semanas, o $120 por semana por cada $1,000 en plazo de 13 semanas." },
-  { q: "Que pasa si me atraso en un pago?",                     a: "Se genera una multa de $200 por cada dia de atraso. Es importante mantener tus pagos al corriente para evitar recargos y conservar un buen historial crediticio." },
-  { q: "Puedo liquidar mi credito antes de tiempo?",            a: "Si, puedes liquidar anticipadamente sin penalizacion. Contacta a tu asesor para calcular el monto de liquidacion." },
-  { q: "Cuanto puedo solicitar?",                               a: "Los montos van desde $1,000 hasta $30,000 pesos. El monto aprobado depende de tu capacidad de pago y evaluacion crediticia." },
-];
-
-function SplashScreen({ onDone }: { onDone: () => void }) {
-  const [exiting, setExiting] = useState(false);
-  useEffect(() => {
-    setExiting(true);
-    const t = setTimeout(onDone, 220);
-    return () => clearTimeout(t);
-  }, [onDone]);
-
+function HapiIcon({ size = 24, color = "#e84545" }: { size?: number; color?: string }) {
   return (
-    <div
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center splash-bg ${exiting ? "splash-out" : ""}`}
-      style={{ background: "linear-gradient(160deg,#080f1f 0%,#142246 50%,#1a3059 100%)" }}
-    >
-      <div className="splash-logo flex flex-col items-center">
-        <img src={logoSrc} alt="HapiCredit" className="w-52 h-auto rounded-2xl shadow-2xl" />
-      </div>
-    </div>
+    <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
+      <circle cx="90" cy="52" r="16" fill={color} />
+      <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill={color} />
+    </svg>
   );
 }
 
-function FaqItem({ q, a }: { q: string; a: string }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div
-      style={{
-        borderRadius: 14, overflow: "hidden",
-        background: "#fff",
-        border: "1px solid var(--border)",
-        boxShadow: "var(--shadow-xs)",
-      }}
-    >
-      <button
-        onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between px-4 py-3.5 text-left pressable"
-      >
-        <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)", paddingRight: 16, lineHeight: 1.4 }}>{q}</span>
-        <span
-          style={{
-            flexShrink: 0, transition: "transform 0.25s ease",
-            transform: open ? "rotate(180deg)" : "rotate(0)",
-            color: "var(--text-muted)",
-          }}
-        >
-          <IconFlechaAbajo size={17} />
-        </span>
-      </button>
-      <div className={`faq-answer ${open ? "open" : ""}`}>
-        <div style={{ padding: "0 16px 16px", fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.65 }}>
-          {a}
-        </div>
-      </div>
-    </div>
-  );
-}
+const steps = [
+  { n: "01", title: "Registrate en minutos", body: "Crea tu cuenta con tu informacion basica. Sin tramites complicados.", active: true },
+  { n: "02", title: "Solicita tu credito",   body: "Elige el monto y el plazo que mejor se adapte a tu negocio.",         active: false },
+  { n: "03", title: "Recibe tu dinero",       body: "Aprobacion en 24 horas y deposito directo a tu cuenta.",              active: false },
+];
+
+const faqs = [
+  { q: "Cuanto puedo solicitar?",           a: "Desde $1,000 hasta $30,000 MXN, dependiendo de tu historial con nosotros." },
+  { q: "Cuanto tiempo tarda la aprobacion?", a: "Revisamos tu solicitud en menos de 24 horas habiles." },
+  { q: "Que necesito para solicitar?",      a: "Identificacion oficial, CURP y comprobante de actividad economica." },
+  { q: "Hay penalizacion por pago anticipado?", a: "No. Puedes liquidar tu credito cuando quieras sin cargos adicionales." },
+];
 
 export default function Home() {
   const [, navigate] = useLocation();
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const token = localStorage.getItem("hapi_token");
+  const role  = localStorage.getItem("hapi_role");
 
-  const isLoggedIn  = !!localStorage.getItem("hapi_token");
-  const storedRole  = localStorage.getItem("hapi_role");
-  const [splashSeen] = useState(() => sessionStorage.getItem("hapi_splash") === "1");
-  const [showSplash, setShowSplash] = useState(() => !isLoggedIn && !splashSeen);
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      if (storedRole === "admin") navigate("/admin");
-      else if (storedRole === "executive") navigate("/dashboard");
-      else navigate("/mi-credito");
+  function handleCTA() {
+    if (token) {
+      if (role === "admin")          navigate("/admin");
+      else if (role === "executive") navigate("/dashboard");
+      else                           navigate("/mi-credito");
+    } else {
+      navigate("/registro");
     }
-  }, []);
-
-  if (isLoggedIn) return (
-    <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--surface-2)" }}>
-      <div style={{ color: "var(--text-muted)", fontSize: 14 }}>Redirigiendo...</div>
-    </div>
-  );
-
-  function handleSplashDone() {
-    setShowSplash(false);
-    sessionStorage.setItem("hapi_splash", "1");
   }
 
   return (
-    <>
-      {showSplash && !splashSeen && <SplashScreen onDone={handleSplashDone} />}
-      <Layout>
-        <div className="flex flex-col gap-0">
+    <Layout>
+      <div style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
 
-          {/* ─── Hero ─── */}
-          <div
-            className="px-5 pt-10 pb-12 text-center anim-section anim-d1"
-            style={{
-              background: "linear-gradient(160deg,#080f1f 0%,#142246 55%,#1a3059 100%)",
-              position: "relative",
-              overflow: "hidden",
-            }}
-          >
-            <div
-              style={{
-                position: "absolute", inset: 0, opacity: 0.04,
-                backgroundImage: "radial-gradient(circle at 20% 80%, #fff 0%, transparent 40%), radial-gradient(circle at 80% 20%, #e84545 0%, transparent 40%)",
-                pointerEvents: "none",
-              }}
-            />
-            <img
-              src={logoSrc}
-              alt="HapiCredit"
-              style={{ width: 160, height: "auto", margin: "0 auto 18px", borderRadius: 18, boxShadow: "0 12px 48px rgba(0,0,0,0.35)", display: "block" }}
-            />
-            <h1 style={{ color: "#fff", fontWeight: 800, fontSize: 26, letterSpacing: "-0.04em", lineHeight: 1.2, marginBottom: 10 }}>
-              Credito rapido para<br />hacer crecer tu negocio
-            </h1>
-            <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 14, lineHeight: 1.65, maxWidth: 280, margin: "0 auto 24px" }}>
-              Montos desde $1,000 hasta $30,000. Aprobacion en 24 horas.
-            </p>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}>
-              <Link href="/registro">
-                <button
-                  className="pressable float-cta"
-                  style={{
-                    padding: "13px 24px",
-                    background: "var(--coral)", color: "#fff",
-                    border: "none", borderRadius: 14,
-                    fontSize: 14, fontWeight: 700,
-                    boxShadow: "0 4px 20px rgba(232,69,69,0.4)",
-                    cursor: "pointer",
-                  }}
-                >
-                  Solicitar ahora
-                </button>
-              </Link>
-              <Link href="/login">
-                <button
-                  className="pressable"
-                  style={{
-                    padding: "13px 20px",
-                    background: "rgba(255,255,255,0.1)", color: "#fff",
-                    border: "1.5px solid rgba(255,255,255,0.18)", borderRadius: 14,
-                    fontSize: 14, fontWeight: 600,
-                    cursor: "pointer",
-                    backdropFilter: "blur(8px)",
-                  }}
-                >
-                  Iniciar sesion
-                </button>
-              </Link>
-            </div>
+        {/* ═══════════════════════════════════════════
+            HERO
+        ═══════════════════════════════════════════ */}
+        <section style={{
+          background: "linear-gradient(160deg,#0c1428 0%,#142246 55%,#1a3468 100%)",
+          padding: "44px 24px 60px",
+          position: "relative",
+          overflow: "hidden",
+        }}>
+          {/* Glow blobs */}
+          <div style={{ position:"absolute",top:-80,right:-80,width:280,height:280,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,69,69,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
+          <div style={{ position:"absolute",bottom:-60,left:-60,width:220,height:220,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,69,69,0.10) 0%,transparent 70%)",pointerEvents:"none" }} />
 
-            {/* Quick stats */}
-            <div
-              style={{
-                display: "grid", gridTemplateColumns: "1fr 1fr 1fr",
-                gap: 1, marginTop: 28,
-                background: "rgba(255,255,255,0.07)",
-                borderRadius: 14, overflow: "hidden",
-                border: "1px solid rgba(255,255,255,0.08)",
-              }}
-            >
-              {[
-                { n: "$30K", label: "Monto max" },
-                { n: "24h", label: "Aprobacion" },
-                { n: "0%", label: "Penalizacion" },
-              ].map(s => (
-                <div key={s.n} style={{ padding: "12px 8px", textAlign: "center" }}>
-                  <div style={{ color: "#fff", fontWeight: 800, fontSize: 18, letterSpacing: "-0.04em" }}>{s.n}</div>
-                  <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 10, fontWeight: 600, marginTop: 1 }}>{s.label}</div>
-                </div>
-              ))}
-            </div>
+          {/* Logo */}
+          <div className="anim-section anim-d1" style={{ width:84,height:84,borderRadius:22,overflow:"hidden",marginBottom:28,boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+            <img src={logoImg} alt="HapiCredit" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
           </div>
 
-          {/* ─── Quienes somos ─── */}
-          <div style={{ padding: "28px 16px 8px" }} className="anim-section anim-d2">
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--coral)" }}>Quienes somos</span>
-              <h2 style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>HapiCredit por Grupo CAFJA</h2>
-            </div>
-            <div className="card" style={{ padding: 18 }}>
-              <p style={{ fontSize: 14, color: "var(--text-secondary)", lineHeight: 1.7, marginBottom: 16 }}>
-                Somos una empresa financiera especializada en <strong>microcreditos</strong> para emprendedores y comerciantes. Impulsamos el crecimiento de negocios locales con creditos accesibles, transparentes y atencion personalizada.
-              </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {[
-                  { icon: <IconEquipo size={24} color="var(--accent)" />, title: "Atencion personal", sub: "Asesor asignado", bg: "rgba(20,34,70,0.05)" },
-                  { icon: <IconEscudo size={24} color="#0ea572" />,        title: "Transparencia",    sub: "Sin letras chicas", bg: "#f0fdf4" },
-                  { icon: <IconReloj size={24} color="#f0930a" />,         title: "Aprobacion 24h",  sub: "Proceso rapido", bg: "#fff7ed" },
-                  { icon: <IconCrecimiento size={24} color="var(--coral)" />, title: "Crecimiento", sub: "Impulsa tu negocio", bg: "var(--coral-bg)" },
-                ].map(c => (
-                  <div key={c.title} style={{ textAlign: "center", padding: "14px 8px", borderRadius: 12, background: c.bg }}>
-                    <div style={{ display: "flex", justifyContent: "center", marginBottom: 6 }}>{c.icon}</div>
-                    <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)" }}>{c.title}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>{c.sub}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          {/* Headline */}
+          <h1 className="anim-section anim-d2" style={{
+            fontSize:"clamp(38px,10vw,54px)",
+            fontWeight:900,lineHeight:1.06,
+            letterSpacing:"-0.045em",
+            color:"#fff",
+            margin:"0 0 16px",
+            maxWidth:360,
+          }}>
+            Credito rapido<br />
+            <span style={{ background:"linear-gradient(90deg,#e84545 0%,#ff8080 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
+              para crecer.
+            </span>
+          </h1>
 
-          {/* ─── Como funciona ─── */}
-          <div style={{ padding: "20px 16px 8px" }} className="anim-section anim-d3">
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--coral)" }}>Proceso</span>
-              <h2 style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>Como funciona</h2>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-              {PROCESS_STEPS.map((s, i) => (
-                <div
-                  key={s.title}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 14,
-                    background: "#fff", borderRadius: 14, padding: "14px 16px",
-                    border: "1px solid var(--border)",
-                    boxShadow: "var(--shadow-xs)",
-                  }}
-                >
-                  <div
-                    style={{
-                      width: 40, height: 40, borderRadius: 12, flexShrink: 0,
-                      background: `linear-gradient(135deg, var(--navy-800) 0%, var(--navy-600) 100%)`,
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                    }}
-                  >
-                    {s.icon}
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>
-                      <span style={{ color: "var(--coral)", marginRight: 4, fontSize: 11 }}>{s.n}.</span>
-                      {s.title}
-                    </div>
-                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2, lineHeight: 1.5 }}>{s.desc}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <p className="anim-section anim-d3" style={{ fontSize:16,color:"rgba(255,255,255,0.58)",lineHeight:1.65,margin:"0 0 36px",maxWidth:340 }}>
+            Hasta <strong style={{ color:"#fff",fontWeight:700 }}>$30,000 MXN</strong> con aprobacion en 24 horas. Sin tramites complicados.
+          </p>
 
-          {/* ─── Nuestros creditos ─── */}
-          <div style={{ padding: "20px 16px 8px" }} className="anim-section anim-d4">
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--coral)" }}>Condiciones</span>
-              <h2 style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>Nuestros creditos</h2>
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 12 }}>
-              <div style={{ background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--accent)", letterSpacing: "-0.04em" }}>$1,000</div>
-                <div style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 3 }}>Monto minimo</div>
-              </div>
-              <div style={{ background: "#fff", borderRadius: 14, padding: "16px 12px", textAlign: "center", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)" }}>
-                <div style={{ fontSize: 26, fontWeight: 800, color: "var(--accent)", letterSpacing: "-0.04em" }}>$30,000</div>
-                <div style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.06em", marginTop: 3 }}>Monto maximo</div>
-              </div>
-            </div>
-
-            <div className="card" style={{ padding: 16 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 12 }}>
-                Opciones de plazo
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: "rgba(20,34,70,0.04)" }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>8 semanas</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Plazo corto</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--accent)", letterSpacing: "-0.04em" }}>$175</div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>por sem / $1,000</div>
-                  </div>
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: "var(--coral-bg)" }}>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>13 semanas</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Plazo extendido</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: "var(--coral)", letterSpacing: "-0.04em" }}>$120</div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)" }}>por sem / $1,000</div>
-                  </div>
-                </div>
-              </div>
-              <div style={{ marginTop: 12, padding: "10px 12px", borderRadius: 10, background: "var(--surface-2)", fontSize: 12, color: "var(--text-muted)", lineHeight: 1.6 }}>
-                <strong style={{ color: "var(--text-secondary)" }}>Comision de apertura:</strong> 10% descontado al desembolso. Ej: solicitas $5,000, recibes $4,500.
-              </div>
-            </div>
-          </div>
-
-          {/* ─── FAQs ─── */}
-          <div style={{ padding: "20px 16px 8px" }} className="anim-section anim-d5">
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
-              <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--coral)" }}>Preguntas</span>
-              <h2 style={{ margin: "4px 0 0", fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>Dudas frecuentes</h2>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-              {FAQS.map(f => <FaqItem key={f.q} q={f.q} a={f.a} />)}
-            </div>
-          </div>
-
-          {/* ─── Instalar app ─── */}
-          <div style={{ padding: "20px 16px 8px" }} className="anim-section anim-d6">
-            <div className="card" style={{ padding: 18 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--accent)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <IconCelular size={22} color="#fff" />
-                </div>
-                <div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>Instala la app en tu celular</div>
-                  <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Sin descargar desde la tienda</div>
-                </div>
-              </div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>iPhone (Safari)</div>
-              <ol style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.7, paddingLeft: 16, marginBottom: 12 }}>
-                <li>Abre esta pagina en <strong>Safari</strong></li>
-                <li>Toca <strong>Compartir</strong> (cuadro con flecha)</li>
-                <li>Selecciona <strong>"Agregar a inicio"</strong></li>
-              </ol>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 6 }}>Android (Chrome)</div>
-              <ol style={{ fontSize: 12, color: "var(--text-secondary)", lineHeight: 1.7, paddingLeft: 16 }}>
-                <li>Abre en <strong>Chrome</strong></li>
-                <li>Menu de tres puntos → <strong>"Instalar app"</strong></li>
-              </ol>
-            </div>
-          </div>
-
-          {/* ─── Contacto ─── */}
-          <div style={{ padding: "20px 16px 8px" }} className="anim-section anim-d7">
-            <div className="card" style={{ textAlign: "center", padding: 18 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.07em", marginBottom: 12 }}>Contacto</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
-                  <IconTelefono size={16} color="var(--accent)" />
-                  Contacta a tu asesor asignado
-                </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, fontSize: 13, color: "var(--text-secondary)" }}>
-                  <IconUbicacion size={16} color="var(--accent)" />
-                  Cobertura en tu localidad
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* ─── CTA final ─── */}
-          <div style={{ padding: "20px 16px 8px" }}>
-            <Link href="/solicitar">
-              <button
-                className="pressable"
-                style={{
-                  width: "100%", padding: "16px",
-                  background: "linear-gradient(135deg, var(--coral) 0%, var(--coral-light) 100%)",
-                  color: "#fff", border: "none", borderRadius: 16,
-                  fontWeight: 700, fontSize: 15, cursor: "pointer",
-                  boxShadow: "0 4px 20px rgba(232,69,69,0.35)",
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                }}
-              >
-                Solicitar mi credito ahora <IconFlecha size={16} color="#fff" />
+          {/* CTA buttons */}
+          <div className="anim-section anim-d4" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
+            <button onClick={handleCTA} style={{
+              padding:"15px 32px",
+              background:"#e84545",color:"#fff",
+              border:"none",borderRadius:100,
+              fontWeight:800,fontSize:15,
+              cursor:"pointer",fontFamily:"inherit",
+              boxShadow:"0 4px 24px rgba(232,69,69,0.42)",
+              letterSpacing:"-0.01em",
+            }}>
+              {token ? "Ir a mi cuenta" : "Solicitar ahora"}
+            </button>
+            {!token && (
+              <button onClick={() => navigate("/login")} style={{
+                padding:"15px 24px",
+                background:"rgba(255,255,255,0.09)",color:"#fff",
+                border:"1.5px solid rgba(255,255,255,0.16)",borderRadius:100,
+                fontWeight:600,fontSize:15,
+                cursor:"pointer",fontFamily:"inherit",
+                backdropFilter:"blur(8px)",
+                letterSpacing:"-0.01em",
+              }}>
+                Iniciar sesion
               </button>
-            </Link>
+            )}
           </div>
 
-          {/* ─── Footer ─── */}
-          <div style={{ textAlign: "center", padding: "20px 16px 32px" }}>
-            <div style={{ display: "flex", justifyContent: "center", gap: 24, marginBottom: 10 }}>
-              <Link href="/privacidad" style={{ fontSize: 12, color: "var(--text-muted)", textDecoration: "none" }}>Privacidad</Link>
-              <Link href="/terminos"   style={{ fontSize: 12, color: "var(--text-muted)", textDecoration: "none" }}>Terminos</Link>
-            </div>
-            <div style={{ fontSize: 11, color: "var(--text-muted)" }}>HapiCredit por Grupo CAFJA · v1.0</div>
+          {/* Trust stats */}
+          <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
+            {[
+              { val:"$30K", label:"Monto maximo" },
+              { val:"24h",  label:"Aprobacion"   },
+              { val:"0%",   label:"Penalizacion"  },
+            ].map((s,i) => (
+              <div key={s.val} style={{
+                flex:1,
+                textAlign: i===0?"left": i===1?"center":"right",
+                borderRight: i<2?"1px solid rgba(255,255,255,0.09)":"none",
+                paddingRight: i<2?20:0,
+                paddingLeft: i>0?20:0,
+              }}>
+                <div style={{ fontSize:30,fontWeight:900,color:"#fff",letterSpacing:"-0.05em",lineHeight:1 }}>{s.val}</div>
+                <div style={{ fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:4,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em" }}>{s.label}</div>
+              </div>
+            ))}
           </div>
+        </section>
 
-        </div>
-      </Layout>
-    </>
+        {/* ═══════════════════════════════════════════
+            HOW IT WORKS — white
+        ═══════════════════════════════════════════ */}
+        <section style={{ background:"#fff",padding:"60px 24px" }}>
+          <div style={{ marginBottom:36 }}>
+            <div style={{ fontSize:11,fontWeight:700,color:"#e84545",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+              Tres pasos,<br />y listo.
+            </h2>
+          </div>
+          <div style={{ display:"flex",flexDirection:"column",gap:0 }}>
+            {steps.map((s,i) => (
+              <div key={i} style={{
+                display:"flex",gap:20,alignItems:"flex-start",
+                padding:"22px 0",
+                borderBottom: i<steps.length-1?"1px solid var(--border)":"none",
+              }}>
+                <div style={{
+                  width:46,height:46,borderRadius:14,flexShrink:0,
+                  background: s.active?"#e84545":"var(--bg-warm)",
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  boxShadow: s.active?"0 4px 16px rgba(232,69,69,0.35)":"none",
+                }}>
+                  <span style={{ fontSize:13,fontWeight:800,color:s.active?"#fff":"var(--text-secondary)",letterSpacing:"-0.02em" }}>{s.n}</span>
+                </div>
+                <div style={{ paddingTop:2 }}>
+                  <div style={{ fontSize:16,fontWeight:700,color:"#111",marginBottom:5,letterSpacing:"-0.025em" }}>{s.title}</div>
+                  <div style={{ fontSize:14,color:"var(--text-secondary)",lineHeight:1.65 }}>{s.body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════
+            WHY — warm bg
+        ═══════════════════════════════════════════ */}
+        <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:11,fontWeight:700,color:"#e84545",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+              Financiamiento<br />hecho para ti.
+            </h2>
+          </div>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
+            {[
+              {
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
+                iconBg:"#fef3c7",iconColor:"#d97706",
+                title:"Rapido",body:"Respuesta en menos de 24 horas, sin filas.",
+              },
+              {
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+                iconBg:"#d1fae5",iconColor:"#059669",
+                title:"Seguro",body:"Datos protegidos con cifrado de nivel bancario.",
+              },
+              {
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>,
+                iconBg:"#dbeafe",iconColor:"#2563eb",
+                title:"100% digital",body:"Solicita y gestiona desde tu telefono.",
+              },
+              {
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
+                iconBg:"#ede9fe",iconColor:"#7c3aed",
+                title:"Sin sorpresas",body:"Tasas claras, sin cargos ocultos.",
+              },
+            ].map((f,i) => (
+              <div key={i} style={{
+                background:"#fff",borderRadius:20,padding:"20px 16px",
+                border:"1px solid var(--border)",
+                boxShadow:"var(--shadow-sm)",
+              }}>
+                <div style={{
+                  width:40,height:40,borderRadius:12,flexShrink:0,
+                  background:f.iconBg,color:f.iconColor,
+                  display:"flex",alignItems:"center",justifyContent:"center",
+                  marginBottom:12,
+                }}>
+                  {f.icon}
+                </div>
+                <div style={{ fontSize:14,fontWeight:700,color:"#111",marginBottom:4,letterSpacing:"-0.02em" }}>{f.title}</div>
+                <div style={{ fontSize:12,color:"var(--text-secondary)",lineHeight:1.6 }}>{f.body}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════
+            CONDITIONS — white
+        ═══════════════════════════════════════════ */}
+        <section style={{ background:"#fff",padding:"60px 24px" }}>
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:11,fontWeight:700,color:"#e84545",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+              Claro y<br />sin sorpresas.
+            </h2>
+          </div>
+          <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
+            {[
+              { label:"Montos disponibles",       value:"$1,000 – $30,000 MXN" },
+              { label:"Plazos",                   value:"4 – 52 semanas"        },
+              { label:"Frecuencia de pago",       value:"Semanal"               },
+              { label:"Penalizacion anticipada",  value:"Ninguna"               },
+              { label:"Respuesta",                value:"Menos de 24 horas"     },
+            ].map((c,i) => (
+              <div key={i} style={{
+                display:"flex",justifyContent:"space-between",alignItems:"center",
+                padding:"16px 20px",
+                background:"var(--bg-warm)",borderRadius:14,
+                border:"1px solid var(--border)",
+              }}>
+                <span style={{ fontSize:14,color:"var(--text-secondary)",fontWeight:500 }}>{c.label}</span>
+                <span style={{ fontSize:14,fontWeight:700,color:"#111",letterSpacing:"-0.01em" }}>{c.value}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════
+            FAQ
+        ═══════════════════════════════════════════ */}
+        <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
+          <div style={{ marginBottom:32 }}>
+            <div style={{ fontSize:11,fontWeight:700,color:"#e84545",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+              Resolvemos<br />tus dudas.
+            </h2>
+          </div>
+          <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
+            {faqs.map((f,i) => (
+              <div key={i} style={{
+                background:"#fff",borderRadius:18,
+                border:"1px solid var(--border)",
+                overflow:"hidden",
+                boxShadow: openFaq===i?"var(--shadow-md)":"var(--shadow-xs)",
+                transition:"box-shadow 0.2s",
+              }}>
+                <button
+                  onClick={() => setOpenFaq(openFaq===i?null:i)}
+                  style={{
+                    width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",
+                    padding:"18px 20px",background:"none",border:"none",cursor:"pointer",
+                    fontFamily:"inherit",textAlign:"left",
+                  }}
+                >
+                  <span style={{ fontSize:15,fontWeight:700,color:"#111",letterSpacing:"-0.02em",paddingRight:12 }}>{f.q}</span>
+                  <span style={{
+                    width:28,height:28,borderRadius:8,flexShrink:0,
+                    background: openFaq===i?"#e84545":"var(--bg-warm)",
+                    display:"flex",alignItems:"center",justifyContent:"center",
+                    transition:"background 0.2s",
+                  }}>
+                    <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                      <path d={openFaq===i?"M2 6h8":"M6 2v8M2 6h8"} stroke={openFaq===i?"#fff":"#6b6b6b"} strokeWidth="1.8" strokeLinecap="round"/>
+                    </svg>
+                  </span>
+                </button>
+                <div className={`faq-answer${openFaq===i?" open":""}`}>
+                  <div style={{ padding:"0 20px 18px",fontSize:14,color:"var(--text-secondary)",lineHeight:1.7 }}>{f.a}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════
+            FINAL CTA — coral
+        ═══════════════════════════════════════════ */}
+        <section style={{
+          background:"linear-gradient(135deg,#e84545 0%,#c73333 100%)",
+          padding:"56px 24px 64px",
+          textAlign:"center",
+        }}>
+          <div style={{
+            width:56,height:56,borderRadius:18,
+            background:"rgba(255,255,255,0.20)",
+            display:"flex",alignItems:"center",justifyContent:"center",
+            margin:"0 auto 20px",
+          }}>
+            <HapiIcon size={28} color="#fff" />
+          </div>
+          <h2 style={{ fontSize:30,fontWeight:900,color:"#fff",letterSpacing:"-0.04em",margin:"0 0 12px",lineHeight:1.12 }}>
+            Empieza hoy<br />sin compromiso
+          </h2>
+          <p style={{ color:"rgba(255,255,255,0.72)",fontSize:15,margin:"0 0 32px",lineHeight:1.65 }}>
+            Registrate gratis. La solicitud toma menos de 5 minutos.
+          </p>
+          <button onClick={handleCTA} style={{
+            padding:"16px 40px",
+            background:"#fff",color:"#e84545",
+            border:"none",borderRadius:100,
+            fontWeight:800,fontSize:16,
+            cursor:"pointer",fontFamily:"inherit",
+            letterSpacing:"-0.02em",
+            boxShadow:"0 4px 24px rgba(0,0,0,0.20)",
+          }}>
+            {token?"Ir a mi cuenta":"Crear cuenta gratis"}
+          </button>
+        </section>
+
+        {/* FOOTER */}
+        <footer style={{ background:"#0d1117",padding:"36px 24px 48px",color:"rgba(255,255,255,0.32)" }}>
+          <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:16 }}>
+            <HapiIcon size={16} color="#e84545" />
+            <span style={{ fontWeight:800,fontSize:14,color:"rgba(255,255,255,0.65)",letterSpacing:"-0.03em" }}>
+              Hapi<span style={{ color:"#e84545" }}>Credit</span>
+            </span>
+          </div>
+          <div style={{ fontSize:12,lineHeight:1.7,marginBottom:20 }}>
+            Grupo CAFJA · Servicios financieros responsables<br />para el crecimiento de tu negocio.
+          </div>
+          <div style={{ display:"flex",gap:20,flexWrap:"wrap" }}>
+            {["Aviso de privacidad","Terminos y condiciones","Contacto"].map(t => (
+              <a key={t} href="#" style={{ fontSize:12,color:"rgba(255,255,255,0.32)",textDecoration:"none" }}>{t}</a>
+            ))}
+          </div>
+          <div style={{ marginTop:24,fontSize:11,color:"rgba(255,255,255,0.18)" }}>
+            © 2025 HapiCredit by Grupo CAFJA. Todos los derechos reservados.
+          </div>
+        </footer>
+
+      </div>
+    </Layout>
   );
 }
