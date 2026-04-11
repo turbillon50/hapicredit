@@ -23,6 +23,11 @@ app.use(
   }),
 );
 
+// Health check must be before Clerk middleware so it works even without Clerk keys
+app.get("/api/healthz", (_req, res) => {
+  res.json({ status: "ok" });
+});
+
 // Clerk proxy must be before body parsers (streams raw bytes)
 app.use(CLERK_PROXY_PATH, clerkProxyMiddleware());
 
