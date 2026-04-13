@@ -24,7 +24,7 @@ function formatDate(d: string) {
 
 export default function AdminCodigos() {
   const [generating, setGenerating] = useState(false);
-  const [newRole, setNewRole] = useState<"executive" | "client">("executive");
+  const [newRole, setNewRole] = useState<"executive" | "client" | "admin">("executive");
   const [copied, setCopied] = useState<string | null>(null);
   const [emailModal, setEmailModal] = useState<Code | null>(null);
   const [emailTo, setEmailTo] = useState("");
@@ -65,18 +65,45 @@ export default function AdminCodigos() {
   }
 
   function openWhatsApp(code: string, role: string) {
-    const roleLabel = ROLE_LABEL[role];
-    const expires = "30 dias";
-    const msg = encodeURIComponent(
-      `*HapiCredit — Invitación de registro*\n\n` +
-      `Hola! Te han dado de alta en la plataforma HapiCredit como *${roleLabel}*.\n\n` +
-      `Tu código de registro (único e intransferible):\n` +
-      `*${code}*\n\n` +
-      `Regístrate aquí:\nhttps://hapicredit.live/registro\n\n` +
-      `_Válido por ${expires}. Código de un solo uso._\n\n` +
-      `*HapiCredit* — Tu crédito, Tu impulso`
-    );
-    window.open(`https://wa.me/?text=${msg}`, "_blank");
+    const appBase = window.location.origin + (import.meta.env.BASE_URL?.replace(/\/$/, "") ?? "");
+    const link = `${appBase}/registro?inv=${code}`;
+    let text = "";
+
+    if (role === "admin") {
+      text =
+        `*HapiCredit — Invitación de Administrador*\n\n` +
+        `Hola! Eres parte del equipo directivo de *HapiCredit* como *Administrador*.\n\n` +
+        `Para comenzar:\n` +
+        `1. Abre este enlace: ${link}\n` +
+        `2. Ingresa la clave de acceso institucional\n` +
+        `3. Crea tu cuenta con correo y verifícala\n` +
+        `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
+        `_Válido 30 días · Código de un solo uso_\n\n` +
+        `*HapiCredit* — Tu crédito, Tu impulso`;
+    } else if (role === "executive") {
+      text =
+        `*HapiCredit — Invitación de Asesor*\n\n` +
+        `Hola! Te invito a ser parte del equipo de asesores de *HapiCredit*.\n\n` +
+        `Para registrarte como *Asesor*:\n` +
+        `1. Entra a: ${link}\n` +
+        `2. Ingresa la clave de acceso que te compartí\n` +
+        `3. Crea tu cuenta con correo y verifícala\n` +
+        `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
+        `_Válido 30 días · Código de un solo uso_\n\n` +
+        `*HapiCredit* — Tu crédito, Tu impulso`;
+    } else {
+      text =
+        `*HapiCredit — Tu acceso está listo*\n\n` +
+        `Hola! Tu acceso a *HapiCredit* ha sido habilitado.\n\n` +
+        `Para registrarte y consultar tu crédito:\n` +
+        `1. Entra a este enlace: ${link}\n` +
+        `2. Crea tu cuenta con correo y verifícala\n` +
+        `3. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
+        `_Válido 30 días · Código de un solo uso_\n\n` +
+        `*HapiCredit* — Tu crédito, Tu impulso`;
+    }
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
   function openEmailModal(c: Code) {
@@ -131,15 +158,20 @@ export default function AdminCodigos() {
               <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar codigo</h3>
               <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>Selecciona el rol para el que generaras el codigo:</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
-                {(userRole === "admin" ? ["executive", "client"] : ["client"]).map(r => (
+                {(userRole === "admin" ? ["admin", "executive", "client"] : ["client"]).map(r => (
                   <button
                     key={r}
-                    onClick={() => setNewRole(r as "executive" | "client")}
+                    onClick={() => setNewRole(r as "executive" | "client" | "admin")}
                     style={{ padding: "14px 16px", borderRadius: 12, border: `2px solid ${newRole === r ? ROLE_COLOR[r].color : "#e2e8f0"}`, background: newRole === r ? ROLE_COLOR[r].bg : "white", cursor: "pointer", textAlign: "left", fontWeight: 600, color: newRole === r ? ROLE_COLOR[r].color : "#374151" }}
                   >
                     {ROLE_LABEL[r]}
                   </button>
                 ))}
+                {newRole === "admin" && (
+                  <div style={{ fontSize: 12, color: "#7c3aed", background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
+                    El administrador invitado tendrá su propio árbol independiente. Comparte la clave de acceso institucional por separado.
+                  </div>
+                )}
               </div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button onClick={() => setGenerating(false)} style={{ flex: 1, padding: "12px", border: "1.5px solid #e2e8f0", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
@@ -210,7 +242,12 @@ export default function AdminCodigos() {
                     <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: "0.12em", color: "var(--navy-800)", fontFamily: "monospace" }}>{c.code}</span>
                     <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: ROLE_COLOR[c.role]?.bg, color: ROLE_COLOR[c.role]?.color }}>{ROLE_LABEL[c.role]}</span>
                   </div>
-                  <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: 12 }}>Expira: {formatDate(c.expiresAt)}</p>
+                  <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: c.role === "admin" ? 8 : 12 }}>Expira: {formatDate(c.expiresAt)}</p>
+                  {c.role === "admin" && (
+                    <p style={{ fontSize: 11, color: "#7c3aed", background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "6px 10px", marginBottom: 12, lineHeight: 1.5 }}>
+                      Recuerda compartir la clave institucional por separado
+                    </p>
+                  )}
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "#f0fdf4" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                       {copied === c.code ? "Copiado" : "Copiar"}
