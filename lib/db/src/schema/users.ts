@@ -9,7 +9,8 @@ export const usersTable = pgTable("users", {
   fullName: text("full_name").notNull(),
   email: text("email"),
   role: text("role").notNull().default("executive"), // admin | executive | client
-  parentId: integer("parent_id"), // FK to users.id — who invited this user
+  parentId: integer("parent_id"),   // FK to users.id — who invited this user
+  treeId: integer("tree_id"),       // FK to root admin's user id — identifies the tree
   isActive: boolean("is_active").notNull().default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),

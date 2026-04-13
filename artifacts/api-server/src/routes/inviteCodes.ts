@@ -3,7 +3,6 @@ import { eq, and, isNull, gt, sql } from "drizzle-orm";
 import { db, inviteCodesTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import crypto from "crypto";
-import { sendInviteCodeEmail } from "../lib/email";
 
 const router: IRouter = Router();
 
@@ -11,13 +10,11 @@ function generateCode(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 chars
 }
 
-// Generate invite code (admin → executive, executive → client)
+// Generate invite code (admin → executive, exec → client)
 router.post("/invite-codes/generate", requireAuth, async (req, res): Promise<void> => {
   const { role } = req.body;
-
   const userRole = req.userRole;
 
-  // Validate role hierarchy
   if (userRole === "admin" && !["executive", "client"].includes(role)) {
     res.status(400).json({ error: "Admin solo puede generar códigos para asesores o acreditados" });
     return;
@@ -32,7 +29,7 @@ router.post("/invite-codes/generate", requireAuth, async (req, res): Promise<voi
   }
 
   const code = generateCode();
-  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 días
+  const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
   const [newCode] = await db.insert(inviteCodesTable).values({
     code,
@@ -46,7 +43,7 @@ router.post("/invite-codes/generate", requireAuth, async (req, res): Promise<voi
   res.json({ code: newCode.code, role: newCode.role, expiresAt: newCode.expiresAt });
 });
 
-// List codes I created
+// List all codes I created
 router.get("/invite-codes/mine", requireAuth, async (req, res): Promise<void> => {
   const codes = await db
     .select({
@@ -61,9 +58,25 @@ router.get("/invite-codes/mine", requireAuth, async (req, res): Promise<void> =>
     })
     .from(inviteCodesTable)
     .leftJoin(usersTable, eq(inviteCodesTable.usedById, usersTable.id))
-    .where(eq(inviteCodesTable.createdById, req.userId!));
+    .where(eq(inviteCodesTable.createdById, req.userId!))
+    .orderBy(inviteCodesTable.createdAt);
 
   res.json(codes);
+});
+
+// Deactivate / delete a code
+router.delete("/invite-codes/:id", requireAuth, async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id);
+  if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
+
+  const [code] = await db.select().from(inviteCodesTable).where(eq(inviteCodesTable.id, id));
+  if (!code) { res.status(404).json({ error: "Código no encontrado" }); return; }
+  if (code.createdById !== req.userId && req.userRole !== "admin") {
+    res.status(403).json({ error: "No tienes permiso" }); return;
+  }
+
+  await db.update(inviteCodesTable).set({ isActive: false }).where(eq(inviteCodesTable.id, id));
+  res.json({ success: true });
 });
 
 // Validate a code (public — used before registration)
@@ -71,10 +84,18 @@ router.get("/invite-codes/validate/:code", async (req, res): Promise<void> => {
   const { code } = req.params;
   const now = new Date();
 
-  // Case-insensitive lookup: lower(code) = lower(input)
   const [found] = await db
-    .select()
+    .select({
+      id: inviteCodesTable.id,
+      code: inviteCodesTable.code,
+      role: inviteCodesTable.role,
+      createdById: inviteCodesTable.createdById,
+      parentId: inviteCodesTable.parentId,
+      expiresAt: inviteCodesTable.expiresAt,
+      creatorName: usersTable.fullName,
+    })
     .from(inviteCodesTable)
+    .leftJoin(usersTable, eq(inviteCodesTable.createdById, usersTable.id))
     .where(
       and(
         sql`lower(${inviteCodesTable.code}) = lower(${code})`,
@@ -89,84 +110,7 @@ router.get("/invite-codes/validate/:code", async (req, res): Promise<void> => {
     return;
   }
 
-  // If admin code (not staff), check max 2 admins
-  if (found.role === "admin") {
-    const adminCount = await db
-      .select({ id: usersTable.id })
-      .from(usersTable)
-      .where(eq(usersTable.role, "admin"));
-
-    if (adminCount.length >= 2) {
-      res.status(400).json({ error: "Límite de administradores alcanzado" });
-      return;
-    }
-  }
-
-  // Return the actual stored code (so clerk-sync can find it exactly)
-  res.json({ valid: true, role: found.role, code: found.code });
-});
-
-// Request a code (public — no auth needed, generates a client code)
-router.post("/invite-codes/request", async (req, res): Promise<void> => {
-  const code = generateCode();
-  const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
-
-  const [newCode] = await db.insert(inviteCodesTable).values({
-    code,
-    role: "client",
-    createdById: null,
-    parentId: null,
-    isActive: true,
-    expiresAt,
-  }).returning();
-
-  res.json({ code: newCode.code, expiresAt: newCode.expiresAt });
-});
-
-// Send invite code by email
-router.post("/invite-codes/send-email", requireAuth, async (req, res): Promise<void> => {
-  const { code, toEmail, toName } = req.body;
-  if (!code || !toEmail) {
-    res.status(400).json({ error: "Se requiere codigo y correo destino" });
-    return;
-  }
-
-  const now = new Date();
-  const [found] = await db
-    .select({ code: inviteCodesTable.code, role: inviteCodesTable.role, expiresAt: inviteCodesTable.expiresAt, createdById: inviteCodesTable.createdById })
-    .from(inviteCodesTable)
-    .where(
-      and(
-        eq(inviteCodesTable.code, code.toUpperCase()),
-        eq(inviteCodesTable.isActive, true),
-        isNull(inviteCodesTable.usedById),
-        gt(inviteCodesTable.expiresAt, now),
-      )
-    );
-
-  if (!found) {
-    res.status(404).json({ error: "Codigo invalido, usado o expirado" });
-    return;
-  }
-
-  // Verify ownership
-  if (found.createdById !== req.userId) {
-    res.status(403).json({ error: "No tienes permiso para compartir este codigo" });
-    return;
-  }
-
-  const [inviter] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
-
-  await sendInviteCodeEmail({
-    to: toEmail,
-    inviteeName: toName,
-    code: found.code,
-    role: found.role,
-    inviterName: inviter?.fullName || "HapiCredit",
-    expiresAt: found.expiresAt,
-  });
-
-  res.json({ success: true });
+  res.json({ valid: true, role: found.role, code: found.code, creatorName: found.creatorName });
 });
 
 export default router;

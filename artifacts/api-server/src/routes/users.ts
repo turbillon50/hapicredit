@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { eq, and, isNull } from "drizzle-orm";
+import { db, usersTable, clientsTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
 import crypto from "crypto";
@@ -18,14 +18,20 @@ function formatUser(user: typeof usersTable.$inferSelect) {
     fullName: user.fullName,
     email: user.email,
     role: user.role,
+    parentId: user.parentId,
+    treeId: user.treeId,
     isActive: user.isActive,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
   };
 }
 
-router.get("/users", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
-  const users = await db.select().from(usersTable).orderBy(usersTable.fullName);
+// List users — admin sees only their own tree
+router.get("/users", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const treeId = req.userTreeId;
+  const users = treeId
+    ? await db.select().from(usersTable).where(eq(usersTable.treeId, treeId)).orderBy(usersTable.fullName)
+    : await db.select().from(usersTable).orderBy(usersTable.fullName);
   res.json(users.map(formatUser));
 });
 
@@ -50,7 +56,6 @@ router.get("/users/:id", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  // Only admin or self
   if (req.userRole !== "admin" && req.userId !== params.data.id) {
     res.status(403).json({ error: "Forbidden" });
     return;
@@ -96,41 +101,100 @@ router.patch("/users/:id", requireAuth, requireRole("admin"), async (req, res): 
   res.json(formatUser(user));
 });
 
-// Genealogical tree: current user → their invited users → their invited users
+// ─── Genealogical tree (admin sees full tree, exec sees their clients) ─────────
 router.get("/users/my-tree", requireAuth, async (req, res): Promise<void> => {
   const me = req.userId!;
+  const myRole = req.userRole;
+  const myTreeId = req.userTreeId;
 
-  const level1Full = await db.select().from(usersTable).where(eq(usersTable.parentId, me));
-  const level2Full: (typeof usersTable.$inferSelect)[] = [];
-  for (const l1 of level1Full) {
-    const children = await db.select().from(usersTable).where(eq(usersTable.parentId, l1.id));
-    level2Full.push(...children);
+  if (myRole === "admin") {
+    // Admin: load full tree — all users in same tree_id
+    if (!myTreeId) {
+      res.json({ id: me, children: [] });
+      return;
+    }
+
+    const allUsers = await db.select().from(usersTable).where(eq(usersTable.treeId, myTreeId));
+    const allClients = await db.select().from(clientsTable);
+
+    // Build tree: admin → executives → clients
+    const executives = allUsers.filter(u => u.role === "executive");
+    const clients = allUsers.filter(u => u.role === "client");
+
+    // Also include clients registered in clientsTable (not as users but as client records)
+    const execTree = executives.map(exec => {
+      const execClients = allClients.filter(c => c.executiveId === exec.id);
+      return {
+        id: exec.id,
+        fullName: exec.fullName,
+        role: exec.role,
+        email: exec.email,
+        username: exec.username,
+        isActive: exec.isActive,
+        createdAt: exec.createdAt,
+        clientCount: execClients.length,
+        children: execClients.map(c => ({
+          id: c.id,
+          fullName: c.fullName,
+          role: "client",
+          phone: c.phone,
+          status: c.status,
+          registeredAt: c.registeredAt,
+          children: [],
+        })),
+      };
+    });
+
+    // Standalone user-clients (registered via app)
+    const standaloneClients = clients.filter(c => !executives.some(e => e.id === c.parentId));
+
+    res.json({
+      id: me,
+      children: [
+        ...execTree,
+        ...standaloneClients.map(c => ({
+          id: c.id,
+          fullName: c.fullName,
+          role: c.role,
+          email: c.email,
+          username: c.username,
+          isActive: c.isActive,
+          createdAt: c.createdAt,
+          children: [],
+        })),
+      ],
+    });
+    return;
   }
 
-  const result = {
+  // Executive: show their recruited users + client records
+  const level1Full = await db.select().from(usersTable).where(eq(usersTable.parentId, me));
+  const clientRecords = await db.select().from(clientsTable).where(eq(clientsTable.executiveId, me));
+
+  res.json({
     id: me,
-    children: level1Full.map(l1 => ({
-      id: l1.id,
-      fullName: l1.fullName,
-      role: l1.role,
-      email: l1.email,
-      username: l1.username,
-      isActive: l1.isActive,
-      createdAt: l1.createdAt,
-      children: level2Full.filter(l2 => l2.parentId === l1.id).map(l2 => ({
-        id: l2.id,
-        fullName: l2.fullName,
-        role: l2.role,
-        email: l2.email,
-        username: l2.username,
-        isActive: l2.isActive,
-        createdAt: l2.createdAt,
+    children: [
+      ...level1Full.map(u => ({
+        id: u.id,
+        fullName: u.fullName,
+        role: u.role,
+        email: u.email,
+        username: u.username,
+        isActive: u.isActive,
+        createdAt: u.createdAt,
         children: [],
       })),
-    })),
-  };
-
-  res.json(result);
+      ...clientRecords.map(c => ({
+        id: c.id,
+        fullName: c.fullName,
+        role: "client",
+        phone: c.phone,
+        status: c.status,
+        registeredAt: c.registeredAt,
+        children: [],
+      })),
+    ],
+  });
 });
 
 export default router;
