@@ -152,13 +152,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
 
   // ── Path 1: Staff registration via master password ──────────────────────────
   if (staffPassword && staffPassword === masterCode && requestedRole && ["admin", "executive"].includes(requestedRole)) {
-    if (requestedRole === "admin") {
-      const admins = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "admin"));
-      if (admins.length >= 2) {
-        res.status(400).json({ error: "Límite de 2 administradores alcanzado" });
-        return;
-      }
-    }
+    if (false) { /* admin limit removed for testing */ }
     const username = await makeUsername(email);
     const [newUser] = await db.insert(usersTable).values({
       username,
@@ -271,14 +265,7 @@ router.post("/auth/register-staff", async (req, res): Promise<void> => {
     return;
   }
 
-  // Admins with master code are tree roots. Max 2 independent admins (= 2 trees).
-  if (role === "admin") {
-    const admins = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "admin"));
-    if (admins.length >= 2) {
-      res.status(400).json({ error: "Límite de 2 administradores alcanzado. Cada árbol tiene su propio admin." });
-      return;
-    }
-  }
+  // Admin limit removed for testing — will be re-enabled after initial setup
 
   const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
   if (existing.length) {
