@@ -10,32 +10,55 @@ function generateCode(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 chars
 }
 
-// Generate invite code (admin → executive, exec → client)
+// Generate invite code
+// admin → can invite: executive, client, admin (admin invite = independent tree, max 1 admin invite active)
+// executive → can invite: client only
 router.post("/invite-codes/generate", requireAuth, async (req, res): Promise<void> => {
   const { role } = req.body;
   const userRole = req.userRole;
 
-  if (userRole === "admin" && !["executive", "client"].includes(role)) {
-    res.status(400).json({ error: "Admin solo puede generar códigos para asesores o acreditados" });
-    return;
+  if (userRole === "client") {
+    res.status(403).json({ error: "Sin permiso para generar códigos" }); return;
   }
   if (userRole === "executive" && role !== "client") {
-    res.status(400).json({ error: "Asesor solo puede generar códigos para acreditados" });
-    return;
+    res.status(400).json({ error: "Asesor solo puede generar códigos para acreditados" }); return;
   }
-  if (userRole === "client") {
-    res.status(403).json({ error: "Sin permiso para generar códigos" });
-    return;
+  if (userRole === "admin" && !["executive", "client", "admin"].includes(role)) {
+    res.status(400).json({ error: "Rol inválido" }); return;
+  }
+
+  // Admin invite: check there are no more than 2 total admins already
+  if (role === "admin") {
+    const admins = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "admin"));
+    if (admins.length >= 2) {
+      res.status(400).json({ error: "Ya existen 2 administradores. Límite alcanzado." }); return;
+    }
+    // Check no active admin invite code already
+    const existing = await db.select({ id: inviteCodesTable.id })
+      .from(inviteCodesTable)
+      .where(and(
+        eq(inviteCodesTable.createdById, req.userId!),
+        eq(inviteCodesTable.role, "admin"),
+        eq(inviteCodesTable.isActive, true),
+        isNull(inviteCodesTable.usedById),
+        gt(inviteCodesTable.expiresAt, new Date()),
+      ));
+    if (existing.length > 0) {
+      res.status(400).json({ error: "Ya tienes un código de administrador activo. Bórralo primero." }); return;
+    }
   }
 
   const code = generateCode();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
+  // Admin invites: parentId = null so the new admin creates an independent tree
+  const parentId = role === "admin" ? null : req.userId!;
+
   const [newCode] = await db.insert(inviteCodesTable).values({
     code,
     role,
     createdById: req.userId!,
-    parentId: req.userId!,
+    parentId,
     isActive: true,
     expiresAt,
   }).returning();

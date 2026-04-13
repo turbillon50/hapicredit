@@ -49,13 +49,20 @@ export default function Registro() {
       if (data.valid) {
         setInviteValid(true);
         setInviteCreator(data.creatorName ?? "HapiCredit");
-        const r2: Role = data.role === "executive" ? "executive" : "client";
+        const r2: Role = data.role === "admin" ? "admin" : data.role === "executive" ? "executive" : "client";
         setInviteRole(r2);
         setRole(r2);
-        // Auto-proceed: store invite code and go to Clerk sign-up
-        localStorage.setItem("hapi_pending_role", r2);
         localStorage.setItem("hapi_pending_code", code.toUpperCase());
-        localStorage.removeItem("hapi_pending_staff_pass");
+        if (r2 === "admin" || r2 === "executive") {
+          // Staff roles still require the institutional password — go to step 2
+          localStorage.setItem("hapi_pending_role", r2);
+          localStorage.removeItem("hapi_pending_staff_pass");
+          setStep(2);
+        } else {
+          // Client: auto-proceed to Clerk sign-up
+          localStorage.setItem("hapi_pending_role", r2);
+          localStorage.removeItem("hapi_pending_staff_pass");
+        }
       } else {
         setInviteValid(false);
       }
@@ -142,7 +149,7 @@ export default function Registro() {
       )}
       {!validating && inviteCode && inviteValid === true && (
         <div style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.3)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "#4ade80", fontSize: 13, textAlign: "center", width: "100%", maxWidth: 420 }}>
-          Invitación de <strong>{inviteCreator}</strong> · Rol: <strong>{inviteRole === "executive" ? "Asesor" : "Acreditado"}</strong>
+          Invitación de <strong>{inviteCreator}</strong> · Rol: <strong>{inviteRole === "admin" ? "Administrador" : inviteRole === "executive" ? "Asesor" : "Acreditado"}</strong>
         </div>
       )}
       {!validating && inviteCode && inviteValid === false && (

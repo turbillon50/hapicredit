@@ -70,7 +70,7 @@ function IconMas({ size = 18 }: { size?: number }) {
 /* ─── Invite Codes Section ─────────────────────────────────────────────────── */
 function InviteCodes({ userRole }: { userRole: string }) {
   const qc = useQueryClient();
-  const [generating, setGenerating] = useState<"executive" | "client" | null>(null);
+  const [generating, setGenerating] = useState<"executive" | "client" | "admin" | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
 
   const appBase = window.location.origin + import.meta.env.BASE_URL?.replace(/\/$/, "");
@@ -84,7 +84,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
     },
   });
 
-  async function generate(role: "executive" | "client") {
+  async function generate(role: "executive" | "client" | "admin") {
     setGenerating(role);
     try {
       const r = await fetch(`${API}/invite-codes/generate`, {
@@ -115,47 +115,95 @@ function InviteCodes({ userRole }: { userRole: string }) {
 
   function shareWhatsApp(code: string, role: string) {
     const link = `${appBase}/registro?inv=${code}`;
-    const roleTxt = role === "executive" ? "asesor" : "acreditado";
-    const text = encodeURIComponent(
-      `¡Hola! Te invito a unirte a HapiCredit como ${roleTxt}.\n\nRegistrate con este enlace:\n${link}\n\n_HapiCredit — Tu crédito, Tu impulso_`
-    );
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    let text = "";
+
+    if (role === "admin") {
+      text = `¡Hola! Eres parte del equipo directivo de *HapiCredit* como *Administrador*.\n\n` +
+        `Para comenzar:\n` +
+        `1. Abre este enlace en tu cel: ${link}\n` +
+        `2. Ingresa la clave de acceso institucional\n` +
+        `3. Crea tu cuenta con correo y verifica\n` +
+        `4. Instala la app: toca el menú de tu navegador → *"Agregar a inicio"*\n\n` +
+        `_HapiCredit — Tu crédito, Tu impulso_`;
+    } else if (role === "executive") {
+      text = `¡Hola! Te invito a ser parte del equipo de asesores de *HapiCredit*.\n\n` +
+        `Para registrarte como *Asesor*:\n` +
+        `1. Entra a: ${link}\n` +
+        `2. Ingresa la clave de acceso que te compartí\n` +
+        `3. Crea tu cuenta con correo y verifica\n` +
+        `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
+        `_HapiCredit — Tu crédito, Tu impulso_`;
+    } else {
+      text = `¡Hola! Tu acceso a *HapiCredit* ya está listo.\n\n` +
+        `Para registrarte y consultar tu crédito:\n` +
+        `1. Entra a este enlace: ${link}\n` +
+        `2. Crea tu cuenta con correo y verifica\n` +
+        `3. Instala la app: toca menú del navegador → *"Agregar a inicio"*\n\n` +
+        `¡Bienvenido/a! _HapiCredit — Tu crédito, Tu impulso_`;
+    }
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
   }
 
   const activeCodes = (codes as any[]).filter((c: any) => c.isActive && !c.usedAt);
   const usedCodes   = (codes as any[]).filter((c: any) => c.usedAt);
 
-  const canGenExec = userRole === "admin";
+  const canGenAdmin  = userRole === "admin";
+  const canGenExec   = userRole === "admin";
   const canGenClient = userRole === "admin" || userRole === "executive";
+
+  function roleBadgeStyle(role: string) {
+    if (role === "admin")     return { background: "#f5f3ff", color: "#7c3aed" };
+    if (role === "executive") return { background: "#eff6ff", color: "#2563eb" };
+    return { background: "#f0fdf4", color: "#16a34a" };
+  }
+  function roleLabel2(role: string) {
+    if (role === "admin")     return "Administrador";
+    if (role === "executive") return "Asesor";
+    return "Acreditado";
+  }
 
   return (
     <div className="flex flex-col gap-3">
       <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Códigos de invitación</div>
 
       {/* Generate buttons */}
-      <div className="flex gap-2">
-        {canGenExec && (
+      <div className="flex flex-col gap-2">
+        {canGenAdmin && (
           <button
-            onClick={() => generate("executive")}
-            disabled={generating === "executive"}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
-            style={{ background: "#eff6ff", color: "#2563eb" }}
+            onClick={() => generate("admin")}
+            disabled={generating === "admin"}
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
+            style={{ background: "#f5f3ff", color: "#7c3aed" }}
           >
-            {generating === "executive" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
-            Asesor
+            {generating === "admin" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
+            Invitar Administrador
           </button>
         )}
-        {canGenClient && (
-          <button
-            onClick={() => generate("client")}
-            disabled={generating === "client"}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
-            style={{ background: "#f0fdf4", color: "#16a34a" }}
-          >
-            {generating === "client" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
-            Acreditado
-          </button>
-        )}
+        <div className="flex gap-2">
+          {canGenExec && (
+            <button
+              onClick={() => generate("executive")}
+              disabled={generating === "executive"}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
+              style={{ background: "#eff6ff", color: "#2563eb" }}
+            >
+              {generating === "executive" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
+              Asesor
+            </button>
+          )}
+          {canGenClient && (
+            <button
+              onClick={() => generate("client")}
+              disabled={generating === "client"}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
+              style={{ background: "#f0fdf4", color: "#16a34a" }}
+            >
+              {generating === "client" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
+              Acreditado
+            </button>
+          )}
+        </div>
       </div>
 
       {isLoading && <div className="text-xs text-gray-400 text-center py-3">Cargando...</div>}
@@ -169,18 +217,22 @@ function InviteCodes({ userRole }: { userRole: string }) {
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <span className="font-mono text-base font-bold text-gray-900">{c.code}</span>
-                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full font-semibold"
-                    style={c.role === "executive" ? { background: "#eff6ff", color: "#2563eb" } : { background: "#f0fdf4", color: "#16a34a" }}>
-                    {c.role === "executive" ? "Asesor" : "Acreditado"}
+                  <span className="ml-2 text-xs px-2 py-0.5 rounded-full font-semibold" style={roleBadgeStyle(c.role)}>
+                    {roleLabel2(c.role)}
                   </span>
                 </div>
                 <button onClick={() => deleteMut.mutate(c.id)} className="w-7 h-7 rounded-lg flex items-center justify-center pressable" style={{ background: "#fff0f0" }}>
                   <IconTrash size={13} color="#ef4444" />
                 </button>
               </div>
-              <div className="text-xs text-gray-400 mb-3">
+              <div className="text-xs text-gray-400 mb-2">
                 Expira: {new Date(c.expiresAt).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
               </div>
+              {c.role === "admin" && (
+                <div className="text-xs rounded-lg px-2.5 py-1.5 mb-2 font-medium" style={{ background: "#faf5ff", color: "#7c3aed", border: "1px solid #e9d5ff" }}>
+                  Recuerda compartir la clave de acceso institucional por separado
+                </div>
+              )}
               <div className="flex gap-2">
                 <button
                   onClick={() => shareWhatsApp(c.code, c.role)}
