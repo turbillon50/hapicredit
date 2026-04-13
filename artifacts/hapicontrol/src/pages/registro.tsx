@@ -1,48 +1,35 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
 
-const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
 
 type Role = "client" | "executive" | "admin";
 
-function roleHome(role: string) {
-  if (role === "admin")     return "/admin";
-  if (role === "executive") return "/dashboard";
-  return "/mi-credito";
-}
-
 const roles: { id: Role; label: string; sublabel: string; desc: string; color: string; bg: string; border: string }[] = [
-  { id: "client",    label: "Acreditado",    sublabel: "Cliente de credito",    desc: "Solicita y administra tus creditos personales o de negocio.", color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" },
-  { id: "executive", label: "Asesor",         sublabel: "Ejecutivo de campo",    desc: "Gestiona clientes, cobra pagos y da seguimiento a tu cartera.", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
-  { id: "admin",     label: "Administrador",  sublabel: "Control total",         desc: "Acceso completo a cartera, reportes, usuarios y arbol de red.", color: "#7c3aed", bg: "#f5f3ff", border: "#ddd6fe" },
+  { id: "client",    label: "Acreditado",   sublabel: "Cliente de crédito",  desc: "Solicita y administra tus créditos personales o de negocio.", color: "#059669", bg: "#f0fdf4", border: "#bbf7d0" },
+  { id: "executive", label: "Asesor",        sublabel: "Ejecutivo de campo",  desc: "Gestiona clientes, cobra pagos y da seguimiento a tu cartera.", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+  { id: "admin",     label: "Administrador", sublabel: "Control total",       desc: "Acceso completo a cartera, reportes, usuarios y árbol de red.", color: "#7c3aed", bg: "#f5f3ff", border: "#ddd6fe" },
 ];
 
 export default function Registro() {
   const [, navigate] = useLocation();
 
-  // ── Invite code from URL (e.g. /registro?inv=ABCD1234) ──
+  // ── Invite code from URL ─────────────────────────────────────────────────────
   const [inviteCode,    setInviteCode]    = useState("");
   const [inviteValid,   setInviteValid]   = useState<boolean | null>(null);
   const [inviteCreator, setInviteCreator] = useState("");
   const [inviteRole,    setInviteRole]    = useState<Role | null>(null);
   const [validating,    setValidating]    = useState(false);
 
-  const [step,           setStep]           = useState<1 | 2 | 3>(1);
-  const [role,           setRole]           = useState<Role | null>(null);
-  const [staffPass,      setStaffPass]      = useState("");
-  const [showPass,       setShowPass]       = useState(false);
-  const [staffError,     setStaffError]     = useState("");
-  const [checkingPass,   setCheckingPass]   = useState(false);
-  const [fullName,       setFullName]       = useState("");
-  const [username,       setUsername]       = useState("");
-  const [email,          setEmail]          = useState("");
-  const [password,       setPassword]       = useState("");
-  const [confirmPass,    setConfirmPass]    = useState("");
-  const [showPwd,        setShowPwd]        = useState(false);
-  const [submitting,     setSubmitting]     = useState(false);
-  const [error,          setError]          = useState("");
+  const [step,          setStep]          = useState<1 | 2>(1);
+  const [role,          setRole]          = useState<Role | null>(null);
+  const [staffPass,     setStaffPass]     = useState("");
+  const [showPass,      setShowPass]      = useState(false);
+  const [staffError,    setStaffError]    = useState("");
+  const [checkingPass,  setCheckingPass]  = useState(false);
 
-  // ── Read invite code from URL on mount ──────────────────────────────────────
+  // Read invite code from URL on mount
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const inv = params.get("inv");
@@ -61,10 +48,13 @@ export default function Registro() {
       if (data.valid) {
         setInviteValid(true);
         setInviteCreator(data.creatorName ?? "HapiCredit");
-        const r2: Role = (data.role === "executive" ? "executive" : "client") as Role;
+        const r2: Role = data.role === "executive" ? "executive" : "client";
         setInviteRole(r2);
         setRole(r2);
-        setStep(3);
+        // Auto-proceed: store invite code and go to Clerk sign-up
+        sessionStorage.setItem("hapi_pending_role", r2);
+        sessionStorage.setItem("hapi_pending_code", code.toUpperCase());
+        sessionStorage.removeItem("hapi_pending_staff_pass");
       } else {
         setInviteValid(false);
       }
@@ -79,14 +69,18 @@ export default function Registro() {
     setRole(r);
     setStaffPass(""); setStaffError("");
     if (r === "client") {
-      setStep(3);
+      // Clients without invite code go straight to Clerk sign-up
+      sessionStorage.setItem("hapi_pending_role", r);
+      sessionStorage.removeItem("hapi_pending_code");
+      sessionStorage.removeItem("hapi_pending_staff_pass");
+      navigate("/sign-up");
     } else {
       setStep(2);
     }
   }
 
   async function validateStaffPass() {
-    if (!staffPass.trim()) { setStaffError("Ingresa la contrasena de acceso"); return; }
+    if (!staffPass.trim()) { setStaffError("Ingresa la contraseña de acceso"); return; }
     setCheckingPass(true);
     setStaffError("");
     try {
@@ -97,99 +91,34 @@ export default function Registro() {
       });
       if (!r.ok) {
         const d = await r.json();
-        setStaffError(d.error ?? "Contrasena de acceso incorrecta");
+        setStaffError(d.error ?? "Contraseña de acceso incorrecta");
         return;
       }
-      setStep(3);
+      // Password valid — store context and go to Clerk sign-up
+      sessionStorage.setItem("hapi_pending_role",       role!);
+      sessionStorage.setItem("hapi_pending_staff_pass", staffPass);
+      sessionStorage.removeItem("hapi_pending_code");
+      navigate("/sign-up");
     } catch {
-      setStaffError("Error de conexion, intenta de nuevo");
+      setStaffError("Error de conexión, intenta de nuevo");
     } finally {
       setCheckingPass(false);
     }
   }
 
-  async function handleSubmit() {
-    if (!fullName.trim() || fullName.trim().length < 3) { setError("El nombre debe tener al menos 3 caracteres"); return; }
-    if (!username.trim() || username.trim().length < 3)  { setError("El usuario debe tener al menos 3 caracteres"); return; }
-    if (!/^[a-z0-9_]+$/.test(username.trim()))           { setError("Solo letras minusculas, numeros y guion bajo"); return; }
-    if (password.length < 6)                             { setError("La contrasena debe tener al menos 6 caracteres"); return; }
-    if (password !== confirmPass)                        { setError("Las contrasennas no coinciden"); return; }
-
-    setError("");
-    setSubmitting(true);
-    try {
-      const isStaff = role !== "client";
-
-      let endpoint: string;
-      let body: Record<string, string>;
-
-      if (inviteValid && inviteCode) {
-        // Register via invite code (works for any role)
-        endpoint = `${API}/auth/register`;
-        body = {
-          code: inviteCode.toUpperCase(),
-          fullName: fullName.trim(),
-          username: username.trim(),
-          password,
-          email: email.trim(),
-        };
-      } else if (isStaff) {
-        endpoint = `${API}/auth/register-staff`;
-        body = {
-          staffPassword: staffPass,
-          role: role!,
-          fullName: fullName.trim(),
-          username: username.trim(),
-          password,
-          email: email.trim(),
-        };
-      } else {
-        endpoint = `${API}/auth/register-client`;
-        body = {
-          fullName: fullName.trim(),
-          username: username.trim(),
-          password,
-          email: email.trim(),
-        };
-      }
-
-      const res  = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const data = await res.json();
-      if (!res.ok) {
-        const msg = data.error ?? "Error al registrarse";
-        // If the master password is wrong (edge case), go back to step 2
-        if (msg.toLowerCase().includes("contrase") && isStaff && !inviteValid) {
-          setStaffError(msg);
-          setStep(2);
-          return;
-        }
-        setError(msg);
-        return;
-      }
-
-      localStorage.setItem("hapi_token", data.token);
-      localStorage.setItem("hapi_role",  data.user.role);
-      localStorage.setItem("hapi_user",  JSON.stringify(data.user));
-      navigate(roleHome(data.user.role));
-    } catch {
-      setError("Error de conexion. Intenta de nuevo.");
-    } finally {
-      setSubmitting(false);
-    }
+  // Once invite is validated, show a "continue" button
+  function continueWithInvite() {
+    navigate("/sign-up");
   }
 
-  const canSubmit = !submitting && fullName.trim() && username.trim() && password && confirmPass;
-
   return (
-    <div
-      style={{
-        minHeight: "100dvh",
-        background: "linear-gradient(150deg,#0c1428 0%,#142246 55%,#1a3468 100%)",
-        display: "flex", flexDirection: "column", alignItems: "center",
-        justifyContent: "flex-start", padding: "36px 20px 48px",
-        fontFamily: "'Inter', -apple-system, sans-serif",
-      }}
-    >
+    <div style={{
+      minHeight: "100dvh",
+      background: "linear-gradient(150deg,#0c1428 0%,#142246 55%,#1a3468 100%)",
+      display: "flex", flexDirection: "column", alignItems: "center",
+      justifyContent: "flex-start", padding: "36px 20px 48px",
+      fontFamily: "'Inter', -apple-system, sans-serif",
+    }}>
       {/* Brand */}
       <div style={{ textAlign: "center", marginBottom: 24 }}>
         <div style={{ width: 60, height: 60, borderRadius: 18, margin: "0 auto 12px", background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -201,49 +130,68 @@ export default function Registro() {
         <div style={{ color: "#fff", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>
           Hapi<span style={{ color: "#e84545" }}>Credit</span>
         </div>
-        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 3 }}>Crea tu cuenta</div>
+        <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 3 }}>
+          {step === 1 ? "Crea tu cuenta" : "Contraseña institucional"}
+        </div>
       </div>
 
-      {/* Invite banner */}
+      {/* Invite code status banner */}
       {validating && (
-        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "rgba(255,255,255,0.7)", fontSize: 13, display: "flex", alignItems: "center", gap: 8 }}>
-          <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#e84545", borderRadius: "50%", animation: "spin 0.7s linear infinite" }} />
-          Validando codigo de invitacion...
+        <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "rgba(255,255,255,0.7)", fontSize: 13, display: "flex", alignItems: "center", gap: 8, width: "100%", maxWidth: 420 }}>
+          <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#e84545", borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
+          Validando código de invitación...
         </div>
       )}
       {!validating && inviteCode && inviteValid === true && (
         <div style={{ background: "rgba(37,211,102,0.12)", border: "1px solid rgba(37,211,102,0.3)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "#4ade80", fontSize: 13, textAlign: "center", width: "100%", maxWidth: 420 }}>
-          Invitacion de <strong>{inviteCreator}</strong> · Rol: {inviteRole === "executive" ? "Asesor" : "Acreditado"}
+          Invitación de <strong>{inviteCreator}</strong> · Rol: <strong>{inviteRole === "executive" ? "Asesor" : "Acreditado"}</strong>
         </div>
       )}
       {!validating && inviteCode && inviteValid === false && (
         <div style={{ background: "rgba(239,68,68,0.12)", border: "1px solid rgba(239,68,68,0.3)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "#fca5a5", fontSize: 13, textAlign: "center", width: "100%", maxWidth: 420 }}>
-          Codigo de invitacion invalido o expirado. Puedes registrarte sin codigo.
-        </div>
-      )}
-
-      {/* Stepper (only show if no invite code) */}
-      {!inviteValid && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20 }}>
-          {[1, 2, 3].map(n => (
-            <div key={n} style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 28, height: 28, borderRadius: "50%", background: step >= n ? "#e84545" : "rgba(255,255,255,0.12)", color: step >= n ? "#fff" : "rgba(255,255,255,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, boxShadow: step >= n ? "0 2px 8px rgba(232,69,69,0.35)" : "none" }}>
-                {n}
-              </div>
-              {n < 3 && <div style={{ width: 28, height: 2, borderRadius: 2, background: step > n ? "#e84545" : "rgba(255,255,255,0.12)" }} />}
-            </div>
-          ))}
+          Código inválido o expirado. Solicita uno nuevo a tu asesor.
         </div>
       )}
 
       {/* Card */}
       <div style={{ background: "#fff", borderRadius: 24, width: "100%", maxWidth: 420, boxShadow: "0 24px 80px rgba(0,0,0,0.4)" }}>
 
-        {/* ── Step 1: Role selection ── */}
-        {step === 1 && (
+        {/* ── Invite code valid: just show continue button ── */}
+        {inviteValid === true && step === 1 && (
+          <div style={{ padding: "28px 22px" }}>
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Tu invitación está lista</div>
+              <div style={{ fontSize: 13, color: "#64748b", marginTop: 4, lineHeight: 1.5 }}>
+                Crea tu cuenta con correo y contraseña. Recibirás un código de verificación por correo.
+              </div>
+            </div>
+            <div style={{ background: inviteRole === "executive" ? "#eff6ff" : "#f0fdf4", border: `1.5px solid ${inviteRole === "executive" ? "#bfdbfe" : "#bbf7d0"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 20, display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 38, height: 38, borderRadius: 12, flexShrink: 0, background: inviteRole === "executive" ? "#2563eb" : "#059669", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                {inviteRole === "executive" ? <BriefcaseSvg /> : <UserSvg />}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 14, color: "#111" }}>{inviteRole === "executive" ? "Asesor" : "Acreditado"}</div>
+                <div style={{ fontSize: 12, color: "#64748b" }}>Invitado por {inviteCreator}</div>
+              </div>
+            </div>
+            <button
+              onClick={continueWithInvite}
+              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: "pointer", background: "#e84545", color: "#fff", fontFamily: "inherit" }}
+            >
+              Continuar con correo →
+            </button>
+            <div style={{ textAlign: "center", marginTop: 16 }}>
+              <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta? </span>
+              <a href="/login" style={{ fontSize: 13, color: "#e84545", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
+            </div>
+          </div>
+        )}
+
+        {/* ── Step 1: Role selection (no invite code) ── */}
+        {(inviteValid === null || inviteValid === false) && step === 1 && (
           <div style={{ padding: "28px 22px" }}>
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Como vas a usar HapiCredit?</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>¿Cómo vas a usar HapiCredit?</div>
               <div style={{ fontSize: 13, color: "#64748b", marginTop: 3, lineHeight: 1.5 }}>Selecciona el tipo de cuenta que corresponde a tu rol</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -265,16 +213,19 @@ export default function Registro() {
               ))}
             </div>
             <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-              <span style={{ fontSize: 13, color: "#94a3b8" }}>Ya tienes cuenta? </span>
-              <a href="/login" style={{ fontSize: 13, color: "#e84545", fontWeight: 700, textDecoration: "none" }}>Inicia sesion</a>
+              <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta? </span>
+              <a href="/login" style={{ fontSize: 13, color: "#e84545", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
             </div>
           </div>
         )}
 
         {/* ── Step 2: Staff master password ── */}
-        {step === 2 && !inviteValid && (
+        {step === 2 && (
           <div style={{ padding: "28px 22px" }}>
-            <BackBtn onClick={() => { setStep(1); setRole(null); }} label="Cambiar rol" />
+            <button onClick={() => { setStep(1); setRole(null); setStaffError(""); }}
+              style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", marginBottom: 20, padding: 0, fontWeight: 600 }}>
+              <ChevronLeftSvg /> Cambiar rol
+            </button>
             {role && (() => {
               const r = roles.find(x => x.id === role)!;
               return (
@@ -290,133 +241,63 @@ export default function Registro() {
               );
             })()}
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Contrasena de acceso</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Contraseña de acceso</div>
               <div style={{ fontSize: 13, color: "#64748b", marginTop: 3, lineHeight: 1.5 }}>
-                Para registrarte como {role === "admin" ? "Administrador" : "Asesor"} necesitas la contrasena institucional.
+                Para registrarte como {role === "admin" ? "Administrador" : "Asesor"} necesitas la contraseña institucional proporcionada por tu organización.
               </div>
             </div>
             <div style={{ marginBottom: 16 }}>
-              <Label>Contrasena de acceso</Label>
-              <PasswordField value={staffPass} onChange={v => { setStaffPass(v); setStaffError(""); }} onEnter={validateStaffPass} show={showPass} onToggle={() => setShowPass(v => !v)} placeholder="Contrasena institucional" autoFocus />
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>
+                Contraseña de acceso
+              </label>
+              <div style={{ position: "relative" }}>
+                <input
+                  type={showPass ? "text" : "password"}
+                  value={staffPass}
+                  onChange={e => { setStaffPass(e.target.value); setStaffError(""); }}
+                  onKeyDown={e => e.key === "Enter" && validateStaffPass()}
+                  placeholder="Contraseña institucional"
+                  autoFocus
+                  style={{ width: "100%", padding: "13px 44px 13px 16px", border: "1.5px solid #e2e8f0", borderRadius: 12, fontSize: 15, boxSizing: "border-box", outline: "none", color: "#111", background: "#f8fafc", fontFamily: "inherit" }}
+                />
+                <button type="button" onClick={() => setShowPass(v => !v)} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0, display: "flex" }}>
+                  {showPass ? <EyeOffSvg /> : <EyeSvg />}
+                </button>
+              </div>
               {staffError && (
                 <div style={{ marginTop: 8, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "9px 13px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
                   {staffError}
                 </div>
               )}
             </div>
-            <SubmitBtn onClick={validateStaffPass} disabled={!staffPass.trim() || checkingPass}>
-              {checkingPass ? "Verificando..." : "Continuar"}
-            </SubmitBtn>
-          </div>
-        )}
-
-        {/* ── Step 3: Personal data ── */}
-        {step === 3 && (
-          <div style={{ padding: "28px 22px" }}>
-            {!inviteValid && (
-              <BackBtn onClick={() => role === "client" ? setStep(1) : setStep(2)} label="Atras" />
-            )}
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "#111", letterSpacing: "-0.03em" }}>Tus datos</div>
-              <div style={{ fontSize: 13, color: "#64748b", marginTop: 3 }}>Completa tu informacion para crear la cuenta</div>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-              <div>
-                <Label>Nombre completo <Req /></Label>
-                <input type="text" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="Tu nombre y apellidos" style={inputStyle} autoFocus />
-              </div>
-              <div>
-                <Label>Usuario <Req /></Label>
-                <input type="text" value={username} onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ""))} placeholder="solo letras, numeros y _" style={inputStyle} autoCapitalize="none" autoCorrect="off" />
-                <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 4 }}>Sin espacios ni caracteres especiales</div>
-              </div>
-              <div>
-                <Label>Correo <span style={{ fontSize: 10, color: "#94a3b8", fontWeight: 400 }}>(opcional)</span></Label>
-                <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="tu@correo.com" style={inputStyle} />
-              </div>
-              <div>
-                <Label>Contrasena <Req /></Label>
-                <PasswordField value={password} onChange={setPassword} show={showPwd} onToggle={() => setShowPwd(v => !v)} placeholder="Minimo 6 caracteres" />
-              </div>
-              <div>
-                <Label>Confirmar contrasena <Req /></Label>
-                <input type="password" value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="Repite tu contrasena"
-                  style={{ ...inputStyle, borderColor: confirmPass && confirmPass !== password ? "#fca5a5" : undefined }} />
-              </div>
-              {error && (
-                <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "10px 14px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
-                  {error}
-                </div>
-              )}
-              <SubmitBtn onClick={handleSubmit} disabled={!canSubmit}>
-                {submitting ? "Creando cuenta..." : "Crear cuenta"}
-              </SubmitBtn>
-            </div>
-            <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
-              <span style={{ fontSize: 13, color: "#94a3b8" }}>Ya tienes cuenta? </span>
-              <a href="/login" style={{ fontSize: 13, color: "#e84545", fontWeight: 700, textDecoration: "none" }}>Inicia sesion</a>
-            </div>
+            <button
+              onClick={validateStaffPass}
+              disabled={!staffPass.trim() || checkingPass}
+              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: !staffPass.trim() || checkingPass ? "default" : "pointer", background: !staffPass.trim() || checkingPass ? "#e5e7eb" : "#e84545", color: !staffPass.trim() || checkingPass ? "#9ca3af" : "#fff", fontFamily: "inherit" }}
+            >
+              {checkingPass ? "Verificando..." : "Continuar →"}
+            </button>
           </div>
         )}
       </div>
+
+      {/* Informational note about email verification */}
+      {(inviteValid === true || step === 2) && (
+        <div style={{ marginTop: 16, textAlign: "center", color: "rgba(255,255,255,0.35)", fontSize: 12, maxWidth: 320, lineHeight: 1.5 }}>
+          Recibirás un correo de verificación para confirmar tu cuenta
+        </div>
+      )}
 
       {/* Footer */}
       <div style={{ marginTop: 24, display: "flex", gap: 20 }}>
         <a href="/privacidad" style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
-        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textDecoration: "none" }}>Terminos y condiciones</a>
+        <a href="/terminos"   style={{ color: "rgba(255,255,255,0.25)", fontSize: 12, textDecoration: "none" }}>Términos y condiciones</a>
       </div>
     </div>
   );
 }
 
-/* ── Helpers ─────────────────────────────────────────────────────────────────── */
-function Req() { return <span style={{ color: "#e84545" }}> *</span>; }
-
-function Label({ children }: { children: React.ReactNode }) {
-  return <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 6 }}>{children}</label>;
-}
-
-function ErrorMsg({ children }: { children: React.ReactNode }) {
-  return <div style={{ marginTop: 6, fontSize: 12, color: "#dc2626", fontWeight: 500 }}>{children}</div>;
-}
-
-function BackBtn({ onClick, label }: { onClick: () => void; label: string }) {
-  return (
-    <button onClick={onClick} style={{ display: "flex", alignItems: "center", gap: 6, background: "none", border: "none", color: "#64748b", fontSize: 13, cursor: "pointer", marginBottom: 20, padding: 0, fontWeight: 600 }}>
-      <ChevronLeftSvg /> {label}
-    </button>
-  );
-}
-
-function SubmitBtn({ onClick, disabled, children }: { onClick: () => void; disabled: boolean; children: React.ReactNode }) {
-  return (
-    <button onClick={onClick} disabled={disabled}
-      style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: disabled ? "default" : "pointer", background: disabled ? "#e5e7eb" : "#e84545", color: disabled ? "#9ca3af" : "#fff", fontFamily: "inherit" }}>
-      {children}
-    </button>
-  );
-}
-
-function PasswordField({ value, onChange, show, onToggle, placeholder, autoFocus, onEnter }: {
-  value: string; onChange: (v: string) => void; show: boolean; onToggle: () => void;
-  placeholder: string; autoFocus?: boolean; onEnter?: () => void;
-}) {
-  return (
-    <div style={{ position: "relative" }}>
-      <input type={show ? "text" : "password"} value={value} onChange={e => onChange(e.target.value)} onKeyDown={e => e.key === "Enter" && onEnter?.()} placeholder={placeholder} style={{ ...inputStyle, paddingRight: 44 }} autoFocus={autoFocus} />
-      <button type="button" onClick={onToggle} style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 0, display: "flex" }}>
-        {show ? <EyeOffSvg /> : <EyeSvg />}
-      </button>
-    </div>
-  );
-}
-
-const inputStyle: React.CSSProperties = {
-  width: "100%", padding: "13px 16px", border: "1.5px solid #e2e8f0",
-  borderRadius: 12, fontSize: 15, boxSizing: "border-box", outline: "none",
-  color: "#111", background: "#f8fafc", fontFamily: "inherit",
-};
-
+/* ── SVG Helpers ─────────────────────────────────────────────────────────────── */
 function UserSvg()      { return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>; }
 function BriefcaseSvg({ small }: { small?: boolean } = {}) { const s = small ? 16 : 20; return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>; }
 function ShieldSvg({ small }: { small?: boolean } = {})    { const s = small ? 16 : 20; return <svg width={s} height={s} viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>; }

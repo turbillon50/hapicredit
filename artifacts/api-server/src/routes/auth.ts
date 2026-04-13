@@ -127,8 +127,17 @@ router.post("/auth/register", async (req, res): Promise<void> => {
 
 // ─── Clerk sync ───────────────────────────────────────────────────────────────
 router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
-  const { clerkId, email, fullName, role: requestedRole, inviteCode } = req.body;
+  const { clerkId, email, fullName, role: requestedRole, inviteCode, staffPassword } = req.body;
   if (!email) { res.status(400).json({ error: "Se requiere email" }); return; }
+
+  const masterCode = process.env.STAFF_MASTER_CODE ?? "lulamijuvisado";
+
+  // Helper: generate unique username from email
+  async function makeUsername(email: string) {
+    const base = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "") || "usuario";
+    const taken = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, base));
+    return taken.length ? `${base}_${Date.now().toString().slice(-4)}` : base;
+  }
 
   const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email));
 
@@ -141,6 +150,42 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     return;
   }
 
+  // ── Path 1: Staff registration via master password ──────────────────────────
+  if (staffPassword && staffPassword === masterCode && requestedRole && ["admin", "executive"].includes(requestedRole)) {
+    if (requestedRole === "admin") {
+      const admins = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.role, "admin"));
+      if (admins.length >= 2) {
+        res.status(400).json({ error: "Límite de 2 administradores alcanzado" });
+        return;
+      }
+    }
+    const username = await makeUsername(email);
+    const [newUser] = await db.insert(usersTable).values({
+      username,
+      passwordHash: null as any,
+      fullName: fullName || username,
+      email,
+      role: requestedRole,
+      parentId: null,
+      treeId: null,
+      isActive: true,
+    }).returning();
+
+    if (requestedRole === "admin") {
+      await db.update(usersTable).set({ treeId: newUser.id }).where(eq(usersTable.id, newUser.id));
+      newUser.treeId = newUser.id;
+    }
+
+    sendWelcomeEmail({ to: newUser.email!, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+
+    const token = generateToken();
+    const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
+    res.json({ token, user: { id: newUser.id, username: newUser.username, fullName: newUser.fullName, email: newUser.email, role: newUser.role, treeId: newUser.treeId } });
+    return;
+  }
+
+  // ── Path 2: Invite code registration ─────────────────────────────────────
   if (!requestedRole || !inviteCode) {
     res.json({ needsCode: true });
     return;
@@ -167,15 +212,12 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     if (parent) treeId = parent.treeId ?? parent.id;
   }
 
-  const emailPrefix = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "");
-  let username = emailPrefix;
-  const existing = await db.select({ id: usersTable.id }).from(usersTable).where(eq(usersTable.username, username));
-  if (existing.length) username = `${emailPrefix}_${Date.now().toString().slice(-4)}`;
+  const username = await makeUsername(email);
 
   const [newUser] = await db.insert(usersTable).values({
     username,
     passwordHash: null as any,
-    fullName: fullName || emailPrefix,
+    fullName: fullName || username,
     email,
     role: requestedRole as string,
     parentId: invCode.parentId,

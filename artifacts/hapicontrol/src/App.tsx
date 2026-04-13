@@ -154,19 +154,28 @@ function ClerkCacheInvalidator() {
     const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "";
     if (!email) return;
 
-    // Check if there's a pending registration (role + code from registro.tsx)
-    const pendingRole = sessionStorage.getItem("hapi_pending_role");
-    const pendingCode = sessionStorage.getItem("hapi_pending_code");
+    // Pending registration context saved by registro.tsx
+    const pendingRole      = sessionStorage.getItem("hapi_pending_role");
+    const pendingCode      = sessionStorage.getItem("hapi_pending_code");
+    const pendingStaffPass = sessionStorage.getItem("hapi_pending_staff_pass");
 
     syncedRef.current = true;
     fetch(`${API}/auth/clerk-sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clerkId: clerkUser.id, email, fullName, role: pendingRole, inviteCode: pendingCode }),
+      body: JSON.stringify({
+        clerkId: clerkUser.id,
+        email,
+        fullName,
+        role: pendingRole,
+        inviteCode: pendingCode,
+        staffPassword: pendingStaffPass,
+      }),
     }).then(r => r.json()).then(data => {
-      // Clear pending registration
+      // Clear all pending session storage
       sessionStorage.removeItem("hapi_pending_role");
       sessionStorage.removeItem("hapi_pending_code");
+      sessionStorage.removeItem("hapi_pending_staff_pass");
 
       if (data.token) {
         localStorage.setItem("hapi_token", data.token);
@@ -178,6 +187,7 @@ function ClerkCacheInvalidator() {
       } else if (data.needsCode) {
         sessionStorage.removeItem("hapi_pending_role");
         sessionStorage.removeItem("hapi_pending_code");
+        sessionStorage.removeItem("hapi_pending_staff_pass");
         window.location.href = `${basePath}/registro`;
       }
     }).catch(() => { syncedRef.current = false; });
