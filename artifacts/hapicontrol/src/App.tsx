@@ -3,6 +3,7 @@ import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
 import { AuthProvider } from "@/hooks/use-auth";
+import logoImg from "@assets/IMG_0626_1775411853416.jpeg";
 
 import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
@@ -56,11 +57,8 @@ function SignInPage() {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
-        <div style={{ width: 64, height: 64, borderRadius: 18, background: "rgba(255,255,255,0.08)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 12px", border: "1px solid rgba(255,255,255,0.12)" }}>
-          <svg width="36" height="36" viewBox="0 0 180 180" fill="none">
-            <circle cx="90" cy="52" r="16" fill="white"/>
-            <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
-          </svg>
+        <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
+          <img src={logoImg} alt="HapiCredit" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
         <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Hapi<span style={{ color: "#e84545" }}>Credit</span></div>
         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Tu crédito, Tu impulso</div>
@@ -99,6 +97,9 @@ function SignUpPage() {
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
+        <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
+          <img src={logoImg} alt="HapiCredit" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+        </div>
         <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Hapi<span style={{ color: "#e84545" }}>Credit</span></div>
         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Crea tu cuenta</div>
       </div>

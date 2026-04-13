@@ -91,8 +91,8 @@ export default function Login() {
 
         {/* Logo + Brand */}
         <div style={{ display:"flex",alignItems:"center",gap:16 }}>
-          <div style={{ width:60,height:60,borderRadius:18,overflow:"hidden",flexShrink:0,boxShadow:"0 6px 24px rgba(0,0,0,0.30)" }}>
-            <img src={logoImg} alt="HapiCredit" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
+          <div style={{ width:72,height:72,borderRadius:20,overflow:"hidden",flexShrink:0,boxShadow:"0 8px 28px rgba(0,0,0,0.35)",background:"#fff",display:"flex",alignItems:"center",justifyContent:"center" }}>
+            <img src={logoImg} alt="HapiCredit" style={{ width:"100%",height:"100%",objectFit:"contain" }} />
           </div>
           <div>
             <div style={{ fontWeight:900,fontSize:26,letterSpacing:"-0.05em",color:"#fff",lineHeight:1 }}>

@@ -130,7 +130,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
   const { clerkId, email, fullName, role: requestedRole, inviteCode, staffPassword } = req.body;
   if (!email) { res.status(400).json({ error: "Se requiere email" }); return; }
 
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "lulamijuvisado";
+  const masterCode = process.env.STAFF_MASTER_CODE ?? "hapicredit";
 
   // Helper: generate unique username from email
   async function makeUsername(email: string) {
@@ -243,7 +243,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
 // ─── Check staff master password (step 2 validation before reaching step 3) ──
 router.post("/auth/check-staff-password", async (req, res): Promise<void> => {
   const { staffPassword } = req.body;
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "lulamijuvisado";
+  const masterCode = process.env.STAFF_MASTER_CODE ?? "hapicredit";
   if (staffPassword && staffPassword === masterCode) {
     res.json({ valid: true });
   } else {
@@ -255,7 +255,7 @@ router.post("/auth/check-staff-password", async (req, res): Promise<void> => {
 router.post("/auth/register-staff", async (req, res): Promise<void> => {
   const { staffPassword, role, username, password, fullName, email } = req.body;
 
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "lulamijuvisado";
+  const masterCode = process.env.STAFF_MASTER_CODE ?? "hapicredit";
   if (!staffPassword || staffPassword !== masterCode) {
     res.status(401).json({ error: "Contraseña de acceso incorrecta" });
     return;
