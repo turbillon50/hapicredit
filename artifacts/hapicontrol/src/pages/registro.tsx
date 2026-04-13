@@ -53,9 +53,9 @@ export default function Registro() {
         setInviteRole(r2);
         setRole(r2);
         // Auto-proceed: store invite code and go to Clerk sign-up
-        sessionStorage.setItem("hapi_pending_role", r2);
-        sessionStorage.setItem("hapi_pending_code", code.toUpperCase());
-        sessionStorage.removeItem("hapi_pending_staff_pass");
+        localStorage.setItem("hapi_pending_role", r2);
+        localStorage.setItem("hapi_pending_code", code.toUpperCase());
+        localStorage.removeItem("hapi_pending_staff_pass");
       } else {
         setInviteValid(false);
       }
@@ -71,10 +71,10 @@ export default function Registro() {
     setStaffPass(""); setStaffError("");
     if (r === "client") {
       // Clients without invite code go straight to Clerk sign-up
-      sessionStorage.setItem("hapi_pending_role", r);
-      sessionStorage.removeItem("hapi_pending_code");
-      sessionStorage.removeItem("hapi_pending_staff_pass");
-      navigate("/sign-up");
+      localStorage.setItem("hapi_pending_role", r);
+      localStorage.removeItem("hapi_pending_code");
+      localStorage.removeItem("hapi_pending_staff_pass");
+      window.location.href = `${basePath}/sign-up`;
     } else {
       setStep(2);
     }
@@ -96,10 +96,10 @@ export default function Registro() {
         return;
       }
       // Password valid — store context and go to Clerk sign-up
-      sessionStorage.setItem("hapi_pending_role",       role!);
-      sessionStorage.setItem("hapi_pending_staff_pass", staffPass);
-      sessionStorage.removeItem("hapi_pending_code");
-      navigate("/sign-up");
+      localStorage.setItem("hapi_pending_role",       role!);
+      localStorage.setItem("hapi_pending_staff_pass", staffPass);
+      localStorage.removeItem("hapi_pending_code");
+      window.location.href = `${basePath}/sign-up`;
     } catch {
       setStaffError("Error de conexión, intenta de nuevo");
     } finally {
@@ -109,7 +109,7 @@ export default function Registro() {
 
   // Once invite is validated, show a "continue" button
   function continueWithInvite() {
-    navigate("/sign-up");
+    window.location.href = `${basePath}/sign-up`;
   }
 
   return (

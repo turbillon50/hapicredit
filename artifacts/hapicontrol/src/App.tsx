@@ -122,14 +122,15 @@ function SignUpPage() {
   );
 }
 
-// ─── Syncs Clerk session → our DB token (no Google, just email/passkey) ─────
+// ─── Syncs Clerk session → our DB token ──────────────────────────────────────
 function ClerkCacheInvalidator() {
   const { addListener } = useClerk();
   const { user: clerkUser, isSignedIn } = useUser();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
-  const syncedRef = useRef(false);
+  const syncingRef = useRef(false);
 
+  // Clear local auth when user signs out of Clerk
   useEffect(() => {
     const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
       const userId = user?.id ?? null;
@@ -147,20 +148,27 @@ function ClerkCacheInvalidator() {
   }, [addListener, qc]);
 
   useEffect(() => {
-    if (!isSignedIn || !clerkUser || syncedRef.current) return;
+    if (!isSignedIn || !clerkUser || syncingRef.current) return;
+
+    // Already have a valid session token — nothing to do
     const existing = localStorage.getItem("hapi_token");
-    if (existing) { syncedRef.current = true; return; }
+    if (existing) return;
 
     const email    = clerkUser.primaryEmailAddress?.emailAddress;
     const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "";
     if (!email) return;
 
-    // Pending registration context saved by registro.tsx
-    const pendingRole      = sessionStorage.getItem("hapi_pending_role");
-    const pendingCode      = sessionStorage.getItem("hapi_pending_code");
-    const pendingStaffPass = sessionStorage.getItem("hapi_pending_staff_pass");
+    const pendingRole      = localStorage.getItem("hapi_pending_role");
+    const pendingCode      = localStorage.getItem("hapi_pending_code");
+    const pendingStaffPass = localStorage.getItem("hapi_pending_staff_pass");
 
-    syncedRef.current = true;
+    // No pending data — send user to registration to pick their role
+    if (!pendingRole) {
+      window.location.href = `${basePath}/registro`;
+      return;
+    }
+
+    syncingRef.current = true;
     fetch(`${API}/auth/clerk-sync`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -172,26 +180,31 @@ function ClerkCacheInvalidator() {
         inviteCode: pendingCode,
         staffPassword: pendingStaffPass,
       }),
-    }).then(r => r.json()).then(data => {
-      // Clear all pending session storage
-      sessionStorage.removeItem("hapi_pending_role");
-      sessionStorage.removeItem("hapi_pending_code");
-      sessionStorage.removeItem("hapi_pending_staff_pass");
+    })
+      .then(r => r.json())
+      .then(data => {
+        localStorage.removeItem("hapi_pending_role");
+        localStorage.removeItem("hapi_pending_code");
+        localStorage.removeItem("hapi_pending_staff_pass");
 
-      if (data.token) {
-        localStorage.setItem("hapi_token", data.token);
-        localStorage.setItem("hapi_role", data.user.role);
-        localStorage.setItem("hapi_user", JSON.stringify(data.user));
-        qc.invalidateQueries();
-        const role = data.user.role;
-        window.location.href = role === "admin" ? `${basePath}/admin` : role === "executive" ? `${basePath}/dashboard` : `${basePath}/mi-credito`;
-      } else if (data.needsCode) {
-        sessionStorage.removeItem("hapi_pending_role");
-        sessionStorage.removeItem("hapi_pending_code");
-        sessionStorage.removeItem("hapi_pending_staff_pass");
-        window.location.href = `${basePath}/registro`;
-      }
-    }).catch(() => { syncedRef.current = false; });
+        if (data.token) {
+          localStorage.setItem("hapi_token", data.token);
+          localStorage.setItem("hapi_role", data.user.role);
+          localStorage.setItem("hapi_user", JSON.stringify(data.user));
+          qc.invalidateQueries();
+          const role = data.user.role;
+          window.location.href = role === "admin"
+            ? `${basePath}/admin`
+            : role === "executive"
+            ? `${basePath}/dashboard`
+            : `${basePath}/mi-credito`;
+        } else {
+          // Error or invalid — back to registration
+          syncingRef.current = false;
+          window.location.href = `${basePath}/registro`;
+        }
+      })
+      .catch(() => { syncingRef.current = false; });
   }, [isSignedIn, clerkUser, qc]);
 
   return null;
