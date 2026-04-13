@@ -162,7 +162,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     const username = await makeUsername(email);
     const [newUser] = await db.insert(usersTable).values({
       username,
-      passwordHash: null as any,
+      passwordHash: 'CLERK_AUTH',
       fullName: fullName || username,
       email,
       role: requestedRole,
@@ -216,7 +216,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
 
   const [newUser] = await db.insert(usersTable).values({
     username,
-    passwordHash: null as any,
+    passwordHash: 'CLERK_AUTH',
     fullName: fullName || username,
     email,
     role: requestedRole as string,
