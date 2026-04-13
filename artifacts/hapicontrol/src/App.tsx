@@ -162,9 +162,14 @@ function ClerkCacheInvalidator() {
     const pendingCode      = localStorage.getItem("hapi_pending_code");
     const pendingStaffPass = localStorage.getItem("hapi_pending_staff_pass");
 
-    // No pending data — send user to registration to pick their role
+    // No pending data — send user to registration only if not already there
     if (!pendingRole) {
-      window.location.href = `${basePath}/registro`;
+      const currentPath = window.location.pathname;
+      const authPaths = ["/registro", "/sign-up", "/sign-in", "/login"];
+      const onAuthPage = authPaths.some(p => currentPath.endsWith(p) || currentPath.includes(p + "/"));
+      if (!onAuthPage) {
+        window.location.href = `${basePath}/registro`;
+      }
       return;
     }
 
