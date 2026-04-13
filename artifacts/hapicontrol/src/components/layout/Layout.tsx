@@ -85,11 +85,11 @@ function RoleBadge({ role }: { role: string | null }) {
   );
 }
 
-function checkAccess(location: string): "ok" | "registro" | string {
+function checkAccess(location: string): "ok" | "login" | string {
   const t = localStorage.getItem("hapi_token");
   const r = localStorage.getItem("hapi_role");
   const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos"];
-  if (!t) return publicPaths.includes(location) ? "ok" : "registro";
+  if (!t) return publicPaths.includes(location) ? "ok" : "login";
   if (location.startsWith("/admin") && r !== "admin") return r === "executive" ? "/dashboard" : "/mi-credito";
   if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive") return r === "admin" ? "/admin" : "/mi-credito";
   if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {
@@ -108,7 +108,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   const user  = (() => { try { return JSON.parse(localStorage.getItem("hapi_user") || "{}"); } catch { return {}; } })();
 
   const access = checkAccess(location);
-  if (access === "registro") { navigate("/registro"); return null; }
+  if (access === "login") { navigate("/login"); return null; }
   if (access !== "ok") { navigate(access); return null; }
 
   const isAdmin = location.startsWith("/admin");
@@ -121,7 +121,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     const r = localStorage.getItem("hapi_role");
     const publicPaths = ["/", "/login", "/registro"];
     const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
-    if (!t) { if (!isPublic) navigate("/registro"); return; }
+    if (!t) { if (!isPublic) navigate("/login"); return; }
     if (location.startsWith("/admin"))     { if (r !== "admin")     { navigate(r === "executive" ? "/dashboard" : "/mi-credito"); return; } }
     if (location.startsWith("/dashboard") || location === "/executive") { if (r !== "executive") { navigate(r === "admin" ? "/admin" : "/mi-credito"); return; } }
     if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {

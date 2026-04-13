@@ -195,9 +195,9 @@ export default function Solicitar() {
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
             Un asesor de HapiCredit revisará tu expediente y te contactará pronto.
           </p>
-          <div className="bg-blue-50 rounded-2xl p-4 mb-4 w-full max-w-xs">
-            <div className="text-xs text-blue-600 font-semibold uppercase mb-1">Folio</div>
-            <div className="text-2xl font-extrabold text-blue-700">{done}</div>
+          <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#fff5f5", border: "1.5px solid #fecaca" }}>
+            <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#e84545" }}>Folio</div>
+            <div className="text-2xl font-extrabold" style={{ color: "#142246" }}>{done}</div>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4 w-full max-w-xs mb-6">
             <div className="grid grid-cols-2 gap-3 text-center text-xs">
@@ -333,7 +333,7 @@ export default function Solicitar() {
             <div className="card flex flex-col gap-4">
               <label className="text-sm font-semibold text-gray-700">Monto solicitado</label>
               <div className="text-4xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>{fmt(amount)}</div>
-              <input type="range" min={1000} max={30000} step={1000} value={amount} onChange={e => setAmount(Number(e.target.value))} className="w-full accent-blue-600" />
+              <input type="range" min={1000} max={30000} step={1000} value={amount} onChange={e => setAmount(Number(e.target.value))} className="w-full" style={{ accentColor: "#e84545" }} />
               <div className="flex justify-between text-xs text-gray-400"><span>$1,000</span><span>$30,000</span></div>
 
               <label className="text-sm font-semibold text-gray-700">Plazo de pago</label>
@@ -593,7 +593,7 @@ export default function Solicitar() {
               onClick={handleSubmit}
               disabled={!canSubmit || submitting}
               className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl text-white text-sm font-bold pressable"
-              style={{ background: canSubmit && !submitting ? "linear-gradient(135deg,#1e40af,#3b82f6)" : "#e5e7eb", color: canSubmit && !submitting ? "white" : "#9ca3af" }}
+              style={{ background: canSubmit && !submitting ? "#e84545" : "#e5e7eb", color: canSubmit && !submitting ? "white" : "#9ca3af" }}
             >
               {submitting ? <><IconLoader size={16} className="animate-spin" /> Enviando...</> : "Enviar solicitud"}
             </button>
