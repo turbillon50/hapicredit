@@ -27,19 +27,20 @@ export default function Registro() {
   const [inviteRole,    setInviteRole]    = useState<Role | null>(null);
   const [validating,    setValidating]    = useState(false);
 
-  const [step,        setStep]        = useState<1 | 2 | 3>(1);
-  const [role,        setRole]        = useState<Role | null>(null);
-  const [staffPass,   setStaffPass]   = useState("");
-  const [showPass,    setShowPass]    = useState(false);
-  const [staffError,  setStaffError]  = useState("");
-  const [fullName,    setFullName]    = useState("");
-  const [username,    setUsername]    = useState("");
-  const [email,       setEmail]       = useState("");
-  const [password,    setPassword]    = useState("");
-  const [confirmPass, setConfirmPass] = useState("");
-  const [showPwd,     setShowPwd]     = useState(false);
-  const [submitting,  setSubmitting]  = useState(false);
-  const [error,       setError]       = useState("");
+  const [step,           setStep]           = useState<1 | 2 | 3>(1);
+  const [role,           setRole]           = useState<Role | null>(null);
+  const [staffPass,      setStaffPass]      = useState("");
+  const [showPass,       setShowPass]       = useState(false);
+  const [staffError,     setStaffError]     = useState("");
+  const [checkingPass,   setCheckingPass]   = useState(false);
+  const [fullName,       setFullName]       = useState("");
+  const [username,       setUsername]       = useState("");
+  const [email,          setEmail]          = useState("");
+  const [password,       setPassword]       = useState("");
+  const [confirmPass,    setConfirmPass]    = useState("");
+  const [showPwd,        setShowPwd]        = useState(false);
+  const [submitting,     setSubmitting]     = useState(false);
+  const [error,          setError]          = useState("");
 
   // ── Read invite code from URL on mount ──────────────────────────────────────
   useEffect(() => {
@@ -84,10 +85,27 @@ export default function Registro() {
     }
   }
 
-  function validateStaffPass() {
+  async function validateStaffPass() {
     if (!staffPass.trim()) { setStaffError("Ingresa la contrasena de acceso"); return; }
+    setCheckingPass(true);
     setStaffError("");
-    setStep(3);
+    try {
+      const r = await fetch(`${API}/auth/check-staff-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ staffPassword: staffPass }),
+      });
+      if (!r.ok) {
+        const d = await r.json();
+        setStaffError(d.error ?? "Contrasena de acceso incorrecta");
+        return;
+      }
+      setStep(3);
+    } catch {
+      setStaffError("Error de conexion, intenta de nuevo");
+    } finally {
+      setCheckingPass(false);
+    }
   }
 
   async function handleSubmit() {
@@ -137,7 +155,17 @@ export default function Registro() {
 
       const res  = await fetch(endpoint, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
       const data = await res.json();
-      if (!res.ok) { setError(data.error ?? "Error al registrarse"); return; }
+      if (!res.ok) {
+        const msg = data.error ?? "Error al registrarse";
+        // If the master password is wrong (edge case), go back to step 2
+        if (msg.toLowerCase().includes("contrase") && isStaff && !inviteValid) {
+          setStaffError(msg);
+          setStep(2);
+          return;
+        }
+        setError(msg);
+        return;
+      }
 
       localStorage.setItem("hapi_token", data.token);
       localStorage.setItem("hapi_role",  data.user.role);
@@ -270,9 +298,15 @@ export default function Registro() {
             <div style={{ marginBottom: 16 }}>
               <Label>Contrasena de acceso</Label>
               <PasswordField value={staffPass} onChange={v => { setStaffPass(v); setStaffError(""); }} onEnter={validateStaffPass} show={showPass} onToggle={() => setShowPass(v => !v)} placeholder="Contrasena institucional" autoFocus />
-              {staffError && <ErrorMsg>{staffError}</ErrorMsg>}
+              {staffError && (
+                <div style={{ marginTop: 8, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "9px 13px", color: "#dc2626", fontSize: 13, fontWeight: 500 }}>
+                  {staffError}
+                </div>
+              )}
             </div>
-            <SubmitBtn onClick={validateStaffPass} disabled={!staffPass.trim()}>Continuar</SubmitBtn>
+            <SubmitBtn onClick={validateStaffPass} disabled={!staffPass.trim() || checkingPass}>
+              {checkingPass ? "Verificando..." : "Continuar"}
+            </SubmitBtn>
           </div>
         )}
 
