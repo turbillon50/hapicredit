@@ -497,16 +497,18 @@ export default function AltaCliente() {
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Pago semanal</div>
                     <div className="font-extrabold text-base" style={{ color: "var(--accent)" }}>
-                      {fmt((amount * 1.10) / termWeeks)}
+                      {fmt((amount / 1000) * (termWeeks === 8 ? 175 : 120))}
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-gray-500 mb-1">Total a pagar</div>
-                    <div className="font-extrabold text-base text-gray-800">{fmt(amount * 1.10)}</div>
+                    <div className="font-extrabold text-base text-gray-800">
+                      {fmt((amount / 1000) * (termWeeks === 8 ? 175 : 120) * termWeeks)}
+                    </div>
                   </div>
                   <div>
-                    <div className="text-xs text-gray-500 mb-1">Interés</div>
-                    <div className="font-extrabold text-base text-gray-800">10%</div>
+                    <div className="text-xs text-gray-500 mb-1">Comisión apertura</div>
+                    <div className="font-extrabold text-base text-gray-800">{fmt(amount * 0.10)}</div>
                   </div>
                 </div>
               </div>

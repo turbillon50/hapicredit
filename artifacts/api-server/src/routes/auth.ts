@@ -215,9 +215,15 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     email,
     role: requestedRole as string,
     parentId: invCode.parentId,
-    treeId,
+    treeId: requestedRole === "admin" ? null : treeId, // admin treeId set below
     isActive: true,
   }).returning();
+
+  // Admin becomes root of their own sub-tree (each branch is a separate tree)
+  if (requestedRole === "admin") {
+    await db.update(usersTable).set({ treeId: newUser.id }).where(eq(usersTable.id, newUser.id));
+    newUser.treeId = newUser.id;
+  }
 
   await db.update(inviteCodesTable)
     .set({ usedById: newUser.id, usedAt: new Date(), isActive: false })

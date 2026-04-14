@@ -36,8 +36,17 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
   if (req.userRole === "executive") {
     conditions.push(eq(creditsTable.executiveId, req.userId!));
-  } else if (params.data.executiveId) {
-    conditions.push(eq(creditsTable.executiveId, params.data.executiveId));
+  } else if (req.userRole === "admin" && req.userParentId !== null) {
+    // Branch admin: only see credits from their tree's executives
+    conditions.push(eq(usersTable.treeId, req.userTreeId!));
+    if (params.data.executiveId) {
+      conditions.push(eq(creditsTable.executiveId, params.data.executiveId));
+    }
+  } else {
+    // Superadmin (parentId=null): sees all trees
+    if (params.data.executiveId) {
+      conditions.push(eq(creditsTable.executiveId, params.data.executiveId));
+    }
   }
 
   if (params.data.clientId) {

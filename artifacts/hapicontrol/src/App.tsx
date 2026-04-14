@@ -36,6 +36,7 @@ import ExecPaymentsNew  from "@/pages/executive/payments-new";
 import ExecComisiones   from "@/pages/executive/comisiones";
 import ExecAlerts       from "@/pages/executive/alerts";
 import ExecCommitments  from "@/pages/executive/commitments";
+import ExecAgenda       from "@/pages/executive/agenda";
 
 import NotFound         from "@/pages/not-found";
 
@@ -264,6 +265,7 @@ function Router() {
       <Route path="/dashboard/comisiones"   component={ExecComisiones} />
       <Route path="/dashboard/alertas"      component={ExecAlerts} />
       <Route path="/dashboard/compromisos"  component={ExecCommitments} />
+      <Route path="/dashboard/agenda"       component={ExecAgenda} />
       <Route path="/dashboard/codigos"      component={AdminCodigos} />
 
       {/* Legacy */}

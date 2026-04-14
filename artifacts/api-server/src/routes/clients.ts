@@ -51,11 +51,20 @@ router.get("/clients", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  // Executive sees only their own clients
   if (req.userRole === "executive") {
+    // Executive sees only their own clients
     conditions.push(eq(clientsTable.executiveId, req.userId!));
-  } else if (params.data.executiveId) {
-    conditions.push(eq(clientsTable.executiveId, params.data.executiveId));
+  } else if (req.userRole === "admin" && req.userParentId !== null) {
+    // Branch admin: only see clients whose executive belongs to their tree
+    conditions.push(eq(usersTable.treeId, req.userTreeId!));
+    if (params.data.executiveId) {
+      conditions.push(eq(clientsTable.executiveId, params.data.executiveId));
+    }
+  } else {
+    // Superadmin (parentId = null): sees all trees
+    if (params.data.executiveId) {
+      conditions.push(eq(clientsTable.executiveId, params.data.executiveId));
+    }
   }
 
   if (params.data.status) {

@@ -8,17 +8,21 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 
 - **3 roles**: `admin`, `executive` (asesor), `client` (acreditado)
 - **Registration**: via invite code (`/registro?inv=CODE`) OR master password for staff
-- **Master password**: `lulamijuvisado` — for first admin registration only. Max 2 admins = 2 independent trees.
-- **Two-tree architecture**: Each admin is the root of their own isolated tree. `tree_id` on users table links every user to their tree root. Max 2 trees.
-- **Login**: `/login` — username/password. Google via Clerk at `/sign-in`.
+- **Master password**: `hapicredit` (env `STAFF_MASTER_CODE`) — for admin/executive registration. Admin limit removed for testing.
+- **Sucursal hierarchy** (3 levels): Grupo Cafja (superadmin, parentId=null) → Branch admins (parentId=superadmin's id) → Executives (treeId=branch admin's id)
+- **Tree isolation**: admin with `parentId != null` (branch admin) → sees only their tree's clients/credits. admin with `parentId = null` (superadmin) → sees all trees.
+- **Admin invite**: sets `parentId = creatorId` (not null) — branch admin belongs to creator's hierarchy
+- **Admin treeId**: Always set to their own userId (each admin is root of their own branch tree)
+- **Login**: `/login` — username/password. NO auto-redirect even with active session; shows banner with "Continuar" / "Cambiar usuario". Google via Clerk at `/sign-in`.
 - **Sessions**: JWT stored in `localStorage` (`hapi_token`, `hapi_role`, `hapi_user`). Sessions are persistent (30 days).
+- **Logout**: Server-side session invalidation + localStorage.clear() + hard redirect to /login.
 - **Google OAuth**: Clerk handles Google sign-in at `/sign-in`. After Clerk auth, user is synced with our DB via `/auth/clerk-sync`.
 - **Route protection**: Layout.tsx redirects to `/login` for protected routes.
 - **Genealogical tree**: `parentId` = who invited this user. `treeId` = root admin's user ID. `/users/my-tree` returns role-filtered tree.
 - **Invite code API**: `POST /invite-codes/generate`, `GET /invite-codes/mine`, `DELETE /invite-codes/:id`, `GET /invite-codes/validate/:code` (public)
 - **WhatsApp sharing**: Perfil page generates invite links `{appBase}/registro?inv={CODE}` and opens WhatsApp with pre-written message
 - **DB Seed**: DISABLED — database starts completely empty. No demo data.
-- **NO auto-login**: Only real authenticated users can access protected routes.
+- **Auth middleware**: Exposes `req.userId`, `req.userRole`, `req.userTreeId`, `req.userParentId` on all authenticated routes.
 
 ## Real Business Rules (CRITICAL)
 

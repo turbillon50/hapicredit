@@ -9,6 +9,7 @@ declare global {
       userRole?: string;
       userFullName?: string;
       userTreeId?: number | null;
+      userParentId?: number | null;
     }
   }
 }
@@ -34,7 +35,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 
   const [user] = await db
-    .select({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, isActive: usersTable.isActive, treeId: usersTable.treeId })
+    .select({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, isActive: usersTable.isActive, treeId: usersTable.treeId, parentId: usersTable.parentId })
     .from(usersTable)
     .where(eq(usersTable.id, session.userId));
 
@@ -43,10 +44,11 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     return;
   }
 
-  req.userId     = user.id;
-  req.userRole   = user.role;
+  req.userId       = user.id;
+  req.userRole     = user.role;
   req.userFullName = user.fullName;
-  req.userTreeId = user.treeId;
+  req.userTreeId   = user.treeId;
+  req.userParentId = user.parentId;
   next();
 }
 

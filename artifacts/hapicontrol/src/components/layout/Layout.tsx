@@ -4,7 +4,7 @@ import { useLocation, Link } from "wouter";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil,
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
-  IconPersona, IconMoneda, IconMas, IconFinanzas,
+  IconPersona, IconMoneda, IconMas, IconFinanzas, IconCalendario,
 } from "@/components/hapi/HapiIcons";
 
 type NavItem = { icon: React.ReactNode; label: string; path: string };
@@ -25,11 +25,11 @@ const adminNav: NavItem[] = [
 ];
 
 const execNav: NavItem[] = [
-  { icon: <IconPanel size={22} />,   label: "Panel",     path: "/dashboard"              },
-  { icon: <IconPersona size={22} />, label: "Clientes",  path: "/dashboard/clientes"     },
-  { icon: <IconMoneda size={22} />,  label: "Cobrar",    path: "/dashboard/cobrar"       },
-  { icon: <IconMas size={22} />,     label: "Alta",      path: "/dashboard/alta-cliente" },
-  { icon: <IconBandeja size={22} />, label: "Codigos",   path: "/dashboard/codigos"      },
+  { icon: <IconPanel size={22} />,       label: "Panel",    path: "/dashboard"              },
+  { icon: <IconPersona size={22} />,     label: "Clientes", path: "/dashboard/clientes"     },
+  { icon: <IconCalendario size={22} />,  label: "Agenda",   path: "/dashboard/agenda"       },
+  { icon: <IconMoneda size={22} />,      label: "Cobrar",   path: "/dashboard/cobrar"       },
+  { icon: <IconMas size={22} />,         label: "Alta",     path: "/dashboard/alta-cliente" },
 ];
 
 function isActive(path: string, current: string) {

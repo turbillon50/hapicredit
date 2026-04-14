@@ -18,11 +18,22 @@ export default function Login() {
   const [error, setError]       = useState("");
   const [loading, setLoading]   = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [existingSession, setExistingSession] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
+    // Show banner if there's an active session — but don't auto-redirect
+    // Eduardo needs to be able to switch between accounts manually
     const token = localStorage.getItem("hapi_token");
     const role  = localStorage.getItem("hapi_role");
-    if (token) navigate(roleHome(role ?? ""));
+    const user  = localStorage.getItem("hapi_user");
+    if (token && role) {
+      try {
+        const u = user ? JSON.parse(user) : null;
+        setExistingSession({ name: u?.fullName ?? u?.username ?? "Usuario", role });
+      } catch {
+        setExistingSession(null);
+      }
+    }
   }, []);
 
   async function handleLogin(e: React.FormEvent) {
@@ -120,8 +131,46 @@ export default function Login() {
         {/* Drag handle */}
         <div style={{ width:40,height:4,borderRadius:2,background:"var(--border)",margin:"0 auto 28px" }} />
 
+        {/* Active session banner */}
+        {existingSession && (
+          <div style={{
+            background:"#fffbeb",border:"1px solid #fde68a",borderRadius:14,
+            padding:"14px 16px",marginBottom:20,
+          }}>
+            <div style={{ fontSize:12,fontWeight:700,color:"#92400e",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.05em" }}>
+              Sesion activa
+            </div>
+            <div style={{ fontSize:14,color:"#78350f",marginBottom:10 }}>
+              <strong>{existingSession.name}</strong> ({existingSession.role === "admin" ? "Administrador" : existingSession.role === "executive" ? "Asesor" : "Cliente"})
+            </div>
+            <div style={{ display:"flex",gap:8 }}>
+              <button
+                onClick={() => navigate(roleHome(existingSession.role))}
+                style={{
+                  flex:1,padding:"10px",background:"#e84545",color:"#fff",
+                  border:"none",borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit",
+                }}
+              >
+                Continuar
+              </button>
+              <button
+                onClick={() => {
+                  localStorage.clear();
+                  setExistingSession(null);
+                }}
+                style={{
+                  flex:1,padding:"10px",background:"#fff",color:"#78350f",
+                  border:"1.5px solid #fde68a",borderRadius:10,fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:"inherit",
+                }}
+              >
+                Cambiar usuario
+              </button>
+            </div>
+          </div>
+        )}
+
         <h2 style={{ fontSize:22,fontWeight:900,color:"#111",margin:"0 0 4px",letterSpacing:"-0.04em" }}>
-          Bienvenido de vuelta
+          {existingSession ? "Iniciar con otra cuenta" : "Bienvenido de vuelta"}
         </h2>
         <p style={{ fontSize:14,color:"var(--text-secondary)",margin:"0 0 28px",lineHeight:1.5 }}>
           Ingresa con tu usuario y contrasena

@@ -32,8 +32,9 @@ router.post("/invite-codes/generate", requireAuth, async (req, res): Promise<voi
   const code = generateCode();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-  // Admin invites: parentId = null so the new admin creates an independent tree
-  const parentId = role === "admin" ? null : req.userId!;
+  // Admin invites: parentId = creator's id so branch admins are linked in hierarchy
+  // Superadmin (parentId=null) creates branch admins with parentId=superadmin's userId
+  const parentId = req.userId!;
 
   const [newCode] = await db.insert(inviteCodesTable).values({
     code,
