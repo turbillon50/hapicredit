@@ -39,6 +39,7 @@ import ExecCommitments  from "@/pages/executive/commitments";
 import ExecAgenda       from "@/pages/executive/agenda";
 
 import NotFound         from "@/pages/not-found";
+import UpdatePrompt     from "@/components/UpdatePrompt";
 
 const clerkPubKey  = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
@@ -286,6 +287,7 @@ function ClerkApp() {
         <AuthProvider>
           <ClerkCacheInvalidator />
           <Router />
+          <UpdatePrompt />
         </AuthProvider>
       </QueryClientProvider>
     </ClerkProvider>
@@ -297,6 +299,7 @@ function NoClerkApp() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <Router />
+        <UpdatePrompt />
       </AuthProvider>
     </QueryClientProvider>
   );

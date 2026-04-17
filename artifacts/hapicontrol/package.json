@@ -78,6 +78,7 @@
   "dependencies": {
     "@clerk/clerk-js": "^6.5.0",
     "@clerk/react": "^6.2.0",
-    "vite-plugin-pwa": "^1.2.0"
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-window": "^7.4.0"
   }
 }
