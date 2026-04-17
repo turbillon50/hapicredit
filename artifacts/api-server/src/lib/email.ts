@@ -293,7 +293,7 @@ export async function sendPaymentReminderEmail(opts: {
       <p style="margin:4px 0 0;color:#64748b;font-size:13px;">Semana ${opts.weekNumber} de ${opts.totalWeeks}</p>
     </div>
 
-    <p style="color:#64748b;font-size:14px;margin:0 0 8px;"><strong>Importante:</strong> El recargo por mora es de <strong>$200 por dia</strong> de atraso. Realiza tu pago a tiempo para evitarlo.</p>
+    <p style="color:#64748b;font-size:14px;margin:0 0 8px;"><strong>Importante:</strong> El recargo por mora es de <strong>$500 por dia</strong> de atraso. Realiza tu pago a tiempo para evitarlo.</p>
 
     <p style="color:#94a3b8;font-size:13px;margin:24px 0 0;line-height:1.6;">Comunicate con tu asesor para confirmar la entrega de tu pago o si tienes algun inconveniente.</p>
   `;

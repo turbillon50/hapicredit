@@ -8,7 +8,7 @@ import {
   ListPaymentsQueryParams,
 } from "@workspace/api-zod";
 
-const DAILY_LATE_FEE = 200;
+const DAILY_LATE_FEE = 500;
 
 const router: IRouter = Router();
 
