@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import { eq, ilike, and, inArray } from "drizzle-orm";
 import { db, clientsTable, creditsTable, paymentsTable, notesTable, commitmentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
+import { sendClientReassignmentEmail } from "../lib/email";
 import {
   CreateClientBody,
   UpdateClientBody,
@@ -254,6 +255,17 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
     return;
   }
 
+  // Fetch the current client to detect executiveId changes
+  const [currentClient] = await db
+    .select({ executiveId: clientsTable.executiveId })
+    .from(clientsTable)
+    .where(eq(clientsTable.id, params.data.id));
+
+  if (!currentClient) {
+    res.status(404).json({ error: "Client not found" });
+    return;
+  }
+
   // Remove nulls
   const updates: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(parsed.data)) {
@@ -308,6 +320,26 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
   if (!client) {
     res.status(404).json({ error: "Client not found" });
     return;
+  }
+
+  // Detect reassignment: only for admin-initiated changes where executiveId actually changed
+  const newExecutiveId = parsed.data.executiveId;
+  if (req.userRole === "admin" && newExecutiveId && newExecutiveId !== currentClient.executiveId) {
+    const [newExecutive] = await db
+      .select({ fullName: usersTable.fullName, email: usersTable.email })
+      .from(usersTable)
+      .where(eq(usersTable.id, newExecutiveId));
+
+    if (newExecutive?.email) {
+      sendClientReassignmentEmail({
+        to: newExecutive.email,
+        executiveName: newExecutive.fullName,
+        clientName: client.fullName,
+        clientPhone: client.phone,
+        clientAltPhone: client.altPhone,
+        clientAddress: client.address,
+      }).catch(() => {});
+    }
   }
 
   res.json({

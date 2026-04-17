@@ -208,6 +208,66 @@ export async function sendPaymentConfirmationEmail(opts: {
   });
 }
 
+// ── Email: Reasignacion de cliente ─────────────────────────────────────────────
+export async function sendClientReassignmentEmail(opts: {
+  to: string;
+  executiveName: string;
+  clientName: string;
+  clientPhone: string;
+  clientAltPhone?: string | null;
+  clientAddress?: string | null;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const content = `
+    <h2 style="color:#1e2d4f;font-size:22px;margin:0 0 8px;">Nuevo cliente asignado</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">Hola <strong>${opts.executiveName}</strong>, se te ha asignado un nuevo cliente. Aqui estan sus datos de contacto:</p>
+
+    <table width="100%" style="background:#f8fafc;border-radius:12px;padding:20px;" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #e2e8f0;">
+          <span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Nombre</span><br/>
+          <span style="color:#1e2d4f;font-size:16px;font-weight:700;">${opts.clientName}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #e2e8f0;">
+          <span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Telefono</span><br/>
+          <span style="color:#1e2d4f;font-size:15px;font-weight:600;">${opts.clientPhone}</span>
+        </td>
+      </tr>
+      ${opts.clientAltPhone ? `
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #e2e8f0;">
+          <span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Telefono alternativo</span><br/>
+          <span style="color:#1e2d4f;font-size:15px;font-weight:600;">${opts.clientAltPhone}</span>
+        </td>
+      </tr>` : ""}
+      ${opts.clientAddress ? `
+      <tr>
+        <td style="padding:8px 0;">
+          <span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Direccion</span><br/>
+          <span style="color:#1e2d4f;font-size:15px;">${opts.clientAddress}</span>
+        </td>
+      </tr>` : ""}
+    </table>
+
+    <div style="margin:28px 0;text-align:center;">
+      <a href="https://hapicredit.live" style="display:inline-block;background:#1e2d4f;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver en HapiCredit</a>
+    </div>
+
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Comunicate con el cliente a la brevedad para iniciar el seguimiento. Para cualquier duda contacta a tu administrador.</p>
+  `;
+
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: opts.to,
+    subject: `Nuevo cliente asignado — ${opts.clientName}`,
+    html: baseTemplate(content),
+  });
+}
+
 // ── Email: Recordatorio de pago ────────────────────────────────────────────────
 export async function sendPaymentReminderEmail(opts: {
   to: string;
