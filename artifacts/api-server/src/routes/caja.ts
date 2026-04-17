@@ -121,4 +121,41 @@ router.get("/caja/summary", requireAuth, requireRole("admin", "executive"), asyn
   res.json(summaries);
 });
 
+router.patch("/caja/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
+
+  const { description, amount } = req.body;
+  const updates: Record<string, unknown> = {};
+  if (description !== undefined) updates.description = description;
+  if (amount !== undefined) updates.amount = Number(amount).toString();
+
+  if (Object.keys(updates).length === 0) {
+    res.status(400).json({ error: "Nada que actualizar" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(cajaMovementsTable)
+    .set(updates as Parameters<typeof cajaMovementsTable.$inferInsert>[0])
+    .where(eq(cajaMovementsTable.id, id))
+    .returning();
+
+  if (!updated) { res.status(404).json({ error: "Movimiento no encontrado" }); return; }
+  res.json(formatMovement({ ...updated, executiveName: null }));
+});
+
+router.delete("/caja/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
+
+  const [deleted] = await db
+    .delete(cajaMovementsTable)
+    .where(eq(cajaMovementsTable.id, id))
+    .returning();
+
+  if (!deleted) { res.status(404).json({ error: "Movimiento no encontrado" }); return; }
+  res.json({ ok: true });
+});
+
 export default router;

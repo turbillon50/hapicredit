@@ -1,5 +1,5 @@
 import { useParams } from "wouter";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Avatar } from "@/components/hapi/Avatar";
 import { Badge, statusBadge } from "@/components/hapi/Badge";
@@ -10,7 +10,7 @@ import {
   IconAtras, IconTelefono, IconUbicacion, IconPersona,
   IconCheck, IconReloj, IconDocumento, IconAlerta,
   IconMoneda, IconCalendario, IconImagen, IconOjo,
-  IconCerrar,
+  IconCerrar, IconGrupo,
 } from "@/components/hapi/HapiIcons";
 import { useState } from "react";
 import { Link } from "wouter";
@@ -28,12 +28,57 @@ const fmtDate = (d: string | null | undefined) =>
 
 export default function AdminExpediente() {
   const { id } = useParams<{ id: string }>();
+  const queryClient = useQueryClient();
   const [docPreview, setDocPreview] = useState<any | null>(null);
+  const [showReasignar, setShowReasignar] = useState(false);
+  const [showCambiarFecha, setShowCambiarFecha] = useState(false);
+  const [newExecId, setNewExecId] = useState<number | null>(null);
+  const [newDate, setNewDate] = useState("");
 
   const { data: client, isLoading } = useQuery<any>({
     queryKey: ["client", id],
     queryFn: () => fetch(`${API}/clients/${id}`, { headers: auth() }).then(r => r.json()),
     enabled: !!id,
+  });
+
+  const { data: executives } = useQuery<any[]>({
+    queryKey: ["executives-list"],
+    queryFn: () => fetch(`${API}/users?role=executive`, { headers: auth() }).then(r => r.json()),
+    enabled: showReasignar,
+  });
+
+  const reasignarMut = useMutation({
+    mutationFn: async (executiveId: number) => {
+      const r = await fetch(`${API}/clients/${id}`, {
+        method: "PATCH",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ executiveId }),
+      });
+      if (!r.ok) throw new Error("Error al reasignar");
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      setShowReasignar(false);
+      setNewExecId(null);
+    },
+  });
+
+  const cambiarFechaMut = useMutation({
+    mutationFn: async ({ creditId, date }: { creditId: number; date: string }) => {
+      const r = await fetch(`${API}/credits/${creditId}`, {
+        method: "PATCH",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ disbursementDate: date }),
+      });
+      if (!r.ok) throw new Error("Error al cambiar fecha");
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      setShowCambiarFecha(false);
+      setNewDate("");
+    },
   });
 
   if (isLoading) return (
@@ -290,6 +335,48 @@ export default function AdminExpediente() {
           </div>
         )}
 
+        {/* Acciones administrativas */}
+        <div className="px-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
+            Acciones del Admin
+          </div>
+          <div className="card flex flex-col gap-3">
+            <button
+              onClick={() => setShowReasignar(true)}
+              className="flex items-center gap-3 pressable w-full text-left"
+            >
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#eff6ff" }}>
+                <IconGrupo size={16} color="#1d4ed8" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-900">Reasignar asesor</div>
+                {client.executiveName && (
+                  <div className="text-xs text-gray-500">Actual: {client.executiveName}</div>
+                )}
+              </div>
+              <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+            </button>
+
+            {activeCredit && (
+              <button
+                onClick={() => { setShowCambiarFecha(true); setNewDate(activeCredit.disbursementDate ?? ""); }}
+                className="flex items-center gap-3 pressable w-full text-left border-t border-gray-100 pt-3"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#f0fdf4" }}>
+                  <IconCalendario size={16} color="#16a34a" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">Cambiar fecha de pago</div>
+                  {activeCredit.disbursementDate && (
+                    <div className="text-xs text-gray-500">Actual: {fmtDate(activeCredit.disbursementDate)}</div>
+                  )}
+                </div>
+                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            )}
+          </div>
+        </div>
+
       </div>
 
       {/* Doc preview modal */}
@@ -317,6 +404,96 @@ export default function AdminExpediente() {
                 className="w-full max-h-[60vh] object-contain bg-black"
               />
             </div>
+          </div>
+        </div>
+      )}
+      {/* Modal reasignar asesor */}
+      {showReasignar && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460, maxHeight: "80vh", overflowY: "auto" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Reasignar asesor</h3>
+            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>Selecciona el nuevo asesor para {client?.fullName}</p>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
+              {(executives ?? []).filter((e: any) => e.role === "executive" && e.isActive).map((exec: any) => (
+                <button
+                  key={exec.id}
+                  onClick={() => setNewExecId(exec.id)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "12px 14px", borderRadius: 12,
+                    border: `1.5px solid ${newExecId === exec.id ? "#1d4ed8" : "#e2e8f0"}`,
+                    background: newExecId === exec.id ? "#eff6ff" : "#fff",
+                    cursor: "pointer", fontFamily: "inherit", textAlign: "left",
+                  }}
+                >
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "#dbeafe", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#1e40af" }}>
+                    {exec.fullName.charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "#111" }}>{exec.fullName}</div>
+                    {exec.username && <div style={{ fontSize: 11, color: "#64748b" }}>{exec.username}</div>}
+                  </div>
+                  {newExecId === exec.id && (
+                    <div style={{ marginLeft: "auto" }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                  )}
+                </button>
+              ))}
+              {(!executives || executives.length === 0) && (
+                <p style={{ fontSize: 13, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>Cargando asesores...</p>
+              )}
+            </div>
+            <button
+              onClick={() => newExecId && reasignarMut.mutate(newExecId)}
+              disabled={!newExecId || reasignarMut.isPending}
+              style={{ width: "100%", padding: 14, background: "#142246", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newExecId || reasignarMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newExecId || reasignarMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+            >
+              {reasignarMut.isPending ? "Guardando..." : "Reasignar"}
+            </button>
+            <button
+              onClick={() => { setShowReasignar(false); setNewExecId(null); }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal cambiar fecha de pago */}
+      {showCambiarFecha && activeCredit && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Cambiar fecha de pago</h3>
+            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>
+              Modifica la fecha de inicio del ciclo de {client?.fullName}.<br />
+              <span style={{ color: "#dc2626", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del credito activo.</span>
+            </p>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Nueva fecha de inicio</label>
+              <input
+                type="date"
+                value={newDate}
+                onChange={e => setNewDate(e.target.value)}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+              />
+            </div>
+            <button
+              onClick={() => newDate && cambiarFechaMut.mutate({ creditId: activeCredit.id, date: newDate })}
+              disabled={!newDate || cambiarFechaMut.isPending}
+              style={{ width: "100%", padding: 14, background: "#142246", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newDate || cambiarFechaMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newDate || cambiarFechaMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+            >
+              {cambiarFechaMut.isPending ? "Guardando..." : "Cambiar fecha"}
+            </button>
+            <button
+              onClick={() => { setShowCambiarFecha(false); setNewDate(""); }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            >
+              Cancelar
+            </button>
           </div>
         </div>
       )}

@@ -144,12 +144,16 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <button
-          onClick={() => back ? navigate(back) : navigate("/")}
+          onClick={() => {
+            if (back) { navigate(back); }
+            else if (window.history.length > 1) { window.history.back(); }
+            else { navigate(isAdmin ? "/admin" : isExec ? "/dashboard" : "/"); }
+          }}
           className="flex items-center gap-1.5 pressable"
           style={{ color: "rgba(255,255,255,0.55)", background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
-          <span style={{ fontSize: 13, fontWeight: 600 }}>{back ? "Atras" : "Inicio"}</span>
+          <span style={{ fontSize: 13, fontWeight: 600 }}>Atras</span>
         </button>
 
         <div className="flex items-center gap-2">

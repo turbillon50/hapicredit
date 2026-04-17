@@ -93,6 +93,8 @@ const EXPENSE_TYPES = [
   { value: "expense", label: "Otro gasto" },
 ];
 
+type EditTarget = { id: string; amount: number; description: string };
+
 export default function AdminMovimientos() {
   const [, params] = useRoute("/admin/movimientos/:id");
   const [, navigate] = useLocation();
@@ -103,6 +105,11 @@ export default function AdminMovimientos() {
   const [formType, setFormType] = useState("payroll");
   const [formAmount, setFormAmount] = useState("");
   const [formDesc, setFormDesc] = useState("");
+
+  const [editTarget, setEditTarget] = useState<EditTarget | null>(null);
+  const [editAmount, setEditAmount] = useState("");
+  const [editDesc, setEditDesc] = useState("");
+  const [deleteTarget, setDeleteTarget] = useState<EditTarget | null>(null);
 
   const { data, isLoading } = useQuery<LedgerData>({
     queryKey: ["executive-ledger", executiveId],
@@ -131,6 +138,37 @@ export default function AdminMovimientos() {
       setShowForm(false);
       setFormAmount("");
       setFormDesc("");
+    },
+  });
+
+  const editExpense = useMutation({
+    mutationFn: async ({ id, amount, description }: { id: string; amount: number; description: string }) => {
+      const r = await fetch(`${API}/caja/${id}`, {
+        method: "PATCH",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ amount, description }),
+      });
+      if (!r.ok) throw new Error("Error al editar");
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["executive-ledger", executiveId] });
+      setEditTarget(null);
+    },
+  });
+
+  const deleteExpense = useMutation({
+    mutationFn: async (id: string) => {
+      const r = await fetch(`${API}/caja/${id}`, {
+        method: "DELETE",
+        headers: auth(),
+      });
+      if (!r.ok) throw new Error("Error al eliminar");
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["executive-ledger", executiveId] });
+      setDeleteTarget(null);
     },
   });
 
@@ -299,36 +337,54 @@ export default function AdminMovimientos() {
                     {fmtDate(date)}
                   </p>
                   <div className="bg-white rounded-2xl shadow-card divide-y divide-border overflow-hidden">
-                    {groupedEntries[date].map((entry) => (
-                      <div key={entry.id} className="flex items-center gap-3 px-4 py-3">
-                        <div
-                          className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
-                          style={{ background: getEntryIconBg(entry.type) }}
-                        >
-                          {getEntryIcon(entry.type)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[12px] font-semibold text-foreground truncate">
-                            {entry.description}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground truncate">
-                            Prestamos {data.executiveName}
-                          </p>
-                          <p className="text-[10px] text-muted-foreground truncate">{entry.detail}</p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p
-                            className={`text-sm font-bold ${
-                              entry.amount >= 0 ? "text-foreground" : "text-red-500"
-                            }`}
+                    {groupedEntries[date].map((entry) => {
+                      const isCaja = entry.id.startsWith("caja-");
+                      const cajaId = isCaja ? entry.id.replace("caja-", "") : null;
+                      return (
+                        <div key={entry.id} className="flex items-center gap-3 px-4 py-3">
+                          <div
+                            className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ background: getEntryIconBg(entry.type) }}
                           >
-                            {entry.amount >= 0 ? "" : "-"}
-                            {fmt(Math.abs(entry.amount))}
-                          </p>
-                          <p className="text-[9px] text-muted-foreground">{fmtTime(entry.createdAt)}</p>
+                            {getEntryIcon(entry.type)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[12px] font-semibold text-foreground truncate">
+                              {entry.description}
+                            </p>
+                            <p className="text-[10px] text-muted-foreground truncate">{entry.detail}</p>
+                          </div>
+                          <div className="text-right shrink-0 flex items-center gap-2">
+                            <div>
+                              <p className={`text-sm font-bold ${entry.amount >= 0 ? "text-foreground" : "text-red-500"}`}>
+                                {entry.amount >= 0 ? "" : "-"}{fmt(Math.abs(entry.amount))}
+                              </p>
+                              <p className="text-[9px] text-muted-foreground">{fmtTime(entry.createdAt)}</p>
+                            </div>
+                            {isCaja && cajaId && (
+                              <div className="flex flex-col gap-1 ml-1">
+                                <button
+                                  onClick={() => {
+                                    setEditTarget({ id: cajaId, amount: Math.abs(entry.amount), description: entry.detail !== `Prestamos ${data.executiveName}` ? entry.detail : entry.description });
+                                    setEditAmount(String(Math.abs(entry.amount)));
+                                    setEditDesc(entry.detail !== `Prestamos ${data.executiveName}` ? entry.detail : entry.description);
+                                  }}
+                                  style={{ background: "#eff6ff", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#1d4ed8" }}
+                                >
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                </button>
+                                <button
+                                  onClick={() => setDeleteTarget({ id: cajaId, amount: Math.abs(entry.amount), description: entry.description })}
+                                  style={{ background: "#fef2f2", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#dc2626" }}
+                                >
+                                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                </button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ))}
@@ -345,6 +401,72 @@ export default function AdminMovimientos() {
           </>
         ) : null}
       </div>
+
+      {/* Modal editar gasto */}
+      {editTarget && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 16px" }}>Editar movimiento</h3>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Monto ($)"
+                value={editAmount}
+                onChange={e => setEditAmount(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+              />
+              <input
+                type="text"
+                placeholder="Descripcion"
+                value={editDesc}
+                onChange={e => setEditDesc(e.target.value)}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+              />
+            </div>
+            <button
+              onClick={() => editExpense.mutate({ id: editTarget.id, amount: parseFloat(editAmount), description: editDesc })}
+              disabled={editExpense.isPending || !editAmount}
+              style={{ width: "100%", padding: 14, background: "#142246", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: editExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+            >
+              {editExpense.isPending ? "Guardando..." : "Guardar cambios"}
+            </button>
+            <button
+              onClick={() => setEditTarget(null)}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal eliminar gasto */}
+      {deleteTarget && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>Eliminar movimiento</h3>
+            <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px", lineHeight: 1.5 }}>
+              Vas a eliminar <strong>{deleteTarget.description}</strong> por <strong>{fmt(deleteTarget.amount)}</strong>. Esta accion no se puede deshacer.
+            </p>
+            <button
+              onClick={() => deleteExpense.mutate(deleteTarget.id)}
+              disabled={deleteExpense.isPending}
+              style={{ width: "100%", padding: 14, background: "#ef4444", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: deleteExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: deleteExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+            >
+              {deleteExpense.isPending ? "Eliminando..." : "Eliminar"}
+            </button>
+            <button
+              onClick={() => setDeleteTarget(null)}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 }

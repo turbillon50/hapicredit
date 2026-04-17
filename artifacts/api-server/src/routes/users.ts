@@ -267,4 +267,27 @@ router.delete("/users/:id", requireAuth, requireRole("admin"), async (req, res):
   res.json({ ok: true });
 });
 
+router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
+
+  const newParentId = parseInt(req.body.parentId, 10);
+  if (isNaN(newParentId)) { res.status(400).json({ error: "parentId inválido" }); return; }
+
+  const [parent] = await db.select().from(usersTable).where(eq(usersTable.id, newParentId));
+  if (!parent || parent.role !== "admin") {
+    res.status(400).json({ error: "El nuevo administrador no existe o no tiene rol admin" });
+    return;
+  }
+
+  const [updated] = await db
+    .update(usersTable)
+    .set({ parentId: newParentId, treeId: parent.treeId })
+    .where(eq(usersTable.id, id))
+    .returning();
+
+  if (!updated) { res.status(404).json({ error: "Asesor no encontrado" }); return; }
+  res.json({ ok: true, id: updated.id, parentId: updated.parentId, treeId: updated.treeId });
+});
+
 export default router;
