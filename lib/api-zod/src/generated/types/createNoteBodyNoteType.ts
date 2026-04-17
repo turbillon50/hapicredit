@@ -16,4 +16,5 @@ export const CreateNoteBodyNoteType = {
   promise: "promise",
   issue: "issue",
   other: "other",
+  system: "system",
 } as const;

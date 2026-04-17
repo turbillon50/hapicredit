@@ -245,6 +245,7 @@ export const GetClientResponse = zod.object({
         "promise",
         "issue",
         "other",
+        "system",
       ]),
       content: zod.string(),
       createdAt: zod.string(),
@@ -573,7 +574,7 @@ export const ListNotesResponseItem = zod.object({
   clientId: zod.number(),
   authorId: zod.number().nullish(),
   authorName: zod.string().nullish(),
-  noteType: zod.enum(["call", "visit", "comment", "promise", "issue", "other"]),
+  noteType: zod.enum(["call", "visit", "comment", "promise", "issue", "other", "system"]),
   content: zod.string(),
   createdAt: zod.string(),
 });
@@ -585,7 +586,7 @@ export const ListNotesResponse = zod.array(ListNotesResponseItem);
 export const CreateNoteBody = zod.object({
   clientId: zod.number(),
   authorId: zod.number().nullish(),
-  noteType: zod.enum(["call", "visit", "comment", "promise", "issue", "other"]),
+  noteType: zod.enum(["call", "visit", "comment", "promise", "issue", "other", "system"]),
   content: zod.string(),
 });
 

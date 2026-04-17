@@ -200,6 +200,7 @@ export const NoteNoteType = {
   promise: "promise",
   issue: "issue",
   other: "other",
+  system: "system",
 } as const;
 
 export interface Note {
@@ -410,6 +411,7 @@ export const CreateNoteBodyNoteType = {
   promise: "promise",
   issue: "issue",
   other: "other",
+  system: "system",
 } as const;
 
 export interface CreateNoteBody {

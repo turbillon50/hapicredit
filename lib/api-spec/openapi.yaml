@@ -1222,7 +1222,7 @@ components:
           type: ["string", "null"]
         noteType:
           type: string
-          enum: [call, visit, comment, promise, issue, other]
+          enum: [call, visit, comment, promise, issue, other, system]
         content:
           type: string
         createdAt:
@@ -1238,7 +1238,7 @@ components:
           type: ["integer", "null"]
         noteType:
           type: string
-          enum: [call, visit, comment, promise, issue, other]
+          enum: [call, visit, comment, promise, issue, other, system]
         content:
           type: string
       required: [clientId, noteType, content]

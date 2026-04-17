@@ -15,4 +15,5 @@ export const NoteNoteType = {
   promise: "promise",
   issue: "issue",
   other: "other",
+  system: "system",
 } as const;

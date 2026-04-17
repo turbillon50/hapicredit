@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and } from "drizzle-orm";
+import { eq, ilike, and, inArray } from "drizzle-orm";
 import { db, clientsTable, creditsTable, paymentsTable, notesTable, commitmentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -260,11 +260,50 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
     if (v !== null && v !== undefined) updates[k] = v;
   }
 
-  const [client] = await db
-    .update(clientsTable)
-    .set(updates as Parameters<typeof clientsTable.$inferSelect>[0])
-    .where(eq(clientsTable.id, params.data.id))
-    .returning();
+  // Capture current executiveId before update for audit log
+  const [existing] = await db
+    .select({ executiveId: clientsTable.executiveId })
+    .from(clientsTable)
+    .where(eq(clientsTable.id, params.data.id));
+
+  // Run update and audit note insert atomically
+  const client = await db.transaction(async (tx) => {
+    const [updated] = await tx
+      .update(clientsTable)
+      .set(updates as Parameters<typeof clientsTable.$inferSelect>[0])
+      .where(eq(clientsTable.id, params.data.id))
+      .returning();
+
+    if (!updated) return null;
+
+    // Insert audit note if executiveId changed
+    if (
+      existing &&
+      updates.executiveId !== undefined &&
+      updates.executiveId !== existing.executiveId
+    ) {
+      const oldId = existing.executiveId;
+      const newId = updated.executiveId;
+
+      const execIds = [oldId, newId].filter((id): id is number => id !== null && id !== undefined);
+      const executives = execIds.length > 0
+        ? await tx.select({ id: usersTable.id, fullName: usersTable.fullName }).from(usersTable).where(inArray(usersTable.id, execIds))
+        : [];
+
+      const nameMap = new Map(executives.map((u) => [u.id, u.fullName]));
+      const oldName = (oldId != null ? nameMap.get(oldId) : null) ?? "Sin asignar";
+      const newName = (newId != null ? nameMap.get(newId) : null) ?? "Sin asignar";
+
+      await tx.insert(notesTable).values({
+        clientId: updated.id,
+        authorId: null,
+        noteType: "system",
+        content: `Reasignado de ${oldName} a ${newName}`,
+      });
+    }
+
+    return updated;
+  });
 
   if (!client) {
     res.status(404).json({ error: "Client not found" });
