@@ -228,18 +228,6 @@ export default function AdminArbol() {
     },
   });
 
-  const seedDemo = useMutation({
-    mutationFn: async () => {
-      const r = await fetch(`${API}/users/seed-demo`, { method: "POST", headers: auth() });
-      if (!r.ok) {
-        const d = await r.json();
-        throw new Error(d.error ?? "Error al cargar demo");
-      }
-      return r.json();
-    },
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["my-tree"] }),
-  });
-
   const deleteUser = useMutation({
     mutationFn: async (id: number) => {
       const r = await fetch(`${API}/users/${id}`, { method: "DELETE", headers: auth() });
@@ -336,27 +324,15 @@ export default function AdminArbol() {
             <div style={{ width: 64, height: 64, borderRadius: 20, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <IconEquipo size={32} color="#cbd5e1" />
             </div>
-            <p style={{ color: "#475569", marginTop: 0, fontWeight: 700, fontSize: 17 }}>Tu red esta vacia</p>
-            <p style={{ color: "#94a3b8", fontSize: 13, marginTop: 6, lineHeight: 1.5, maxWidth: 260, margin: "6px auto 28px" }}>
-              Carga datos de ejemplo para ver como funciona la plataforma, o genera codigos de invitacion para agregar miembros reales.
+            <p style={{ color: "#475569", marginTop: 0, fontWeight: 700, fontSize: 17 }}>Tu red está vacía</p>
+            <p style={{ color: "#94a3b8", fontSize: 13, marginTop: 6, lineHeight: 1.5, maxWidth: 280, margin: "6px auto 28px" }}>
+              Genera códigos de invitación desde tu perfil para agregar asesores y acreditados a tu red.
             </p>
-            {userRole === "admin" && (
-              <button
-                onClick={() => seedDemo.mutate()}
-                disabled={seedDemo.isPending}
-                style={{ display: "block", width: "100%", maxWidth: 320, margin: "0 auto 12px", padding: "15px", border: "none", borderRadius: 16, fontWeight: 700, fontSize: 15, cursor: seedDemo.isPending ? "default" : "pointer", background: "#142246", color: "#fff", fontFamily: "inherit", opacity: seedDemo.isPending ? 0.7 : 1 }}
-              >
-                {seedDemo.isPending ? "Cargando datos de ejemplo..." : "Cargar datos de ejemplo"}
-              </button>
-            )}
-            {seedDemo.isError && (
-              <p style={{ color: "#ef4444", fontSize: 13, marginTop: 8 }}>{(seedDemo.error as Error).message}</p>
-            )}
             <a
               href="/perfil"
-              style={{ display: "inline-block", marginTop: 8, padding: "11px 22px", background: "transparent", border: "1.5px solid #e2e8f0", color: "#475569", borderRadius: 12, fontSize: 14, fontWeight: 600, textDecoration: "none" }}
+              style={{ display: "inline-block", padding: "13px 28px", background: "#142246", color: "#fff", borderRadius: 14, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
             >
-              Ir a mi perfil
+              Ir a mi perfil — Códigos de invitación
             </a>
           </div>
         )}

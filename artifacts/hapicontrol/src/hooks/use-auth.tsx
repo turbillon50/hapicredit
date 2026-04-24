@@ -4,20 +4,12 @@ import type { User } from "@workspace/api-client-react/src/generated/api.schemas
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 
-export const DEMO_CREDS: Record<string, { username: string; password: string; label: string }> = {
-  admin:      { username: "admin",      password: "admin123",  label: "Administrador"        },
-  ejecutivo1: { username: "ejecutivo1", password: "exec123",   label: "Asesor — Carlos"      },
-  ejecutivo2: { username: "ejecutivo2", password: "exec123",   label: "Asesor — Daniela"     },
-  cliente1:   { username: "cliente1",   password: "client123", label: "Cliente — Ana López"  },
-};
-
 type AuthContextType = {
   user: User | null;
   isLoading: boolean;
   initialized: boolean;
   login: (username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  demoLogin: (key: keyof typeof DEMO_CREDS) => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -48,7 +40,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(meData);
       setInit(true);
     } else {
-      // No session — go to login
       setUser(null);
       setInit(true);
     }
@@ -69,19 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLocation("/login");
   };
 
-  const demoLogin = async (key: keyof typeof DEMO_CREDS) => {
-    const cred = DEMO_CREDS[key as string];
-    if (!cred) return;
-    localStorage.removeItem("hapi_token");
-    queryClient.clear();
-    const res = await loginMut.mutateAsync({ data: { username: cred.username, password: cred.password } });
-    localStorage.setItem("hapi_token", res.token);
-    setUser(res.user);
-    setLocation(roleHome(res.user.role));
-  };
-
   return (
-    <AuthContext.Provider value={{ user, isLoading, initialized, login, logout, demoLogin }}>
+    <AuthContext.Provider value={{ user, isLoading, initialized, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
