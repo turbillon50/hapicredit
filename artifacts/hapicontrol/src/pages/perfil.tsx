@@ -6,6 +6,7 @@ import {
   IconOjo, IconCerrar, IconLoader, IconInfo, IconTelefono, IconUbicacion, IconID,
 } from "@/components/hapi/HapiIcons";
 import { useState, useRef } from "react";
+import { useLocation } from "wouter";
 
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("hapi_token")}` });
@@ -284,12 +285,23 @@ function InviteCodes({ userRole }: { userRole: string }) {
 
 /* ─── Main Component ───────────────────────────────────────────────────────── */
 export default function Perfil() {
+  const [, navigate] = useLocation();
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [labelKey, setLabelKey] = useState("ine_front");
   const [uploading, setUploading] = useState(false);
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [preview, setPreview] = useState<any | null>(null);
+  const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
+
+  const deleteMeM = useMutation({
+    mutationFn: () =>
+      fetch(`${API}/users/me`, { method: "DELETE", headers: auth() }).then(r => r.json()),
+    onSuccess: () => {
+      localStorage.clear();
+      window.location.href = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/login";
+    },
+  });
 
   const rawUser  = localStorage.getItem("hapi_user");
   const userObj  = rawUser ? JSON.parse(rawUser) : {};
@@ -476,6 +488,44 @@ export default function Perfil() {
           </div>
         )}
 
+        {/* Legal links */}
+        <div className="card" style={{ padding: "4px 0", background: "#fff" }}>
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-widest" style={{ padding: "12px 16px 8px" }}>Información y legal</div>
+          {[
+            { label: "Preguntas frecuentes",   path: "/faq" },
+            { label: "Términos y condiciones",  path: "/terminos" },
+            { label: "Aviso de privacidad",     path: "/privacidad" },
+          ].map(item => (
+            <button
+              key={item.path}
+              className="pressable"
+              onClick={() => navigate(item.path)}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer",
+                borderTop: "1px solid #f1f5f9",
+              }}
+            >
+              <span style={{ fontSize: 14, color: "#374151", fontWeight: 500 }}>{item.label}</span>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          ))}
+          {userRole === "admin" && (
+            <button
+              className="pressable"
+              onClick={() => navigate("/admin/faq")}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
+                padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer",
+                borderTop: "1px solid #f1f5f9",
+              }}
+            >
+              <span style={{ fontSize: 14, color: "#374151", fontWeight: 500 }}>Administrar FAQ</span>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          )}
+        </div>
+
         {/* App info */}
         <div className="card flex items-start gap-3" style={{ background: "#f8fafc" }}>
           <span className="mt-0.5 shrink-0"><IconInfo size={20} color="#9ca3af" /></span>
@@ -500,6 +550,89 @@ export default function Perfil() {
         >
           Cerrar sesión
         </button>
+
+        {/* Delete account */}
+        <button
+          onClick={() => setDeleteStep(1)}
+          className="w-full py-3 rounded-2xl text-sm font-semibold pressable"
+          style={{ background: "transparent", color: "#9ca3af", border: "1px solid #f1f5f9" }}
+        >
+          Eliminar mi cuenta
+        </button>
+
+        {/* Delete confirm — step 1 */}
+        {deleteStep === 1 && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end" }}>
+            <div style={{ width: "100%", background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 20px 48px" }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 12 }}>
+                Eliminar cuenta
+              </div>
+              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
+                Al eliminar tu cuenta se eliminarán permanentemente tus datos personales. Esta acción no se puede deshacer.
+              </div>
+              <div style={{ borderRadius: 14, background: "#fef2f2", border: "1px solid #fecaca", padding: "12px 14px", marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: "#dc2626", fontWeight: 600, marginBottom: 4 }}>Lo que se eliminará:</div>
+                <ul style={{ fontSize: 13, color: "#dc2626", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
+                  <li>Nombre, correo y datos de perfil</li>
+                  <li>Sesión activa</li>
+                </ul>
+                <div style={{ fontSize: 12, color: "#ef4444", marginTop: 8 }}>
+                  Los registros de transacciones y créditos se conservan por obligación legal.
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button
+                  onClick={() => setDeleteStep(0)}
+                  className="pressable"
+                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={() => setDeleteStep(2)}
+                  className="pressable"
+                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "none", background: "#ef4444", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+                >
+                  Continuar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete confirm — step 2 final */}
+        {deleteStep === 2 && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "100%" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", textAlign: "center", marginBottom: 10 }}>
+                Confirma la eliminación
+              </div>
+              <div style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+                Esta es la última confirmación. Tu cuenta y datos personales serán eliminados de forma permanente.
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button
+                  onClick={() => deleteMeM.mutate()}
+                  disabled={deleteMeM.isPending}
+                  className="pressable"
+                  style={{ padding: "13px", borderRadius: 14, border: "none", background: "#ef4444", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: deleteMeM.isPending ? 0.7 : 1 }}
+                >
+                  {deleteMeM.isPending ? "Eliminando..." : "Sí, eliminar mi cuenta"}
+                </button>
+                <button
+                  onClick={() => setDeleteStep(0)}
+                  className="pressable"
+                  style={{ padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                >
+                  No, conservar mi cuenta
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Image preview modal */}

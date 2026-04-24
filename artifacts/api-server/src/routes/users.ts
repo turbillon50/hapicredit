@@ -267,6 +267,32 @@ router.delete("/users/:id", requireAuth, requireRole("admin"), async (req, res):
   res.json({ ok: true });
 });
 
+// ─── DELETE MY ACCOUNT (self soft-delete) ────────────────────────────────────
+router.delete("/users/me", requireAuth, async (req, res): Promise<void> => {
+  const userId = req.userId!;
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, userId));
+  if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+  const ts = Date.now();
+  const anonEmail    = `deleted_${ts}@hapicredit.deleted`;
+  const anonName     = `Cuenta eliminada`;
+  const anonUsername = `deleted_${ts}`;
+
+  await db.update(usersTable).set({
+    isActive:  false,
+    email:     anonEmail,
+    fullName:  anonName,
+    username:  anonUsername,
+    clerkId:   null,
+    updatedAt: new Date(),
+  }).where(eq(usersTable.id, userId));
+
+  await db.delete(sessionsTable).where(eq(sessionsTable.userId, userId));
+
+  res.json({ ok: true, message: "Cuenta eliminada correctamente" });
+});
+
 router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   const id = parseInt(req.params.id, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }

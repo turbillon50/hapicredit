@@ -38,8 +38,11 @@ import ExecAlerts       from "@/pages/executive/alerts";
 import ExecCommitments  from "@/pages/executive/commitments";
 import ExecAgenda       from "@/pages/executive/agenda";
 
+import Faq             from "@/pages/faq";
+import AdminFaq        from "@/pages/admin/faq";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
+import SmartInstallBanner from "@/components/SmartInstallBanner";
 
 const clerkPubKey  = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
@@ -226,6 +229,7 @@ function Router() {
       <Route path="/login"      component={Login} />
       <Route path="/privacidad" component={Privacidad} />
       <Route path="/terminos"   component={Terminos} />
+      <Route path="/faq"        component={Faq} />
 
       {/* Clerk auth routes */}
       <Route path="/sign-in" component={SignInPage} />
@@ -254,6 +258,7 @@ function Router() {
       <Route path="/admin/arbol"            component={AdminArbol} />
       <Route path="/admin/codigos"          component={AdminCodigos} />
       <Route path="/admin/expediente/:id"   component={AdminExpediente} />
+      <Route path="/admin/faq"              component={AdminFaq} />
 
       {/* Executive */}
       <Route path="/executive"              component={ExecDashboard} />
@@ -288,6 +293,7 @@ function ClerkApp() {
           <ClerkCacheInvalidator />
           <Router />
           <UpdatePrompt />
+          <SmartInstallBanner />
         </AuthProvider>
       </QueryClientProvider>
     </ClerkProvider>
@@ -300,6 +306,7 @@ function NoClerkApp() {
       <AuthProvider>
         <Router />
         <UpdatePrompt />
+        <SmartInstallBanner />
       </AuthProvider>
     </QueryClientProvider>
   );

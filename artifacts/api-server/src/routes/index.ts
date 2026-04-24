@@ -12,6 +12,7 @@ import alertsRouter from "./alerts";
 import dashboardRouter from "./dashboard";
 import publicRouter from "./public";
 import inviteCodesRouter from "./inviteCodes";
+import faqRouter from "./faq";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(cajaRouter);
 router.use(alertsRouter);
 router.use(dashboardRouter);
 router.use(publicRouter);
+router.use(faqRouter);
 
 export default router;

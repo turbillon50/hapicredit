@@ -88,7 +88,7 @@ function RoleBadge({ role }: { role: string | null }) {
 function checkAccess(location: string): "ok" | "login" | string {
   const t = localStorage.getItem("hapi_token");
   const r = localStorage.getItem("hapi_role");
-  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos"];
+  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq"];
   if (!t) return publicPaths.includes(location) ? "ok" : "login";
   if (location.startsWith("/admin") && r !== "admin") return r === "executive" ? "/dashboard" : "/mi-credito";
   if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive") return r === "admin" ? "/admin" : "/mi-credito";
@@ -119,7 +119,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   useEffect(() => {
     const t = localStorage.getItem("hapi_token");
     const r = localStorage.getItem("hapi_role");
-    const publicPaths = ["/", "/login", "/registro"];
+    const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq"];
     const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
     if (!t) { if (!isPublic) navigate("/login"); return; }
     if (location.startsWith("/admin"))     { if (r !== "admin")     { navigate(r === "executive" ? "/dashboard" : "/mi-credito"); return; } }
