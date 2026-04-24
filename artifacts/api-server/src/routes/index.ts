@@ -13,6 +13,7 @@ import dashboardRouter from "./dashboard";
 import publicRouter from "./public";
 import inviteCodesRouter from "./inviteCodes";
 import faqRouter from "./faq";
+import purgeRouter from "./purge";
 
 const router: IRouter = Router();
 
@@ -30,5 +31,6 @@ router.use(alertsRouter);
 router.use(dashboardRouter);
 router.use(publicRouter);
 router.use(faqRouter);
+router.use(purgeRouter);
 
 export default router;
