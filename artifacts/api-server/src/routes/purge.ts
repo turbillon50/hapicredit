@@ -1,18 +1,14 @@
 import { Router, type IRouter } from "express";
-import { db } from "@workspace/db";
-import { sql } from "drizzle-orm";
+import { db, usersTable, sessionsTable, inviteCodesTable } from "@workspace/db";
+import { sql, ne } from "drizzle-orm";
+import { requireAuth, requireRole } from "../middlewares/auth";
 
 const router: IRouter = Router();
 
-router.post("/admin/purge-all-data", async (req, res): Promise<void> => {
-  const secret = req.headers["x-purge-key"];
-  const expected = process.env.CLERK_SECRET_KEY;
+router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const adminId = req.userId!;
 
-  if (!expected || secret !== expected) {
-    res.status(403).json({ error: "Forbidden" });
-    return;
-  }
-
+  // Delete all financial / operational data
   await db.execute(sql`
     TRUNCATE TABLE
       caja_movements,
@@ -22,14 +18,32 @@ router.post("/admin/purge-all-data", async (req, res): Promise<void> => {
       alerts,
       credits,
       clients,
-      sessions,
-      invite_codes,
-      public_requests,
-      users
+      public_requests
     RESTART IDENTITY CASCADE
   `);
 
-  res.json({ ok: true, message: "All data purged successfully" });
+  // Delete sessions for non-admin users
+  await db.execute(sql`
+    DELETE FROM sessions
+    WHERE user_id IN (
+      SELECT id FROM users WHERE role != 'admin'
+    )
+  `);
+
+  // Delete invite_codes created by non-admins
+  await db.execute(sql`
+    DELETE FROM invite_codes
+    WHERE created_by_id IN (
+      SELECT id FROM users WHERE role != 'admin'
+    )
+  `);
+
+  // Delete non-admin users (executives, clients)
+  await db.execute(sql`
+    DELETE FROM users WHERE role != 'admin'
+  `);
+
+  res.json({ ok: true, message: "Datos demo eliminados. La cuenta de administrador se mantiene activa." });
 });
 
 export default router;

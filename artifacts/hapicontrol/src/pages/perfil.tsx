@@ -293,6 +293,16 @@ export default function Perfil() {
   const [uploadMsg, setUploadMsg] = useState<string | null>(null);
   const [preview, setPreview] = useState<any | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
+  const [purgeStep, setPurgeStep] = useState<0 | 1 | 2>(0);
+
+  const purgeM = useMutation({
+    mutationFn: () =>
+      fetch(`${API}/admin/purge-demo-data`, { method: "POST", headers: auth() }).then(r => r.json()),
+    onSuccess: () => {
+      setPurgeStep(0);
+      window.location.reload();
+    },
+  });
 
   const deleteMeM = useMutation({
     mutationFn: () =>
@@ -537,6 +547,17 @@ export default function Perfil() {
           </div>
         </div>
 
+        {/* Admin: purge demo data */}
+        {userRole === "admin" && (
+          <button
+            onClick={() => setPurgeStep(1)}
+            className="w-full py-3 rounded-2xl text-sm font-semibold pressable"
+            style={{ background: "#fff7ed", color: "#c2410c", border: "1px solid #fed7aa" }}
+          >
+            Limpiar datos de prueba
+          </button>
+        )}
+
         {/* Logout */}
         <button
           onClick={() => {
@@ -559,6 +580,72 @@ export default function Perfil() {
         >
           Eliminar mi cuenta
         </button>
+
+        {/* Purge step 1 — warning */}
+        {purgeStep === 1 && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end" }}>
+            <div style={{ width: "100%", background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 20px 48px" }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 12 }}>
+                Limpiar datos de prueba
+              </div>
+              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
+                Esto eliminará permanentemente todos los clientes, créditos, pagos y asesores de prueba. Tu cuenta de administrador se conserva.
+              </div>
+              <div style={{ borderRadius: 14, background: "#fff7ed", border: "1px solid #fed7aa", padding: "12px 14px", marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: "#c2410c", fontWeight: 600, marginBottom: 4 }}>Se eliminará:</div>
+                <ul style={{ fontSize: 13, color: "#c2410c", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
+                  <li>Todos los clientes y sus documentos</li>
+                  <li>Todos los créditos y pagos</li>
+                  <li>Todos los asesores (ejecutivos)</li>
+                  <li>Movimientos de caja y alertas</li>
+                </ul>
+              </div>
+              <div style={{ display: "flex", gap: 10 }}>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}>
+                  Cancelar
+                </button>
+                <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                  Continuar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Purge step 2 — final confirm */}
+        {purgeStep === 2 && (
+          <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
+            <div style={{ background: "#fff", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "100%" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+                <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              </div>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", textAlign: "center", marginBottom: 10 }}>
+                Confirmar limpieza
+              </div>
+              <div style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+                Esta es la última confirmación. Todos los datos de prueba se eliminarán de forma permanente. No se puede deshacer.
+              </div>
+              {purgeM.isError && (
+                <div style={{ fontSize: 13, color: "#ef4444", textAlign: "center", marginBottom: 12 }}>
+                  Error al limpiar datos. Intenta de nuevo.
+                </div>
+              )}
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <button
+                  onClick={() => purgeM.mutate()}
+                  disabled={purgeM.isPending}
+                  className="pressable"
+                  style={{ padding: "13px", borderRadius: 14, border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: purgeM.isPending ? 0.7 : 1 }}
+                >
+                  {purgeM.isPending ? "Limpiando..." : "Sí, eliminar todos los datos de prueba"}
+                </button>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}>
+                  Cancelar
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Delete confirm — step 1 */}
         {deleteStep === 1 && (
