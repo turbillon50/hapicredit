@@ -1,30 +1,18 @@
 import { Resend } from "resend";
 
-// Resend via Replit connector — never cache the client
+// Resend via plain RESEND_API_KEY env var. The "from" address can be overridden
+// with RESEND_FROM (must be a verified sender in your Resend account).
+let cachedClient: { client: Resend; from: string } | null = null;
+
 async function getResendClient(): Promise<{ client: Resend; from: string } | null> {
-  try {
-    const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-    const xReplitToken = process.env.REPL_IDENTITY
-      ? "repl " + process.env.REPL_IDENTITY
-      : process.env.WEB_REPL_RENEWAL
-      ? "depl " + process.env.WEB_REPL_RENEWAL
-      : null;
+  if (cachedClient) return cachedClient;
 
-    if (!hostname || !xReplitToken) return null;
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) return null;
 
-    const data = await fetch(
-      `https://${hostname}/api/v2/connection?include_secrets=true&connector_names=resend`,
-      { headers: { Accept: "application/json", "X-Replit-Token": xReplitToken } }
-    ).then((r) => r.json());
-
-    const conn = data?.items?.[0];
-    if (!conn?.settings?.api_key) return null;
-
-    const from = "Crede-Ti <noreply@crede-ti.mx>";
-    return { client: new Resend(conn.settings.api_key), from };
-  } catch {
-    return null;
-  }
+  const from = process.env.RESEND_FROM ?? "Crede-Ti <noreply@crede-ti.mx>";
+  cachedClient = { client: new Resend(apiKey), from };
+  return cachedClient;
 }
 
 // Base HTML wrapper

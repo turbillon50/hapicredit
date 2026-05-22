@@ -4,7 +4,6 @@ import pinoHttp from "pino-http";
 import { clerkMiddleware } from "@clerk/express";
 import router from "./routes";
 import { logger } from "./lib/logger";
-import { seedIfNeeded } from "./lib/seed";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware } from "./middlewares/clerkProxyMiddleware";
 
 const app: Express = express();
@@ -41,7 +40,5 @@ app.use(clerkMiddleware({
 }));
 
 app.use("/api", router);
-
-seedIfNeeded().then(() => logger.info("DB seed check complete"));
 
 export default app;
