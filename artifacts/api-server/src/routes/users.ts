@@ -8,7 +8,7 @@ import crypto from "crypto";
 const router: IRouter = Router();
 
 function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password + "hapicontrol_salt").digest("hex");
+  return crypto.createHash("sha256").update(password + "credeti_salt").digest("hex");
 }
 
 function formatUser(user: typeof usersTable.$inferSelect) {
@@ -195,7 +195,7 @@ router.delete("/users/me", requireAuth, async (req, res): Promise<void> => {
   if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
 
   const ts = Date.now();
-  const anonEmail    = `deleted_${ts}@hapicredit.deleted`;
+  const anonEmail    = `deleted_${ts}@credeti.deleted`;
   const anonName     = `Cuenta eliminada`;
   const anonUsername = `deleted_${ts}`;
 
