@@ -1,20 +1,20 @@
-# HapiControl — CRM & Loan Portfolio Management PWA
+# Crede-Ti — CRM & Loan Portfolio Management PWA
 
 ## Overview
 
-Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CAFJA / HapiCredit. Built in Spanish. The app uses role-based authentication with invite code registration. Three areas: public landing, client portal, admin/executive panel.
+Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti. Built in Spanish. The app uses role-based authentication with invite code registration. Three areas: public landing, client portal, admin/executive panel.
 
 ## Auth System
 
 - **3 roles**: `admin`, `executive` (asesor), `client` (acreditado)
 - **Registration**: via invite code (`/registro?inv=CODE`) OR master password for staff
-- **Master password**: `hapicredit` (env `STAFF_MASTER_CODE`) — for admin/executive registration. Admin limit removed for testing.
-- **Sucursal hierarchy** (3 levels): Grupo Cafja (superadmin, parentId=null) → Branch admins (parentId=superadmin's id) → Executives (treeId=branch admin's id)
+- **Master password**: `credeti` (env `STAFF_MASTER_CODE`) — for admin/executive registration. Admin limit removed for testing.
+- **Sucursal hierarchy** (3 levels): Crede-Ti root (superadmin, parentId=null) → Branch admins (parentId=superadmin's id) → Executives (treeId=branch admin's id)
 - **Tree isolation**: admin with `parentId != null` (branch admin) → sees only their tree's clients/credits. admin with `parentId = null` (superadmin) → sees all trees.
 - **Admin invite**: sets `parentId = creatorId` (not null) — branch admin belongs to creator's hierarchy
 - **Admin treeId**: Always set to their own userId (each admin is root of their own branch tree)
 - **Login**: `/login` — username/password. NO auto-redirect even with active session; shows banner with "Continuar" / "Cambiar usuario". Google via Clerk at `/sign-in`.
-- **Sessions**: JWT stored in `localStorage` (`hapi_token`, `hapi_role`, `hapi_user`). Sessions are persistent (30 days).
+- **Sessions**: JWT stored in `localStorage` (`credeti_token`, `credeti_role`, `credeti_user`). Sessions are persistent (30 days).
 - **Logout**: Server-side session invalidation + localStorage.clear() + hard redirect to /login.
 - **Google OAuth**: Clerk handles Google sign-in at `/sign-in`. After Clerk auth, user is synced with our DB via `/auth/clerk-sync`.
 - **Route protection**: Layout.tsx redirects to `/login` for protected routes.
@@ -28,7 +28,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 
 - **Commission**: 10% ($100 per $1,000), deducted at disbursement
 - **Term options**: ONLY 8 weeks ($175/semana por $1,000) or 13 weeks ($120/semana por $1,000)
-- **Late fee**: $200 per day of delay
+- **Late fee**: $500 per day of delay
 - **Aval (guarantor)**: MANDATORY for every credit
 - **Payment validation**: Executive registers payment -> status "pending_validation" -> Admin validates -> balance updated
 - **Client classification (semaphore)**: Green (al corriente) / Yellow (atraso leve 1-15d) / Red (atraso critico 16-30d) / Black (cartera vencida 31d+)
@@ -44,7 +44,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 
 ### Stage 2: Executive (API payments.ts)
 - Payment registration creates status "pending_validation" (NOT directly applied)
-- Auto-calculates late fees ($200/day)
+- Auto-calculates late fees ($500/day)
 - Cash tracking via caja movements (only after admin validation)
 - Daily client list, commitments, follow-up notes
 
@@ -52,7 +52,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - **Validate payments** (admin/validar-pagos): Approve/reject before balance update
 - **Dashboard** (admin/dashboard): Portfolio KPIs, cash flow, pending validations alert
 - **Cartera** (admin/cartera): Full portfolio with semaphore filters, progress bars
-- **Morosos** (admin/morosos): Delinquent clients with $200/day fine calculation
+- **Morosos** (admin/morosos): Delinquent clients with $500/day fine calculation
 - **Solicitudes** (admin/solicitudes): Public applications + internal pending credits
 - **Financiero** (admin/financiero): Interest analysis, projections, utility
 - **Asesores** (admin/asesores): Executive ranking, placement, collection, delinquency
@@ -62,14 +62,18 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 
 ## Branding
 
-- **Brand**: HapiCredit by Grupo CAFJA
-- **Slogan**: "Tu credito, Tu impulso"
-- **Logo**: Heart/person icon (navy) + "HapiCredit" (navy/red) + red smile. Source: `attached_assets/IMG_0626_1775411853416.jpeg`
-- **Colors**: Navy blue `#1a2e5e` (primary/accent), Red `#e53935` (brand-red, CTA buttons, active indicators)
-- **Favicon/PWA icons**: SVG heart icon on navy bg. PNGs at 180/192/512px generated from SVG.
-- **Splash screen**: Shows full logo JPEG on dark navy gradient, 2.8s per session (sessionStorage)
-- **Header**: Heart icon + "HapiCredit" (Hapi white, Credit red) + slogan. Admin shows "HapiControl" with purple badge.
-- **CSS vars**: `--accent: #1a2e5e`, `--brand-red: #e53935`, `--navy-800: #1a2e5e`
+- **Brand**: Crede-Ti
+- **Slogan**: "Creemos en ti"
+- **Tagline**: "Más que un crédito, una forma distinta de vivir."
+- **Logo**: Royal blue square with white "C·T" monogram inside a gold oval frame, gold underline swoosh. SVG sources: `public/favicon.svg`, `public/pwa-icon.svg`, `public/logo-credeti.svg`.
+- **Colors**:
+  - Brand blue `#1B5FBC` (primary CTAs, headlines, brand surfaces)
+  - Brand gold `#E6A82E` (kicker labels, decorative underlines, "-Ti" accent)
+  - Deep blue `#0A1F4A` (hero gradients, dark surfaces)
+- **CSS vars**: `--brand-blue`, `--brand-gold`, `--brand-blue-deep`, `--brand-blue-mid`, plus legacy aliases `--accent`, `--navy`, `--coral` mapped to brand colors.
+- **Favicon/PWA icons**: Royal-blue tile + white "C·T" inside gold oval. PNGs at 180/192/512px generated from SVG.
+- **Splash screen**: Full logo on royal-blue gradient, 2.8s per session (sessionStorage).
+- **Header**: "Crede" in default text color + gold "-Ti" accent + slogan.
 
 ## Stack
 
@@ -77,21 +81,21 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - **Node.js version**: 24
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
-- **Frontend**: React + Vite (artifact: `hapicontrol`, served at `/`)
+- **Frontend**: React + Vite (artifact: `crede-ti`, served at `/`)
 - **API framework**: Express 5 (artifact: `api-server`, served at `/api`)
 - **Database**: PostgreSQL + Drizzle ORM
 - **Validation**: Zod (`zod/v4`), `drizzle-zod`
 - **Build**: esbuild (CJS bundle)
 - **Charts**: Recharts
 - **Icons**: react-icons (ri, fi, hi, md, bi families) — NO lucide-react
-- **Auth**: Auto-admin token on mount (no login page). Token in localStorage key `hapi_token`.
+- **Auth**: Auto-admin token on mount (no login page). Token in localStorage key `credeti_token`.
 - **UI**: Custom components in `src/components/hapi/`. NO Radix, NO shadcn.
 - **Language**: All UI in Spanish. No emojis in UI.
 
-## Frontend Routes (artifacts/hapicontrol/src/)
+## Frontend Routes (artifacts/crede-ti/src/)
 
 ### Client Pages
-- `/` — HapiCredit landing page with CTA
+- `/` — Crede-Ti landing page with CTA
 - `/solicitar` — 5-step credit application form (datos, crédito, aval, docs, enviar)
 - `/mi-credito` — Active credit status, payment history, pending requests
 - `/perfil` — Client profile, document upload/management
@@ -101,7 +105,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - `/admin/solicitudes` — Pending credit applications (public + internal), approve/reject
 - `/admin/validar-pagos` — Payment validation (approve/reject before applying to balance)
 - `/admin/cartera` — Active portfolio with semaphore status filters and executive filters
-- `/admin/morosos` — Delinquent clients with $200/day fine calculation, severity tabs
+- `/admin/morosos` — Delinquent clients with $500/day fine calculation, severity tabs
 - `/admin/asesores` — Executive performance ranking
 - `/admin/financiero` — Financial overview, interest analysis
 - `/admin/caja` — Cash control per executive
@@ -125,7 +129,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm --filter @workspace/db run push` — push DB schema changes
 - `pnpm --filter @workspace/api-server run dev` — run API server
-- `pnpm --filter @workspace/scripts run seed` — seed database with sample data
+- `pnpm --filter @workspace/crede-ti run dev` — run web app
 
 ## Architecture
 
@@ -152,7 +156,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - `caja.ts` — Cash control and summary per executive
 - `public.ts` — Public credit application endpoint (POST /api/public/apply)
 
-### Component Library (artifacts/hapicontrol/src/components/hapi/)
+### Component Library (artifacts/crede-ti/src/components/hapi/)
 - `Avatar.tsx` — Initials avatar with deterministic color
 - `Badge.tsx` — Status badges (success/warning/danger/info)
 - `BottomSheet.tsx` — Modal bottom sheet
@@ -161,7 +165,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 - `EmptyState.tsx` — Empty state placeholder
 - `StatCard.tsx` — Metric stat card
 
-### Layout (artifacts/hapicontrol/src/components/layout/)
+### Layout (artifacts/crede-ti/src/components/layout/)
 - `Layout.tsx` — Main layout with header, bottom nav, auto-admin auth
 - `BottomNav.tsx` — Switchable bottom nav (client 5-tab vs admin 5-tab)
 
@@ -169,8 +173,8 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Grupo CA
 
 - Commission rate: 10% at disbursement. Client requests $5,000 -> receives $4,500.
 - Only 2 terms: 8 weeks ($175/week per $1,000) or 13 weeks ($120/week per $1,000)
-- Late fee: $200/day, stops generating when payment for that week is received
+- Late fee: $500/day, stops generating when payment for that week is received
 - Payment flow: Executive registers -> pending_validation -> Admin approves -> balance updated + caja movement created
 - Document storage: notesTable with noteType="document", content=JSON({filename, mimeType, base64, label, uploadedAt})
-- Seed data: 8 realistic clients with active credits, 1 pending credit for approval demo
 - DB column is `paymentStatus` not `status` for payments table
+- Domain placeholder: `crede-ti.mx` (replace when real domain is provisioned)

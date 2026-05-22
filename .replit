@@ -36,7 +36,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "pnpm --filter @workspace/hapicontrol run dev"
+args = "pnpm --filter @workspace/crede-ti run dev"
 waitForPort = 3000
 
 [workflows.workflow.metadata]

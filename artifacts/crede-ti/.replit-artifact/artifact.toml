@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Crede-Ti"
+version = "1.0.0"
+id = "artifacts/crede-ti"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25240
+
+[services.development]
+run = "pnpm --filter @workspace/crede-ti run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/crede-ti", "run", "build" ]
+publicDir = "artifacts/crede-ti/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25240"
+BASE_PATH = "/"

@@ -12,18 +12,18 @@ import {
 import crypto from "crypto";
 
 function hashPassword(password: string): string {
-  return crypto.createHash("sha256").update(password + "hapicontrol_salt").digest("hex");
+  return crypto.createHash("sha256").update(password + "credeti_salt").digest("hex");
 }
 
 async function seed() {
-  console.log("🌱 Seeding HapiControl database...");
+  console.log("🌱 Seeding Crede-Ti database...");
 
   // Create users
   const [admin] = await db.insert(usersTable).values({
     username: "admin",
     passwordHash: hashPassword("admin123"),
     fullName: "Administrador Principal",
-    email: "admin@hapicontrol.mx",
+    email: "admin@crede-ti.mx",
     role: "admin",
     isActive: true,
   }).onConflictDoNothing().returning();
@@ -32,7 +32,7 @@ async function seed() {
     username: "ejecutivo1",
     passwordHash: hashPassword("exec123"),
     fullName: "Carlos Mendoza García",
-    email: "c.mendoza@hapicontrol.mx",
+    email: "c.mendoza@crede-ti.mx",
     role: "executive",
     isActive: true,
   }).onConflictDoNothing().returning();
@@ -41,7 +41,7 @@ async function seed() {
     username: "ejecutivo2",
     passwordHash: hashPassword("exec123"),
     fullName: "Daniela Ruiz Torres",
-    email: "d.ruiz@hapicontrol.mx",
+    email: "d.ruiz@crede-ti.mx",
     role: "executive",
     isActive: true,
   }).onConflictDoNothing().returning();
