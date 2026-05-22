@@ -1,5 +1,55 @@
 # Crede-Ti — CRM & Loan Portfolio Management PWA
 
+> **Creemos en ti** — *Más que un crédito, una forma distinta de vivir.*
+
+Premium mobile-first PWA CRM and loan portfolio management platform.
+Built in Spanish. The app uses role-based authentication with invite-code
+registration. Three areas: public landing, client portal, admin/executive panel.
+
+## Deploy to Vercel
+
+This repo is configured for one-click Vercel deployment.
+
+1. **Import on Vercel** — point it at this repo. Vercel auto-detects pnpm and
+   reads `vercel.json` (build command, output dir, function config).
+2. **Provision Postgres** — any Postgres works (Neon, Supabase, Vercel
+   Postgres, Render…). Copy the connection string.
+3. **Push the schema** — locally, with the production `DATABASE_URL`:
+   ```sh
+   pnpm --filter @workspace/db run push
+   ```
+4. **Set env vars in Vercel project settings**:
+
+   | Variable | Required | Example | Notes |
+   |---|---|---|---|
+   | `DATABASE_URL` | ✓ | `postgres://user:pw@host/db?sslmode=require` | Pooled connection recommended |
+   | `STAFF_MASTER_CODE` | ✓ | `<your-secret>` | Master password for admin/exec self-registration. Default `credeti` (CHANGE BEFORE OPENING REGISTRATION) |
+   | `RESEND_API_KEY` |   | `re_…` | Optional. Welcome/invite/payment emails fail silently if absent. |
+   | `RESEND_FROM` |   | `Crede-Ti <noreply@your-domain.com>` | Must be a verified Resend sender |
+   | `VITE_CLERK_PUBLISHABLE_KEY` |   | `pk_test_…` | Optional. Enables Clerk-based Google/passkey login |
+   | `CLERK_SECRET_KEY` |   | `sk_test_…` | Required if `VITE_CLERK_PUBLISHABLE_KEY` is set |
+   | `LOG_LEVEL` |   | `info` | `info` (default) / `debug` / `warn` |
+
+5. **Click Deploy.** Vercel builds the Vite SPA into
+   `artifacts/crede-ti/dist/public/` and exposes the Express API as a
+   single serverless function at `/api/*`.
+6. **First admin** — visit `/registro`, choose "Administrador", enter the
+   `STAFF_MASTER_CODE` you set. That account becomes the root of the
+   genealogical tree. Subsequent admins/asesores register with invite codes.
+
+### Local development
+
+```sh
+pnpm install
+# In two terminals:
+pnpm run dev:web        # http://localhost:3000
+pnpm run dev:api        # http://localhost:3001 (proxied to /api by Vite)
+```
+
+The frontend expects the API on the same origin via `/api/*`. For local
+dev, either set up a Vite proxy or run the api on the same port via
+`vercel dev` (Vercel CLI) which mirrors the production routing.
+
 ## Overview
 
 Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti. Built in Spanish. The app uses role-based authentication with invite code registration. Three areas: public landing, client portal, admin/executive panel.

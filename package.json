@@ -1,16 +1,34 @@
 {
-  "name": "workspace",
-  "version": "0.0.0",
+  "name": "crede-ti",
+  "version": "0.1.0",
   "license": "MIT",
+  "private": true,
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
-    "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "build": "pnpm --filter @workspace/crede-ti run build",
+    "build:all": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "dev:web": "pnpm --filter @workspace/crede-ti run dev",
+    "dev:api": "PORT=3001 pnpm --filter @workspace/api-server run dev"
   },
-  "private": true,
+  "dependencies": {
+    "@clerk/express": "^2.0.11",
+    "@workspace/api-server": "workspace:*",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2",
+    "drizzle-orm": "catalog:",
+    "express": "^5",
+    "http-proxy-middleware": "^3.0.5",
+    "pg": "^8.13.1",
+    "pino": "^9",
+    "pino-http": "^10",
+    "resend": "4.0.0"
+  },
   "devDependencies": {
-    "typescript": "~5.9.2",
-    "prettier": "^3.8.1"
+    "@types/node": "catalog:",
+    "@vercel/node": "^5.1.4",
+    "prettier": "^3.8.1",
+    "typescript": "~5.9.2"
   }
 }
