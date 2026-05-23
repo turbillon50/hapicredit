@@ -8,8 +8,10 @@ out-tsc
 .expo
 .expo-shared
 
-# Vercel build fallback mirror — see root package.json build:mirror script
+# Vercel build mirror outputs — see root package.json build:mirror script
 /public
+/dist
+/build
 .vercel
 
 # dependencies
