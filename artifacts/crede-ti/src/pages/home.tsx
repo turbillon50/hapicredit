@@ -51,7 +51,7 @@ export default function Home() {
       role: asRole,
       treeId: 1,
     };
-    localStorage.setItem("credeti_token", "demo-token");
+    localStorage.setItem("credeti_token", `demo-token-${asRole}`);
     localStorage.setItem("credeti_role", asRole);
     localStorage.setItem("credeti_user", JSON.stringify(user));
     window.location.href = homePath;
