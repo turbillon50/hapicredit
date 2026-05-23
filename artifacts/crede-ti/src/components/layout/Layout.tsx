@@ -206,8 +206,32 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     </div>
   );
 
+  const isDemo = token === "demo-token";
+
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
+      {isDemo && (
+        <div style={{
+          background: "#E6A82E", color: "#0A1F4A",
+          padding: "6px 14px", fontSize: 11, fontWeight: 800,
+          letterSpacing: "0.08em", textTransform: "uppercase",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          gap: 12,
+        }}>
+          <span>● Modo demo — sin base de datos · listados vacíos esperados</span>
+          <button
+            onClick={() => { localStorage.clear(); window.location.href = "/"; }}
+            style={{
+              background: "rgba(10,31,74,0.12)", color: "#0A1F4A",
+              border: "none", borderRadius: 100, padding: "3px 10px",
+              fontWeight: 700, fontSize: 10, cursor: "pointer",
+              letterSpacing: "0.04em",
+            }}
+          >
+            Salir
+          </button>
+        </div>
+      )}
       {isStaff ? <StaffHeader /> : <ClientHeader />}
 
       <main style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>

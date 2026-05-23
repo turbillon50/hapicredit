@@ -41,6 +41,22 @@ export default function Home() {
     }
   }
 
+  function enterDemo(asRole: "admin" | "executive" | "client") {
+    const homePath = asRole === "admin" ? "/admin" : asRole === "executive" ? "/dashboard" : "/mi-credito";
+    const user = {
+      id: asRole === "admin" ? 1 : asRole === "executive" ? 2 : 3,
+      username: `demo_${asRole}`,
+      fullName: asRole === "admin" ? "Admin Demo" : asRole === "executive" ? "Asesor Demo" : "Cliente Demo",
+      email: `${asRole}@demo.crede-ti.mx`,
+      role: asRole,
+      treeId: 1,
+    };
+    localStorage.setItem("credeti_token", "demo-token");
+    localStorage.setItem("credeti_role", asRole);
+    localStorage.setItem("credeti_user", JSON.stringify(user));
+    window.location.href = homePath;
+  }
+
   return (
     <Layout>
       <div style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
@@ -127,6 +143,57 @@ export default function Home() {
                 <div style={{ fontSize:30,fontWeight:900,color:"#fff",letterSpacing:"-0.05em",lineHeight:1 }}>{s.val}</div>
                 <div style={{ fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:4,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em" }}>{s.label}</div>
               </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════════════════════════════════════════
+            DEMO ACCESS — for reviewers / handoff
+        ═══════════════════════════════════════════ */}
+        <section style={{
+          background:"linear-gradient(135deg,#FFF7E6 0%,#FFF1D6 100%)",
+          padding:"32px 24px",
+          borderTop:"3px solid #E6A82E",
+          borderBottom:"1px solid #F5D88F",
+        }}>
+          <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:6 }}>
+            <span style={{ fontSize:10,fontWeight:800,color:"#0A1F4A",background:"#E6A82E",padding:"3px 9px",borderRadius:100,letterSpacing:"0.08em" }}>MODO DEMO</span>
+            <span style={{ fontSize:11,color:"#7C5B14",fontWeight:600 }}>Para revisión</span>
+          </div>
+          <h3 style={{ fontSize:18,fontWeight:800,color:"#0A1F4A",margin:"0 0 6px",letterSpacing:"-0.02em" }}>
+            Entra sin cuenta a ver cada pantalla
+          </h3>
+          <p style={{ fontSize:13,color:"#6B5219",margin:"0 0 18px",lineHeight:1.55 }}>
+            Sin base de datos real conectada. Los listados aparecerán vacíos
+            (es esperado) — el objetivo es navegar la marca, la UX y las
+            pantallas de cada rol.
+          </p>
+          <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8 }}>
+            {[
+              { role:"client",    label:"Cliente",  sub:"Acreditado", color:"#059669" },
+              { role:"executive", label:"Asesor",   sub:"Ejecutivo",  color:"#1B5FBC" },
+              { role:"admin",     label:"Admin",    sub:"Control",    color:"#7C3AED" },
+            ].map(d => (
+              <button
+                key={d.role}
+                onClick={() => enterDemo(d.role as "admin"|"executive"|"client")}
+                style={{
+                  padding:"12px 8px",
+                  background:"#fff",
+                  border:`1.5px solid ${d.color}`,
+                  borderRadius:14,
+                  cursor:"pointer",
+                  fontFamily:"inherit",
+                  display:"flex",
+                  flexDirection:"column",
+                  alignItems:"center",
+                  gap:2,
+                  boxShadow:"0 1px 3px rgba(0,0,0,0.04)",
+                }}
+              >
+                <span style={{ fontSize:13,fontWeight:800,color:d.color,letterSpacing:"-0.01em" }}>{d.label}</span>
+                <span style={{ fontSize:10,color:"#94a3b8",fontWeight:500 }}>{d.sub}</span>
+              </button>
             ))}
           </div>
         </section>

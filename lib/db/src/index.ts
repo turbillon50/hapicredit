@@ -4,32 +4,42 @@ import * as schema from "./schema";
 
 const { Pool } = pg;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
-}
-
-// Serverless-friendly pool. The pool is created once per warm Lambda and
-// torn down at cold-start. `max: 1` keeps connection count bounded across
-// many warm functions sharing the same DB.
 declare global {
   // eslint-disable-next-line no-var
   var __credetiPool: pg.Pool | undefined;
 }
 
-export const pool: pg.Pool =
-  globalThis.__credetiPool ??
-  new Pool({
-    connectionString: process.env.DATABASE_URL,
-    max: 1,
-    idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000,
+// Build the pool, or — if DATABASE_URL is missing — a stub that throws
+// only on first method invocation. We avoid throwing at module load so
+// the serverless function still cold-starts when env vars are absent
+// (lets the static frontend + /api/healthz keep working in demo mode).
+function makePool(): pg.Pool {
+  const url = process.env.DATABASE_URL;
+  if (url) {
+    return new Pool({
+      connectionString: url,
+      max: 1,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 10_000,
+    });
+  }
+  return new Proxy({} as pg.Pool, {
+    get(_target, prop) {
+      // Drizzle's node-postgres adapter inspects a couple of well-known
+      // properties; return undefined for those so it can construct cleanly.
+      if (prop === "then" || typeof prop === "symbol") return undefined;
+      return () => {
+        throw new Error(
+          "DATABASE_URL is not set. Configure it in Vercel " +
+            "Settings → Environment Variables before hitting DB-backed routes.",
+        );
+      };
+    },
   });
-
-if (!globalThis.__credetiPool) {
-  globalThis.__credetiPool = pool;
 }
+
+export const pool: pg.Pool =
+  globalThis.__credetiPool ?? (globalThis.__credetiPool = makePool());
 
 export const db = drizzle(pool, { schema });
 
