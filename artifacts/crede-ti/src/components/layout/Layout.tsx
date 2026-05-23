@@ -206,7 +206,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     </div>
   );
 
-  const isDemo = token === "demo-token";
+  const isDemo = typeof token === "string" && token.startsWith("demo-token");
 
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>

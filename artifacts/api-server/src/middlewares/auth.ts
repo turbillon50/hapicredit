@@ -14,6 +14,12 @@ declare global {
   }
 }
 
+const DEMO_USERS: Record<string, { id: number; role: string; fullName: string; treeId: number | null; parentId: number | null }> = {
+  "demo-token-admin":     { id: 1, role: "admin",     fullName: "Admin Demo",   treeId: 1, parentId: null },
+  "demo-token-executive": { id: 2, role: "executive", fullName: "Asesor Demo",  treeId: 1, parentId: 1 },
+  "demo-token-client":    { id: 3, role: "client",    fullName: "Cliente Demo", treeId: 1, parentId: 2 },
+};
+
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith("Bearer ")) {
@@ -22,34 +28,58 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
   }
 
   const token = authHeader.slice(7);
-  const now = new Date();
 
-  const [session] = await db
-    .select({ userId: sessionsTable.userId, expiresAt: sessionsTable.expiresAt })
-    .from(sessionsTable)
-    .where(and(eq(sessionsTable.token, token), gt(sessionsTable.expiresAt, now)));
-
-  if (!session) {
-    res.status(401).json({ error: "Invalid or expired token" });
+  // Demo-mode bypass: tokens starting with `demo-token-` are recognized
+  // without a DB roundtrip, so reviewers can navigate the gated screens
+  // even when DATABASE_URL is not yet configured.
+  const demoUser = DEMO_USERS[token];
+  if (demoUser) {
+    req.userId       = demoUser.id;
+    req.userRole     = demoUser.role;
+    req.userFullName = demoUser.fullName;
+    req.userTreeId   = demoUser.treeId;
+    req.userParentId = demoUser.parentId;
+    next();
     return;
   }
 
-  const [user] = await db
-    .select({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, isActive: usersTable.isActive, treeId: usersTable.treeId, parentId: usersTable.parentId })
-    .from(usersTable)
-    .where(eq(usersTable.id, session.userId));
+  try {
+    const now = new Date();
 
-  if (!user || !user.isActive) {
-    res.status(401).json({ error: "User not found or inactive" });
-    return;
+    const [session] = await db
+      .select({ userId: sessionsTable.userId, expiresAt: sessionsTable.expiresAt })
+      .from(sessionsTable)
+      .where(and(eq(sessionsTable.token, token), gt(sessionsTable.expiresAt, now)));
+
+    if (!session) {
+      res.status(401).json({ error: "Invalid or expired token" });
+      return;
+    }
+
+    const [user] = await db
+      .select({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, isActive: usersTable.isActive, treeId: usersTable.treeId, parentId: usersTable.parentId })
+      .from(usersTable)
+      .where(eq(usersTable.id, session.userId));
+
+    if (!user || !user.isActive) {
+      res.status(401).json({ error: "User not found or inactive" });
+      return;
+    }
+
+    req.userId       = user.id;
+    req.userRole     = user.role;
+    req.userFullName = user.fullName;
+    req.userTreeId   = user.treeId;
+    req.userParentId = user.parentId;
+    next();
+  } catch (err) {
+    // DB unreachable (e.g. no DATABASE_URL in demo deploys) — return 503
+    // with a JSON body so react-query handles it gracefully instead of
+    // a vercel-generated HTML 500 that some clients may parse oddly.
+    res.status(503).json({
+      error: "Database not configured. Set DATABASE_URL or use a demo token.",
+    });
   }
-
-  req.userId       = user.id;
-  req.userRole     = user.role;
-  req.userFullName = user.fullName;
-  req.userTreeId   = user.treeId;
-  req.userParentId = user.parentId;
-  next();
 }
 
 export function requireRole(...roles: string[]) {

@@ -385,9 +385,28 @@ router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
-  if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
-  res.json({ id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role, treeId: user.treeId });
+  // Demo tokens skip DB and respond from middleware context.
+  const authHeader = req.headers.authorization ?? "";
+  if (authHeader.startsWith("Bearer demo-token-")) {
+    const role = req.userRole!;
+    res.json({
+      id: req.userId,
+      username: `demo_${role}`,
+      fullName: req.userFullName,
+      email: `${role}@demo.crede-ti.mx`,
+      role,
+      treeId: req.userTreeId,
+    });
+    return;
+  }
+
+  try {
+    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+    res.json({ id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role, treeId: user.treeId });
+  } catch {
+    res.status(503).json({ error: "Database not configured" });
+  }
 });
 
 export default router;
