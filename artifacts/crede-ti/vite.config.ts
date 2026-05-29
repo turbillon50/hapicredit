@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
       tailwindcss(),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favicon.svg", "apple-touch-icon.png", "pwa-192.png", "pwa-512.png"],
+        includeAssets: ["favicon-64.png", "apple-touch-icon.png", "pwa-192.png", "pwa-512.png", "logo-credeti-full.jpeg"],
         manifest: {
           name: "Crede-Ti — Creemos en ti",
           short_name: "Crede-Ti",

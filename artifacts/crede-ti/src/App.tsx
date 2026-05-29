@@ -3,7 +3,7 @@ import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
 import { AuthProvider } from "@/hooks/use-auth";
-import logoImg from "@assets/logo-credeti-square.svg";
+import logoImg from "@assets/logo-credeti-square.jpeg";
 
 import Home             from "@/pages/home";
 import Solicitar        from "@/pages/solicitar";
@@ -58,14 +58,14 @@ function SignInPage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#0A1F4A 0%,#1B5FBC 55%,#2978D9 100%)",
+      background: "linear-gradient(150deg,#03439C 0%,#0E68CC 55%,#1978D2 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
         <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
           <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
-        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#E6A82E" }}>-Ti</span></div>
+        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#E8A82F" }}>-Ti</span></div>
         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Creemos en ti</div>
       </div>
       <SignIn
@@ -82,7 +82,7 @@ function SignInPage() {
             headerTitle:             { fontSize: 20 },
             headerSubtitle:          { fontSize: 13 },
           },
-          variables: { colorPrimary: "#1B5FBC" },
+          variables: { colorPrimary: "#0E68CC" },
         }}
       />
       <div style={{ marginTop: 20, display: "flex", gap: 20 }}>
@@ -98,14 +98,14 @@ function SignUpPage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#0A1F4A 0%,#1B5FBC 55%,#2978D9 100%)",
+      background: "linear-gradient(150deg,#03439C 0%,#0E68CC 55%,#1978D2 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
         <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
           <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
-        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#E6A82E" }}>-Ti</span></div>
+        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#E8A82F" }}>-Ti</span></div>
         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Crea tu cuenta</div>
       </div>
       <SignUp
@@ -120,7 +120,7 @@ function SignUpPage() {
             dividerRow:              { display: "none" },
             card:                    { boxShadow: "0 24px 80px rgba(0,0,0,0.4)", borderRadius: 20 },
           },
-          variables: { colorPrimary: "#1B5FBC" },
+          variables: { colorPrimary: "#0E68CC" },
         }}
       />
     </div>

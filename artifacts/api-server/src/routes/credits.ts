@@ -84,20 +84,40 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     return;
   }
 
-  if (weeks !== 8 && weeks !== 13) {
-    res.status(400).json({ error: "Solo se permiten plazos de 8 o 13 semanas" });
-    return;
+  // Business rules (owner specification):
+  // - New clients: $500–$1,000 over 4 weeks, flat 30% interest
+  // - Existing clients: $1,000–$30,000 over 4–48 weeks, 60% annual rate (pro rata)
+  // The classification is done by the caller (which decides isNewClient).
+  // Here we just accept the bounds and compute the schedule.
+  const isNewClient = Boolean(req.body.isNewClient);
+
+  if (isNewClient) {
+    if (amt < 500 || amt > 1000) {
+      res.status(400).json({ error: "Clientes nuevos: monto entre $500 y $1,000" });
+      return;
+    }
+    if (weeks !== 4) {
+      res.status(400).json({ error: "Clientes nuevos: plazo fijo de 4 semanas" });
+      return;
+    }
+  } else {
+    if (amt < 1000 || amt > 30000) {
+      res.status(400).json({ error: "Monto entre $1,000 y $30,000" });
+      return;
+    }
+    if (weeks < 4 || weeks > 48) {
+      res.status(400).json({ error: "Plazo entre 4 y 48 semanas" });
+      return;
+    }
   }
 
-  const RATE_8 = 175;
-  const RATE_13 = 120;
-  const COMMISSION = 0.10;
+  // Flat 30% for new clients, 60% APR pro-rated for existing clients.
+  const interest = isNewClient
+    ? amt * 0.30
+    : amt * 0.60 * (weeks / 52);
 
-  const rate = weeks === 8 ? RATE_8 : RATE_13;
-  const thousands = amt / 1000;
-  const weeklyPayment = thousands * rate;
-  const totalToRepay = weeklyPayment * weeks;
-  const openingFee = amt * COMMISSION;
+  const totalToRepay = amt + interest;
+  const weeklyPayment = totalToRepay / weeks;
   const disbursementDate = new Date().toISOString().split("T")[0];
   const executiveId = req.userRole === "executive" ? req.userId : (bodyExecId ? parseInt(bodyExecId, 10) : null);
 
@@ -108,7 +128,8 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     disbursementDate,
     termWeeks: weeks,
     weeklyPayment: weeklyPayment.toFixed(2),
-    openingFee: openingFee.toFixed(2),
+    // Opening commission removed per owner request — no commission charged.
+    openingFee: "0.00",
     totalToRepay: totalToRepay.toFixed(2),
     remainingBalance: totalToRepay.toFixed(2),
     status: "pending",

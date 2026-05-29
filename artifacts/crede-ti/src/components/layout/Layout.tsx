@@ -39,7 +39,7 @@ function isActive(path: string, current: string) {
   return false;
 }
 
-function HapiIcon({ size = 20, color = "#1B5FBC" }: { size?: number; color?: string }) {
+function HapiIcon({ size = 20, color = "#0E68CC" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <circle cx="90" cy="52" r="16" fill={color} />
@@ -140,7 +140,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
   /* ── Staff (admin/exec) header — dark ── */
   const StaffHeader = () => (
-    <div className="sticky top-0 z-30 shrink-0" style={{ background: "linear-gradient(135deg,#0A1F4A 0%,#1B5FBC 100%)" }}>
+    <div className="sticky top-0 z-30 shrink-0" style={{ background: "linear-gradient(135deg,#03439C 0%,#0E68CC 100%)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
         <button
@@ -181,9 +181,9 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58 }}>
         <div className="flex items-center gap-2">
-          <HapiIcon size={22} color="#1B5FBC" />
+          <HapiIcon size={22} color="#0E68CC" />
           <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.04em", color: "#111" }}>
-            Crede<span style={{ color: "#E6A82E" }}>-Ti</span>
+            Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
           </span>
         </div>
 
@@ -212,7 +212,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
       {isDemo && (
         <div style={{
-          background: "#E6A82E", color: "#0A1F4A",
+          background: "#E8A82F", color: "#03439C",
           padding: "6px 14px", fontSize: 11, fontWeight: 800,
           letterSpacing: "0.08em", textTransform: "uppercase",
           display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -222,7 +222,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
           <button
             onClick={() => { localStorage.clear(); window.location.href = "/"; }}
             style={{
-              background: "rgba(10,31,74,0.12)", color: "#0A1F4A",
+              background: "rgba(10,31,74,0.12)", color: "#03439C",
               border: "none", borderRadius: 100, padding: "3px 10px",
               fontWeight: 700, fontSize: 10, cursor: "pointer",
               letterSpacing: "0.04em",
@@ -242,7 +242,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       <nav style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
         display: "flex",
-        background: isStaff ? "#0E3A7A" : "#fff",
+        background: isStaff ? "#03439C" : "#fff",
         borderTop: isStaff ? "1px solid rgba(255,255,255,0.06)" : "1px solid var(--border)",
         boxShadow: isStaff ? "none" : "0 -2px 20px rgba(0,0,0,0.06)",
         paddingBottom: "env(safe-area-inset-bottom)",

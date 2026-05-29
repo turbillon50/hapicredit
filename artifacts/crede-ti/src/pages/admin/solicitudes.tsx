@@ -262,14 +262,6 @@ export default function AdminSolicitudes() {
                 ))}
               </div>
 
-              {gtor.name && (
-                <div className="flex flex-col gap-1.5 bg-purple-50 rounded-xl p-3">
-                  <div className="text-xs font-bold text-purple-700 uppercase tracking-wide mb-1">Aval</div>
-                  <div className="text-sm font-semibold text-gray-800">{gtor.name}</div>
-                  <div className="text-sm text-gray-500">{gtor.phone} · {gtor.relationship || "Sin especificar"}</div>
-                </div>
-              )}
-
               <div className="bg-gray-50 rounded-xl p-3">
                 <div className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Documentos cargados</div>
                 <div className="flex flex-col gap-2">
@@ -350,8 +342,7 @@ export default function AdminSolicitudes() {
                   ["Plazo", `${credit.termWeeks} semanas`],
                   ["Pago semanal", fmt(credit.weeklyPayment)],
                   ["Total a pagar", fmt(credit.weeklyPayment * credit.termWeeks)],
-                  ["Comisión (10%)", fmt(credit.amount * 0.10)],
-                  ["Desembolso", fmt(credit.amount - credit.amount * 0.10)],
+                  ["Desembolso", fmt(credit.amount)],
                   ["Propósito", credit.notes ?? "—"],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between text-sm">

@@ -35,7 +35,7 @@ function IconToggle({ active }: { active: boolean }) {
   return (
     <div style={{
       width: 38, height: 22, borderRadius: 11,
-      background: active ? "#1B5FBC" : "#cbd5e1",
+      background: active ? "#0E68CC" : "#cbd5e1",
       position: "relative", transition: "background 0.2s", flexShrink: 0,
     }}>
       <div style={{
@@ -136,7 +136,7 @@ export default function AdminFaq() {
           <button
             className="pressable"
             onClick={() => { setEditItem(null); setForm(EMPTY_FORM); setShowForm(true); }}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 12, background: "#1B5FBC", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 12, background: "#0E68CC", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
           >
             <IconPlus size={15} /> Nueva
           </button>
@@ -280,7 +280,7 @@ export default function AdminFaq() {
                     type="submit"
                     disabled={isSaving}
                     className="pressable"
-                    style={{ flex: 2, padding: "13px", borderRadius: 14, border: "none", background: "#1B5FBC", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: isSaving ? 0.7 : 1 }}
+                    style={{ flex: 2, padding: "13px", borderRadius: 14, border: "none", background: "#0E68CC", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: isSaving ? 0.7 : 1 }}
                   >
                     {isSaving ? "Guardando..." : editItem ? "Guardar cambios" : "Crear pregunta"}
                   </button>

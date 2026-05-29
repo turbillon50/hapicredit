@@ -40,7 +40,7 @@ const ACCESOS = [
   { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobacion",        iconBg: "#fef3c7", iconColor: "#92400e" },
   { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y creditos pendientes",     iconBg: "#dbeafe", iconColor: "#1e40af" },
   { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "#e0e7ff", iconColor: "#3730a3" },
-  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, $200/dia multa",     iconBg: "#fee2e2", iconColor: "#991b1b" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado",     iconBg: "#fee2e2", iconColor: "#991b1b" },
   { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Analisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "#d1fae5", iconColor: "#065f46" },
   { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza y desempeno",       iconBg: "#f3e8ff", iconColor: "#6d28d9" },
   { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "#fef9c3", iconColor: "#854d0e" },
@@ -86,14 +86,14 @@ export default function AdminDashboard() {
               className="anim-section anim-d1"
               style={{
                 borderRadius: 22, padding: "20px",
-                background: "linear-gradient(140deg,#0A1F4A 0%,#1B5FBC 50%,#2978D9 100%)",
+                background: "linear-gradient(140deg,#03439C 0%,#0E68CC 50%,#1978D2 100%)",
                 position: "relative", overflow: "hidden",
               }}
             >
               <div
                 style={{
                   position: "absolute", top: -40, right: -40, width: 180, height: 180,
-                  borderRadius: "50%", background: "rgba(27,95,188,0.06)",
+                  borderRadius: "50%", background: "rgba(14,104,204,0.06)",
                   pointerEvents: "none",
                 }}
               />

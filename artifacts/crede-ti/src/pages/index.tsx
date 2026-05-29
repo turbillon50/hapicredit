@@ -36,7 +36,7 @@ export default function PublicLanding() {
       <header className="sticky top-0 z-50 bg-white border-b border-border" style={{ boxShadow: "0 1px 0 rgba(0,0,0,0.06)" }}>
         <div className="max-w-5xl mx-auto px-5 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#1B5FBC" }}>
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#0E68CC" }}>
               <span className="text-white text-[11px] font-bold" style={{ fontFamily: "Georgia, serif" }}>HC</span>
             </div>
             <span className="font-bold text-[16px] text-foreground tracking-tight">Crede-Ti</span>
@@ -53,7 +53,7 @@ export default function PublicLanding() {
 
         <section className="px-5 py-16 md:py-24 max-w-5xl mx-auto">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold mb-6" style={{ background: "#eef3fb", color: "#1B5FBC" }}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-semibold mb-6" style={{ background: "#eef3fb", color: "#0E68CC" }}>
               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
               Microfinanzas digitales
             </div>
@@ -182,7 +182,7 @@ export default function PublicLanding() {
                   type="submit"
                   disabled={createRequest.isPending}
                   className="w-full h-11 rounded-xl font-semibold text-[14px] text-white transition-all active:scale-[0.98] disabled:opacity-60"
-                  style={{ background: "linear-gradient(135deg, #1B5FBC, #2978D9)" }}
+                  style={{ background: "linear-gradient(135deg, #0E68CC, #1978D2)" }}
                 >
                   {createRequest.isPending ? "Enviando..." : "Enviar mensaje"}
                 </button>

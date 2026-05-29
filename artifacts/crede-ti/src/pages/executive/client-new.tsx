@@ -13,11 +13,6 @@ const fields = [
   { key: "curp",            label: "CURP",              type: "text",   required: false, ph: "XXXX000000XXXXXX00" },
 ];
 
-const guarantorFields = [
-  { key: "guarantorName",  label: "Nombre del aval",   type: "text",   required: false, ph: "Nombre completo" },
-  { key: "guarantorPhone", label: "Teléfono del aval",  type: "tel",   required: false, ph: "10 dígitos" },
-];
-
 export default function ExecutiveClientNew() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
@@ -26,7 +21,7 @@ export default function ExecutiveClientNew() {
 
   const [form, setForm] = useState({
     fullName: "", phone: "", altPhone: "", address: "",
-    curp: "", guarantorName: "", guarantorPhone: "", internalNotes: ""
+    curp: "", internalNotes: ""
   });
 
   const set = (key: string, val: string) => setForm(p => ({ ...p, [key]: val }));
@@ -72,22 +67,6 @@ export default function ExecutiveClientNew() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-card p-5 space-y-4">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">Aval / Obligado solidario</p>
-          {guarantorFields.map(f => (
-            <div key={f.key} className="space-y-1.5">
-              <label className="text-[12px] font-medium text-foreground/75">{f.label}</label>
-              <input
-                type={f.type}
-                placeholder={f.ph}
-                className="w-full h-10 px-3.5 bg-background border border-border rounded-xl text-[14px] text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all"
-                value={(form as any)[f.key]}
-                onChange={e => set(f.key, e.target.value)}
-              />
-            </div>
-          ))}
-        </div>
-
         <div className="bg-white rounded-2xl shadow-card p-5 space-y-1.5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">Notas internas</p>
           <textarea
@@ -102,7 +81,7 @@ export default function ExecutiveClientNew() {
           type="submit"
           disabled={createClient.isPending}
           className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
-          style={{ background: "linear-gradient(135deg, #1B5FBC, #2978D9)" }}
+          style={{ background: "linear-gradient(135deg, #0E68CC, #1978D2)" }}
         >
           <IconPersonaMas size={20} color="#fff" />
           {createClient.isPending ? "Registrando..." : "Registrar cliente"}

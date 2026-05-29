@@ -2,18 +2,18 @@
 @import "tailwindcss";
 
 :root {
-  /* ── Brand ── Crede-Ti: royal blue + gold ── */
-  --brand-blue:        #1B5FBC;
-  --brand-blue-hover:  #154D9D;
-  --brand-blue-deep:   #0A1F4A;
-  --brand-blue-mid:    #2978D9;
-  --brand-blue-light:  #3686E0;
+  /* ── Brand ── Crede-Ti: extracted from official logo asset ── */
+  --brand-blue:        #0E68CC;   /* dominant blue from the oval area */
+  --brand-blue-hover:  #0958B0;
+  --brand-blue-deep:   #03439C;   /* corner / hero gradient endpoints */
+  --brand-blue-mid:    #1978D2;   /* mid-gradient */
+  --brand-blue-light:  #58BBFB;   /* center / radial highlight */
 
-  --brand-gold:        #E6A82E;
+  --brand-gold:        #E8A82F;   /* oval frame + swoosh */
   --brand-gold-hover:  #C18C1F;
   --brand-gold-deep:   #B57E12;
-  --brand-gold-light:  rgba(230,168,46,0.12);
-  --brand-gold-xlight: rgba(230,168,46,0.06);
+  --brand-gold-light:  rgba(232,168,47,0.12);
+  --brand-gold-xlight: rgba(232,168,47,0.06);
 
   /* Aliases for legacy color names — kept so older refs still resolve to brand colors */
   --coral:        var(--brand-gold);
@@ -25,9 +25,9 @@
   --navy:         var(--brand-blue);
   --navy-deep:    var(--brand-blue-deep);
   --navy-mid:     var(--brand-blue-mid);
-  --navy-700:     #154D9D;
-  --navy-800:     #0E3A7A;
-  --navy-900:     #0A1F4A;
+  --navy-700:     #0958B0;
+  --navy-800:     #03439C;
+  --navy-900:     #03439C;
   --accent:       var(--brand-blue);
   --accent-light: var(--brand-blue-mid);
 

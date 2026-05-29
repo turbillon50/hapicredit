@@ -71,7 +71,7 @@ export default function AdminClients() {
             {filtered.map((client: any) => (
               <Link key={client.id} href={`/clients/${client.id}`}>
                 <div className="bg-white rounded-2xl shadow-card p-4 flex items-center gap-3 active:bg-secondary transition-colors">
-                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: avatarColors[client.status] ?? "#1B5FBC" }}>
+                  <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: avatarColors[client.status] ?? "#0E68CC" }}>
                     <span className="text-[11px] font-bold text-white uppercase">
                       {client.fullName.trim().split(" ").slice(0,2).map((p: string) => p[0]).join("")}
                     </span>

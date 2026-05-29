@@ -448,7 +448,7 @@ export default function AdminExpediente() {
             <button
               onClick={() => newExecId && reasignarMut.mutate(newExecId)}
               disabled={!newExecId || reasignarMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#1B5FBC", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newExecId || reasignarMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newExecId || reasignarMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#0E68CC", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newExecId || reasignarMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newExecId || reasignarMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {reasignarMut.isPending ? "Guardando..." : "Reasignar"}
             </button>
@@ -484,7 +484,7 @@ export default function AdminExpediente() {
             <button
               onClick={() => newDate && cambiarFechaMut.mutate({ creditId: activeCredit.id, date: newDate })}
               disabled={!newDate || cambiarFechaMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#1B5FBC", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newDate || cambiarFechaMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newDate || cambiarFechaMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#0E68CC", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newDate || cambiarFechaMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newDate || cambiarFechaMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {cambiarFechaMut.isPending ? "Guardando..." : "Cambiar fecha"}
             </button>

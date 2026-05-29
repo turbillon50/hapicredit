@@ -55,7 +55,7 @@ const DOC_FIELDS: { key: DocKey; label: string; hint: string; required: boolean 
   { key: "ingresos",   label: "Comprobante de ingresos",   hint: "Estado de cuenta o constancia laboral",      required: false },
 ];
 
-const TERMS = [8, 13];
+const TERMS = [4, 8, 13, 24, 36, 48];
 const PURPOSES = [
   "Capital de trabajo / negocio",
   "Educación",
@@ -189,7 +189,7 @@ export default function AltaCliente() {
   const qc = useQueryClient();
 
   const [step, setStep] = useState(1);
-  const TOTAL = 4;
+  const TOTAL = 3;
 
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -198,8 +198,6 @@ export default function AltaCliente() {
   const [curp, setCurp] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
 
-  const [guarantorName, setGuarantorName] = useState("");
-  const [guarantorPhone, setGuarantorPhone] = useState("");
 
   const [docs, setDocs] = useState<Partial<Record<DocKey, string | null>>>({});
 
@@ -218,9 +216,8 @@ export default function AltaCliente() {
 
   const canContinue = () => {
     if (step === 1) return !!(fullName.trim() && phone.replace(/\D/g, "").length === 10 && address.trim());
-    if (step === 2) return !!(guarantorName.trim() && guarantorPhone.replace(/\D/g, "").length === 10);
-    if (step === 3) return docsOk;
-    if (step === 4) return !!(amount >= 500 && termWeeks && purpose);
+    if (step === 2) return docsOk;
+    if (step === 3) return !!(amount >= 500 && termWeeks && purpose);
     return true;
   };
 
@@ -238,7 +235,7 @@ export default function AltaCliente() {
       const clientRes = await fetch(`${API}/clients`, {
         method: "POST",
         headers: auth(),
-        body: JSON.stringify({ fullName, phone, altPhone: altPhone || null, address, curp: curp || null, guarantorName, guarantorPhone, internalNotes: notesText }),
+        body: JSON.stringify({ fullName, phone, altPhone: altPhone || null, address, curp: curp || null, internalNotes: notesText }),
       });
       const clientData = await clientRes.json();
       if (!clientRes.ok) throw new Error(clientData.error ?? "Error al crear cliente");
@@ -376,37 +373,8 @@ export default function AltaCliente() {
             </>
           )}
 
+
           {step === 2 && (
-            <>
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-xl bg-purple-100 flex items-center justify-center text-purple-600 text-base">
-                  <IconGrupo size={16} />
-                </div>
-                <div>
-                  <h2 className="text-base font-bold text-gray-900">Datos del aval</h2>
-                  <p className="text-xs text-gray-400">Persona que respalda el crédito</p>
-                </div>
-              </div>
-
-              <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 flex gap-3">
-                <span className="shrink-0 mt-0.5"><IconAlerta size={20} color="#f59e0b" /></span>
-                <div className="text-sm text-amber-700">
-                  El aval debe ser mayor de edad y diferente al solicitante. Confirma sus datos en persona.
-                </div>
-              </div>
-
-              <div className="card flex flex-col gap-4">
-                <Field label="Nombre completo del aval" value={guarantorName} onChange={setGuarantorName} required placeholder="Nombre y apellidos del aval" />
-                <Field label="Teléfono del aval" value={guarantorPhone} onChange={setGuarantorPhone} type="tel" required placeholder="10 dígitos" hint="Número de contacto en caso de incumplimiento" />
-              </div>
-
-              <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-sm text-blue-700">
-                El aval ha sido informado de sus responsabilidades y acepta respaldar el crédito de {fullName}.
-              </div>
-            </>
-          )}
-
-          {step === 3 && (
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-green-100 flex items-center justify-center text-green-600 text-base">
@@ -448,7 +416,7 @@ export default function AltaCliente() {
             </>
           )}
 
-          {step === 4 && (
+          {step === 3 && (
             <>
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-base">
@@ -493,24 +461,28 @@ export default function AltaCliente() {
                   </div>
                 </div>
 
-                <div className="rounded-xl p-4 grid grid-cols-3 gap-2 text-center" style={{ background: "var(--surface-2)" }}>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Pago semanal</div>
-                    <div className="font-extrabold text-base" style={{ color: "var(--accent)" }}>
-                      {fmt((amount / 1000) * (termWeeks === 8 ? 175 : 120))}
+                {(() => {
+                  // 60% annual rate pro-rated by term — matches owner business rule.
+                  const interest = amount * 0.60 * (termWeeks / 52);
+                  const total = amount + interest;
+                  const weeklyPay = total / termWeeks;
+                  return (
+                    <div className="rounded-xl p-4 grid grid-cols-3 gap-2 text-center" style={{ background: "var(--surface-2)" }}>
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Pago semanal</div>
+                        <div className="font-extrabold text-base" style={{ color: "var(--accent)" }}>{fmt(weeklyPay)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Total a pagar</div>
+                        <div className="font-extrabold text-base text-gray-800">{fmt(total)}</div>
+                      </div>
+                      <div>
+                        <div className="text-xs text-gray-500 mb-1">Interés (60% anual)</div>
+                        <div className="font-extrabold text-base text-gray-800">{fmt(interest)}</div>
+                      </div>
                     </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Total a pagar</div>
-                    <div className="font-extrabold text-base text-gray-800">
-                      {fmt((amount / 1000) * (termWeeks === 8 ? 175 : 120) * termWeeks)}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-xs text-gray-500 mb-1">Comisión apertura</div>
-                    <div className="font-extrabold text-base text-gray-800">{fmt(amount * 0.10)}</div>
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
 
               <div className="card flex flex-col gap-3">
@@ -539,7 +511,6 @@ export default function AltaCliente() {
                   [<IconPersona size={16} />, fullName],
                   [<IconTelefono size={16} />, phone],
                   [<IconUbicacion size={16} />, address],
-                  [<IconGrupo size={16} />, `Aval: ${guarantorName} — ${guarantorPhone}`],
                 ].map(([icon, val], i) => (
                   <div key={i} className="flex items-center gap-2 text-sm text-gray-700 mb-1.5">
                     <span className="text-blue-400 text-base">{icon}</span>

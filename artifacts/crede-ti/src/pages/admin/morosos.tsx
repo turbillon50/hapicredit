@@ -77,7 +77,7 @@ export default function AdminMorosos() {
         <div className="px-4 pt-4 md:pt-0">
           <h1 className="text-xl font-bold text-gray-900">Morosos y multas</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {total} cliente{total !== 1 ? "s" : ""} con atraso · Multa: $200/día
+            {total} cliente{total !== 1 ? "s" : ""} con atraso · Multa: 10% del pago atrasado
           </p>
         </div>
 
