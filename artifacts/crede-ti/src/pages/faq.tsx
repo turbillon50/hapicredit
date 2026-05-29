@@ -261,7 +261,7 @@ export default function Faq() {
           </div>
           <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
             <a
-              href="mailto:hola@crede-ti.mx"
+              href="mailto:hola@crede-ti.info"
               style={{
                 flex: 1, padding: "10px 0", borderRadius: 12,
                 background: "rgba(255,255,255,0.1)",

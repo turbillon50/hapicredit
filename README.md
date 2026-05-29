@@ -227,4 +227,64 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti
 - Payment flow: Executive registers -> pending_validation -> Admin approves -> balance updated + caja movement created
 - Document storage: notesTable with noteType="document", content=JSON({filename, mimeType, base64, label, uploadedAt})
 - DB column is `paymentStatus` not `status` for payments table
-- Domain placeholder: `crede-ti.mx` (replace when real domain is provisioned)
+- Production domain: `crede-ti.info` (alias: `www.crede-ti.info`)
+
+## Phase-0 Production Foundations (Part A)
+
+This repo is mid-transition from "demo with bypass" to production-real auth + storage.
+Part A landed in branch `claude/crede-ti-production-v1`:
+
+### Schema additions (additive, does NOT replace ops tables)
+
+| Table | Purpose |
+|---|---|
+| `user_profiles` | KYC + portal profile per user (full name, dob, CURP, RFC, address, occupation, monthly income, kyc_status, reviewer) |
+| `documents` | File uploads (INE, comprobante, etc.) — `blob_url` pointing at Vercel Blob, with status pending/approved/rejected |
+| `applications` | Self-service credit applications from `/aplicar`. Linked back to the operational `credits` table via `converted_credit_id` once approved |
+| `application_history` | Append-only state-transition log per application |
+| `audit_log` | Append-only security/business audit trail (who, what, when, IP, user-agent) |
+| `users` (modified) | Added `phone`, `clerk_id` (unique), `last_login`, `deleted_at` (soft delete) |
+
+Push the schema to your Neon DB:
+```sh
+pnpm --filter @workspace/db run push
+```
+
+### Health endpoints
+
+- `GET /api/healthz` — cheap liveness, no DB
+- `GET /api/health` — readiness, runs `SELECT 1` against Postgres, reports latency + commit SHA + demo mode flag
+
+### Demo mode — now behind a feature flag
+
+The legacy demo-token bypass that any caller could trigger is now closed in
+production. The mechanism only activates when `DEMO_MODE_ENABLED=true`:
+
+- `GET /api/demo/status` → `{ enabled: boolean }`
+- `POST /api/demo/login` with `{ role: "admin" | "executive" | "client" }` → returns a session token
+- `requireAuth` middleware ignores `demo-token-*` headers unless the flag is on
+
+To enable for a showcase deploy: set `DEMO_MODE_ENABLED=true` in Vercel env vars.
+Default (no var set) = closed.
+
+### Env vars expected by the production deploy
+
+| Variable | Required | Notes |
+|---|---|---|
+| `DATABASE_URL` | ✓ | Neon pooled |
+| `STAFF_MASTER_CODE` | ✓ in prod | When set, only this value is accepted for `/users/me/elevate`. Dev fallback accepts `credite` / `credeti` when unset. |
+| `VITE_CLERK_PUBLISHABLE_KEY` | (rec.) | Vite injects this into the bundle. The `NEXT_PUBLIC_*` variant does NOT work in Vite. |
+| `CLERK_SECRET_KEY` | (rec.) | Server-only |
+| `CLERK_WEBHOOK_SECRET` | Part B | For `svix` verification of `/api/webhooks/clerk` |
+| `BLOB_READ_WRITE_TOKEN` | Part B | For `@vercel/blob` signed uploads |
+| `DEMO_MODE_ENABLED` | optional | `true` opens the demo endpoints + token bypass. Leave unset in prod. |
+| `RESEND_API_KEY` / `RESEND_FROM` | optional | Welcome / invite / payment emails |
+| `LOG_LEVEL` | optional | `info` (default) / `debug` / `warn` |
+
+### Part B (next iteration)
+
+- `/api/webhooks/clerk` with svix signature verification + raw-body mount + idempotent `user.created` / `user.updated` / `user.deleted` handling
+- `/api/uploads/sign` issuing Vercel Blob signed URLs via `@vercel/blob` (deps already installed)
+- Extending `requireAuth` to validate Clerk JWTs (`sessionClaims.publicMetadata.role`) alongside the existing DB-session tokens
+- Customer / reviewer / admin panels wired to the new tables with real CRUD
+

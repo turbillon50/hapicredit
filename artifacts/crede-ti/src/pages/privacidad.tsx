@@ -76,7 +76,7 @@ export default function Privacidad() {
             borderRadius: 12, padding: "16px 20px", marginBottom: 12,
           }}>
             <p style={{ ...s.p, margin: 0 }}>
-              <strong>Correo:</strong> hola@crede-ti.mx<br />
+              <strong>Correo:</strong> hola@crede-ti.info<br />
               <strong>Tel:</strong> 55 7796 0663 / 56 5265 7122
             </p>
           </div>
@@ -138,7 +138,7 @@ export default function Privacidad() {
             padding: "16px 20px", marginBottom: 12,
           }}>
             <p style={{ ...s.p, margin: 0 }}>
-              <strong>Correo:</strong> hola@crede-ti.mx<br />
+              <strong>Correo:</strong> hola@crede-ti.info<br />
               <strong>Asunto:</strong> Ejercicio de Derechos ARCO<br />
               <strong>Tiempo de respuesta:</strong> 20 dias habiles
             </p>
@@ -150,14 +150,14 @@ export default function Privacidad() {
           <h2 style={s.h2}>6. Cambios al aviso de privacidad</h2>
           <p style={s.p}>
             Cualquier modificacion a este Aviso sera notificada a traves de la plataforma
-            <strong> crede-ti.mx</strong>.
+            <strong> crede-ti.info</strong>.
           </p>
         </div>
 
         {/* Footer */}
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 24, textAlign: "center" }}>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Crede-Ti — crede-ti.mx
+            Crede-Ti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
             Este aviso cumple con la Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares.

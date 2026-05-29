@@ -14,11 +14,15 @@ declare global {
   }
 }
 
-const DEMO_USERS: Record<string, { id: number; role: string; fullName: string; treeId: number | null; parentId: number | null }> = {
+export const DEMO_USERS: Record<string, { id: number; role: string; fullName: string; treeId: number | null; parentId: number | null }> = {
   "demo-token-admin":     { id: 1, role: "admin",     fullName: "Admin Demo",   treeId: 1, parentId: null },
   "demo-token-executive": { id: 2, role: "executive", fullName: "Asesor Demo",  treeId: 1, parentId: 1 },
   "demo-token-client":    { id: 3, role: "client",    fullName: "Cliente Demo", treeId: 1, parentId: 2 },
 };
+
+export function isDemoModeEnabled(): boolean {
+  return process.env.DEMO_MODE_ENABLED === "true";
+}
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
@@ -29,18 +33,20 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
 
   const token = authHeader.slice(7);
 
-  // Demo-mode bypass: tokens starting with `demo-token-` are recognized
-  // without a DB roundtrip, so reviewers can navigate the gated screens
-  // even when DATABASE_URL is not yet configured.
-  const demoUser = DEMO_USERS[token];
-  if (demoUser) {
-    req.userId       = demoUser.id;
-    req.userRole     = demoUser.role;
-    req.userFullName = demoUser.fullName;
-    req.userTreeId   = demoUser.treeId;
-    req.userParentId = demoUser.parentId;
-    next();
-    return;
+  // Demo-mode bypass — gated behind DEMO_MODE_ENABLED so production
+  // deployments never accept these tokens. Set DEMO_MODE_ENABLED=true on
+  // a staging/showcase deploy to re-enable.
+  if (isDemoModeEnabled()) {
+    const demoUser = DEMO_USERS[token];
+    if (demoUser) {
+      req.userId       = demoUser.id;
+      req.userRole     = demoUser.role;
+      req.userFullName = demoUser.fullName;
+      req.userTreeId   = demoUser.treeId;
+      req.userParentId = demoUser.parentId;
+      next();
+      return;
+    }
   }
 
   try {

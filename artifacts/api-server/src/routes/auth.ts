@@ -393,7 +393,7 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
       id: req.userId,
       username: `demo_${role}`,
       fullName: req.userFullName,
-      email: `${role}@demo.crede-ti.mx`,
+      email: `${role}@demo.crede-ti.info`,
       role,
       treeId: req.userTreeId,
     });
