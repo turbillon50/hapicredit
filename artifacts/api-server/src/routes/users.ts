@@ -236,4 +236,73 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
   res.json({ ok: true, id: updated.id, parentId: updated.parentId, treeId: updated.treeId });
 });
 
+// ─── ELEVATE TO ADMIN (master-code self-promotion from /perfil) ───────────────
+// Any authenticated user (client, executive, even demo) can enter the master
+// code to upgrade their account to "admin". The newly elevated user becomes
+// the root of their own tree (treeId = own id, parentId = null).
+//
+// Owner request: la clave es "credite" — kept "credeti" as alias for the
+// pre-existing default, and STAFF_MASTER_CODE env still wins if set.
+router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> => {
+  const { masterPassword } = req.body ?? {};
+  const envCode = process.env.STAFF_MASTER_CODE;
+  const allowed = new Set<string>(["credite", "credeti"]);
+  if (envCode) allowed.add(envCode);
+
+  if (typeof masterPassword !== "string" || !allowed.has(masterPassword)) {
+    res.status(401).json({ error: "Clave maestra incorrecta" });
+    return;
+  }
+
+  const authHeader = req.headers.authorization ?? "";
+
+  // Demo tokens: pretend the elevation happened; the client just stores the
+  // role and continues. No DB write because there is no real user row.
+  if (authHeader.startsWith("Bearer demo-token-")) {
+    res.json({
+      ok: true,
+      token: "demo-token-admin",
+      user: {
+        id: 1,
+        username: "demo_admin",
+        fullName: "Admin Demo",
+        email: "admin@demo.crede-ti.mx",
+        role: "admin",
+        treeId: 1,
+      },
+    });
+    return;
+  }
+
+  try {
+    const userId = req.userId!;
+    const [updated] = await db.update(usersTable)
+      .set({ role: "admin", parentId: null, treeId: userId, updatedAt: new Date() })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    if (!updated) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+    // Issue a fresh session token so the role change propagates cleanly.
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ userId, token, expiresAt });
+
+    res.json({
+      ok: true,
+      token,
+      user: {
+        id: updated.id,
+        username: updated.username,
+        fullName: updated.fullName,
+        email: updated.email,
+        role: updated.role,
+        treeId: updated.treeId,
+      },
+    });
+  } catch {
+    res.status(503).json({ error: "Database not configured" });
+  }
+});
+
 export default router;

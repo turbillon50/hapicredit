@@ -491,6 +491,9 @@ export default function Perfil() {
           </>
         )}
 
+        {/* Modo administrador — self-elevation via master code */}
+        {userRole !== "admin" && <AdminModeCard />}
+
         {/* Invite codes for admin and executive */}
         {(userRole === "admin" || userRole === "executive") && (
           <div className="card flex flex-col gap-4">
@@ -739,5 +742,132 @@ export default function Perfil() {
         </div>
       )}
     </Layout>
+  );
+}
+
+/* ─── Admin-mode self-elevation card + sheet ─────────────────────────────── */
+function AdminModeCard() {
+  const [open, setOpen] = useState(false);
+  const [pwd, setPwd] = useState("");
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function elevate() {
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`${API}/users/me/elevate`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ masterPassword: pwd }),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErr(data.error ?? "No se pudo activar"); return; }
+      if (data.token) localStorage.setItem("credeti_token", data.token);
+      if (data.user) {
+        localStorage.setItem("credeti_role", data.user.role);
+        localStorage.setItem("credeti_user", JSON.stringify(data.user));
+      }
+      window.location.href = "/admin";
+    } catch {
+      setErr("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => { setOpen(true); setPwd(""); setErr(""); }}
+        className="card flex items-center gap-3 text-left pressable w-full"
+        style={{
+          background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
+          border: "1.5px solid #ddd6fe",
+        }}
+      >
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#7c3aed" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold text-gray-900">Modo administrador</div>
+          <div className="text-xs text-gray-500">Acceder al panel de control con clave maestra</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end justify-center"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}
+        >
+          <div className="w-full max-w-md bg-white rounded-t-3xl p-5" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+            <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4" />
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#7c3aed" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                </svg>
+              </div>
+              <div>
+                <div className="text-base font-bold text-gray-900">Activar modo administrador</div>
+                <div className="text-xs text-gray-500 mt-0.5">Ingresa la clave maestra para tomar control de la operación.</div>
+              </div>
+            </div>
+
+            <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide block mb-1.5">Clave maestra</label>
+            <div className="relative">
+              <input
+                type={show ? "text" : "password"}
+                value={pwd}
+                onChange={e => { setPwd(e.target.value); setErr(""); }}
+                onKeyDown={e => e.key === "Enter" && pwd && elevate()}
+                placeholder="••••••••"
+                autoFocus
+                className="w-full h-12 px-4 pr-16 rounded-xl border-2 outline-none text-sm font-medium"
+                style={{ borderColor: err ? "#fca5a5" : "#e5e7eb", background: "#f9fafb" }}
+              />
+              <button
+                type="button"
+                onClick={() => setShow(v => !v)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-gray-500"
+              >
+                {show ? "Ocultar" : "Ver"}
+              </button>
+            </div>
+
+            {err && (
+              <div className="mt-2 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca" }}>
+                {err}
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-5">
+              <button
+                onClick={() => setOpen(false)}
+                className="flex-1 h-12 rounded-xl text-sm font-bold pressable"
+                style={{ background: "#f3f4f6", color: "#374151" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={elevate}
+                disabled={!pwd || busy}
+                className="flex-1 h-12 rounded-xl text-sm font-bold text-white pressable disabled:opacity-60"
+                style={{ background: "#7c3aed" }}
+              >
+                {busy ? "Verificando…" : "Acceder"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 }
