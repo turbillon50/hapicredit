@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db, usersTable, clientsTable, creditsTable, sessionsTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
@@ -234,6 +234,101 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
 
   if (!updated) { res.status(404).json({ error: "Asesor no encontrado" }); return; }
   res.json({ ok: true, id: updated.id, parentId: updated.parentId, treeId: updated.treeId });
+});
+
+// ─── ELEVATE TO ADMIN (master-code self-promotion from /perfil) ───────────────
+// Any authenticated user (client, executive, even demo) can enter the master
+// code to upgrade their account to "admin". The newly elevated user becomes
+// the root of their own tree (treeId = own id, parentId = null).
+//
+// Security: when STAFF_MASTER_CODE is configured in env, ONLY that value is
+// accepted. The dev aliases "credite" / "credeti" are honored only when no
+// env code is set, so an ops-configured secret is never bypassed.
+function isValidElevationCode(submitted: unknown): boolean {
+  if (typeof submitted !== "string" || submitted.length === 0) return false;
+  const envCode = process.env.STAFF_MASTER_CODE;
+  if (envCode) return submitted === envCode;
+  return submitted === "credite" || submitted === "credeti";
+}
+
+router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> => {
+  const { masterPassword } = req.body ?? {};
+
+  if (!isValidElevationCode(masterPassword)) {
+    res.status(401).json({ error: "Clave maestra incorrecta" });
+    return;
+  }
+
+  const authHeader = req.headers.authorization ?? "";
+
+  // Demo tokens: pretend the elevation happened; the client just stores the
+  // role and continues. No DB write because there is no real user row.
+  if (authHeader.startsWith("Bearer demo-token-")) {
+    res.json({
+      ok: true,
+      token: "demo-token-admin",
+      user: {
+        id: 1,
+        username: "demo_admin",
+        fullName: "Admin Demo",
+        email: "admin@demo.crede-ti.info",
+        role: "admin",
+        treeId: 1,
+      },
+    });
+    return;
+  }
+
+  try {
+    const userId = req.userId!;
+    const [updated] = await db.update(usersTable)
+      .set({ role: "admin", parentId: null, treeId: userId, updatedAt: new Date() })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    if (!updated) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+    // Migrate the elevating user's existing descendants (the subtree of
+    // people they had invited) into the new tree, so an executive promoted
+    // to admin doesn't lose visibility of their network. Iterative BFS so a
+    // missing recursive-CTE in drizzle isn't a blocker.
+    const queue: number[] = [userId];
+    const visited = new Set<number>([userId]);
+    while (queue.length) {
+      const parent = queue.shift()!;
+      const children = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.parentId, parent));
+      const fresh = children.map(c => c.id).filter(id => !visited.has(id));
+      if (fresh.length === 0) continue;
+      fresh.forEach(id => visited.add(id));
+      await db.update(usersTable)
+        .set({ treeId: userId, updatedAt: new Date() })
+        .where(inArray(usersTable.id, fresh));
+      queue.push(...fresh);
+    }
+
+    // Issue a fresh session token so the role change propagates cleanly.
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ userId, token, expiresAt });
+
+    res.json({
+      ok: true,
+      token,
+      user: {
+        id: updated.id,
+        username: updated.username,
+        fullName: updated.fullName,
+        email: updated.email,
+        role: updated.role,
+        treeId: updated.treeId,
+      },
+    });
+  } catch {
+    res.status(503).json({ error: "Database not configured" });
+  }
 });
 
 export default router;

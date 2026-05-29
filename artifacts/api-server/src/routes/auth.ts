@@ -16,6 +16,18 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+// Master staff code validator.
+// Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
+//   The checked-in dev aliases never bypass the ops-configured secret.
+// Dev / first-time setup: when no env code is configured, accept either spelling
+//   the owner has used ("credite" / "credeti") so a typo doesn't lock anyone out.
+export function isValidMasterCode(submitted: unknown): boolean {
+  if (typeof submitted !== "string" || submitted.length === 0) return false;
+  const envCode = process.env.STAFF_MASTER_CODE;
+  if (envCode) return submitted === envCode;
+  return submitted === "credite" || submitted === "credeti";
+}
+
 router.post("/auth/login", async (req, res): Promise<void> => {
   const parsed = LoginBody.safeParse(req.body);
   if (!parsed.success) {
@@ -130,8 +142,6 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
   const { clerkId, email, fullName, role: requestedRole, inviteCode, staffPassword } = req.body;
   if (!email) { res.status(400).json({ error: "Se requiere email" }); return; }
 
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "credeti";
-
   // Helper: generate unique username from email
   async function makeUsername(email: string) {
     const base = email.split("@")[0].toLowerCase().replace(/[^a-z0-9_]/g, "") || "usuario";
@@ -151,7 +161,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
   }
 
   // ── Path 1: Staff registration via master password ──────────────────────────
-  if (staffPassword && staffPassword === masterCode && requestedRole && ["admin", "executive"].includes(requestedRole)) {
+  if (isValidMasterCode(staffPassword) && requestedRole && ["admin", "executive"].includes(requestedRole)) {
     if (false) { /* admin limit removed for testing */ }
     const username = await makeUsername(email);
     const [newUser] = await db.insert(usersTable).values({
@@ -243,8 +253,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
 // ─── Check staff master password (step 2 validation before reaching step 3) ──
 router.post("/auth/check-staff-password", async (req, res): Promise<void> => {
   const { staffPassword } = req.body;
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "credeti";
-  if (staffPassword && staffPassword === masterCode) {
+  if (isValidMasterCode(staffPassword)) {
     res.json({ valid: true });
   } else {
     res.status(401).json({ valid: false, error: "Contraseña de acceso incorrecta" });
@@ -255,8 +264,7 @@ router.post("/auth/check-staff-password", async (req, res): Promise<void> => {
 router.post("/auth/register-staff", async (req, res): Promise<void> => {
   const { staffPassword, role, username, password, fullName, email } = req.body;
 
-  const masterCode = process.env.STAFF_MASTER_CODE ?? "credeti";
-  if (!staffPassword || staffPassword !== masterCode) {
+  if (!isValidMasterCode(staffPassword)) {
     res.status(401).json({ error: "Contraseña de acceso incorrecta" });
     return;
   }

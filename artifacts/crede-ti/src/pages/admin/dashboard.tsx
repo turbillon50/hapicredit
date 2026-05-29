@@ -316,6 +316,77 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {/* ── Network at a glance — total tree under this admin ── */}
+        <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d6">
+          <div style={{
+            borderRadius: 20,
+            background: "linear-gradient(135deg, #03439C 0%, #0E68CC 60%, #1978D2 100%)",
+            padding: "20px",
+            position: "relative",
+            overflow: "hidden",
+          }}>
+            <div style={{ position:"absolute",top:-60,right:-60,width:160,height:160,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#E8A82F", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>Mi red</div>
+            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>
+              Control completo de tu operación
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 18 }}>
+              {[
+                { label: "Asesores", value: d?.totalActiveExecutives ?? 0 },
+                { label: "Clientes",   value: d?.activeClients          ?? 0 },
+                { label: "Alertas",    value: d?.executivesWithAlerts   ?? 0 },
+              ].map(s => (
+                <div key={s.label} style={{
+                  background: "rgba(255,255,255,0.10)",
+                  border: "1px solid rgba(255,255,255,0.15)",
+                  borderRadius: 12, padding: "10px 8px", textAlign: "center",
+                }}>
+                  <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>{s.label}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <Link href="/admin/arbol">
+                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.12)", color: "#fff", fontSize: 12, fontWeight: 700, textAlign: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                  Ver árbol completo →
+                </div>
+              </Link>
+              <Link href="/admin/codigos">
+                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "#E8A82F", color: "#03439C", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
+                  Invitar al equipo
+                </div>
+              </Link>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Empresa: configuración y vistazo rápido ── */}
+        <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d7">
+          <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 12 }}>
+            Empresa
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            {[
+              { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#0E68CC" },
+              { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "#16a34a" },
+              { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "#d97706" },
+              { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "#7c3aed" },
+              { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "#dc2626" },
+              { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
+            ].map(k => (
+              <div key={k.label} style={{
+                background: "#fff", borderRadius: 14, padding: "12px 14px",
+                border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
+              }}>
+                <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: 6 }}>{k.label}</div>
+                <div style={{ fontSize: 18, fontWeight: 900, color: k.color, letterSpacing: "-0.02em" }}>{k.value}</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{k.sub}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
     </Layout>
   );
