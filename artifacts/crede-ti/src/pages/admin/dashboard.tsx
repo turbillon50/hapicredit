@@ -373,7 +373,7 @@ export default function AdminDashboard() {
               { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "#d97706" },
               { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "#7c3aed" },
               { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "#dc2626" },
-              { label: "% Morosidad",     value: `${Math.round((d?.delinquencyRate ?? 0) * 100)}%`, sub: "Cartera vencida", color: "#ea580c" },
+              { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
             ].map(k => (
               <div key={k.label} style={{
                 background: "#fff", borderRadius: 14, padding: "12px 14px",

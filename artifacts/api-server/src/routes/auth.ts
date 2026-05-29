@@ -16,13 +16,16 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
-// Master staff code — accepts the env-configured value plus both spellings
-// the owner has used ("credite" and "credeti"), so a typo doesn't lock anyone out.
-function isValidMasterCode(submitted: unknown): boolean {
+// Master staff code validator.
+// Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
+//   The checked-in dev aliases never bypass the ops-configured secret.
+// Dev / first-time setup: when no env code is configured, accept either spelling
+//   the owner has used ("credite" / "credeti") so a typo doesn't lock anyone out.
+export function isValidMasterCode(submitted: unknown): boolean {
   if (typeof submitted !== "string" || submitted.length === 0) return false;
-  const allowed = new Set<string>(["credite", "credeti"]);
-  if (process.env.STAFF_MASTER_CODE) allowed.add(process.env.STAFF_MASTER_CODE);
-  return allowed.has(submitted);
+  const envCode = process.env.STAFF_MASTER_CODE;
+  if (envCode) return submitted === envCode;
+  return submitted === "credite" || submitted === "credeti";
 }
 
 router.post("/auth/login", async (req, res): Promise<void> => {

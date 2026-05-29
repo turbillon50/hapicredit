@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { db, usersTable, clientsTable, creditsTable, sessionsTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
@@ -241,15 +241,20 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
 // code to upgrade their account to "admin". The newly elevated user becomes
 // the root of their own tree (treeId = own id, parentId = null).
 //
-// Owner request: la clave es "credite" — kept "credeti" as alias for the
-// pre-existing default, and STAFF_MASTER_CODE env still wins if set.
+// Security: when STAFF_MASTER_CODE is configured in env, ONLY that value is
+// accepted. The dev aliases "credite" / "credeti" are honored only when no
+// env code is set, so an ops-configured secret is never bypassed.
+function isValidElevationCode(submitted: unknown): boolean {
+  if (typeof submitted !== "string" || submitted.length === 0) return false;
+  const envCode = process.env.STAFF_MASTER_CODE;
+  if (envCode) return submitted === envCode;
+  return submitted === "credite" || submitted === "credeti";
+}
+
 router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> => {
   const { masterPassword } = req.body ?? {};
-  const envCode = process.env.STAFF_MASTER_CODE;
-  const allowed = new Set<string>(["credite", "credeti"]);
-  if (envCode) allowed.add(envCode);
 
-  if (typeof masterPassword !== "string" || !allowed.has(masterPassword)) {
+  if (!isValidElevationCode(masterPassword)) {
     res.status(401).json({ error: "Clave maestra incorrecta" });
     return;
   }
@@ -266,7 +271,7 @@ router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> =>
         id: 1,
         username: "demo_admin",
         fullName: "Admin Demo",
-        email: "admin@demo.crede-ti.mx",
+        email: "admin@demo.crede-ti.info",
         role: "admin",
         treeId: 1,
       },
@@ -282,6 +287,27 @@ router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> =>
       .returning();
 
     if (!updated) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+    // Migrate the elevating user's existing descendants (the subtree of
+    // people they had invited) into the new tree, so an executive promoted
+    // to admin doesn't lose visibility of their network. Iterative BFS so a
+    // missing recursive-CTE in drizzle isn't a blocker.
+    const queue: number[] = [userId];
+    const visited = new Set<number>([userId]);
+    while (queue.length) {
+      const parent = queue.shift()!;
+      const children = await db
+        .select({ id: usersTable.id })
+        .from(usersTable)
+        .where(eq(usersTable.parentId, parent));
+      const fresh = children.map(c => c.id).filter(id => !visited.has(id));
+      if (fresh.length === 0) continue;
+      fresh.forEach(id => visited.add(id));
+      await db.update(usersTable)
+        .set({ treeId: userId, updatedAt: new Date() })
+        .where(inArray(usersTable.id, fresh));
+      queue.push(...fresh);
+    }
 
     // Issue a fresh session token so the role change propagates cleanly.
     const token = crypto.randomBytes(32).toString("hex");
