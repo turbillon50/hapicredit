@@ -247,7 +247,7 @@ export default function Terminos() {
             Ignacio Lopez Rayon Sur 702, Despacho 104<br />
             Col. Cuauhtemoc, Toluca, Estado de Mexico<br />
             (A un costado de la Secretaria del Trabajo)<br /><br />
-            Correo: <strong>hola@crede-ti.mx</strong><br />
+            Correo: <strong>hola@crede-ti.info</strong><br />
             Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong>
           </InfoBox>
         </div>
@@ -255,7 +255,7 @@ export default function Terminos() {
         {/* Footer */}
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 24, textAlign: "center" }}>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Crede-Ti — crede-ti.mx
+            Crede-Ti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
             Al utilizar Crede-Ti, usted confirma haber leido y aceptado estos Terminos y Condiciones.

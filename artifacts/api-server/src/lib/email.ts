@@ -10,7 +10,7 @@ async function getResendClient(): Promise<{ client: Resend; from: string } | nul
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) return null;
 
-  const from = process.env.RESEND_FROM ?? "Crede-Ti <noreply@crede-ti.mx>";
+  const from = process.env.RESEND_FROM ?? "Crede-Ti <noreply@crede-ti.info>";
   cachedClient = { client: new Resend(apiKey), from };
   return cachedClient;
 }
@@ -49,7 +49,7 @@ function baseTemplate(content: string): string {
           <tr><td>${content}</td></tr>
         </table>
         <p style="color:#94a3b8;font-size:11px;margin-top:16px;text-align:center;">
-          © ${new Date().getFullYear()} Crede-Ti &nbsp;·&nbsp; crede-ti.mx
+          © ${new Date().getFullYear()} Crede-Ti &nbsp;·&nbsp; crede-ti.info
         </p>
       </td>
     </tr>
@@ -69,7 +69,7 @@ export async function sendWelcomeEmail(opts: {
   if (!ctx) return;
 
   const roleLabel = opts.role === "admin" ? "Administrador" : opts.role === "executive" ? "Asesor" : "Acreditado";
-  const dashboardUrl = "https://crede-ti.mx/login";
+  const dashboardUrl = "https://crede-ti.info/login";
 
   const content = `
     <h2 style="color:#0E68CC;font-size:22px;margin:0 0 8px;">Bienvenido, ${opts.fullName}</h2>
@@ -94,7 +94,7 @@ export async function sendWelcomeEmail(opts: {
       <a href="${dashboardUrl}" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Iniciar sesion</a>
     </div>
 
-    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Si no creaste esta cuenta, puedes ignorar este mensaje. Para soporte contacta a tu asesor o escribe a soporte@crede-ti.mx.</p>
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Si no creaste esta cuenta, puedes ignorar este mensaje. Para soporte contacta a tu asesor o escribe a soporte@crede-ti.info.</p>
   `;
 
   await ctx.client.emails.send({
@@ -119,7 +119,7 @@ export async function sendInviteCodeEmail(opts: {
 
   const roleLabel = opts.role === "executive" ? "Asesor" : "Acreditado";
   const expires = opts.expiresAt.toLocaleDateString("es-MX", { day: "2-digit", month: "long", year: "numeric" });
-  const registroUrl = `https://crede-ti.mx/registro`;
+  const registroUrl = `https://crede-ti.info/registro`;
 
   const content = `
     <h2 style="color:#0E68CC;font-size:22px;margin:0 0 8px;">Te invitaron a Crede-Ti</h2>
@@ -242,7 +242,7 @@ export async function sendClientReassignmentEmail(opts: {
     </table>
 
     <div style="margin:28px 0;text-align:center;">
-      <a href="https://crede-ti.mx" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver en Crede-Ti</a>
+      <a href="https://crede-ti.info" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver en Crede-Ti</a>
     </div>
 
     <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Comunicate con el cliente a la brevedad para iniciar el seguimiento. Para cualquier duda contacta a tu administrador.</p>

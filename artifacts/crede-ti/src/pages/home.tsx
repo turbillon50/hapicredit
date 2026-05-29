@@ -47,7 +47,7 @@ export default function Home() {
       id: asRole === "admin" ? 1 : asRole === "executive" ? 2 : 3,
       username: `demo_${asRole}`,
       fullName: asRole === "admin" ? "Admin Demo" : asRole === "executive" ? "Asesor Demo" : "Cliente Demo",
-      email: `${asRole}@demo.crede-ti.mx`,
+      email: `${asRole}@demo.crede-ti.info`,
       role: asRole,
       treeId: 1,
     };
