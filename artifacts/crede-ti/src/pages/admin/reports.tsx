@@ -47,7 +47,7 @@ export default function AdminReports() {
                     contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff" }}
                   />
                   <Line type="monotone" dataKey="expected" stroke="#cbd5e1" strokeDasharray="4 4" strokeWidth={2} dot={false} name="Esperado" />
-                  <Line type="monotone" dataKey="collected" stroke="#1B5FBC" strokeWidth={2.5} activeDot={{ r: 5 }} name="Cobrado" />
+                  <Line type="monotone" dataKey="collected" stroke="#0E68CC" strokeWidth={2.5} activeDot={{ r: 5 }} name="Cobrado" />
                 </LineChart>
               </ResponsiveContainer>
             )}
@@ -64,7 +64,7 @@ export default function AdminReports() {
                   <XAxis dataKey="bucket" tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} />
                   <Tooltip contentStyle={{ fontSize: 11, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-                  <Bar dataKey="count" fill="#1B5FBC" radius={[4,4,0,0]} name="Clientes" />
+                  <Bar dataKey="count" fill="#0E68CC" radius={[4,4,0,0]} name="Clientes" />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -86,7 +86,7 @@ export default function AdminReports() {
                           className="h-full rounded-full"
                           style={{
                             width: `${Math.min(100, ((exec.totalCollected ?? 0) / Math.max(...ranking.map((e: any) => e.totalCollected ?? 1))) * 100)}%`,
-                            background: "#1B5FBC"
+                            background: "#0E68CC"
                           }}
                         />
                       </div>

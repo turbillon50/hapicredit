@@ -8,7 +8,10 @@ import {
   ListPaymentsQueryParams,
 } from "@workspace/api-zod";
 
-const DAILY_LATE_FEE = 500;
+// Late fee: 10% of the missed weekly payment per overdue cycle.
+// Owner rule: "Yo solo les cobro el 10% por cada cuota vencida.
+// Si el pago es de $300 yo les cobro $30."
+const LATE_FEE_RATE = 0.10;
 
 const router: IRouter = Router();
 
@@ -208,7 +211,7 @@ router.post("/payments", requireAuth, requireRole("admin", "executive"), async (
   today.setHours(0, 0, 0, 0);
   const msPerDay = 24 * 60 * 60 * 1000;
   const daysLate = Math.max(0, Math.floor((today.getTime() - disbDate.getTime()) / msPerDay));
-  const calculatedLateFee = daysLate > 0 ? daysLate * DAILY_LATE_FEE : 0;
+  const calculatedLateFee = daysLate > 0 ? amountExpected * LATE_FEE_RATE : 0;
   const finalLateFee = lateFee ?? calculatedLateFee;
 
   const [payment] = await db.insert(paymentsTable).values({

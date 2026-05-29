@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import logoImg from "@assets/logo-credeti-square.svg";
+import logoImg from "@assets/logo-credeti-square.jpeg";
 
 const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
@@ -74,7 +74,7 @@ export default function Login() {
       <div style={{
         position: "relative",
         overflow: "hidden",
-        background: "linear-gradient(150deg,#0A1F4A 0%,#1B5FBC 55%,#2978D9 100%)",
+        background: "linear-gradient(150deg,#03439C 0%,#0E68CC 55%,#1978D2 100%)",
         flex: "0 0 42vh",
         minHeight: 260,
         display: "flex",
@@ -84,8 +84,8 @@ export default function Login() {
         padding: "0 28px 40px",
       }}>
         {/* Decorative blobs */}
-        <div style={{ position:"absolute",top:-80,right:-80,width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,rgba(230,168,46,0.22) 0%,transparent 70%)",pointerEvents:"none" }} />
-        <div style={{ position:"absolute",top:30,right:60,width:140,height:140,borderRadius:"50%",background:"radial-gradient(circle,rgba(230,168,46,0.10) 0%,transparent 70%)",pointerEvents:"none" }} />
+        <div style={{ position:"absolute",top:-80,right:-80,width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.22) 0%,transparent 70%)",pointerEvents:"none" }} />
+        <div style={{ position:"absolute",top:30,right:60,width:140,height:140,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.10) 0%,transparent 70%)",pointerEvents:"none" }} />
 
         {/* Back link */}
         <a
@@ -107,7 +107,7 @@ export default function Login() {
           </div>
           <div>
             <div style={{ fontWeight:900,fontSize:26,letterSpacing:"-0.05em",color:"#fff",lineHeight:1 }}>
-              Crede<span style={{ color:"#E6A82E" }}>-Ti</span>
+              Crede<span style={{ color:"#E8A82F" }}>-Ti</span>
             </div>
             <div style={{ fontSize:13,color:"rgba(255,255,255,0.45)",marginTop:4,fontWeight:500 }}>
               Creemos en ti
@@ -147,7 +147,7 @@ export default function Login() {
               <button
                 onClick={() => navigate(roleHome(existingSession.role))}
                 style={{
-                  flex:1,padding:"10px",background:"#1B5FBC",color:"#fff",
+                  flex:1,padding:"10px",background:"#0E68CC",color:"#fff",
                   border:"none",borderRadius:10,fontWeight:700,fontSize:13,cursor:"pointer",fontFamily:"inherit",
                 }}
               >
@@ -231,13 +231,13 @@ export default function Login() {
             disabled={!canSubmit}
             style={{
               width:"100%",padding:"15px",marginTop:4,
-              background: canSubmit?"#1B5FBC":"var(--bg-warm)",
+              background: canSubmit?"#0E68CC":"var(--bg-warm)",
               color: canSubmit?"#fff":"var(--text-muted)",
               border:"none",borderRadius:14,
               fontWeight:700,fontSize:15,
               cursor: canSubmit?"pointer":"default",
               fontFamily:"inherit",
-              boxShadow: canSubmit?"0 4px 20px rgba(27,95,188,0.32)":"none",
+              boxShadow: canSubmit?"0 4px 20px rgba(14,104,204,0.32)":"none",
               transition:"background 0.15s,color 0.15s,box-shadow 0.15s",
               letterSpacing:"-0.01em",
             }}
@@ -273,7 +273,7 @@ export default function Login() {
         {/* Register link */}
         <div style={{ textAlign:"center",marginTop:28,paddingTop:24,borderTop:"1px solid var(--border)" }}>
           <span style={{ fontSize:14,color:"var(--text-secondary)" }}>No tienes cuenta? </span>
-          <a href="/registro" style={{ fontSize:14,color:"#1B5FBC",fontWeight:700,textDecoration:"none" }}>
+          <a href="/registro" style={{ fontSize:14,color:"#0E68CC",fontWeight:700,textDecoration:"none" }}>
             Registrate
           </a>
         </div>

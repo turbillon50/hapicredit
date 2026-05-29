@@ -69,7 +69,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
     <div
       style={{
         borderRadius: 24, padding: "24px 22px",
-        background: "linear-gradient(140deg,#0A1F4A 0%,#1B5FBC 50%,#2978D9 100%)",
+        background: "linear-gradient(140deg,#03439C 0%,#0E68CC 50%,#1978D2 100%)",
         position: "relative", overflow: "hidden",
         boxShadow: "0 8px 40px rgba(8,15,31,0.35)",
       }}
@@ -78,7 +78,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
       <div className="credit-card-shine" />
 
       {/* Decorative circles */}
-      <div style={{ position: "absolute", bottom: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(27,95,188,0.06)", pointerEvents: "none" }} />
+      <div style={{ position: "absolute", bottom: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(14,104,204,0.06)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: -60, left: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.02)", pointerEvents: "none" }} />
 
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "wouter";
-import logoImg from "@assets/logo-credeti-square.svg";
+import logoImg from "@assets/logo-credeti-square.jpeg";
 
 const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const basePath = import.meta.env.BASE_URL?.replace(/\/$/, "");
@@ -122,7 +122,7 @@ export default function Registro() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#0A1F4A 0%,#1B5FBC 55%,#2978D9 100%)",
+      background: "linear-gradient(150deg,#03439C 0%,#0E68CC 55%,#1978D2 100%)",
       display: "flex", flexDirection: "column", alignItems: "center",
       justifyContent: "flex-start", padding: "36px 20px 48px",
       fontFamily: "'Inter', -apple-system, sans-serif",
@@ -133,7 +133,7 @@ export default function Registro() {
           <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
         <div style={{ color: "#fff", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>
-          Crede<span style={{ color: "#E6A82E" }}>-Ti</span>
+          Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
         </div>
         <div style={{ color: "rgba(255,255,255,0.35)", fontSize: 12, marginTop: 3 }}>
           {step === 1 ? "Crea tu cuenta" : "Contraseña institucional"}
@@ -143,7 +143,7 @@ export default function Registro() {
       {/* Invite code status banner */}
       {validating && (
         <div style={{ background: "rgba(255,255,255,0.08)", borderRadius: 12, padding: "10px 16px", marginBottom: 16, color: "rgba(255,255,255,0.7)", fontSize: 13, display: "flex", alignItems: "center", gap: 8, width: "100%", maxWidth: 420 }}>
-          <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#1B5FBC", borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
+          <span style={{ display: "inline-block", width: 14, height: 14, border: "2px solid rgba(255,255,255,0.4)", borderTopColor: "#0E68CC", borderRadius: "50%", animation: "spin 0.7s linear infinite", flexShrink: 0 }} />
           Validando código de invitación...
         </div>
       )}
@@ -181,13 +181,13 @@ export default function Registro() {
             </div>
             <button
               onClick={continueWithInvite}
-              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: "pointer", background: "#1B5FBC", color: "#fff", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: "pointer", background: "#0E68CC", color: "#fff", fontFamily: "inherit" }}
             >
               Continuar con correo →
             </button>
             <div style={{ textAlign: "center", marginTop: 16 }}>
               <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta? </span>
-              <a href="/login" style={{ fontSize: 13, color: "#1B5FBC", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
+              <a href="/login" style={{ fontSize: 13, color: "#0E68CC", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
             </div>
           </div>
         )}
@@ -219,7 +219,7 @@ export default function Registro() {
             </div>
             <div style={{ textAlign: "center", marginTop: 20, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
               <span style={{ fontSize: 13, color: "#94a3b8" }}>¿Ya tienes cuenta? </span>
-              <a href="/login" style={{ fontSize: 13, color: "#1B5FBC", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
+              <a href="/login" style={{ fontSize: 13, color: "#0E68CC", fontWeight: 700, textDecoration: "none" }}>Inicia sesión</a>
             </div>
           </div>
         )}
@@ -278,7 +278,7 @@ export default function Registro() {
             <button
               onClick={validateStaffPass}
               disabled={!staffPass.trim() || checkingPass}
-              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: !staffPass.trim() || checkingPass ? "default" : "pointer", background: !staffPass.trim() || checkingPass ? "#e5e7eb" : "#1B5FBC", color: !staffPass.trim() || checkingPass ? "#9ca3af" : "#fff", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: !staffPass.trim() || checkingPass ? "default" : "pointer", background: !staffPass.trim() || checkingPass ? "#e5e7eb" : "#0E68CC", color: !staffPass.trim() || checkingPass ? "#9ca3af" : "#fff", fontFamily: "inherit" }}
             >
               {checkingPass ? "Verificando..." : "Continuar →"}
             </button>

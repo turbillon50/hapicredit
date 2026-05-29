@@ -113,7 +113,7 @@ export default function Registro() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#0E3A7A 0%,#1e3a7b 60%,#2563eb 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "32px 20px 40px" }}>
+    <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#03439C 0%,#1e3a7b 60%,#2563eb 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", padding: "32px 20px 40px" }}>
 
       {/* Logo */}
       <div style={{ textAlign: "center", marginBottom: 28 }}>
@@ -124,7 +124,7 @@ export default function Registro() {
           </svg>
         </div>
         <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.5px" }}>
-          Crede<span style={{ color: "#E6A82E" }}>-Ti</span>
+          Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
         </div>
         <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 12, marginTop: 2 }}>Crea tu cuenta</div>
       </div>
@@ -152,7 +152,7 @@ export default function Registro() {
         {step === 1 && (
           <div style={{ padding: "28px 24px" }}>
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 18, fontWeight: 800, color: "#0E3A7A", marginBottom: 4 }}>¿Cómo vas a usar Crede-Ti?</div>
+              <div style={{ fontSize: 18, fontWeight: 800, color: "#03439C", marginBottom: 4 }}>¿Cómo vas a usar Crede-Ti?</div>
               <div style={{ fontSize: 13, color: "#64748b" }}>Selecciona el tipo de cuenta que corresponde a tu rol</div>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -174,7 +174,7 @@ export default function Registro() {
                     {r.id === "admin"     && <ShieldIcon />}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: "#0E3A7A" }}>{r.label}</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: "#03439C" }}>{r.label}</div>
                     <div style={{ fontSize: 11, fontWeight: 600, color: r.color, marginBottom: 4 }}>{r.sublabel}</div>
                     <div style={{ fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>{r.desc}</div>
                   </div>
@@ -206,14 +206,14 @@ export default function Registro() {
                   {role === "admin"     && <ShieldIcon small />}
                 </div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0E3A7A" }}>{roles.find(r => r.id === role)!.label}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#03439C" }}>{roles.find(r => r.id === role)!.label}</div>
                   <div style={{ fontSize: 11, color: roles.find(r => r.id === role)!.color, fontWeight: 600 }}>{roles.find(r => r.id === role)!.sublabel}</div>
                 </div>
               </div>
             )}
 
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "#0E3A7A", marginBottom: 4 }}>Contraseña de acceso</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#03439C", marginBottom: 4 }}>Contraseña de acceso</div>
               <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.5 }}>
                 Para registrarte como {role === "admin" ? "Administrador" : "Asesor"} necesitas la contraseña de acceso institucional.
               </div>
@@ -267,7 +267,7 @@ export default function Registro() {
             </button>
 
             <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 17, fontWeight: 800, color: "#0E3A7A", marginBottom: 4 }}>Tus datos</div>
+              <div style={{ fontSize: 17, fontWeight: 800, color: "#03439C", marginBottom: 4 }}>Tus datos</div>
               <div style={{ fontSize: 13, color: "#64748b" }}>Completa tu información para crear la cuenta</div>
             </div>
 
@@ -452,7 +452,7 @@ const inputStyle: React.CSSProperties = {
   width: "100%", padding: "13px 16px",
   border: "1.5px solid #e2e8f0", borderRadius: 12,
   fontSize: 15, boxSizing: "border-box", outline: "none",
-  color: "#1B5FBC", background: "#f8fafc",
+  color: "#0E68CC", background: "#f8fafc",
 };
 
 const btnStyle: React.CSSProperties = {

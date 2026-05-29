@@ -4,7 +4,7 @@ function Header() {
   const [, navigate] = useLocation();
   return (
     <header style={{
-      background: "#1B5FBC", padding: "16px 24px",
+      background: "#0E68CC", padding: "16px 24px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       position: "sticky", top: 0, zIndex: 10,
     }}>
@@ -14,7 +14,7 @@ function Header() {
           <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
         </svg>
         <span style={{ color: "white", fontWeight: 800, fontSize: 18 }}>
-          Crede<span style={{ color: "#E6A82E" }}>-Ti</span>
+          Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
         </span>
       </div>
       <button
@@ -33,7 +33,7 @@ function Header() {
 
 const s: Record<string, React.CSSProperties> = {
   section: { marginBottom: 36 },
-  h2: { fontSize: 17, fontWeight: 800, color: "#1B5FBC", marginBottom: 10 },
+  h2: { fontSize: 17, fontWeight: 800, color: "#0E68CC", marginBottom: 10 },
   p:  { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 10 },
   li: { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 6, paddingLeft: 6 },
   ul: { paddingLeft: 20, marginBottom: 10 },
@@ -70,7 +70,7 @@ export default function Terminos() {
 
         {/* Hero */}
         <div style={{
-          background: "linear-gradient(135deg, #1B5FBC, #2978D9)",
+          background: "linear-gradient(135deg, #0E68CC, #1978D2)",
           borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
@@ -113,24 +113,34 @@ export default function Terminos() {
             background: "#f0fdf4", border: "1px solid #bbf7d0",
             borderRadius: 12, padding: "18px 20px", marginBottom: 16,
           }}>
-            <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Plazos disponibles</p>
+            <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
             <ul style={s.ul}>
-              <li style={{ ...s.li, color: "#166534" }}>
-                <strong>8 semanas:</strong> pago semanal de $175 MXN por cada $1,000 prestados
-              </li>
-              <li style={{ ...s.li, color: "#166534" }}>
-                <strong>13 semanas:</strong> pago semanal de $120 MXN por cada $1,000 prestados
-              </li>
+              <li style={{ ...s.li, color: "#166534" }}>Monto: <strong>$500 a $1,000 MXN</strong></li>
+              <li style={{ ...s.li, color: "#166534" }}>Plazo: <strong>4 semanas (30 dias)</strong></li>
+              <li style={{ ...s.li, color: "#166534" }}>Interes: <strong>30% fijo</strong> sobre el monto</li>
+            </ul>
+          </div>
+
+          <div style={{
+            background: "#eff6ff", border: "1px solid #bfdbfe",
+            borderRadius: 12, padding: "18px 20px", marginBottom: 16,
+          }}>
+            <p style={{ ...s.p, color: "#1e40af", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
+            <ul style={s.ul}>
+              <li style={{ ...s.li, color: "#1e40af" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 semanas</strong></li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Interes: <strong>60% anual</strong> (calculado proporcional al plazo)</li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con dia de pago a eleccion (lunes a domingo)</li>
             </ul>
           </div>
 
           <Nota>
-            <strong>Cargo por pago tardio:</strong> Se aplicara una multa de <strong>$500 MXN por cada dia
-            de retraso</strong>. El horario limite de pago es a las <strong>5:00 PM del dia acordado</strong>.
+            <strong>Cargo por pago tardio:</strong> Se aplicara una multa equivalente al <strong>10% del pago atrasado</strong>.
+            Ejemplo: si el pago era de $300, la multa es de $30. El horario limite de pago es a las
+            <strong> 5:00 PM del dia acordado</strong>. Crede-Ti <strong>no cobra comision por apertura</strong>.
           </Nota>
 
           <ul style={s.ul}>
-            <li style={s.li}>Todo credito requiere un <strong>Aval obligatorio</strong> al momento de la solicitud.</li>
             <li style={s.li}>El credito se otorga sujeto a evaluacion y aprobacion del Asesor y Administrador asignado.</li>
             <li style={s.li}>Los pagos deben realizarse en la fecha y forma acordadas con su Asesor.</li>
             <li style={s.li}>Crede-Ti podra realizar <strong>validaciones de informacion y visitas domiciliarias</strong>.</li>
@@ -148,7 +158,7 @@ export default function Terminos() {
           <ul style={s.ul}>
             <li style={s.li}>Nombre completo, INE, CURP</li>
             <li style={s.li}>Domicilio, telefono y referencias personales</li>
-            <li style={s.li}>Informacion del aval</li>
+            <li style={s.li}>Documentos: INE (frente y reverso), selfie con INE, comprobante de domicilio</li>
           </ul>
           <p style={s.p}>
             El cliente autoriza el uso de su informacion para fines de validacion,

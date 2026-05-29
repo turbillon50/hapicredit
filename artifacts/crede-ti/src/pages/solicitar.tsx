@@ -2,12 +2,10 @@ import { useState, useRef } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
-  IconFlecha, IconAtras, IconCheck,
-  IconLoader, IconAlerta, IconSubir,
-  IconDobleCheck, IconPerfil, IconTelefono, IconUbicacion,
-  IconMoneda, IconDocumento, IconCamara as IconImagen,
-  IconWhatsapp, IconBorrar, IconTienda,
-  IconGrupo, IconCamara,
+  IconCheck,
+  IconAlerta, IconSubir,
+  IconDobleCheck, IconDocumento, IconCamara as IconImagen,
+  IconWhatsapp, IconBorrar, IconCamara,
 } from "@/components/hapi/HapiIcons";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
@@ -15,12 +13,19 @@ const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
-const TERM_OPTIONS = [
-  { weeks: 8,  ratePerThousand: 175, label: "8 semanas" },
-  { weeks: 13, ratePerThousand: 120, label: "13 semanas" },
-];
+// Owner rules:
+// - Existing clients: $1,000–$30,000 / 4–48 weeks / 60% annual rate (pro rata)
+// - New clients:      $500–$1,000   / 4 weeks fixed / 30% flat interest
+const NEW_AMOUNT_MIN  = 500;
+const NEW_AMOUNT_MAX  = 1000;
+const NEW_TERM_WEEKS  = 4;
+const NEW_INTEREST    = 0.30;       // flat over the term
 
-const COMMISSION_RATE = 0.10;
+const EXISTING_AMOUNT_MIN = 1000;
+const EXISTING_AMOUNT_MAX = 30000;
+const EXISTING_TERM_MIN   = 4;
+const EXISTING_TERM_MAX   = 48;
+const EXISTING_ANNUAL     = 0.60;   // 60% APR pro-rated
 
 const PURPOSES = [
   "Capital de trabajo / negocio",
@@ -35,11 +40,11 @@ const PURPOSES = [
 ];
 
 const SOURCES = [
-  { key: "facebook",      label: "Facebook" },
-  { key: "whatsapp",      label: "WhatsApp directo" },
+  { key: "facebook",       label: "Facebook" },
+  { key: "whatsapp",       label: "WhatsApp directo" },
   { key: "recommendation", label: "Recomendación" },
-  { key: "referral",      label: "Referido de otro cliente" },
-  { key: "other",         label: "Otro" },
+  { key: "referral",       label: "Referido de otro cliente" },
+  { key: "other",          label: "Otro" },
 ];
 
 const DOC_TYPES = [
@@ -47,8 +52,17 @@ const DOC_TYPES = [
   { key: "ine_back",   label: "INE — Reverso",              required: true  },
   { key: "selfie_ine", label: "Selfie sosteniendo tu INE",  required: true  },
   { key: "domicilio",  label: "Comprobante de domicilio",   required: true  },
-  { key: "negocio",    label: "Foto del negocio",           required: false },
   { key: "otro",       label: "Otro documento",             required: false },
+];
+
+const DAYS_OF_WEEK = [
+  { key: "lunes",     label: "Lun" },
+  { key: "martes",    label: "Mar" },
+  { key: "miercoles", label: "Mié" },
+  { key: "jueves",    label: "Jue" },
+  { key: "viernes",   label: "Vie" },
+  { key: "sabado",    label: "Sáb" },
+  { key: "domingo",   label: "Dom" },
 ];
 
 type UploadedDoc = { key: string; filename: string; mimeType: string; preview: string };
@@ -71,6 +85,7 @@ export default function Solicitar() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [activeDocKey, setActiveDocKey] = useState("");
 
+  // Personal info
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
   const [curp, setCurp] = useState("");
@@ -79,39 +94,46 @@ export default function Solicitar() {
   const [income, setIncome] = useState("");
   const [source, setSource] = useState("");
 
-  const [businessName, setBusinessName] = useState("");
-  const [businessType, setBusinessType] = useState("");
-  const [businessAddress, setBusinessAddress] = useState("");
-  const [businessYears, setBusinessYears] = useState("");
-
-  const [ref1Name, setRef1Name] = useState("");
-  const [ref1Phone, setRef1Phone] = useState("");
+  // References (2 personal references)
+  const [ref1Name, setRef1Name]         = useState("");
+  const [ref1Phone, setRef1Phone]       = useState("");
   const [ref1Relation, setRef1Relation] = useState("");
-  const [ref2Name, setRef2Name] = useState("");
-  const [ref2Phone, setRef2Phone] = useState("");
+  const [ref2Name, setRef2Name]         = useState("");
+  const [ref2Phone, setRef2Phone]       = useState("");
   const [ref2Relation, setRef2Relation] = useState("");
 
-  const [amount, setAmount] = useState(5000);
-  const [termIdx, setTermIdx] = useState(0);
-  const [purpose, setPurpose] = useState("");
-  const [payDay, setPayDay] = useState("lunes");
-
-  const [avalName, setAvalName] = useState("");
-  const [avalPhone, setAvalPhone] = useState("");
-  const [avalAddress, setAvalAddress] = useState("");
-  const [avalRelation, setAvalRelation] = useState("");
+  // Credit request
+  const [isNewClient, setIsNewClient] = useState(true);
+  const [amount, setAmount]           = useState(1000);
+  const [termWeeks, setTermWeeks]     = useState(NEW_TERM_WEEKS);
+  const [purpose, setPurpose]         = useState("");
+  const [paymentFrequency, setPaymentFrequency] = useState<"weekly" | "biweekly">("weekly");
+  const [payDay, setPayDay] = useState<string>("lunes");
 
   const [docs, setDocs] = useState<UploadedDoc[]>([]);
 
-  const term = TERM_OPTIONS[termIdx];
-  const weeklyPayment = (amount / 1000) * term.ratePerThousand;
-  const totalPayment = weeklyPayment * term.weeks;
-  const commission = amount * COMMISSION_RATE;
-  const disbursement = amount - commission;
+  // ── Derived ranges + computed schedule ────────────────────────────────────
+  const amountMin = isNewClient ? NEW_AMOUNT_MIN : EXISTING_AMOUNT_MIN;
+  const amountMax = isNewClient ? NEW_AMOUNT_MAX : EXISTING_AMOUNT_MAX;
+  const termMin   = isNewClient ? NEW_TERM_WEEKS : EXISTING_TERM_MIN;
+  const termMax   = isNewClient ? NEW_TERM_WEEKS : EXISTING_TERM_MAX;
 
-  const canStep0 = true;
-  const canStep1 = true;
-  const canStep2 = true;
+  // Clamp current values when switching client type
+  const clampedAmount = Math.min(amountMax, Math.max(amountMin, amount));
+  const clampedTerm   = Math.min(termMax,   Math.max(termMin,   termWeeks));
+
+  const interestAmount = isNewClient
+    ? clampedAmount * NEW_INTEREST
+    : clampedAmount * EXISTING_ANNUAL * (clampedTerm / 52);
+
+  const totalPayment  = clampedAmount + interestAmount;
+  const installments  = paymentFrequency === "biweekly"
+    ? Math.ceil(clampedTerm / 2)
+    : clampedTerm;
+  const installmentLabel = paymentFrequency === "biweekly" ? "quincenal" : "semanal";
+  const perInstallment = totalPayment / installments;
+  const disbursement   = clampedAmount; // no commission anymore
+
   const requiredDocs = DOC_TYPES.filter(d => d.required);
   const uploadedKeys = docs.map(d => d.key);
   const docProgress = requiredDocs.filter(d => uploadedKeys.includes(d.key)).length;
@@ -137,7 +159,7 @@ export default function Solicitar() {
     setSubmitting(true);
     setError("");
     try {
-      const docsData: Record<string, any> = {};
+      const docsData: Record<string, { provided: boolean; filename: string; preview: string }> = {};
       for (const d of docs) {
         docsData[d.key] = { provided: true, filename: d.filename, preview: d.preview };
       }
@@ -145,27 +167,29 @@ export default function Solicitar() {
         fullName: fullName.trim(),
         phone: phone.trim(),
         email: "",
-        requestedAmount: amount,
-        termWeeks: term.weeks,
+        requestedAmount: clampedAmount,
+        termWeeks: clampedTerm,
         purpose,
         source,
+        isNewClient,
         personalInfo: {
           fullName: fullName.trim(), phone: phone.trim(), curp, address,
           occupation, monthlyIncome: parseFloat(income) || 0, source,
-        },
-        businessInfo: {
-          name: businessName, type: businessType,
-          address: businessAddress, years: businessYears,
         },
         references: [
           { name: ref1Name, phone: ref1Phone, relation: ref1Relation },
           { name: ref2Name, phone: ref2Phone, relation: ref2Relation },
         ],
-        guarantor: { name: avalName, phone: avalPhone, address: avalAddress, relation: avalRelation },
         creditRequest: {
-          requestedAmount: amount, termWeeks: term.weeks, purpose,
-          weeklyPayment, commission, disbursement, totalPayment, payDay,
-          ratePerThousand: term.ratePerThousand,
+          requestedAmount: clampedAmount,
+          termWeeks: clampedTerm,
+          purpose,
+          isNewClient,
+          interestRate: isNewClient ? NEW_INTEREST : EXISTING_ANNUAL,
+          totalToRepay: totalPayment,
+          perInstallment,
+          paymentFrequency,
+          payDay,
         },
         documents: docsData,
       };
@@ -176,9 +200,10 @@ export default function Solicitar() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al enviar");
-      setDone(data.referenceNumber ?? `HC-${Date.now()}`);
-    } catch (e: any) {
-      setError(e.message ?? "Ocurrió un error");
+      setDone(data.referenceNumber ?? `CT-${Date.now()}`);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Ocurrió un error";
+      setError(msg);
     } finally {
       setSubmitting(false);
     }
@@ -195,16 +220,16 @@ export default function Solicitar() {
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
             Un asesor de Crede-Ti revisará tu expediente y te contactará pronto.
           </p>
-          <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#fff5f5", border: "1.5px solid #fecaca" }}>
-            <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#1B5FBC" }}>Folio</div>
-            <div className="text-2xl font-extrabold" style={{ color: "#1B5FBC" }}>{done}</div>
+          <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#eff6ff", border: "1.5px solid #bfdbfe" }}>
+            <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#0E68CC" }}>Folio</div>
+            <div className="text-2xl font-extrabold" style={{ color: "#0E68CC" }}>{done}</div>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4 w-full max-w-xs mb-6">
             <div className="grid grid-cols-2 gap-3 text-center text-xs">
-              <div><div className="text-gray-400">Monto solicitado</div><div className="font-bold">{fmt(amount)}</div></div>
+              <div><div className="text-gray-400">Monto solicitado</div><div className="font-bold">{fmt(clampedAmount)}</div></div>
               <div><div className="text-gray-400">Recibes</div><div className="font-bold text-green-600">{fmt(disbursement)}</div></div>
-              <div><div className="text-gray-400">Plazo</div><div className="font-bold">{term.weeks} semanas</div></div>
-              <div><div className="text-gray-400">Pago semanal</div><div className="font-bold">{fmt(weeklyPayment)}</div></div>
+              <div><div className="text-gray-400">Plazo</div><div className="font-bold">{clampedTerm} sem.</div></div>
+              <div><div className="text-gray-400">Pago {installmentLabel}</div><div className="font-bold">{fmt(perInstallment)}</div></div>
             </div>
           </div>
           <a
@@ -219,7 +244,7 @@ export default function Solicitar() {
     );
   }
 
-  const STEPS = ["Datos", "Crédito", "Aval", "Docs", "Enviar"];
+  const STEPS = ["Datos", "Crédito", "Docs", "Enviar"];
 
   return (
     <Layout>
@@ -239,6 +264,7 @@ export default function Solicitar() {
           ))}
         </div>
 
+        {/* ───────────── STEP 0 — personal info + references + source ───────── */}
         {step === 0 && (
           <div className="flex flex-col gap-4">
             <div>
@@ -264,22 +290,6 @@ export default function Solicitar() {
               </Field>
               <Field label="Ingreso mensual aprox.">
                 <input type="number" value={income} onChange={e => setIncome(e.target.value)} placeholder="$0" className="input-field" />
-              </Field>
-            </div>
-
-            <div className="card flex flex-col gap-3">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Datos del negocio</div>
-              <Field label="Nombre del negocio">
-                <input value={businessName} onChange={e => setBusinessName(e.target.value)} placeholder="Nombre o giro" className="input-field" />
-              </Field>
-              <Field label="Tipo de negocio">
-                <input value={businessType} onChange={e => setBusinessType(e.target.value)} placeholder="Ej: Tienda de abarrotes, Taller..." className="input-field" />
-              </Field>
-              <Field label="Dirección del negocio">
-                <input value={businessAddress} onChange={e => setBusinessAddress(e.target.value)} placeholder="Si es diferente a domicilio" className="input-field" />
-              </Field>
-              <Field label="Años operando">
-                <input value={businessYears} onChange={e => setBusinessYears(e.target.value)} placeholder="Ej: 3" className="input-field" />
               </Field>
             </div>
 
@@ -319,83 +329,136 @@ export default function Solicitar() {
               </div>
             </div>
 
-            <NavButtons canNext={canStep0} onNext={() => setStep(1)} />
+            <NavButtons canNext onNext={() => setStep(1)} />
           </div>
         )}
 
+        {/* ───────────── STEP 1 — credit simulator ──────────────────────────── */}
         {step === 1 && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-bold text-gray-900">Datos del crédito</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Monto y condiciones</p>
+              <p className="text-xs text-gray-500 mt-0.5">Simula tu crédito y elige condiciones</p>
             </div>
 
+            {/* New vs existing client toggle */}
+            <div className="card flex flex-col gap-3">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-widest">Tipo de cliente</label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setIsNewClient(true)}
+                  className="py-3 rounded-xl text-sm font-bold border-2 pressable text-center"
+                  style={isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                >
+                  Cliente nuevo
+                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$500 – $1,000 · 4 sem · 30%</div>
+                </button>
+                <button
+                  onClick={() => setIsNewClient(false)}
+                  className="py-3 rounded-xl text-sm font-bold border-2 pressable text-center"
+                  style={!isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                >
+                  Cliente recurrente
+                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 sem · 60% anual</div>
+                </button>
+              </div>
+            </div>
+
+            {/* Simulator */}
             <div className="card flex flex-col gap-4">
               <label className="text-sm font-semibold text-gray-700">Monto solicitado</label>
-              <div className="text-4xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>{fmt(amount)}</div>
-              <input type="range" min={1000} max={30000} step={1000} value={amount} onChange={e => setAmount(Number(e.target.value))} className="w-full" style={{ accentColor: "#1B5FBC" }} />
-              <div className="flex justify-between text-xs text-gray-400"><span>$1,000</span><span>$30,000</span></div>
-
-              <label className="text-sm font-semibold text-gray-700">Plazo de pago</label>
-              <div className="grid grid-cols-2 gap-3">
-                {TERM_OPTIONS.map((t, i) => (
-                  <button
-                    key={t.weeks}
-                    onClick={() => setTermIdx(i)}
-                    className={`py-4 rounded-xl text-center border-2 pressable ${termIdx === i ? "text-white" : "border-gray-200 bg-white text-gray-600"}`}
-                    style={termIdx === i ? { background: "var(--accent)", borderColor: "var(--accent)" } : {}}
-                  >
-                    <div className="text-xl font-extrabold">{t.weeks}</div>
-                    <div className="text-xs">semanas</div>
-                    <div className="text-[10px] mt-1 opacity-70">${t.ratePerThousand}/semana por $1,000</div>
-                  </button>
-                ))}
+              <div className="text-4xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>{fmt(clampedAmount)}</div>
+              <input
+                type="range"
+                min={amountMin}
+                max={amountMax}
+                step={isNewClient ? 100 : 1000}
+                value={clampedAmount}
+                onChange={e => setAmount(Number(e.target.value))}
+                className="w-full"
+                style={{ accentColor: "#0E68CC" }}
+              />
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>{fmt(amountMin)}</span>
+                <span>{fmt(amountMax)}</span>
               </div>
+
+              <label className="text-sm font-semibold text-gray-700">Plazo</label>
+              <div className="text-3xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>
+                {clampedTerm} <span className="text-base font-medium text-gray-500">semanas</span>
+              </div>
+              {!isNewClient ? (
+                <>
+                  <input
+                    type="range"
+                    min={termMin}
+                    max={termMax}
+                    step={1}
+                    value={clampedTerm}
+                    onChange={e => setTermWeeks(Number(e.target.value))}
+                    className="w-full"
+                    style={{ accentColor: "#0E68CC" }}
+                  />
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>{termMin} sem</span>
+                    <span>{termMax} sem</span>
+                  </div>
+                </>
+              ) : (
+                <div className="text-[11px] text-center text-gray-400">
+                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 semanas.
+                </div>
+              )}
 
               <div className="rounded-xl overflow-hidden" style={{ border: "2px solid var(--accent)" }}>
                 <div className="px-4 py-2 text-xs font-bold text-white" style={{ background: "var(--accent)" }}>
                   Resumen de tu crédito
                 </div>
                 <div className="p-4 flex flex-col gap-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Monto solicitado</span>
-                    <span className="font-bold">{fmt(amount)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Comisión por apertura (10%)</span>
-                    <span className="font-bold text-red-500">-{fmt(commission)}</span>
-                  </div>
+                  <Row label="Monto solicitado"  value={fmt(clampedAmount)} />
+                  <Row
+                    label={isNewClient ? "Interés (30% fijo)" : `Interés (${Math.round(EXISTING_ANNUAL * 100)}% anual)`}
+                    value={`+${fmt(interestAmount)}`}
+                  />
                   <div className="border-t border-dashed border-gray-200 my-1" />
-                  <div className="flex justify-between">
-                    <span className="text-gray-700 font-semibold">Recibes en tu cuenta</span>
-                    <span className="font-extrabold text-green-600 text-lg">{fmt(disbursement)}</span>
-                  </div>
+                  <Row label="Recibes en tu cuenta" value={fmt(disbursement)} highlight />
                   <div className="border-t border-gray-100 my-1" />
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Pago semanal</span>
-                    <span className="font-bold" style={{ color: "var(--accent)" }}>{fmt(weeklyPayment)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Total a pagar</span>
-                    <span className="font-bold">{fmt(totalPayment)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-500">Plazo</span>
-                    <span className="font-bold">{term.weeks} semanas</span>
-                  </div>
+                  <Row label={`Pago ${installmentLabel}`} value={fmt(perInstallment)} accent />
+                  <Row label="Total a pagar" value={fmt(totalPayment)} />
+                  <Row label="Plazo" value={`${clampedTerm} semanas`} />
                 </div>
               </div>
+            </div>
 
-              <label className="text-sm font-semibold text-gray-700">Día de pago preferido</label>
-              <div className="flex flex-wrap gap-2">
-                {["lunes","martes","miércoles","jueves","viernes","sábado"].map(d => (
+            {/* Payment frequency + day */}
+            <div className="card flex flex-col gap-4">
+              <label className="text-sm font-semibold text-gray-700">Frecuencia de pago</label>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { key: "weekly",   label: "Semanal" },
+                  { key: "biweekly", label: "Quincenal" },
+                ].map(f => (
                   <button
-                    key={d}
-                    onClick={() => setPayDay(d)}
-                    className="px-3 py-2 rounded-xl text-xs font-medium border-2 pressable capitalize"
-                    style={payDay === d ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb" }}
+                    key={f.key}
+                    onClick={() => setPaymentFrequency(f.key as "weekly" | "biweekly")}
+                    className="py-3 rounded-xl text-sm font-medium border-2 pressable"
+                    style={paymentFrequency === f.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb" }}
                   >
-                    {d}
+                    {f.label}
+                  </button>
+                ))}
+              </div>
+
+              <label className="text-sm font-semibold text-gray-700">Día de pago</label>
+              <div className="grid grid-cols-7 gap-1.5">
+                {DAYS_OF_WEEK.map(d => (
+                  <button
+                    key={d.key}
+                    onClick={() => setPayDay(d.key)}
+                    className="py-2 rounded-lg text-xs font-medium border-2 pressable"
+                    style={payDay === d.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                  >
+                    {d.label}
                   </button>
                 ))}
               </div>
@@ -418,44 +481,12 @@ export default function Solicitar() {
               ))}
             </div>
 
-            <NavButtons canNext={canStep1} onNext={() => setStep(2)} onBack={() => setStep(0)} />
+            <NavButtons canNext onNext={() => setStep(2)} onBack={() => setStep(0)} />
           </div>
         )}
 
+        {/* ───────────── STEP 2 — documents ─────────────────────────────────── */}
         {step === 2 && (
-          <div className="flex flex-col gap-4">
-            <div>
-              <h2 className="text-lg font-bold text-gray-900">Obligado solidario (Aval)</h2>
-              <p className="text-xs text-gray-500 mt-0.5">Es requisito obligatorio contar con un aval</p>
-            </div>
-
-            <div className="card flex flex-col gap-4">
-              <Field label="Nombre completo del aval" required>
-                <input value={avalName} onChange={e => setAvalName(e.target.value)} placeholder="Como aparece en su INE" className="input-field" />
-              </Field>
-              <Field label="Teléfono del aval" required>
-                <input type="tel" value={avalPhone} onChange={e => setAvalPhone(e.target.value)} placeholder="10 dígitos" maxLength={10} className="input-field" />
-              </Field>
-              <Field label="Domicilio del aval">
-                <input value={avalAddress} onChange={e => setAvalAddress(e.target.value)} placeholder="Dirección completa" className="input-field" />
-              </Field>
-              <Field label="Parentesco o relación">
-                <input value={avalRelation} onChange={e => setAvalRelation(e.target.value)} placeholder="Ej: Hermano, Amigo, Vecino..." className="input-field" />
-              </Field>
-            </div>
-
-            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4">
-              <div className="text-sm font-semibold text-yellow-800 mb-1">Importante</div>
-              <div className="text-xs text-yellow-700 leading-relaxed">
-                El aval se compromete como obligado solidario del crédito. Se le podría contactar en caso de incumplimiento de pago.
-              </div>
-            </div>
-
-            <NavButtons canNext={canStep2} onNext={() => setStep(3)} onBack={() => setStep(1)} />
-          </div>
-        )}
-
-        {step === 3 && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-bold text-gray-900">Documentos</h2>
@@ -514,11 +545,12 @@ export default function Solicitar() {
 
             <input ref={fileRef} type="file" accept="image/*,.pdf" capture="environment" onChange={handleFileUpload} className="hidden" />
 
-            <NavButtons canNext onNext={() => setStep(4)} onBack={() => setStep(2)} />
+            <NavButtons canNext onNext={() => setStep(3)} onBack={() => setStep(1)} />
           </div>
         )}
 
-        {step === 4 && (
+        {/* ───────────── STEP 3 — review + submit ───────────────────────────── */}
+        {step === 3 && (
           <div className="flex flex-col gap-4">
             <div>
               <h2 className="text-lg font-bold text-gray-900">Revisa tu solicitud</h2>
@@ -534,34 +566,21 @@ export default function Solicitar() {
               {income && <div className="text-sm text-gray-500">Ingreso: {fmt(parseFloat(income))}/mes</div>}
             </div>
 
-            {businessName && (
-              <div className="card">
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Negocio</div>
-                <div className="text-sm font-medium text-gray-900">{businessName}</div>
-                <div className="text-sm text-gray-500">{businessType} {businessYears && `· ${businessYears} años`}</div>
-              </div>
-            )}
-
             <div className="card">
               <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Crédito</div>
               <div className="flex flex-col gap-2 text-sm">
-                <div className="flex justify-between"><span className="text-gray-500">Monto</span><span className="font-bold">{fmt(amount)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Comisión (10%)</span><span className="font-bold text-red-500">-{fmt(commission)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-700 font-semibold">Recibes</span><span className="font-extrabold text-green-600">{fmt(disbursement)}</span></div>
+                <Row label="Tipo" value={isNewClient ? "Cliente nuevo" : "Cliente recurrente"} />
+                <Row label="Monto" value={fmt(clampedAmount)} />
+                <Row label="Plazo" value={`${clampedTerm} semanas`} />
+                <Row label={isNewClient ? "Interés (30% fijo)" : "Interés (60% anual)"} value={`+${fmt(interestAmount)}`} />
                 <div className="border-t border-gray-100 my-1" />
-                <div className="flex justify-between"><span className="text-gray-500">Pago semanal</span><span className="font-bold">{fmt(weeklyPayment)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Plazo</span><span className="font-bold">{term.weeks} semanas</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Total a pagar</span><span className="font-bold">{fmt(totalPayment)}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Día de pago</span><span className="font-bold capitalize">{payDay}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Destino</span><span className="font-medium text-right max-w-[50%]">{purpose}</span></div>
+                <Row label="Recibes" value={fmt(disbursement)} highlight />
+                <Row label={`Pago ${installmentLabel}`} value={fmt(perInstallment)} accent />
+                <Row label="Total a pagar" value={fmt(totalPayment)} />
+                <Row label="Frecuencia" value={paymentFrequency === "biweekly" ? "Quincenal" : "Semanal"} />
+                <Row label="Día de pago" value={payDay} capitalize />
+                <Row label="Destino" value={purpose} />
               </div>
-            </div>
-
-            <div className="card">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Aval (obligado solidario)</div>
-              <div className="text-sm font-medium text-gray-900">{avalName}</div>
-              <div className="text-sm text-gray-500">{avalPhone} {avalRelation && `· ${avalRelation}`}</div>
-              {avalAddress && <div className="text-sm text-gray-500">{avalAddress}</div>}
             </div>
 
             <div className="card">
@@ -583,26 +602,25 @@ export default function Solicitar() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
-                <span className="shrink-0"><IconAlerta size={20} color="#ef4444" /></span>
-                <p className="text-sm text-red-700">{error}</p>
+              <div className="rounded-xl px-4 py-3 flex items-start gap-2" style={{ background: "#fff0f0", border: "1px solid #fecaca" }}>
+                <IconAlerta size={18} color="#dc2626" />
+                <div className="text-sm text-red-700">{error}</div>
               </div>
             )}
 
             <button
               onClick={handleSubmit}
-              disabled={!canSubmit || submitting}
-              className="flex items-center justify-center gap-2 w-full py-4 rounded-2xl text-white text-sm font-bold pressable"
-              style={{ background: canSubmit && !submitting ? "#1B5FBC" : "#e5e7eb", color: canSubmit && !submitting ? "white" : "#9ca3af" }}
+              disabled={submitting}
+              className="w-full py-4 rounded-2xl text-white font-bold text-sm pressable disabled:opacity-60"
+              style={{ background: "var(--accent)" }}
             >
-              {submitting ? <><IconLoader size={16} className="animate-spin" /> Enviando...</> : "Enviar solicitud"}
+              {submitting ? "Enviando..." : "Enviar solicitud"}
             </button>
 
-            <button onClick={() => setStep(3)} className="text-center text-sm text-gray-400 pressable py-2">
-              <IconAtras size={14} className="inline mr-1" /> Regresar
-            </button>
+            <NavButtons canNext={false} onBack={() => setStep(2)} />
           </div>
         )}
+
       </div>
     </Layout>
   );
@@ -610,34 +628,57 @@ export default function Solicitar() {
 
 function Field({ label, required, children }: { label: string; required?: boolean; children: React.ReactNode }) {
   return (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+    <label className="flex flex-col gap-1.5">
+      <span className="text-xs font-semibold text-gray-600">
         {label} {required && <span className="text-red-500">*</span>}
-      </label>
+      </span>
       {children}
+    </label>
+  );
+}
+
+function Row({ label, value, highlight, accent, capitalize }: {
+  label: string;
+  value: string | number;
+  highlight?: boolean;
+  accent?: boolean;
+  capitalize?: boolean;
+}) {
+  return (
+    <div className="flex justify-between">
+      <span className="text-gray-500">{label}</span>
+      <span
+        className={`font-bold ${highlight ? "text-green-600 text-lg" : capitalize ? "capitalize" : ""}`}
+        style={accent ? { color: "var(--accent)" } : {}}
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext: () => void; onBack?: () => void }) {
+function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext?: () => void; onBack?: () => void }) {
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2 mt-2">
       {onBack && (
         <button
           onClick={onBack}
-          className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold border-2 border-gray-200 text-gray-600 pressable"
+          className="flex-1 py-3.5 rounded-2xl text-sm font-bold pressable"
+          style={{ background: "#f3f4f6", color: "#374151" }}
         >
-          <IconAtras size={16} /> Atrás
+          Atrás
         </button>
       )}
-      <button
-        onClick={onNext}
-        disabled={!canNext}
-        className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
-        style={{ background: canNext ? "var(--accent)" : "#e5e7eb", color: canNext ? "white" : "#9ca3af" }}
-      >
-        Siguiente <IconFlecha size={16} color="#fff" />
-      </button>
+      {onNext && (
+        <button
+          onClick={onNext}
+          disabled={!canNext}
+          className="flex-1 py-3.5 rounded-2xl text-white font-bold text-sm pressable disabled:opacity-60"
+          style={{ background: canNext ? "var(--accent)" : "#e5e7eb", color: canNext ? "#fff" : "#9ca3af" }}
+        >
+          Continuar
+        </button>
+      )}
     </div>
   );
 }
