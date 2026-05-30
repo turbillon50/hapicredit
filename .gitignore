@@ -14,6 +14,11 @@ out-tsc
 /build
 .vercel
 
+# Drizzle-kit generate artifacts — schema source of truth lives in
+# lib/db/src/schema/*.ts. Migrations get regenerated on demand.
+/lib/db/drizzle
+/initial_schema.sql
+
 # dependencies
 node_modules
 
