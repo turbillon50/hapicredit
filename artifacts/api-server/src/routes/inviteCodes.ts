@@ -71,7 +71,7 @@ router.get("/invite-codes/mine", requireAuth, async (req, res): Promise<void> =>
 
 // Deactivate / delete a code
 router.delete("/invite-codes/:id", requireAuth, async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
 
   const [code] = await db.select().from(inviteCodesTable).where(eq(inviteCodesTable.id, id));

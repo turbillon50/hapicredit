@@ -72,7 +72,7 @@ function SignInPage() {
         routing="path"
         path={`${basePath}/sign-in`}
         signUpUrl={`${basePath}/sign-up`}
-        afterSignInUrl={`${basePath}/mi-credito`}
+        fallbackRedirectUrl={`${basePath}/mi-credito`}
         appearance={{
           elements: {
             socialButtonsRoot:       { display: "none" },
@@ -112,7 +112,7 @@ function SignUpPage() {
         routing="path"
         path={`${basePath}/sign-up`}
         signInUrl={`${basePath}/sign-in`}
-        afterSignUpUrl={`${basePath}/mi-credito`}
+        fallbackRedirectUrl={`${basePath}/mi-credito`}
         appearance={{
           elements: {
             socialButtonsRoot:       { display: "none" },
@@ -136,7 +136,8 @@ function ClerkCacheInvalidator() {
 
   // Clear local auth when the user signs out of Clerk.
   useEffect(() => {
-    const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
+    const unsubscribe = addListener((resources) => {
+      const user = resources.user ?? null;
       const userId = user?.id ?? null;
       if (prevUserIdRef.current !== undefined && prevUserIdRef.current !== userId) {
         qc.clear();

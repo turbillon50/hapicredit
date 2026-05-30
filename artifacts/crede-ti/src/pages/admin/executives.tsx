@@ -16,7 +16,7 @@ const MEDAL = ["#f59e0b", "#9ca3af", "#b45309"];
 
 export default function AdminAsesores() {
   const [period, setPeriod] = useState<Period>("month");
-  const { data, isLoading } = useGetExecutiveRanking({ query: {} });
+  const { data, isLoading } = useGetExecutiveRanking();
   const ranking = (data as any[]) ?? [];
 
   const totalCommission = ranking.reduce((s: number, r: any) => s + (r.commissionThisMonth ?? 0), 0);

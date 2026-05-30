@@ -196,6 +196,8 @@ export default function AltaCliente() {
   const [altPhone, setAltPhone] = useState("");
   const [address, setAddress] = useState("");
   const [curp, setCurp] = useState("");
+  const [guarantorName, setGuarantorName] = useState("");
+  const [guarantorPhone, setGuarantorPhone] = useState("");
   const [internalNotes, setInternalNotes] = useState("");
 
 

@@ -114,7 +114,7 @@ export async function clerkWebhookHandler(req: Request, res: Response): Promise<
       }
 
       case "user.updated": {
-        const updates: Record<string, unknown> = {
+        const updates: Partial<typeof usersTable.$inferInsert> = {
           fullName: fullName(u),
           email,
           phone,
@@ -122,7 +122,7 @@ export async function clerkWebhookHandler(req: Request, res: Response): Promise<
         };
         if (u.public_metadata?.role) updates.role = u.public_metadata.role;
         const [updated] = await db.update(usersTable)
-          .set(updates as Parameters<typeof usersTable.$inferSelect>[0])
+          .set(updates)
           .where(eq(usersTable.clerkId, u.id))
           .returning({ id: usersTable.id });
         logger.info({ clerkId: u.id, userId: updated?.id }, "user.updated synced");

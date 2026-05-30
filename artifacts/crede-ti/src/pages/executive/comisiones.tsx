@@ -21,7 +21,7 @@ const prevMes = () => {
 };
 
 export default function ExecutiveComisiones() {
-  const { data, isLoading } = useGetExecutiveDashboard({ query: {} });
+  const { data, isLoading } = useGetExecutiveDashboard();
   const d = data as any;
 
   const credits: any[] = d?.creditBreakdown ?? [];

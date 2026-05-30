@@ -33,7 +33,7 @@ const mesActual = () =>
 
 export default function ExecutiveDashboard() {
   const { user } = useAuth();
-  const { data, isLoading } = useGetExecutiveDashboard({ query: {} });
+  const { data, isLoading } = useGetExecutiveDashboard();
   const d = data as ExecDashboardData | undefined;
 
   const firstName  = user?.fullName?.split(" ")[0] ?? "Asesor";
@@ -181,7 +181,7 @@ export default function ExecutiveDashboard() {
         )}
 
         {/* ── Monthly target ── */}
-        {!isLoading && d?.targetMonth > 0 && (
+        {!isLoading && (d?.targetMonth ?? 0) > 0 && (
           <div style={{ margin: "0 16px" }} className="anim-section anim-d3">
             <div style={{ background: "#fff", borderRadius: 18, padding: "16px 18px", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
@@ -190,8 +190,8 @@ export default function ExecutiveDashboard() {
                     Meta de cobro mensual
                   </div>
                   <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em" }}>
-                    {fmt(d.collectionThisMonth)}{" "}
-                    <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-muted)" }}>/ {fmt(d.targetMonth)}</span>
+                    {fmt(d?.collectionThisMonth ?? 0)}{" "}
+                    <span style={{ fontSize: 13, fontWeight: 500, color: "var(--text-muted)" }}>/ {fmt(d?.targetMonth ?? 0)}</span>
                   </div>
                 </div>
                 <Badge variant={monthPct >= 80 ? "success" : monthPct >= 50 ? "warning" : "danger"} size="md">

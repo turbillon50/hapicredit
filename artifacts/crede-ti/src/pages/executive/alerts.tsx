@@ -19,7 +19,7 @@ export default function ExecutiveAlerts() {
   const { user } = useAuth();
   const { data: alerts, isLoading } = useListAlerts(
     { executiveId: user?.id },
-    { query: { enabled: !!user?.id } }
+    { query: { enabled: !!user?.id } as any }
   );
 
   return (

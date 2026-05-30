@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte, sum, sql } from "drizzle-orm";
+import { eq, and, gte, lte, sum, sql, getTableColumns } from "drizzle-orm";
 import { db, cajaMovementsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -42,7 +42,7 @@ router.get("/caja", requireAuth, async (req, res): Promise<void> => {
 
   const rows = await db
     .select({
-      ...cajaMovementsTable,
+      ...getTableColumns(cajaMovementsTable),
       executiveName: usersTable.fullName,
     })
     .from(cajaMovementsTable)
@@ -122,7 +122,7 @@ router.get("/caja/summary", requireAuth, requireRole("admin", "executive"), asyn
 });
 
 router.patch("/caja/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
 
   const { description, amount } = req.body;
@@ -137,7 +137,7 @@ router.patch("/caja/:id", requireAuth, requireRole("admin"), async (req, res): P
 
   const [updated] = await db
     .update(cajaMovementsTable)
-    .set(updates as Parameters<typeof cajaMovementsTable.$inferInsert>[0])
+    .set(updates as Partial<typeof cajaMovementsTable.$inferInsert>)
     .where(eq(cajaMovementsTable.id, id))
     .returning();
 
@@ -146,7 +146,7 @@ router.patch("/caja/:id", requireAuth, requireRole("admin"), async (req, res): P
 });
 
 router.delete("/caja/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
 
   const [deleted] = await db

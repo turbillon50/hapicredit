@@ -164,7 +164,7 @@ router.patch("/users/:id", requireAuth, requireRole("admin"), async (req, res): 
   if (password) updates.passwordHash = hashPassword(password);
 
   const [user] = await db.update(usersTable)
-    .set(updates as Parameters<typeof usersTable.$inferSelect>[0])
+    .set(updates as Partial<typeof usersTable.$inferInsert>)
     .where(eq(usersTable.id, params.data.id))
     .returning();
 
@@ -173,7 +173,7 @@ router.patch("/users/:id", requireAuth, requireRole("admin"), async (req, res): 
 });
 
 router.delete("/users/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
   if (id === req.userId) { res.status(400).json({ error: "No puedes eliminarte a ti mismo" }); return; }
 
@@ -214,7 +214,7 @@ router.delete("/users/me", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
 
   const newParentId = parseInt(req.body.parentId, 10);

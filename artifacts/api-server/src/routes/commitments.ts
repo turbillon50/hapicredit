@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, getTableColumns } from "drizzle-orm";
 import { db, commitmentsTable, clientsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -45,7 +45,7 @@ router.get("/commitments", requireAuth, async (req, res): Promise<void> => {
 
   const rows = await db
     .select({
-      ...commitmentsTable,
+      ...getTableColumns(commitmentsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -96,7 +96,7 @@ router.patch("/commitments/:id", requireAuth, requireRole("admin", "executive"),
 
   const [commitment] = await db
     .update(commitmentsTable)
-    .set(updates as Parameters<typeof commitmentsTable.$inferSelect>[0])
+    .set(updates as Partial<typeof commitmentsTable.$inferInsert>)
     .where(eq(commitmentsTable.id, params.data.id))
     .returning();
 

@@ -282,7 +282,7 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
   const client = await db.transaction(async (tx) => {
     const [updated] = await tx
       .update(clientsTable)
-      .set(updates as Parameters<typeof clientsTable.$inferSelect>[0])
+      .set(updates as Partial<typeof clientsTable.$inferInsert>)
       .where(eq(clientsTable.id, params.data.id))
       .returning();
 
@@ -379,7 +379,7 @@ router.get("/me/client", requireAuth, requireRole("client"), async (req, res): P
 
 // ─── GET /api/clients/:id/documents — list uploaded documents ─────────────
 router.get("/clients/:id/documents", requireAuth, async (req, res): Promise<void> => {
-  const clientId = parseInt(req.params.id, 10);
+  const clientId = parseInt(req.params.id as string, 10);
   if (isNaN(clientId)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const docs = await db
@@ -402,7 +402,7 @@ router.get("/clients/:id/documents", requireAuth, async (req, res): Promise<void
 
 // ─── POST /api/clients/:id/documents — upload a document (base64) ─────────
 router.post("/clients/:id/documents", requireAuth, async (req, res): Promise<void> => {
-  const clientId = parseInt(req.params.id, 10);
+  const clientId = parseInt(req.params.id as string, 10);
   if (isNaN(clientId)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const { filename, mimeType, base64, label } = req.body;
@@ -425,7 +425,7 @@ router.post("/clients/:id/documents", requireAuth, async (req, res): Promise<voi
 
 // ─── DELETE /api/clients/:id/documents/:docId ─────────────────────────────
 router.delete("/clients/:id/documents/:docId", requireAuth, async (req, res): Promise<void> => {
-  const docId = parseInt(req.params.docId, 10);
+  const docId = parseInt(req.params.docId as string, 10);
   if (isNaN(docId)) { res.status(400).json({ error: "Invalid docId" }); return; }
 
   await db.delete(notesTable).where(and(eq(notesTable.id, docId), eq(notesTable.noteType, "document")));

@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, getTableColumns } from "drizzle-orm";
 import { db, creditsTable, clientsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -59,7 +59,7 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
   const rows = await db
     .select({
-      ...creditsTable,
+      ...getTableColumns(creditsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -141,7 +141,7 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
 
 // ─── Review (approve / reject) a pending application ─────────────────────────
 router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
 
   const { action } = req.body;
@@ -200,7 +200,7 @@ router.get("/credits/:id", requireAuth, async (req, res): Promise<void> => {
 
   const [row] = await db
     .select({
-      ...creditsTable,
+      ...getTableColumns(creditsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -237,7 +237,7 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
 
   const [credit] = await db
     .update(creditsTable)
-    .set(updates as Parameters<typeof creditsTable.$inferSelect>[0])
+    .set(updates as Partial<typeof creditsTable.$inferInsert>)
     .where(eq(creditsTable.id, params.data.id))
     .returning();
 

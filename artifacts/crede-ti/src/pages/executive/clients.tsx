@@ -27,7 +27,7 @@ export default function ExecutiveClients() {
 
   const { data: clients = [], isLoading } = useListClients({
     executiveId: user?.id,
-  }, { query: {} });
+  });
 
   const filtered = (clients as any[]).filter(c => {
     const q = search.toLowerCase();

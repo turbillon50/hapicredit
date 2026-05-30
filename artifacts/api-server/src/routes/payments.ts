@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte } from "drizzle-orm";
+import { eq, and, gte, lte, getTableColumns } from "drizzle-orm";
 import { db, paymentsTable, creditsTable, clientsTable, usersTable, cajaMovementsTable, alertsTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -60,7 +60,7 @@ router.get("/payments", requireAuth, async (req, res): Promise<void> => {
 
   const rows = await db
     .select({
-      ...paymentsTable,
+      ...getTableColumns(paymentsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -76,7 +76,7 @@ router.get("/payments", requireAuth, async (req, res): Promise<void> => {
 router.get("/payments/pending-validation", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
   const rows = await db
     .select({
-      ...paymentsTable,
+      ...getTableColumns(paymentsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -90,7 +90,7 @@ router.get("/payments/pending-validation", requireAuth, requireRole("admin"), as
 });
 
 router.patch("/payments/:id/validate", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
 
   const { action } = req.body;
@@ -113,7 +113,7 @@ router.patch("/payments/:id/validate", requireAuth, requireRole("admin"), async 
       .where(eq(paymentsTable.id, id));
 
     const updated = await db.select({
-      ...paymentsTable,
+      ...getTableColumns(paymentsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })
@@ -173,7 +173,7 @@ router.patch("/payments/:id/validate", requireAuth, requireRole("admin"), async 
   }
 
   const updated = await db.select({
-    ...paymentsTable,
+    ...getTableColumns(paymentsTable),
     clientName: clientsTable.fullName,
     executiveName: usersTable.fullName,
   })
@@ -240,7 +240,7 @@ router.get("/payments/:id", requireAuth, async (req, res): Promise<void> => {
 
   const [row] = await db
     .select({
-      ...paymentsTable,
+      ...getTableColumns(paymentsTable),
       clientName: clientsTable.fullName,
       executiveName: usersTable.fullName,
     })

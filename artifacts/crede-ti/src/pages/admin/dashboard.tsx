@@ -61,7 +61,7 @@ function dot(color: string) {
 }
 
 export default function AdminDashboard() {
-  const { data, isLoading } = useGetAdminDashboard({ query: {} });
+  const { data, isLoading } = useGetAdminDashboard();
   const d = data as AdminDashboardData | undefined;
 
   const { data: pendingPayments = [] } = useQuery({

@@ -46,7 +46,7 @@ router.post("/faq", requireAuth, requireRole("admin"), async (req, res): Promise
 
 // ─── Admin: update FAQ item ───────────────────────────────────────────────────
 router.patch("/faq/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
 
   const { question, answer, category, sortOrder, isActive } = req.body;
@@ -69,7 +69,7 @@ router.patch("/faq/:id", requireAuth, requireRole("admin"), async (req, res): Pr
 
 // ─── Admin: delete FAQ item ───────────────────────────────────────────────────
 router.delete("/faq/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
   await db.delete(faqTable).where(eq(faqTable.id, id));
   res.json({ ok: true });

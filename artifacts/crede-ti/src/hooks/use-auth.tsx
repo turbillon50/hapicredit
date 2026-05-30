@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useGetMe, useLogin, useLogout } from "@workspace/api-client-react";
-import type { User } from "@workspace/api-client-react/src/generated/api.schemas";
+import type { User } from "@workspace/api-client-react";
 import { useLocation } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -27,7 +27,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient               = useQueryClient();
   const checked                   = useRef(false);
 
-  const { data: meData, isLoading } = useGetMe({ query: { retry: false, staleTime: 30_000 } });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const { data: meData, isLoading } = useGetMe({ query: { retry: false, staleTime: 30_000 } as any });
   const loginMut  = useLogin();
   const logoutMut = useLogout();
 

@@ -13,6 +13,6 @@ export function useGetAuthHeader(): () => Promise<Record<string, string>> {
     }
     const legacy = localStorage.getItem("credeti_token");
     if (legacy) return { Authorization: `Bearer ${legacy}` };
-    return {};
+    return {} as Record<string, string>;
   };
 }

@@ -74,8 +74,8 @@ export default function ExecutiveClientDetail() {
             <Initials name={client.fullName} />
           </div>
           <h2 className="text-[18px] font-bold text-foreground">{client.fullName}</h2>
-          {client.riskScore !== null && client.riskScore !== undefined && (
-            <p className="text-[11px] text-muted-foreground mt-1">Score de riesgo: <span className="font-bold text-primary">{client.riskScore}</span>/100</p>
+          {client.riskLevel && (
+            <p className="text-[11px] text-muted-foreground mt-1">Nivel de riesgo: <span className="font-bold text-primary">{client.riskLevel}</span></p>
           )}
           <span className={`mt-2 text-[11px] font-semibold px-3 py-1 rounded-full ${statusClass[client.status] ?? ""}`}>
             {statusLabels[client.status] ?? client.status}
