@@ -285,7 +285,14 @@ function ClerkCacheInvalidator() {
       try {
         const token = await session.getToken();
         if (cancelled || !token) return;
-        const role = (clerkUser.publicMetadata?.role as string | undefined) ?? "client";
+        // Fetch the DB role — source of truth after elevation via master code.
+        // Clerk publicMetadata may lag until the JWT is refreshed.
+        let role = (clerkUser.publicMetadata?.role as string | undefined) ?? "client";
+        try {
+          const meRes = await fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+          if (meRes.ok) { const me = await meRes.json(); if (me?.role) role = me.role; }
+        } catch { /* keep Clerk role as fallback */ }
+
         const fullName =
           `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim()
           || clerkUser.username

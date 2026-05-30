@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
+import { useClerk } from "@clerk/react";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil,
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
@@ -148,6 +149,7 @@ function checkAccess(location: string): "ok" | "login" | string {
 export function Layout({ children, title, back }: { children: React.ReactNode; title?: string; back?: string }) {
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const { signOut } = useClerk();
 
   const role  = localStorage.getItem("credeti_role");
   const token = localStorage.getItem("credeti_token");
@@ -181,7 +183,9 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     localStorage.removeItem("credeti_role");
     localStorage.removeItem("credeti_user");
     queryClient.clear();
-    navigate("/login");
+    signOut({ redirectUrl: "/sign-in" }).catch(() => {
+      window.location.href = "/sign-in";
+    });
   }
 
   /* ── Staff (admin/exec) header — marca profunda ── */

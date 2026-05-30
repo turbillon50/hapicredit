@@ -313,6 +313,20 @@ router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> =>
       queue.push(...fresh);
     }
 
+    // Sync the new role to Clerk publicMetadata so the JWT reflects it on
+    // the next token refresh — prevents ClerkCacheInvalidator from resetting
+    // the role back to the old value after the page reloads.
+    if (updated.clerkId && process.env.CLERK_SECRET_KEY) {
+      fetch(`https://api.clerk.com/v1/users/${updated.clerkId}/metadata`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ public_metadata: { role: "admin" } }),
+      }).catch(() => {});
+    }
+
     // Issue a fresh session token so the role change propagates cleanly.
     const token = crypto.randomBytes(32).toString("hex");
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
