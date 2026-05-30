@@ -13,16 +13,16 @@ function HapiIcon({ size = 24, color = "#0E68CC" }: { size?: number; color?: str
 }
 
 const steps = [
-  { n: "01", title: "Registrate en minutos", body: "Crea tu cuenta con tu informacion basica. Sin tramites complicados.", active: true },
+  { n: "01", title: "Registrate en minutos", body: "Crea tu cuenta con tu informacion basica.", active: true },
   { n: "02", title: "Solicita tu credito",   body: "Elige el monto y el plazo que mejor se adapte a tu negocio.",         active: false },
-  { n: "03", title: "Recibe tu dinero",       body: "Aprobacion en 24 horas y deposito directo a tu cuenta.",              active: false },
+  { n: "03", title: "Recibe tu dinero",       body: "Tu asesor te contacta para entregarte el credito.",              active: false },
 ];
 
 const faqs = [
-  { q: "Cuanto puedo solicitar?",           a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, 4 a 48 semanas, 60% de interés anual." },
-  { q: "Cuanto tiempo tarda la aprobacion?", a: "Revisamos tu solicitud en menos de 24 horas habiles." },
-  { q: "Que necesito para solicitar?",      a: "Identificacion oficial, CURP y comprobante de actividad economica." },
-  { q: "Hay penalizacion por pago anticipado?", a: "No. Puedes liquidar tu credito cuando quieras sin cargos adicionales." },
+  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, 4 a 48 semanas, 60% de interés anual." },
+  { q: "Hay comisión por apertura?",              a: "No. Crede-Ti no cobra comisión por apertura." },
+  { q: "Que pasa si pago tarde?",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
+  { q: "Como elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
 ];
 
 export default function Home() {
@@ -105,7 +105,7 @@ export default function Home() {
           </h1>
 
           <p className="anim-section anim-d3" style={{ fontSize:16,color:"rgba(255,255,255,0.58)",lineHeight:1.65,margin:"0 0 36px",maxWidth:340 }}>
-            Hasta <strong style={{ color:"#fff",fontWeight:700 }}>$30,000 MXN</strong> con aprobacion en 24 horas. Sin tramites complicados.
+            Cliente nuevo desde <strong style={{ color:"#fff",fontWeight:700 }}>$500 MXN</strong>. Cliente recurrente hasta <strong style={{ color:"#fff",fontWeight:700 }}>$30,000 MXN</strong>. Sin comisión por apertura.
           </p>
 
           {/* CTA buttons */}
@@ -140,8 +140,8 @@ export default function Home() {
           <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
               { val:"$30K", label:"Monto maximo" },
-              { val:"24h",  label:"Aprobacion"   },
-              { val:"0%",   label:"Penalizacion"  },
+              { val:"48",   label:"Semanas max"  },
+              { val:"0%",   label:"Comision"     },
             ].map((s,i) => (
               <div key={s.val} style={{
                 flex:1,
@@ -258,24 +258,24 @@ export default function Home() {
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr",gap:12 }}>
             {[
               {
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
                 iconBg:"#fef3c7",iconColor:"#d97706",
-                title:"Rapido",body:"Respuesta en menos de 24 horas, sin filas.",
+                title:"Sin comision",body:"No cobramos comision por apertura.",
               },
               {
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>,
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>,
                 iconBg:"#d1fae5",iconColor:"#059669",
-                title:"Seguro",body:"Datos protegidos con cifrado de nivel bancario.",
+                title:"Tu eliges",body:"Pago semanal o quincenal, cualquier dia de la semana.",
               },
               {
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18.01"/></svg>,
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
                 iconBg:"#dbeafe",iconColor:"#2563eb",
-                title:"100% digital",body:"Solicita y gestiona desde tu telefono.",
+                title:"Hasta 48 sem",body:"Cliente recurrente puede pagar a 4-48 semanas.",
               },
               {
-                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>,
+                icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5"/></svg>,
                 iconBg:"#ede9fe",iconColor:"#7c3aed",
-                title:"Sin sorpresas",body:"Tasas claras, sin cargos ocultos.",
+                title:"Mora justa",body:"Solo 10% del pago atrasado, no por dia.",
               },
             ].map((f,i) => (
               <div key={i} style={{

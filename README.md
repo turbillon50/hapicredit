@@ -23,7 +23,7 @@ This repo is configured for one-click Vercel deployment.
    | Variable | Required | Example | Notes |
    |---|---|---|---|
    | `DATABASE_URL` | ✓ | `postgres://user:pw@host/db?sslmode=require` | Pooled connection recommended |
-   | `STAFF_MASTER_CODE` | ✓ | `<your-secret>` | Master password for admin/exec self-registration. Default `credeti` (CHANGE BEFORE OPENING REGISTRATION) |
+   | `STAFF_MASTER_CODE` | ✓ | `<your-secret>` | Master password for `/perfil` "Modo administrador" elevation. **If unset, the app accepts `credite` OR `credeti` as the dev fallback.** Set this in production to lock down the elevation. |
    | `RESEND_API_KEY` |   | `re_…` | Optional. Welcome/invite/payment emails fail silently if absent. |
    | `RESEND_FROM` |   | `Crede-Ti <noreply@your-domain.com>` | Must be a verified Resend sender |
    | `VITE_CLERK_PUBLISHABLE_KEY` |   | `pk_test_…` | Optional. Enables Clerk-based Google/passkey login |
@@ -33,9 +33,17 @@ This repo is configured for one-click Vercel deployment.
 5. **Click Deploy.** Vercel builds the Vite SPA into
    `artifacts/crede-ti/dist/public/` and exposes the Express API as a
    single serverless function at `/api/*`.
-6. **First admin** — visit `/registro`, choose "Administrador", enter the
-   `STAFF_MASTER_CODE` you set. That account becomes the root of the
-   genealogical tree. Subsequent admins/asesores register with invite codes.
+6. **First admin** — two ways:
+
+   **a) Recommended (Clerk-native):** sign up normally via `/sign-up`. Then
+   in https://dashboard.clerk.com → Users → your user → **Public metadata** →
+   `{ "role": "admin" }`. Sign out, sign back in, you land in `/admin`.
+
+   **b) Elevation from /perfil:** sign up normally, go to `/perfil`, tap
+   the purple "Modo administrador" card, enter `credite` (or whatever
+   `STAFF_MASTER_CODE` is set to in Vercel). The flow updates the DB row
+   and sends you to `/admin`. This is also how an existing asesor with a
+   subtree can promote themselves — the subtree migrates with them.
 
 ### Local development
 
