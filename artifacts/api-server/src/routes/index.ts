@@ -15,6 +15,7 @@ import inviteCodesRouter from "./inviteCodes";
 import faqRouter from "./faq";
 import purgeRouter from "./purge";
 import demoRouter from "./demo";
+import uploadsRouter from "./uploads";
 
 const router: IRouter = Router();
 
@@ -34,5 +35,6 @@ router.use(publicRouter);
 router.use(faqRouter);
 router.use(purgeRouter);
 router.use(demoRouter);
+router.use(uploadsRouter);
 
 export default router;

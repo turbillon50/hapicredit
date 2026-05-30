@@ -7,6 +7,8 @@ import {
 } from "@/components/hapi/HapiIcons";
 import { useState, useRef } from "react";
 import { useLocation } from "wouter";
+import { useUser } from "@clerk/react";
+import { upload } from "@vercel/blob/client";
 
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
@@ -340,28 +342,47 @@ export default function Perfil() {
 
   async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
-    if (!file || !client?.id) return;
+    if (!file) return;
     setUploading(true);
     setUploadMsg(null);
     try {
-      const base64 = await fileToBase64(file);
-      const res = await fetch(`${API}/clients/${client.id}/documents`, {
-        method: "POST",
-        headers: { ...auth(), "Content-Type": "application/json" },
-        body: JSON.stringify({ filename: file.name, mimeType: file.type, base64, label: DOC_LABELS[labelKey] ?? labelKey }),
+      // Vercel Blob client-upload: this performs the two-step protocol
+      // (token-sign + direct PUT to Blob) hitting our /api/uploads/sign
+      // endpoint. The server persists a row in the documents table via
+      // the onUploadCompleted callback configured server-side.
+      await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: `${API}/uploads/sign`,
+        clientPayload: JSON.stringify({ type: labelKey }),
       });
-      if (!res.ok) throw new Error();
       await qc.invalidateQueries({ queryKey: ["client-docs", client?.id] });
+      await qc.invalidateQueries({ queryKey: ["uploads-mine"] });
       setUploadMsg("Documento cargado correctamente");
       if (fileRef.current) fileRef.current.value = "";
-    } catch {
-      setUploadMsg("Error al subir el documento");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Error al subir el documento";
+      setUploadMsg(msg);
     } finally {
       setUploading(false);
     }
   }
 
-  const displayName = userObj.fullName ?? userRole;
+  // Prefer the live Clerk identity over the localStorage cache, so the user
+  // sees their real name/email from Clerk when signed in via SSO; fall back
+  // to the legacy localStorage object during the DB-token transition window.
+  const { user: clerkUser, isSignedIn: clerkSignedIn } = useUser();
+  const displayName =
+    (clerkSignedIn && (clerkUser?.fullName || clerkUser?.firstName))
+    || userObj.fullName
+    || userRole;
+  const displayUsername =
+    (clerkSignedIn && clerkUser?.username)
+    || userObj.username
+    || "";
+  const displayEmail =
+    (clerkSignedIn && clerkUser?.primaryEmailAddress?.emailAddress)
+    || userObj.email
+    || "";
 
   return (
     <Layout>
@@ -371,14 +392,14 @@ export default function Perfil() {
         <div className="card flex flex-col items-center text-center py-6">
           <Avatar name={displayName} size="lg" />
           <div className="text-xl font-extrabold text-gray-900 mt-3">{displayName}</div>
-          <div className="text-sm text-gray-400 mt-0.5">@{userObj.username ?? ""}</div>
+          {displayUsername && <div className="text-sm text-gray-400 mt-0.5">@{displayUsername}</div>}
           <div className="mt-3">
             <span className="px-3 py-1 rounded-full text-xs font-semibold" style={{ background: badge.bg, color: badge.color }}>
               {roleLabel(userRole)}
             </span>
           </div>
-          {userObj.email && (
-            <div className="text-xs text-gray-400 mt-2">{userObj.email}</div>
+          {displayEmail && (
+            <div className="text-xs text-gray-400 mt-2">{displayEmail}</div>
           )}
         </div>
 
