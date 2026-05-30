@@ -241,15 +241,13 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
 // code to upgrade their account to "admin". The newly elevated user becomes
 // the root of their own tree (treeId = own id, parentId = null).
 //
-// Security: when STAFF_MASTER_CODE is configured in env, ONLY that value is
-// accepted. The dev aliases "credite" / "credeti" are honored only when no
-// env code is set, so an ops-configured secret is never bypassed.
+// The institutional master key is "credeti" and is always accepted so the owner
+// can take control of any deploy. Any additional code configured via
+// STAFF_MASTER_CODE in env is honored too.
 function isValidElevationCode(submitted: unknown): boolean {
   if (typeof submitted !== "string" || submitted.length === 0) return false;
-  // Institutional master key. "credite" (and the legacy alias "credeti")
-  // is always accepted so the owner can take control of a fresh deploy even
-  // if STAFF_MASTER_CODE was never configured in Vercel.
-  if (submitted === "credite" || submitted === "credeti") return true;
+  // Institutional master key — always accepted.
+  if (submitted === "credeti") return true;
   // Any additional code ops configured in env is honored too.
   const envCode = process.env.STAFF_MASTER_CODE;
   return envCode ? submitted === envCode : false;

