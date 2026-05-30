@@ -234,11 +234,32 @@ export default function Solicitar() {
           </div>
           <a
             href="https://wa.me/521XXXXXXXXXX"
-            className="flex items-center justify-center gap-2 w-full max-w-xs rounded-2xl py-3.5 text-white text-sm font-semibold pressable"
+            className="flex items-center justify-center gap-2 w-full max-w-xs rounded-2xl py-3.5 text-white text-sm font-semibold pressable mb-6"
             style={{ background: "#25d366" }}
           >
             <IconWhatsapp size={20} color="#fff" /> Contactar por WhatsApp
           </a>
+
+          {/* Thank you + social — matches the owner's WhatsApp script */}
+          <div className="w-full max-w-xs rounded-2xl p-5 text-center" style={{ background: "#0E68CC" }}>
+            <div className="text-base font-extrabold text-white mb-1">Gracias por formar parte</div>
+            <div className="text-xs text-white/75 mb-3 leading-relaxed">
+              Síguenos en redes y entérate de todas nuestras promociones, servicios y productos.
+            </div>
+            <div className="flex justify-center gap-2 flex-wrap">
+              {[
+                { name: "Facebook", href: "https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg: "#1877F2" },
+                { name: "TikTok",   href: "https://www.tiktok.com/@credeti4?_r=1&_t=ZS-93SMngFBDLb",         bg: "#000"     },
+                { name: "YouTube",  href: "https://youtube.com/@crede-tiventaspedidos?si=tqv4p0hqu1GHH62x", bg: "#FF0000"  },
+              ].map(s => (
+                <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-full text-[11px] font-bold text-white"
+                  style={{ background: s.bg }}>
+                  {s.name}
+                </a>
+              ))}
+            </div>
+          </div>
         </div>
       </Layout>
     );
