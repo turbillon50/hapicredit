@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { db, sessionsTable, usersTable } from "@workspace/db";
 import { eq, and, gt } from "drizzle-orm";
+import { verifyToken } from "@clerk/express";
 
 declare global {
   namespace Express {
@@ -49,6 +50,75 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     }
   }
 
+  // Clerk JWT path: the token is a Clerk session JWT when CLERK_SECRET_KEY
+  // is configured. verifyToken throws if the signature is bad or expired.
+  // On success we look up (or lazily create) the local users row keyed by
+  // clerk_id, so downstream routes see req.userId/Role as if it were a
+  // native session.
+  if (process.env.CLERK_SECRET_KEY && token.startsWith("eyJ")) {
+    try {
+      const payload = await verifyToken(token, { secretKey: process.env.CLERK_SECRET_KEY });
+      const clerkUserId = payload.sub;
+      if (!clerkUserId) {
+        res.status(401).json({ error: "Invalid Clerk token" });
+        return;
+      }
+      // sessionClaims.publicMetadata.role lives on the payload.
+      const roleFromClaim = (payload as unknown as { public_metadata?: { role?: string }; publicMetadata?: { role?: string } })
+        ?.publicMetadata?.role
+        ?? (payload as unknown as { public_metadata?: { role?: string } })?.public_metadata?.role;
+
+      try {
+        const [user] = await db.select({
+          id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName,
+          isActive: usersTable.isActive, treeId: usersTable.treeId, parentId: usersTable.parentId,
+        }).from(usersTable).where(eq(usersTable.clerkId, clerkUserId));
+
+        if (user) {
+          if (!user.isActive) { res.status(401).json({ error: "User inactive" }); return; }
+          req.userId       = user.id;
+          req.userRole     = roleFromClaim ?? user.role;
+          req.userFullName = user.fullName;
+          req.userTreeId   = user.treeId;
+          req.userParentId = user.parentId;
+          next();
+          return;
+        }
+
+        // No local row yet — webhook should land soon, but lazily create
+        // one so the user can use the API immediately after sign-up.
+        const [created] = await db.insert(usersTable).values({
+          username: `clerk_${clerkUserId.slice(-10)}`.toLowerCase(),
+          fullName: "Usuario",
+          email: null,
+          role: roleFromClaim ?? "client",
+          clerkId: clerkUserId,
+          isActive: true,
+        }).returning({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, treeId: usersTable.treeId, parentId: usersTable.parentId });
+
+        req.userId       = created.id;
+        req.userRole     = created.role;
+        req.userFullName = created.fullName;
+        req.userTreeId   = created.treeId;
+        req.userParentId = created.parentId;
+        next();
+        return;
+      } catch (dbErr) {
+        // DB down but Clerk token verified — give a usable response.
+        req.userId       = -1;
+        req.userRole     = roleFromClaim ?? "client";
+        req.userFullName = "Usuario";
+        req.userTreeId   = null;
+        req.userParentId = null;
+        next();
+        return;
+      }
+    } catch {
+      // Fall through — could be a non-Clerk Bearer token (legacy DB session
+      // that happens to also start with "eyJ" if base64'd). Try DB next.
+    }
+  }
+
   try {
     const now = new Date();
 
@@ -79,11 +149,10 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
     req.userParentId = user.parentId;
     next();
   } catch (err) {
-    // DB unreachable (e.g. no DATABASE_URL in demo deploys) — return 503
-    // with a JSON body so react-query handles it gracefully instead of
-    // a vercel-generated HTML 500 that some clients may parse oddly.
+    // DB unreachable — return 503 with a JSON body so react-query handles
+    // it gracefully instead of a vercel-generated HTML 500.
     res.status(503).json({
-      error: "Database not configured. Set DATABASE_URL or use a demo token.",
+      error: "Database not configured. Set DATABASE_URL or sign in with Clerk.",
     });
   }
 }

@@ -9,12 +9,28 @@ const basePath = process.env.BASE_PATH || "/";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const clerkKey = env.VITE_CLERK_PUBLISHABLE_KEY || process.env.VITE_CLERK_PUBLISHABLE_KEY || "";
+  // Read VITE_* first, then fall back to NEXT_PUBLIC_* so ops can keep their
+  // existing Vercel env vars (set during the Next-flavored spec) without
+  // duplicating each one. Same for APP_URL and BRAND_NAME.
+  const clerkKey =
+    env.VITE_CLERK_PUBLISHABLE_KEY      || process.env.VITE_CLERK_PUBLISHABLE_KEY
+    || env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+    || "";
+  const appUrl =
+    env.VITE_APP_URL      || process.env.VITE_APP_URL
+    || env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_APP_URL
+    || "";
+  const brandName =
+    env.VITE_BRAND_NAME      || process.env.VITE_BRAND_NAME
+    || env.NEXT_PUBLIC_BRAND_NAME || process.env.NEXT_PUBLIC_BRAND_NAME
+    || "Crede-Ti";
 
   return {
     base: basePath,
     define: {
       "import.meta.env.VITE_CLERK_PUBLISHABLE_KEY": JSON.stringify(clerkKey),
+      "import.meta.env.VITE_APP_URL":               JSON.stringify(appUrl),
+      "import.meta.env.VITE_BRAND_NAME":            JSON.stringify(brandName),
     },
     plugins: [
       react(),
