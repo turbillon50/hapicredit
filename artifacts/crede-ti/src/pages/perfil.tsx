@@ -420,7 +420,7 @@ export default function Perfil() {
             {/* Document upload */}
             <div className="card" style={{ border: "2px dashed #e2e8f0", background: "#f8fafc" }}>
               <div className="flex items-center gap-2 mb-3">
-                <IconSubir size={20} color="#0E68CC" />
+                <IconSubir size={20} color="#2A3CD6" />
                 <div className="text-sm font-bold text-gray-800">Cargar documento</div>
               </div>
               <div className="flex flex-col gap-3">
@@ -437,7 +437,7 @@ export default function Perfil() {
                 <label
                   htmlFor="doc-up"
                   className="flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold pressable cursor-pointer"
-                  style={{ background: "#0E68CC", color: "#fff", opacity: uploading ? 0.6 : 1 }}
+                  style={{ background: "#2A3CD6", color: "#fff", opacity: uploading ? 0.6 : 1 }}
                 >
                   {uploading ? <IconLoader size={16} className="animate-spin" /> : <IconSubir size={16} />}
                   {uploading ? "Subiendo..." : "Seleccionar archivo"}
@@ -582,7 +582,7 @@ export default function Perfil() {
             });
           }}
           className="w-full py-3.5 rounded-2xl text-sm font-bold pressable"
-          style={{ background: "#fff0f0", color: "#0E68CC" }}
+          style={{ background: "#fff0f0", color: "#2A3CD6" }}
         >
           Cerrar sesión
         </button>

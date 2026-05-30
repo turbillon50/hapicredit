@@ -4,7 +4,7 @@ function Header() {
   const [, navigate] = useLocation();
   return (
     <header style={{
-      background: "#0E68CC", padding: "16px 24px",
+      background: "#2A3CD6", padding: "16px 24px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       position: "sticky", top: 0, zIndex: 10,
     }}>
@@ -14,7 +14,7 @@ function Header() {
           <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
         </svg>
         <span style={{ color: "white", fontWeight: 800, fontSize: 18 }}>
-          Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
+          Crede<span style={{ color: "#F0A93A" }}>-Ti</span>
         </span>
       </div>
       <button
@@ -33,7 +33,7 @@ function Header() {
 
 const s: Record<string, React.CSSProperties> = {
   section: { marginBottom: 36 },
-  h2: { fontSize: 17, fontWeight: 800, color: "#0E68CC", marginBottom: 10 },
+  h2: { fontSize: 17, fontWeight: 800, color: "#2A3CD6", marginBottom: 10 },
   p:  { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 10 },
   li: { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 6, paddingLeft: 6 },
   ul: { paddingLeft: 20, marginBottom: 10 },
@@ -70,7 +70,7 @@ export default function Terminos() {
 
         {/* Hero */}
         <div style={{
-          background: "linear-gradient(135deg, #0E68CC, #1978D2)",
+          background: "linear-gradient(135deg, #2A3CD6, #3F51E6)",
           borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>

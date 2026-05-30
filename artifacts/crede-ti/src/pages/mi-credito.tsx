@@ -69,7 +69,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
     <div
       style={{
         borderRadius: 24, padding: "24px 22px",
-        background: "linear-gradient(140deg,#03439C 0%,#0E68CC 50%,#1978D2 100%)",
+        background: "linear-gradient(140deg,#15206E 0%,#2A3CD6 50%,#3F51E6 100%)",
         position: "relative", overflow: "hidden",
         boxShadow: "0 8px 40px rgba(8,15,31,0.35)",
       }}

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import logoImg from "@assets/logo-credeti-square.jpeg";
 
-function HapiIcon({ size = 24, color = "#0E68CC" }: { size?: number; color?: string }) {
+function HapiIcon({ size = 24, color = "#2A3CD6" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <circle cx="90" cy="52" r="16" fill={color} />
@@ -75,7 +75,7 @@ export default function Home() {
             HERO
         ═══════════════════════════════════════════ */}
         <section style={{
-          background: "linear-gradient(160deg,#03439C 0%,#0E68CC 55%,#1978D2 100%)",
+          background: "linear-gradient(160deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
           padding: "44px 24px 60px",
           position: "relative",
           overflow: "hidden",
@@ -90,16 +90,16 @@ export default function Home() {
           </div>
 
           {/* Headline */}
-          <h1 className="anim-section anim-d2" style={{
+          <h1 className="anim-section anim-d2 font-display" style={{
             fontSize:"clamp(38px,10vw,54px)",
-            fontWeight:900,lineHeight:1.06,
-            letterSpacing:"-0.045em",
+            fontWeight:700,lineHeight:1.05,
+            letterSpacing:"-0.03em",
             color:"#fff",
             margin:"0 0 16px",
             maxWidth:360,
           }}>
             Credito rapido<br />
-            <span style={{ background:"linear-gradient(90deg,#E8A82F 0%,#F5C76E 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
+            <span style={{ background:"linear-gradient(90deg,#F0A93A 0%,#F6C173 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
               para crecer.
             </span>
           </h1>
@@ -112,7 +112,7 @@ export default function Home() {
           <div className="anim-section anim-d4" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
             <button onClick={handleCTA} style={{
               padding:"15px 32px",
-              background:"#0E68CC",color:"#fff",
+              background:"#2A3CD6",color:"#fff",
               border:"none",borderRadius:100,
               fontWeight:800,fontSize:15,
               cursor:"pointer",fontFamily:"inherit",
@@ -165,14 +165,14 @@ export default function Home() {
         <section style={{
           background:"linear-gradient(135deg,#FFF7E6 0%,#FFF1D6 100%)",
           padding:"32px 24px",
-          borderTop:"3px solid #E8A82F",
+          borderTop:"3px solid #F0A93A",
           borderBottom:"1px solid #F5D88F",
         }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:6 }}>
-            <span style={{ fontSize:10,fontWeight:800,color:"#03439C",background:"#E8A82F",padding:"3px 9px",borderRadius:100,letterSpacing:"0.08em" }}>MODO DEMO</span>
+            <span style={{ fontSize:10,fontWeight:800,color:"#15206E",background:"#F0A93A",padding:"3px 9px",borderRadius:100,letterSpacing:"0.08em" }}>MODO DEMO</span>
             <span style={{ fontSize:11,color:"#7C5B14",fontWeight:600 }}>Para revisión</span>
           </div>
-          <h3 style={{ fontSize:18,fontWeight:800,color:"#03439C",margin:"0 0 6px",letterSpacing:"-0.02em" }}>
+          <h3 style={{ fontSize:18,fontWeight:800,color:"#15206E",margin:"0 0 6px",letterSpacing:"-0.02em" }}>
             Entra sin cuenta a ver cada pantalla
           </h3>
           <p style={{ fontSize:13,color:"#6B5219",margin:"0 0 18px",lineHeight:1.55 }}>
@@ -183,7 +183,7 @@ export default function Home() {
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8 }}>
             {[
               { role:"client",    label:"Cliente",  sub:"Acreditado", color:"#059669" },
-              { role:"executive", label:"Asesor",   sub:"Ejecutivo",  color:"#0E68CC" },
+              { role:"executive", label:"Asesor",   sub:"Ejecutivo",  color:"#2A3CD6" },
               { role:"admin",     label:"Admin",    sub:"Control",    color:"#7C3AED" },
             ].map(d => (
               <button
@@ -216,7 +216,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:36 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#E8A82F",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Tres pasos,<br />y listo.
             </h2>
@@ -230,7 +230,7 @@ export default function Home() {
               }}>
                 <div style={{
                   width:46,height:46,borderRadius:14,flexShrink:0,
-                  background: s.active?"#0E68CC":"var(--bg-warm)",
+                  background: s.active?"#2A3CD6":"var(--bg-warm)",
                   display:"flex",alignItems:"center",justifyContent:"center",
                   boxShadow: s.active?"0 4px 16px rgba(14,104,204,0.35)":"none",
                 }}>
@@ -250,7 +250,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#E8A82F",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Financiamiento<br />hecho para ti.
             </h2>
@@ -303,7 +303,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#E8A82F",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Claro y<br />sin sorpresas.
             </h2>
@@ -337,7 +337,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#E8A82F",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Resolvemos<br />tus dudas.
             </h2>
@@ -362,7 +362,7 @@ export default function Home() {
                   <span style={{ fontSize:15,fontWeight:700,color:"#111",letterSpacing:"-0.02em",paddingRight:12 }}>{f.q}</span>
                   <span style={{
                     width:28,height:28,borderRadius:8,flexShrink:0,
-                    background: openFaq===i?"#0E68CC":"var(--bg-warm)",
+                    background: openFaq===i?"#2A3CD6":"var(--bg-warm)",
                     display:"flex",alignItems:"center",justifyContent:"center",
                     transition:"background 0.2s",
                   }}>
@@ -383,7 +383,7 @@ export default function Home() {
             FINAL CTA — royal blue + gold accent
         ═══════════════════════════════════════════ */}
         <section style={{
-          background:"linear-gradient(135deg,#03439C 0%,#0E68CC 60%,#1978D2 100%)",
+          background:"linear-gradient(135deg,#15206E 0%,#2A3CD6 60%,#3F51E6 100%)",
           padding:"60px 24px 68px",
           textAlign:"center",
           position:"relative",
@@ -397,9 +397,9 @@ export default function Home() {
             display:"flex",alignItems:"center",justifyContent:"center",
             margin:"0 auto 22px",
           }}>
-            <HapiIcon size={30} color="#E8A82F" />
+            <HapiIcon size={30} color="#F0A93A" />
           </div>
-          <div style={{ fontSize:11,fontWeight:700,color:"#E8A82F",letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10 }}>
+          <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10 }}>
             Creemos en ti
           </div>
           <h2 style={{ fontSize:32,fontWeight:900,color:"#fff",letterSpacing:"-0.04em",margin:"0 0 12px",lineHeight:1.1 }}>
@@ -410,7 +410,7 @@ export default function Home() {
           </p>
           <button onClick={handleCTA} style={{
             padding:"16px 42px",
-            background:"#E8A82F",color:"#03439C",
+            background:"#F0A93A",color:"#15206E",
             border:"none",borderRadius:100,
             fontWeight:800,fontSize:16,
             cursor:"pointer",fontFamily:"inherit",
@@ -422,11 +422,11 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer style={{ background:"#03439C",padding:"36px 24px 48px",color:"rgba(255,255,255,0.32)" }}>
+        <footer style={{ background:"#15206E",padding:"36px 24px 48px",color:"rgba(255,255,255,0.32)" }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:16 }}>
-            <HapiIcon size={16} color="#0E68CC" />
+            <HapiIcon size={16} color="#2A3CD6" />
             <span style={{ fontWeight:800,fontSize:14,color:"rgba(255,255,255,0.65)",letterSpacing:"-0.03em" }}>
-              Crede<span style={{ color:"#E8A82F" }}>-Ti</span>
+              Crede<span style={{ color:"#F0A93A" }}>-Ti</span>
             </span>
           </div>
           <div style={{ fontSize:12,lineHeight:1.7,marginBottom:20 }}>
@@ -435,7 +435,7 @@ export default function Home() {
 
           {/* Social media */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#E8A82F",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Síguenos</div>
+            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Síguenos</div>
             <div style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
               {[
                 { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg:"#1877F2" },

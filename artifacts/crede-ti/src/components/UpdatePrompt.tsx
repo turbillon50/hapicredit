@@ -28,7 +28,7 @@ export default function UpdatePrompt() {
       left: 16,
       right: 16,
       zIndex: 9999,
-      background: "#0E68CC",
+      background: "#2A3CD6",
       color: "#fff",
       borderRadius: 16,
       padding: "16px 20px",
@@ -50,7 +50,7 @@ export default function UpdatePrompt() {
       <button
         onClick={() => updateServiceWorker(true)}
         style={{
-          background: "#0E68CC",
+          background: "#2A3CD6",
           color: "#fff",
           border: "none",
           borderRadius: 10,

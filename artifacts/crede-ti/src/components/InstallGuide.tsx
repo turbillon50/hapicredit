@@ -27,7 +27,7 @@ export function InstallGuide() {
         <div className="p-5" style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom, 0px))" }}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#03439C" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#15206E" }}>
                 <span className="text-white font-bold text-[13px]" style={{ fontFamily: "Georgia, serif" }}>HC</span>
               </div>
               <div>

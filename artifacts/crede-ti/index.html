@@ -7,7 +7,8 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Crede-Ti" />
-    <meta name="theme-color" content="#1B5FBC" />
+    <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080B14" media="(prefers-color-scheme: dark)" />
     <meta name="description" content="Crede-Ti — Creemos en ti. Más que un crédito, una forma distinta de vivir. Microcréditos transparentes y responsables." />
     <title>Crede-Ti — Creemos en ti</title>
     <link rel="icon" type="image/png" sizes="64x64" href="/favicon-64.png" />
@@ -16,7 +17,19 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,900&display=swap" rel="stylesheet">
+    <!-- Tema: aplica el modo guardado antes del primer pintado (sin parpadeo). -->
+    <script>
+      (function () {
+        try {
+          var saved = localStorage.getItem("credeti_theme");
+          var sysDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+          document.documentElement.setAttribute("data-theme", saved || (sysDark ? "dark" : "light"));
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
