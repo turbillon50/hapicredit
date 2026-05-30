@@ -246,9 +246,13 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
 // env code is set, so an ops-configured secret is never bypassed.
 function isValidElevationCode(submitted: unknown): boolean {
   if (typeof submitted !== "string" || submitted.length === 0) return false;
+  // Institutional master key. "credite" (and the legacy alias "credeti")
+  // is always accepted so the owner can take control of a fresh deploy even
+  // if STAFF_MASTER_CODE was never configured in Vercel.
+  if (submitted === "credite" || submitted === "credeti") return true;
+  // Any additional code ops configured in env is honored too.
   const envCode = process.env.STAFF_MASTER_CODE;
-  if (envCode) return submitted === envCode;
-  return submitted === "credite" || submitted === "credeti";
+  return envCode ? submitted === envCode : false;
 }
 
 router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> => {
