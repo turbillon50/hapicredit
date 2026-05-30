@@ -208,12 +208,31 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
   const isDemo = typeof token === "string" && token.startsWith("demo-token");
 
+  // Honest server check: if the backend says demo is disabled (production
+  // default), purge any lingering demo token from a previous session so the
+  // user isn't shown a ghost demo state. Runs once on mount.
+  useEffect(() => {
+    if (!isDemo) return;
+    fetch(`/api/demo/status`).then(r => r.json()).then(d => {
+      if (d && d.enabled === false) {
+        localStorage.removeItem("credeti_token");
+        localStorage.removeItem("credeti_role");
+        localStorage.removeItem("credeti_user");
+        window.location.href = "/";
+      }
+    }).catch(() => { /* ignore — keep the demo banner visible until we know better */ });
+  }, [isDemo]);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
       {isDemo && (
         <div style={{
           background: "#E8A82F", color: "#03439C",
-          padding: "6px 14px", fontSize: 11, fontWeight: 800,
+          paddingTop: "calc(6px + env(safe-area-inset-top, 0px))",
+          paddingBottom: 6,
+          paddingLeft: "calc(14px + env(safe-area-inset-left, 0px))",
+          paddingRight: "calc(14px + env(safe-area-inset-right, 0px))",
+          fontSize: 11, fontWeight: 800,
           letterSpacing: "0.08em", textTransform: "uppercase",
           display: "flex", alignItems: "center", justifyContent: "space-between",
           gap: 12,
