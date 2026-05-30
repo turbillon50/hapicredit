@@ -7,8 +7,8 @@ import {
 } from "@/components/hapi/HapiIcons";
 import { useState, useRef } from "react";
 import { useLocation } from "wouter";
-import { useUser } from "@clerk/react";
-import { upload } from "@vercel/blob/client";
+// @vercel/blob/client is dynamically imported inside handleFile so an error
+// in that bundle never blocks the initial render of the perfil page.
 
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
@@ -346,10 +346,9 @@ export default function Perfil() {
     setUploading(true);
     setUploadMsg(null);
     try {
-      // Vercel Blob client-upload: this performs the two-step protocol
-      // (token-sign + direct PUT to Blob) hitting our /api/uploads/sign
-      // endpoint. The server persists a row in the documents table via
-      // the onUploadCompleted callback configured server-side.
+      // Lazy-import so this chunk is fetched only at upload time, never at
+      // first render of the page (which keeps the cold boot resilient).
+      const { upload } = await import("@vercel/blob/client");
       await upload(file.name, file, {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
@@ -367,22 +366,14 @@ export default function Perfil() {
     }
   }
 
-  // Prefer the live Clerk identity over the localStorage cache, so the user
-  // sees their real name/email from Clerk when signed in via SSO; fall back
-  // to the legacy localStorage object during the DB-token transition window.
-  const { user: clerkUser, isSignedIn: clerkSignedIn } = useUser();
-  const displayName =
-    (clerkSignedIn && (clerkUser?.fullName || clerkUser?.firstName))
-    || userObj.fullName
-    || userRole;
-  const displayUsername =
-    (clerkSignedIn && clerkUser?.username)
-    || userObj.username
-    || "";
-  const displayEmail =
-    (clerkSignedIn && clerkUser?.primaryEmailAddress?.emailAddress)
-    || userObj.email
-    || "";
+  // Use the localStorage cache for the profile header for now. The
+  // Clerk-driven version of this lives in the bridge component but is
+  // currently disabled while we stabilize the boot; see the ClerkProfileHeader
+  // follow-up. localStorage values are populated either by the legacy login
+  // flow OR by the Clerk webhook + auth/me sync.
+  const displayName    = userObj.fullName ?? userRole;
+  const displayUsername = userObj.username ?? "";
+  const displayEmail    = userObj.email ?? "";
 
   return (
     <Layout>
