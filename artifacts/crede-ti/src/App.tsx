@@ -71,8 +71,8 @@ function SignInPage() {
       <SignIn
         routing="path"
         path={`${basePath}/sign-in`}
-        signUpUrl={`${basePath}/registro`}
-        afterSignInUrl={`${basePath}/`}
+        signUpUrl={`${basePath}/sign-up`}
+        afterSignInUrl={`${basePath}/mi-credito`}
         appearance={{
           elements: {
             socialButtonsRoot:       { display: "none" },
@@ -112,7 +112,7 @@ function SignUpPage() {
         routing="path"
         path={`${basePath}/sign-up`}
         signInUrl={`${basePath}/sign-in`}
-        afterSignUpUrl={`${basePath}/`}
+        afterSignUpUrl={`${basePath}/mi-credito`}
         appearance={{
           elements: {
             socialButtonsRoot:       { display: "none" },
@@ -129,13 +129,12 @@ function SignUpPage() {
 
 // ─── Syncs Clerk session → our DB token ──────────────────────────────────────
 function ClerkCacheInvalidator() {
-  const { addListener } = useClerk();
-  const { user: clerkUser, isSignedIn } = useUser();
+  const { addListener, session } = useClerk();
+  const { user: clerkUser, isSignedIn, isLoaded } = useUser();
   const qc = useQueryClient();
   const prevUserIdRef = useRef<string | null | undefined>(undefined);
-  const syncingRef = useRef(false);
 
-  // Clear local auth when user signs out of Clerk
+  // Clear local auth when the user signs out of Clerk.
   useEffect(() => {
     const unsubscribe = addListener(({ user }: { user: { id: string } | null }) => {
       const userId = user?.id ?? null;
@@ -152,70 +151,45 @@ function ClerkCacheInvalidator() {
     return unsubscribe;
   }, [addListener, qc]);
 
+  // When the user is signed in via Clerk, mirror the Clerk session into the
+  // localStorage shape the legacy app reads from. The backend (PR #11) accepts
+  // Clerk JWTs in Authorization headers, so we just store the JWT as the token.
+  // The role is read from publicMetadata.role (owner sets it in Clerk dashboard).
+  // No more /auth/clerk-sync POST — the Clerk webhook syncs users into the DB.
   useEffect(() => {
-    if (!isSignedIn || !clerkUser || syncingRef.current) return;
+    if (!isLoaded || !isSignedIn || !clerkUser || !session) return;
 
-    // Already have a valid session token — nothing to do
-    const existing = localStorage.getItem("credeti_token");
-    if (existing) return;
-
-    const email    = clerkUser.primaryEmailAddress?.emailAddress;
-    const fullName = `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim() || clerkUser.username || "";
-    if (!email) return;
-
-    const pendingRole      = localStorage.getItem("credeti_pending_role");
-    const pendingCode      = localStorage.getItem("credeti_pending_code");
-    const pendingStaffPass = localStorage.getItem("credeti_pending_staff_pass");
-
-    // No pending data — send user to registration only if not already there
-    if (!pendingRole) {
-      const currentPath = window.location.pathname;
-      const authPaths = ["/registro", "/sign-up", "/sign-in", "/login"];
-      const onAuthPage = authPaths.some(p => currentPath.endsWith(p) || currentPath.includes(p + "/"));
-      if (!onAuthPage) {
-        window.location.href = `${basePath}/registro`;
+    let cancelled = false;
+    (async () => {
+      try {
+        const token = await session.getToken();
+        if (cancelled || !token) return;
+        const role = (clerkUser.publicMetadata?.role as string | undefined) ?? "client";
+        const fullName =
+          `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim()
+          || clerkUser.username
+          || clerkUser.primaryEmailAddress?.emailAddress
+          || "Usuario";
+        const userObj = {
+          id: clerkUser.id,
+          clerkId: clerkUser.id,
+          username: clerkUser.username ?? clerkUser.primaryEmailAddress?.emailAddress ?? `clerk_${clerkUser.id.slice(-6)}`,
+          fullName,
+          email: clerkUser.primaryEmailAddress?.emailAddress ?? null,
+          role,
+        };
+        localStorage.setItem("credeti_token", token);
+        localStorage.setItem("credeti_role", role);
+        localStorage.setItem("credeti_user", JSON.stringify(userObj));
+        qc.invalidateQueries();
+      } catch {
+        // Silent — backend still has the demo + DB fallbacks. The ErrorBoundary
+        // upstairs will surface any actual crash.
       }
-      return;
-    }
+    })();
 
-    syncingRef.current = true;
-    fetch(`${API}/auth/clerk-sync`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        clerkId: clerkUser.id,
-        email,
-        fullName,
-        role: pendingRole,
-        inviteCode: pendingCode,
-        staffPassword: pendingStaffPass,
-      }),
-    })
-      .then(r => r.json())
-      .then(data => {
-        localStorage.removeItem("credeti_pending_role");
-        localStorage.removeItem("credeti_pending_code");
-        localStorage.removeItem("credeti_pending_staff_pass");
-
-        if (data.token) {
-          localStorage.setItem("credeti_token", data.token);
-          localStorage.setItem("credeti_role", data.user.role);
-          localStorage.setItem("credeti_user", JSON.stringify(data.user));
-          qc.invalidateQueries();
-          const role = data.user.role;
-          window.location.href = role === "admin"
-            ? `${basePath}/admin`
-            : role === "executive"
-            ? `${basePath}/dashboard`
-            : `${basePath}/mi-credito`;
-        } else {
-          // Error or invalid — back to registration
-          syncingRef.current = false;
-          window.location.href = `${basePath}/registro`;
-        }
-      })
-      .catch(() => { syncingRef.current = false; });
-  }, [isSignedIn, clerkUser, qc]);
+    return () => { cancelled = true; };
+  }, [isLoaded, isSignedIn, clerkUser, session, qc]);
 
   return null;
 }
