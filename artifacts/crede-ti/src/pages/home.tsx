@@ -19,7 +19,7 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Cuanto puedo solicitar?",           a: "Desde $1,000 hasta $30,000 MXN, dependiendo de tu historial con nosotros." },
+  { q: "Cuanto puedo solicitar?",           a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, 4 a 48 semanas, 60% de interés anual." },
   { q: "Cuanto tiempo tarda la aprobacion?", a: "Revisamos tu solicitud en menos de 24 horas habiles." },
   { q: "Que necesito para solicitar?",      a: "Identificacion oficial, CURP y comprobante de actividad economica." },
   { q: "Hay penalizacion por pago anticipado?", a: "No. Puedes liquidar tu credito cuando quieras sin cargos adicionales." },
@@ -297,11 +297,14 @@ export default function Home() {
           </div>
           <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
             {[
-              { label:"Montos disponibles",       value:"$1,000 – $30,000 MXN" },
-              { label:"Plazos",                   value:"4 – 52 semanas"        },
-              { label:"Frecuencia de pago",       value:"Semanal"               },
-              { label:"Penalizacion anticipada",  value:"Ninguna"               },
-              { label:"Respuesta",                value:"Menos de 24 horas"     },
+              { label:"Cliente nuevo",            value:"$500 – $1,000 · 4 semanas · 30%"     },
+              { label:"Cliente recurrente",       value:"$1,000 – $30,000 · 4–48 sem · 60% anual" },
+              { label:"Frecuencia de pago",       value:"Semanal o quincenal"                  },
+              { label:"Día de pago",              value:"A elección (lun a dom)"               },
+              { label:"Comisión por apertura",    value:"Sin comisión"                         },
+              { label:"Mora",                     value:"10% del pago atrasado"                },
+              { label:"Penalización anticipada",  value:"Ninguna"                              },
+              { label:"Respuesta",                value:"Menos de 24 horas"                    },
             ].map((c,i) => (
               <div key={i} style={{
                 display:"flex",justifyContent:"space-between",alignItems:"center",
@@ -422,9 +425,9 @@ export default function Home() {
             <div style={{ fontSize:10,fontWeight:700,color:"#E8A82F",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Síguenos</div>
             <div style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
               {[
-                { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432", bg:"#1877F2" },
-                { name:"TikTok",   href:"https://www.tiktok.com/@credeti4", bg:"#000" },
-                { name:"YouTube",  href:"https://youtube.com/@crede-tiventaspedidos", bg:"#FF0000" },
+                { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg:"#1877F2" },
+                { name:"TikTok",   href:"https://www.tiktok.com/@credeti4?_r=1&_t=ZS-93SMngFBDLb", bg:"#000" },
+                { name:"YouTube",  href:"https://youtube.com/@crede-tiventaspedidos?si=tqv4p0hqu1GHH62x", bg:"#FF0000" },
               ].map(s => (
                 <a
                   key={s.name}
