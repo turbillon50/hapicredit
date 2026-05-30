@@ -28,8 +28,18 @@ const faqs = [
 export default function Home() {
   const [, navigate] = useLocation();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [demoEnabled, setDemoEnabled] = useState<boolean | null>(null);
   const token = localStorage.getItem("credeti_token");
   const role  = localStorage.getItem("credeti_role");
+
+  // Probe the backend once. While we don't know, hide the demo entry
+  // (avoid flash of demo buttons on production loads).
+  useEffect(() => {
+    fetch("/api/demo/status")
+      .then(r => r.json())
+      .then(d => setDemoEnabled(Boolean(d?.enabled)))
+      .catch(() => setDemoEnabled(false));
+  }, []);
 
   function handleCTA() {
     if (token) {
@@ -148,8 +158,10 @@ export default function Home() {
         </section>
 
         {/* ═══════════════════════════════════════════
-            DEMO ACCESS — for reviewers / handoff
+            DEMO ACCESS — only when the backend says demo mode is on
+            (DEMO_MODE_ENABLED=true). Hidden in real production.
         ═══════════════════════════════════════════ */}
+        {demoEnabled === true && (
         <section style={{
           background:"linear-gradient(135deg,#FFF7E6 0%,#FFF1D6 100%)",
           padding:"32px 24px",
@@ -197,6 +209,7 @@ export default function Home() {
             ))}
           </div>
         </section>
+        )}
 
         {/* ═══════════════════════════════════════════
             HOW IT WORKS — white
