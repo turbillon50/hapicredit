@@ -386,6 +386,41 @@ router.post("/auth/register-client", async (req, res): Promise<void> => {
   });
 });
 
+// ─── Master-password direct login (no prior session needed) ──────────────────
+// Finds the first admin user in the DB and issues a session for them.
+// If no admin exists yet, returns 404 so the caller can redirect to register.
+router.post("/auth/master-login", async (req, res): Promise<void> => {
+  const { masterPassword } = req.body ?? {};
+
+  if (!isValidMasterCode(masterPassword)) {
+    res.status(401).json({ error: "Clave maestra incorrecta" });
+    return;
+  }
+
+  try {
+    const [admin] = await db
+      .select()
+      .from(usersTable)
+      .where(and(eq(usersTable.role, "admin"), eq(usersTable.isActive, true)));
+
+    if (!admin) {
+      res.status(404).json({ error: "no_admin", message: "Aún no hay un administrador registrado. Crea tu cuenta primero." });
+      return;
+    }
+
+    const token = generateToken();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ userId: admin.id, token, expiresAt });
+
+    res.json({
+      token,
+      user: { id: admin.id, username: admin.username, fullName: admin.fullName, email: admin.email, role: admin.role, treeId: admin.treeId },
+    });
+  } catch {
+    res.status(503).json({ error: "Error de base de datos" });
+  }
+});
+
 router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {
   const token = req.headers.authorization?.slice(7);
   if (token) await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
