@@ -60,7 +60,7 @@ export default function SmartInstallBanner() {
     return (
       <div style={{
         position: "fixed", bottom: 88, left: 12, right: 12, zIndex: 200,
-        background: "#0E68CC", borderRadius: 20,
+        background: "#2A3CD6", borderRadius: 20,
         padding: "14px 16px",
         boxShadow: "0 8px 40px rgba(0,0,0,0.4)",
         display: "flex", alignItems: "center", gap: 12,
@@ -82,7 +82,7 @@ export default function SmartInstallBanner() {
           onClick={installAndroid}
           style={{
             padding: "8px 14px", borderRadius: 10,
-            background: "#0E68CC", color: "#fff",
+            background: "#2A3CD6", color: "#fff",
             border: "none", fontWeight: 700, fontSize: 12, cursor: "pointer", flexShrink: 0,
           }}
         >

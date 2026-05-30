@@ -222,7 +222,7 @@ export default function AdminMovimientos() {
             <div className="px-4">
               <div
                 className="rounded-2xl p-5 shadow-card-md"
-                style={{ background: "linear-gradient(135deg, #03439C, #0E68CC)" }}
+                style={{ background: "linear-gradient(135deg, #15206E, #2A3CD6)" }}
               >
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar name={data.executiveName} size="sm" />
@@ -428,7 +428,7 @@ export default function AdminMovimientos() {
             <button
               onClick={() => editExpense.mutate({ id: editTarget.id, amount: parseFloat(editAmount), description: editDesc })}
               disabled={editExpense.isPending || !editAmount}
-              style={{ width: "100%", padding: 14, background: "#0E68CC", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: editExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#2A3CD6", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: editExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
             >
               {editExpense.isPending ? "Guardando..." : "Guardar cambios"}
             </button>

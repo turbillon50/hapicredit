@@ -1,71 +1,134 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&display=swap');
 @import "tailwindcss";
 
+/* ════════════════════════════════════════════════════════════════════
+   Crede-Ti — Design tokens
+   "Banco premium": estructura limpia, calidez, profundidad.
+   Light-first con modo oscuro vía [data-theme="dark"].
+   Paleta derivada del logo: azul cobalto + ámbar/oro.
+   ════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Brand ── Crede-Ti: extracted from official logo asset ── */
-  --brand-blue:        #0E68CC;   /* dominant blue from the oval area */
-  --brand-blue-hover:  #0958B0;
-  --brand-blue-deep:   #03439C;   /* corner / hero gradient endpoints */
-  --brand-blue-mid:    #1978D2;   /* mid-gradient */
-  --brand-blue-light:  #58BBFB;   /* center / radial highlight */
+  /* ── Brand (del logo) ── */
+  --brand-blue:        #2A3CD6;   /* cobalto del wordmark "Crede-Ti" */
+  --brand-blue-hover:  #2230BE;
+  --brand-blue-deep:   #15206E;   /* navy profundo (héroes, superficies oscuras) */
+  --brand-blue-mid:    #3F51E6;
+  --brand-blue-light:  #6E7CF2;
 
-  --brand-gold:        #E8A82F;   /* oval frame + swoosh */
-  --brand-gold-hover:  #C18C1F;
-  --brand-gold-deep:   #B57E12;
-  --brand-gold-light:  rgba(232,168,47,0.12);
-  --brand-gold-xlight: rgba(232,168,47,0.06);
+  --brand-gold:        #F0A93A;   /* ámbar del óvalo + swoosh */
+  --brand-gold-hover:  #D98E1E;
+  --brand-gold-deep:   #B9770F;
+  --brand-gold-light:  rgba(240,169,58,0.14);
+  --brand-gold-xlight: rgba(240,169,58,0.07);
 
-  /* Aliases for legacy color names — kept so older refs still resolve to brand colors */
+  /* ── Aliases legacy → marca (para que el código existente se adapte) ── */
   --coral:        var(--brand-gold);
   --coral-hover:  var(--brand-gold-hover);
   --coral-light:  var(--brand-gold-light);
   --coral-xlight: var(--brand-gold-xlight);
   --coral-bg:     var(--brand-gold-light);
-
   --navy:         var(--brand-blue);
   --navy-deep:    var(--brand-blue-deep);
   --navy-mid:     var(--brand-blue-mid);
-  --navy-700:     #0958B0;
-  --navy-800:     #03439C;
-  --navy-900:     #03439C;
+  --navy-700:     var(--brand-blue-hover);
+  --navy-800:     var(--brand-blue-deep);
+  --navy-900:     var(--brand-blue-deep);
   --accent:       var(--brand-blue);
   --accent-light: var(--brand-blue-mid);
 
-  /* ── Semantic status ── */
-  --success:      #059669;
-  --success-bg:   #d1fae5;
-  --warning:      #d97706;
-  --warning-bg:   #fef3c7;
-  --danger:       #dc2626;
-  --danger-bg:    #fee2e2;
-  --info:         #2563eb;
-  --info-bg:      #dbeafe;
+  /* ── Estado semántico ── */
+  --success:      #0E9F6E;
+  --success-bg:   #d7f6e8;
+  --warning:      #D98E1E;
+  --warning-bg:   #fdf0d8;
+  --danger:       #E02424;
+  --danger-bg:    #fde2e1;
+  --info:         var(--brand-blue);
+  --info-bg:      #e4e7fb;
 
-  /* ── Surfaces — light-first ── */
+  /* ── Superficies (claro: neutrales fríos e institucionales) ── */
+  --app-bg:       #F6F7F9;
   --bg:           #ffffff;
-  --bg-warm:      #f7f5f0;
-  --bg-muted:     #f0ede6;
+  --bg-warm:      var(--app-bg);
+  --bg-muted:     #EEF1F5;
   --surface:      #ffffff;
-  --surface-2:    #f7f5f0;
-  --surface-3:    #efebe3;
+  --surface-2:    #F4F6F9;
+  --surface-3:    #EBEFF4;
+  --surface-inset:#F8FAFC;
 
-  /* ── Text ── */
-  --text-primary:   #111111;
-  --text-secondary: #6b6b6b;
-  --text-muted:     #a0a0a0;
+  /* ── Texto ── */
+  --text-primary:   #0C1322;
+  --text-secondary: #586173;
+  --text-muted:     #95A0B2;
   --text-invert:    #ffffff;
 
-  /* ── Borders ── */
-  --border:       #e8e4dc;
-  --border-mid:   #d4cfc4;
+  /* ── Bordes ── */
+  --border:       #E7EAF0;
+  --border-mid:   #D6DBE4;
 
-  /* ── Shadows — very soft, warm ── */
-  --shadow-xs:   0 1px 2px rgba(0,0,0,0.04);
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.03);
-  --shadow-md:   0 4px 16px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
-  --shadow-lg:   0 8px 32px rgba(0,0,0,0.10), 0 3px 8px rgba(0,0,0,0.05);
-  --shadow-xl:   0 16px 48px rgba(0,0,0,0.12), 0 6px 16px rgba(0,0,0,0.06);
-  --shadow-card: 0 2px 12px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04);
+  /* ── Anillo de foco ── */
+  --ring:         rgba(42,60,214,0.16);
+
+  /* ── Sombras (limpias, frías) ── */
+  --shadow-xs:   0 1px 2px rgba(15,23,42,0.05);
+  --shadow-sm:   0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-md:   0 4px 14px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+  --shadow-lg:   0 10px 30px rgba(15,23,42,0.10), 0 3px 8px rgba(15,23,42,0.05);
+  --shadow-xl:   0 20px 50px rgba(15,23,42,0.14), 0 6px 16px rgba(15,23,42,0.07);
+  --shadow-card: 0 1px 3px rgba(15,23,42,0.06), 0 6px 18px rgba(15,23,42,0.05);
+
+  /* ── Radios ── */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 18px;
+  --r-xl: 24px;
+
+  --font-display: 'Fraunces', 'Liberation Serif', Georgia, serif;
+}
+
+/* ── Modo oscuro (Apple-TV-ish: navy-negro con profundidad) ── */
+[data-theme="dark"] {
+  --brand-blue:        #5E6DF6;
+  --brand-blue-hover:  #7180F8;
+  --brand-blue-deep:   #0B1230;
+  --brand-blue-mid:    #6E7CF2;
+  --brand-blue-light:  #8E9AF8;
+
+  --brand-gold:        #F4B454;
+  --brand-gold-hover:  #F6C173;
+  --brand-gold-light:  rgba(244,180,84,0.16);
+  --brand-gold-xlight: rgba(244,180,84,0.08);
+
+  --success-bg:   rgba(14,159,110,0.18);
+  --warning-bg:   rgba(217,142,30,0.18);
+  --danger-bg:    rgba(224,36,36,0.18);
+  --info-bg:      rgba(94,109,246,0.18);
+
+  --app-bg:       #080B14;
+  --bg:           #0E1320;
+  --bg-warm:      var(--app-bg);
+  --bg-muted:     #161D2D;
+  --surface:      #121829;
+  --surface-2:    #182033;
+  --surface-3:    #212B42;
+  --surface-inset:#0C111C;
+
+  --text-primary:   #EEF1F7;
+  --text-secondary: #A4AEC2;
+  --text-muted:     #6B7689;
+  --text-invert:    #0C1322;
+
+  --border:       #232C40;
+  --border-mid:   #303B53;
+
+  --ring:         rgba(94,109,246,0.32);
+
+  --shadow-xs:   0 1px 2px rgba(0,0,0,0.4);
+  --shadow-sm:   0 1px 3px rgba(0,0,0,0.45);
+  --shadow-md:   0 4px 14px rgba(0,0,0,0.5);
+  --shadow-lg:   0 10px 30px rgba(0,0,0,0.55);
+  --shadow-xl:   0 20px 50px rgba(0,0,0,0.6);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4), 0 6px 18px rgba(0,0,0,0.35);
 }
 
 *, *::before, *::after {
@@ -81,34 +144,45 @@ html {
 body {
   height: 100%;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background-color: var(--bg-warm);
+  background-color: var(--app-bg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overscroll-behavior: none;
   margin: 0;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.011em;
+  /* Cifras tabulares: alineación de montos como en banca. */
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root { height: 100%; }
+
+/* Serif display para marca / titulares grandes. */
+.font-display, .serif {
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
 
 /* ─── Utility ─── */
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 .pb-safe { padding-bottom: max(20px, env(safe-area-inset-bottom)); }
 .pt-safe { padding-top: env(safe-area-inset-top, 0px); }
+.tnum { font-variant-numeric: tabular-nums; }
 
 /* ─── Cards ─── */
 .card {
   background: var(--surface);
-  border-radius: 20px;
+  border-radius: var(--r-lg);
   box-shadow: var(--shadow-card);
   padding: 20px;
   border: 1px solid var(--border);
 }
 .card-flat {
   background: var(--surface);
-  border-radius: 16px;
+  border-radius: var(--r-md);
   border: 1px solid var(--border);
   padding: 18px;
 }
@@ -116,11 +190,11 @@ body {
 /* ─── Press / Tap interaction ─── */
 .pressable {
   cursor: pointer;
-  transition: transform 0.12s ease, opacity 0.12s ease;
+  transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
   -webkit-user-select: none;
   user-select: none;
 }
-.pressable:active { transform: scale(0.96); opacity: 0.80; }
+.pressable:active { transform: scale(0.97); opacity: 0.85; }
 
 /* ─── Inputs ─── */
 .input-base {
@@ -128,7 +202,7 @@ body {
   height: 52px;
   padding: 0 16px;
   border: 1.5px solid var(--border-mid);
-  border-radius: 14px;
+  border-radius: var(--r-md);
   font-size: 15px;
   font-family: inherit;
   color: var(--text-primary);
@@ -139,15 +213,15 @@ body {
   appearance: none;
 }
 .input-base:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(20,34,70,0.08);
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px var(--ring);
 }
 .input-base::placeholder { color: var(--text-muted); }
 
 .input-field {
   width: 100%;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: var(--r-md);
   border: 1.5px solid var(--border-mid);
   background: var(--surface);
   font-size: 15px;
@@ -159,9 +233,9 @@ body {
   font-family: inherit;
 }
 .input-field:focus {
-  border-color: var(--navy);
-  box-shadow: 0 0 0 3px rgba(20,34,70,0.08);
-  background: #fff;
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px var(--ring);
+  background: var(--surface);
 }
 .input-field::placeholder { color: var(--text-muted); }
 
@@ -179,14 +253,14 @@ body {
 .badge-warning { background: var(--warning-bg); color: var(--warning); }
 .badge-danger  { background: var(--danger-bg);  color: var(--danger); }
 .badge-info    { background: var(--info-bg);    color: var(--info); }
-.badge-neutral { background: #f1f5f9; color: #475569; }
-.badge-orange  { background: #fff7ed; color: #c2410c; }
+.badge-neutral { background: var(--surface-3); color: var(--text-secondary); }
+.badge-orange  { background: var(--brand-gold-light); color: var(--brand-gold-deep); }
 
 /* ─── Sheet backdrop ─── */
 .sheet-backdrop {
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(8,11,20,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* ─── Skeleton shimmer ─── */
@@ -195,7 +269,7 @@ body {
   100% { background-position: 400px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, #ece8e0 25%, #f4f1ea 50%, #ece8e0 75%);
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
   background-size: 400px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: 10px;
@@ -261,15 +335,15 @@ body {
 .nav-item:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.9); }
 .nav-item.active { background: rgba(255,255,255,0.1); color: #fff; }
 
-/* ─── Hero gradient (dark sections only) ─── */
+/* ─── Hero gradient (superficies de marca) ─── */
 .hero-gradient {
-  background: linear-gradient(150deg, var(--brand-blue-deep) 0%, var(--brand-blue) 55%, var(--brand-blue-mid) 100%);
+  background:
+    radial-gradient(120% 90% at 18% 12%, rgba(110,124,242,0.45) 0%, rgba(110,124,242,0) 55%),
+    linear-gradient(150deg, var(--brand-blue-deep) 0%, var(--brand-blue) 60%, var(--brand-blue-mid) 100%);
 }
 
-/* ─── Underline like the Crede-Ti logo "Creemos en ti" gold swoosh ─── */
-.brand-underline {
-  position: relative;
-}
+/* ─── Underline tipo swoosh dorado del logo ─── */
+.brand-underline { position: relative; }
 .brand-underline::after {
   content: "";
   position: absolute;
@@ -282,3 +356,28 @@ body {
 /* ─── Page transition ─── */
 .page-enter { opacity: 0; transform: translateX(16px); }
 .page-enter-active { opacity: 1; transform: translateX(0); transition: opacity 0.25s ease, transform 0.25s ease; }
+
+/* ════════════════════════════════════════════════════════════════════
+   Modo oscuro — overrides para utilidades Tailwind fijas usadas en las
+   páginas (bg-white, text-gray-*, etc.). Sin esto las pantallas internas
+   se verían claras en modo oscuro. Van sin @layer para ganar a Tailwind.
+   ════════════════════════════════════════════════════════════════════ */
+[data-theme="dark"] .bg-white        { background-color: var(--surface) !important; }
+[data-theme="dark"] .bg-gray-50      { background-color: var(--surface-2) !important; }
+[data-theme="dark"] .bg-gray-100     { background-color: var(--surface-2) !important; }
+[data-theme="dark"] .bg-gray-200     { background-color: var(--surface-3) !important; }
+[data-theme="dark"] .bg-gray-900     { background-color: var(--surface-3) !important; }
+
+[data-theme="dark"] .text-gray-900   { color: var(--text-primary) !important; }
+[data-theme="dark"] .text-gray-800   { color: var(--text-primary) !important; }
+[data-theme="dark"] .text-gray-700   { color: var(--text-secondary) !important; }
+[data-theme="dark"] .text-gray-600   { color: var(--text-secondary) !important; }
+[data-theme="dark"] .text-gray-500   { color: var(--text-muted) !important; }
+[data-theme="dark"] .text-gray-400   { color: var(--text-muted) !important; }
+[data-theme="dark"] .text-gray-300   { color: var(--text-muted) !important; }
+[data-theme="dark"] .text-gray-200   { color: var(--text-secondary) !important; }
+
+[data-theme="dark"] .border-gray-50,
+[data-theme="dark"] .border-gray-100,
+[data-theme="dark"] .border-gray-200,
+[data-theme="dark"] .border-gray-300 { border-color: var(--border) !important; }

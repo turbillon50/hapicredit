@@ -6,6 +6,52 @@ import {
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
   IconPersona, IconMoneda, IconMas, IconFinanzas, IconCalendario,
 } from "@/components/hapi/HapiIcons";
+import { useTheme } from "@/hooks/use-theme";
+import logoImg from "@assets/logo-credeti-square.jpeg";
+
+/* Toggle claro/oscuro — sol/luna. `tone` adapta el color al header. */
+function ThemeToggle({ tone = "dark" }: { tone?: "dark" | "light" }) {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === "dark";
+  const color = tone === "light" ? "rgba(255,255,255,0.75)" : "var(--text-muted)";
+  const bg    = tone === "light" ? "rgba(255,255,255,0.12)" : "var(--surface-2)";
+  return (
+    <button
+      onClick={toggle}
+      aria-label={isDark ? "Modo claro" : "Modo oscuro"}
+      className="pressable"
+      style={{
+        width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        background: bg, border: "none", cursor: "pointer", color,
+      }}
+    >
+      {isDark ? (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      ) : (
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      )}
+    </button>
+  );
+}
+
+/* Marca Crede-Ti con wordmark serif (eco del logo). */
+function BrandMark() {
+  return (
+    <div className="flex items-center gap-2">
+      <div style={{ width: 30, height: 30, borderRadius: 9, overflow: "hidden", flexShrink: 0, boxShadow: "var(--shadow-xs)" }}>
+        <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+      </div>
+      <span className="font-display" style={{ fontWeight: 700, fontSize: 19, color: "var(--text-primary)" }}>
+        Crede<span style={{ color: "var(--brand-gold)" }}>-Ti</span>
+      </span>
+    </div>
+  );
+}
 
 type NavItem = { icon: React.ReactNode; label: string; path: string };
 
@@ -39,7 +85,7 @@ function isActive(path: string, current: string) {
   return false;
 }
 
-function HapiIcon({ size = 20, color = "#0E68CC" }: { size?: number; color?: string }) {
+function HapiIcon({ size = 20, color = "#2A3CD6" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <circle cx="90" cy="52" r="16" fill={color} />
@@ -138,11 +184,11 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     navigate("/login");
   }
 
-  /* ── Staff (admin/exec) header — dark ── */
+  /* ── Staff (admin/exec) header — marca profunda ── */
   const StaffHeader = () => (
-    <div className="sticky top-0 z-30 shrink-0" style={{ background: "linear-gradient(135deg,#03439C 0%,#0E68CC 100%)" }}>
+    <div className="sticky top-0 z-30 shrink-0" style={{ background: "linear-gradient(135deg, var(--brand-blue-deep) 0%, var(--brand-blue) 110%)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
-      <header className="flex items-center justify-between px-4" style={{ height: 58, borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+      <header className="flex items-center justify-between px-4" style={{ height: 58, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <button
           onClick={() => {
             if (back) { navigate(back); }
@@ -150,7 +196,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
             else { navigate(isAdmin ? "/admin" : isExec ? "/dashboard" : "/"); }
           }}
           className="flex items-center gap-1.5 pressable"
-          style={{ color: "rgba(255,255,255,0.55)", background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
+          style={{ color: "rgba(255,255,255,0.6)", background: "none", border: "none", cursor: "pointer", padding: "8px 0" }}
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
           <span style={{ fontSize: 13, fontWeight: 600 }}>Atras</span>
@@ -158,46 +204,39 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
         <div className="flex items-center gap-2">
           {!title && <RoleBadge role={role} />}
-          <span style={{ color: "#fff", fontWeight: 700, fontSize: 15, letterSpacing: "-0.025em" }}>
-            {title ?? "Crede-Ti"}
+          <span className="font-display" style={{ color: "#fff", fontWeight: 700, fontSize: 17 }}>
+            {title ?? <>Crede<span style={{ color: "var(--brand-gold)" }}>-Ti</span></>}
           </span>
         </div>
 
-        {token ? (
-          <div className="flex items-center gap-2">
-            <UserAvatar name={user?.fullName ?? user?.username ?? "U"} size={30} dark />
-            <button onClick={handleLogout} style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+        <div className="flex items-center gap-2">
+          <ThemeToggle tone="light" />
+          {token && (
+            <button onClick={handleLogout} style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
               Salir
             </button>
-          </div>
-        ) : <div style={{ width: 56 }} />}
+          )}
+        </div>
       </header>
     </div>
   );
 
-  /* ── Client/public header — white ── */
+  /* ── Client/public header — superficie ── */
   const ClientHeader = () => (
-    <div className="sticky top-0 z-30 shrink-0" style={{ background: "#fff", borderBottom: "1px solid var(--border)" }}>
+    <div className="sticky top-0 z-30 shrink-0" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58 }}>
-        <div className="flex items-center gap-2">
-          <HapiIcon size={22} color="#0E68CC" />
-          <span style={{ fontWeight: 800, fontSize: 17, letterSpacing: "-0.04em", color: "#111" }}>
-            Crede<span style={{ color: "#E8A82F" }}>-Ti</span>
-          </span>
-        </div>
+        <BrandMark />
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {role && <RoleBadge role={role} />}
+          <ThemeToggle tone="dark" />
           {token ? (
-            <div className="flex items-center gap-2">
-              <UserAvatar name={user?.fullName ?? user?.username ?? "U"} size={32} />
-              <button onClick={handleLogout} style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
-                Salir
-              </button>
-            </div>
+            <button onClick={handleLogout} style={{ color: "var(--text-muted)", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
+              Salir
+            </button>
           ) : (
-            <a href="/login" style={{ fontSize: 13, fontWeight: 700, color: "var(--navy)", textDecoration: "none", padding: "6px 14px", border: "1.5px solid var(--border-mid)", borderRadius: 100 }}>
+            <a href="/login" style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-blue)", textDecoration: "none", padding: "6px 14px", border: "1.5px solid var(--border-mid)", borderRadius: 100 }}>
               Iniciar sesion
             </a>
           )}
@@ -227,7 +266,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
       {isDemo && (
         <div style={{
-          background: "#E8A82F", color: "#03439C",
+          background: "var(--brand-gold)", color: "var(--brand-blue-deep)",
           paddingTop: "calc(6px + env(safe-area-inset-top, 0px))",
           paddingBottom: 6,
           paddingLeft: "calc(14px + env(safe-area-inset-left, 0px))",
@@ -241,7 +280,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
           <button
             onClick={() => { localStorage.clear(); window.location.href = "/"; }}
             style={{
-              background: "rgba(10,31,74,0.12)", color: "#03439C",
+              background: "rgba(10,31,74,0.12)", color: "#15206E",
               border: "none", borderRadius: 100, padding: "3px 10px",
               fontWeight: 700, fontSize: 10, cursor: "pointer",
               letterSpacing: "0.04em",
@@ -261,15 +300,15 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       <nav style={{
         position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
         display: "flex",
-        background: isStaff ? "#03439C" : "#fff",
-        borderTop: isStaff ? "1px solid rgba(255,255,255,0.06)" : "1px solid var(--border)",
-        boxShadow: isStaff ? "none" : "0 -2px 20px rgba(0,0,0,0.06)",
+        background: isStaff ? "var(--brand-blue-deep)" : "var(--surface)",
+        borderTop: isStaff ? "1px solid rgba(255,255,255,0.08)" : "1px solid var(--border)",
+        boxShadow: isStaff ? "none" : "0 -2px 20px rgba(15,23,42,0.06)",
         paddingBottom: "env(safe-area-inset-bottom)",
       }}>
         {navItems.map(item => {
           const active = isActive(item.path, location);
-          const activeColor = isStaff ? "#93c5fd" : "var(--coral)";
-          const inactiveColor = isStaff ? "rgba(255,255,255,0.3)" : "var(--text-muted)";
+          const activeColor = isStaff ? "var(--brand-gold)" : "var(--brand-blue)";
+          const inactiveColor = isStaff ? "rgba(255,255,255,0.4)" : "var(--text-muted)";
           const color = active ? activeColor : inactiveColor;
 
           return (

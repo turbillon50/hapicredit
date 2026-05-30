@@ -47,7 +47,7 @@ function FaqItem({ item }: { item: any }) {
       style={{
         borderRadius: 16,
         background: open ? "#fff" : "#f8fafc",
-        border: `1.5px solid ${open ? "#0E68CC" : "#e2e8f0"}`,
+        border: `1.5px solid ${open ? "#2A3CD6" : "#e2e8f0"}`,
         overflow: "hidden",
         transition: "border-color 0.18s, background 0.18s",
       }}
@@ -71,7 +71,7 @@ function FaqItem({ item }: { item: any }) {
         <span style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", lineHeight: 1.4, flex: 1 }}>
           {item.question}
         </span>
-        <span style={{ color: open ? "#0E68CC" : "#94a3b8", flexShrink: 0 }}>
+        <span style={{ color: open ? "#2A3CD6" : "#94a3b8", flexShrink: 0 }}>
           <IconChevron open={open} />
         </span>
       </button>
@@ -179,8 +179,8 @@ export default function Faq() {
               style={{
                 padding: "7px 14px",
                 borderRadius: 50,
-                border: `1.5px solid ${!activeCategory ? "#0E68CC" : "#e2e8f0"}`,
-                background: !activeCategory ? "#0E68CC" : "#f8fafc",
+                border: `1.5px solid ${!activeCategory ? "#2A3CD6" : "#e2e8f0"}`,
+                background: !activeCategory ? "#2A3CD6" : "#f8fafc",
                 color: !activeCategory ? "#fff" : "#64748b",
                 fontWeight: 700,
                 fontSize: 12,
@@ -199,8 +199,8 @@ export default function Faq() {
                 style={{
                   padding: "7px 14px",
                   borderRadius: 50,
-                  border: `1.5px solid ${activeCategory === cat ? "#0E68CC" : "#e2e8f0"}`,
-                  background: activeCategory === cat ? "#0E68CC" : "#f8fafc",
+                  border: `1.5px solid ${activeCategory === cat ? "#2A3CD6" : "#e2e8f0"}`,
+                  background: activeCategory === cat ? "#2A3CD6" : "#f8fafc",
                   color: activeCategory === cat ? "#fff" : "#64748b",
                   fontWeight: 700,
                   fontSize: 12,
@@ -249,7 +249,7 @@ export default function Faq() {
         {/* Support footer */}
         <div style={{
           borderRadius: 18,
-          background: "linear-gradient(135deg,#0E68CC 0%,#1978D2 100%)",
+          background: "linear-gradient(135deg,#2A3CD6 0%,#3F51E6 100%)",
           padding: "18px 20px",
           display: "flex",
           flexDirection: "column",

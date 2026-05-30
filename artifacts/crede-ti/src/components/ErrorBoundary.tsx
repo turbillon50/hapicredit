@@ -41,10 +41,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           boxShadow: "0 8px 28px rgba(0,0,0,0.06)",
           border: "1px solid #e8e4dc",
         }}>
-          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#E8A82F", textTransform: "uppercase", marginBottom: 8 }}>
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#F0A93A", textTransform: "uppercase", marginBottom: 8 }}>
             ● Crede-Ti
           </div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: "#0E68CC", marginBottom: 8 }}>
+          <div style={{ fontSize: 17, fontWeight: 900, color: "#2A3CD6", marginBottom: 8 }}>
             Algo se atoró
           </div>
           <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.55, marginBottom: 16 }}>
@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <button onClick={this.reset}
             style={{
               width: "100%", padding: "12px 16px",
-              background: "#0E68CC", color: "#fff",
+              background: "#2A3CD6", color: "#fff",
               border: "none", borderRadius: 12,
               fontWeight: 800, fontSize: 14, cursor: "pointer",
             }}>
