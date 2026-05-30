@@ -79,7 +79,7 @@ export default function ExecutiveDashboard() {
                 Hola, {firstName}
               </div>
               <div style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", marginBottom: 20, marginTop: 2 }}>
-                Resumen del dia
+                Resumen del día
               </div>
 
               {/* Daily collection */}
@@ -130,7 +130,7 @@ export default function ExecutiveDashboard() {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "#a7f3d0", marginBottom: 2 }}>
-                    Tu comision — {mesActual()}
+                    Tu comisión — {mesActual()}
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.04em", lineHeight: 1 }}>
                     {fmt(d?.commissionThisMonth ?? 0)}
@@ -159,7 +159,7 @@ export default function ExecutiveDashboard() {
             {[
               { icon: <IconGrupo size={18} />,    iconBg: "#dbeafe", iconColor: "#1e40af", label: "Clientes asignados", value: d?.totalAssignedClients ?? 0, sub: "Total en cartera" },
               { icon: <IconAlerta size={18} />,   iconBg: "#fee2e2", iconColor: "#dc2626", label: "En mora",            value: d?.clientsOverdue ?? 0,       sub: "Requieren visita" },
-              { icon: <IconFinanzas size={18} />, iconBg: "#d1fae5", iconColor: "#059669", label: "Colocacion mes",     value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado" },
+              { icon: <IconFinanzas size={18} />, iconBg: "#d1fae5", iconColor: "#059669", label: "Colocación mes",     value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado" },
               { icon: <IconCalendario size={18} />, iconBg: "#fef3c7", iconColor: "#d97706", label: "Cobros hoy",       value: d?.clientsDueToday ?? 0,       sub: "Clientes por cobrar" },
             ].map(s => (
               <div
@@ -214,15 +214,15 @@ export default function ExecutiveDashboard() {
         {/* ── Quick actions ── */}
         <div style={{ padding: "4px 16px 0" }} className="anim-section anim-d4">
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 12 }}>
-            Acciones rapidas
+            Acciones rápidas
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {[
               { href: "/dashboard/clientes",     icon: <IconPersona size={18} />, iconBg: "#dbeafe",  iconColor: "#1e40af", title: "Mis clientes",    sub: `${d?.totalAssignedClients ?? 0} clientes en cartera` },
               { href: "/dashboard/cobrar",        icon: <IconMoneda size={18} />,  iconBg: "#d1fae5",  iconColor: "#065f46", title: "Registrar cobro", sub: "Registrar pago de un cliente" },
-              { href: "/dashboard/alta-cliente",  icon: <IconMas size={18} />,     iconBg: "#ede9fe",  iconColor: "#6d28d9", title: "Alta de cliente", sub: "Registrar nuevo cliente y credito" },
+              { href: "/dashboard/alta-cliente",  icon: <IconMas size={18} />,     iconBg: "#ede9fe",  iconColor: "#6d28d9", title: "Alta de cliente", sub: "Registrar nuevo cliente y crédito" },
               { href: "/dashboard/comisiones",    icon: <IconMoneda size={18} />,  iconBg: "#d1fae5",  iconColor: "#16a34a", title: "Mis comisiones",  sub: `Este mes: ${fmt(d?.commissionThisMonth ?? 0)}` },
-              { href: "/dashboard/codigos",       icon: <IconBandeja size={18} />, iconBg: "#fdf4ff",  iconColor: "#7c3aed", title: "Mis codigos",     sub: "Invitar nuevos clientes" },
+              { href: "/dashboard/codigos",       icon: <IconBandeja size={18} />, iconBg: "#fdf4ff",  iconColor: "#7c3aed", title: "Mis códigos",     sub: "Invitar nuevos clientes" },
             ].map(item => (
               <Link key={item.href} href={item.href}>
                 <div

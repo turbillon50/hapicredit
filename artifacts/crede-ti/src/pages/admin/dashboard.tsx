@@ -6,7 +6,7 @@ import { SkeletonCard, SkeletonHero } from "@/components/hapi/Skeleton";
 import {
   IconAlerta, IconMoneda, IconDesembolso, IconGrupo, IconFlecha,
   IconValidar, IconBandeja, IconCartera, IconFinanzas, IconCaja,
-  IconMedalla, IconArbol, IconEquipo,
+  IconMedalla, IconArbol, IconEquipo, IconCheck,
 } from "@/components/hapi/HapiIcons";
 
 interface AdminDashboardData {
@@ -37,15 +37,15 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 const ACCESOS = [
-  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobacion",        iconBg: "#fef3c7", iconColor: "#92400e" },
-  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y creditos pendientes",     iconBg: "#dbeafe", iconColor: "#1e40af" },
+  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "#fef3c7", iconColor: "#92400e" },
+  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "#dbeafe", iconColor: "#1e40af" },
   { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "#e0e7ff", iconColor: "#3730a3" },
-  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado",     iconBg: "#fee2e2", iconColor: "#991b1b" },
-  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Analisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "#d1fae5", iconColor: "#065f46" },
-  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocacion, cobranza y desempeno",       iconBg: "#f3e8ff", iconColor: "#6d28d9" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado", iconBg: "#fee2e2", iconColor: "#991b1b" },
+  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "#d1fae5", iconColor: "#065f46" },
+  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocación, cobranza y desempeño",       iconBg: "#f3e8ff", iconColor: "#6d28d9" },
   { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "#fef9c3", iconColor: "#854d0e" },
-  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de arbol interactivo",              iconBg: "#e0f2fe", iconColor: "#0369a1" },
-  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Codigos de invitacion",  sub: "Genera y comparte codigos de registro",  iconBg: "#fdf4ff", iconColor: "#7c3aed" },
+  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "#e0f2fe", iconColor: "#0369a1" },
+  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Códigos de invitación",  sub: "Genera y comparte códigos de registro",  iconBg: "#fdf4ff", iconColor: "#7c3aed" },
 ];
 
 function dot(color: string) {
@@ -66,7 +66,12 @@ export default function AdminDashboard() {
 
   const { data: pendingPayments = [] } = useQuery({
     queryKey: ["pending-validation"],
-    queryFn: () => fetch(`${API}/payments/pending-validation`, { headers: auth() }).then(r => r.json()),
+    queryFn: async () => {
+      const r = await fetch(`${API}/payments/pending-validation`, { headers: auth() });
+      if (!r.ok) throw new Error("Error al cargar pagos pendientes");
+      return r.json();
+    },
+    staleTime: 30_000,
   });
 
   const collectPct  = d ? Math.min(100, (d.collectionToday / Math.max(1, d.expectedToday)) * 100) : 0;
@@ -132,7 +137,7 @@ export default function AdminDashboard() {
               {/* Daily collection bar */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Cobranza del dia</span>
+                  <span style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", fontWeight: 600 }}>Cobranza del día</span>
                   <span style={{ fontSize: 11, color: "rgba(255,255,255,0.65)", fontWeight: 700 }}>
                     {fmt(d?.collectionToday ?? 0)} / {fmt(d?.expectedToday ?? 0)}
                   </span>
@@ -156,8 +161,8 @@ export default function AdminDashboard() {
         )}
 
         {/* ── Pending validation alert ── */}
-        {pendingCount > 0 && (
-          <div style={{ margin: "0 16px" }} className="anim-section anim-d2">
+        <div style={{ margin: "0 16px" }} className="anim-section anim-d2">
+          {pendingCount > 0 ? (
             <Link href="/admin/validar-pagos">
               <div
                 className="pressable"
@@ -184,14 +189,31 @@ export default function AdminDashboard() {
                     {pendingCount} pago{pendingCount !== 1 ? "s" : ""} por validar
                   </div>
                   <div style={{ fontSize: 12, color: "#92400e", marginTop: 1 }}>
-                    Requieren tu aprobacion antes de aplicarse
+                    Requieren tu aprobación antes de aplicarse
                   </div>
                 </div>
                 <IconFlecha size={16} color="#ca8a04" />
               </div>
             </Link>
-          </div>
-        )}
+          ) : (
+            <div
+              style={{
+                display: "flex", alignItems: "center", gap: 12,
+                padding: "12px 16px", borderRadius: 16,
+                background: "#f0fdf4",
+                border: "1.5px solid #86efac",
+              }}
+            >
+              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <IconCheck size={18} color="#16a34a" />
+              </div>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "#15803d" }}>Todo al día</div>
+                <div style={{ fontSize: 11, color: "#166534", marginTop: 1 }}>Sin pagos pendientes de validar</div>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* ── Stat cards ── */}
         {isLoading ? (

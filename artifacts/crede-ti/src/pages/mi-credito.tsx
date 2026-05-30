@@ -43,12 +43,16 @@ const fmt = (n: number) =>
 
 const fmtDate = (d: string | null | undefined) => {
   if (!d) return "\u2014";
-  return new Date(d + "T12:00:00").toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
+  const dt = new Date(d + "T12:00:00");
+  if (isNaN(dt.getTime())) return "\u2014";
+  return dt.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
 };
 
 const daysDiff = (d: string | null | undefined) => {
   if (!d) return null;
-  return Math.ceil((new Date(d + "T12:00:00").getTime() - Date.now()) / 86400000);
+  const dt = new Date(d + "T12:00:00");
+  if (isNaN(dt.getTime())) return null;
+  return Math.ceil((dt.getTime() - Date.now()) / 86400000);
 };
 
 const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning" | "danger" | "info" }> = {
@@ -84,7 +88,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
         <div>
           <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.1em", color: "rgba(255,255,255,0.35)", marginBottom: 3 }}>
-            Credito activo
+            Crédito activo
           </div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.25)" }}>
             #{credit.id} · {clientName}
@@ -192,7 +196,7 @@ export default function MiCredito() {
     enabled: !!activeCredit?.id,
   });
 
-  const paid  = payments.filter(p => ["on_time","completed","late","partial"].includes(p.paymentStatus ?? p.status ?? "")).length;
+  const paid  = payments.filter(p => ["on_time","completed","late","partial","approved","validated"].includes(p.paymentStatus ?? p.status ?? "")).length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct   = total > 0 ? (paid / total) * 100 : 0;
   const nextDays = daysDiff(activeCredit?.nextPaymentDate);
@@ -209,8 +213,8 @@ export default function MiCredito() {
           <div style={{ padding: "48px 16px 0" }}>
             <EmptyState
               icon={<IconTarjeta size={24} />}
-              title="Sin creditos registrados"
-              description="Aun no tienes un credito con nosotros. Solicita uno para empezar."
+              title="Sin créditos registrados"
+              description="Aún no tienes un crédito con nosotros. Solicita uno para empezar."
             />
             <Link href="/solicitar">
               <button
@@ -223,7 +227,7 @@ export default function MiCredito() {
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                 }}
               >
-                Solicitar credito <IconFlecha size={16} color="#fff" />
+                Solicitar crédito <IconFlecha size={16} color="#fff" />
               </button>
             </Link>
           </div>
@@ -264,10 +268,10 @@ export default function MiCredito() {
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
                       {nextDays < 0
-                        ? `Pago vencido hace ${Math.abs(nextDays)} dia(s)`
+                        ? `Pago vencido hace ${Math.abs(nextDays)} día${Math.abs(nextDays) !== 1 ? "s" : ""}`
                         : nextDays === 0
                           ? "Pago vence hoy"
-                          : `Proximo pago en ${nextDays} dia(s)`}
+                          : `Próximo pago en ${nextDays} día${nextDays !== 1 ? "s" : ""}`}
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>
                       {fmtDate(activeCredit.nextPaymentDate)} · {fmt(activeCredit.weeklyPayment)}
@@ -295,8 +299,8 @@ export default function MiCredito() {
                       <IconMas size={18} color="var(--coral)" />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Solicitar renovacion</div>
-                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Aplica para un nuevo credito</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Solicitar renovación</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Aplica para un nuevo crédito</div>
                     </div>
                     <IconFlecha size={16} color="var(--text-muted)" />
                   </div>
@@ -308,7 +312,7 @@ export default function MiCredito() {
             {pendingCredits.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Solicitudes en revision
+                  Solicitudes en revisión
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {pendingCredits.map((c) => (
@@ -338,7 +342,7 @@ export default function MiCredito() {
             {historicCredits.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d5">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Historial de creditos
+                  Historial de créditos
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {historicCredits.map((c) => {
@@ -352,7 +356,7 @@ export default function MiCredito() {
                         }}
                       >
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Credito #{c.id}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Crédito #{c.id}</div>
                           <Badge variant={st.variant} size="sm">{st.label}</Badge>
                         </div>
                         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, textAlign: "center" }}>
@@ -378,12 +382,12 @@ export default function MiCredito() {
             {payments.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d6">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Ultimos pagos
+                  Últimos pagos
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {payments.slice(-5).reverse().map((p) => {
                     const st       = p.paymentStatus ?? p.status ?? "";
-                    const isPaid   = ["on_time","completed","late","partial"].includes(st);
+                    const isPaid   = ["on_time","completed","late","partial","approved","validated"].includes(st);
                     const isPending = st === "pending_validation";
                     return (
                       <div
@@ -418,7 +422,7 @@ export default function MiCredito() {
                           variant={isPaid ? "success" : isPending ? "warning" : "info"}
                           size="sm"
                         >
-                          {isPaid ? "Pagado" : isPending ? "En validacion" : "Pendiente"}
+                          {isPaid ? "Pagado" : isPending ? "En validación" : "Pendiente"}
                         </Badge>
                       </div>
                     );
