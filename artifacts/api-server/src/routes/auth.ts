@@ -5,6 +5,7 @@ import { LoginBody } from "@workspace/api-zod";
 import crypto from "crypto";
 import { sendWelcomeEmail } from "../lib/email";
 import { isValidStaffCode } from "../lib/staffCode";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -413,8 +414,12 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
       token,
       user: { id: admin.id, username: admin.username, fullName: admin.fullName, email: admin.email, role: admin.role, treeId: admin.treeId },
     });
-  } catch {
-    res.status(503).json({ error: "Error de base de datos" });
+  } catch (err) {
+    logger.error({ err }, "master login failed");
+    res.status(503).json({
+      error: "Error de base de datos",
+      detail: err instanceof Error ? err.message : "unknown",
+    });
   }
 });
 
