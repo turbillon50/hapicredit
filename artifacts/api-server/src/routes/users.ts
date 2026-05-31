@@ -341,12 +341,14 @@ router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> =>
   }
 });
 
-// ─── DEMOTE FROM ADMIN (self-demotion to client from /perfil) ────────────────
+// ─── DEMOTE FROM ADMIN (self-demotion from /perfil) ──────────────────────────
 router.post("/users/me/demote", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const { targetRole } = req.body ?? {};
+  const role = targetRole === "executive" ? "executive" : "client";
   try {
     const userId = req.userId!;
     const [updated] = await db.update(usersTable)
-      .set({ role: "client", updatedAt: new Date() })
+      .set({ role, updatedAt: new Date() })
       .where(eq(usersTable.id, userId))
       .returning();
 
@@ -359,7 +361,7 @@ router.post("/users/me/demote", requireAuth, requireRole("admin"), async (req, r
           Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ public_metadata: { role: "client" } }),
+        body: JSON.stringify({ public_metadata: { role } }),
       }).catch(() => {});
     }
 

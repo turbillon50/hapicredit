@@ -19,7 +19,7 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, 4 a 48 semanas, 60% de interés anual." },
+  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 meses, 60% de interés anual." },
   { q: "Hay comisión por apertura?",              a: "No. Crede-Ti no cobra comisión por apertura." },
   { q: "Que pasa si pago tarde?",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
   { q: "Como elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
@@ -140,7 +140,7 @@ export default function Home() {
           <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
               { val:"$30K", label:"Monto maximo" },
-              { val:"48",   label:"Semanas max"  },
+              { val:"48",   label:"Meses max"    },
               { val:"0%",   label:"Comision"     },
             ].map((s,i) => (
               <div key={s.val} style={{
@@ -270,7 +270,7 @@ export default function Home() {
               {
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
                 iconBg:"#dbeafe",iconColor:"#2563eb",
-                title:"Hasta 48 sem",body:"Cliente recurrente puede pagar a 4-48 semanas.",
+                title:"Hasta 48 meses",body:"Cliente recurrente puede pagar de 4 a 48 meses.",
               },
               {
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5"/></svg>,
@@ -311,7 +311,7 @@ export default function Home() {
           <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
             {[
               { label:"Cliente nuevo",            value:"$500 – $1,000 · 4 semanas · 30%"     },
-              { label:"Cliente recurrente",       value:"$1,000 – $30,000 · 4–48 sem · 60% anual" },
+              { label:"Cliente recurrente",       value:"$1,000 – $30,000 · 4–48 meses · 60% anual" },
               { label:"Frecuencia de pago",       value:"Semanal o quincenal"                  },
               { label:"Día de pago",              value:"A elección (lun a dom)"               },
               { label:"Comisión por apertura",    value:"Sin comisión"                         },
@@ -458,6 +458,26 @@ export default function Home() {
                 </a>
               ))}
             </div>
+          </div>
+
+          {/* Pago en línea */}
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Pago en línea</div>
+            <a
+              href="https://link.mercadopago.com.mx/credeti"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display:"inline-flex",alignItems:"center",gap:8,
+                padding:"10px 16px",borderRadius:100,
+                background:"#009EE3",color:"#fff",
+                fontSize:13,fontWeight:700,textDecoration:"none",
+                letterSpacing:"-0.01em",
+              }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              Pagar con Mercado Pago
+            </a>
           </div>
 
           <div style={{ display:"flex",gap:20,flexWrap:"wrap" }}>

@@ -4,12 +4,14 @@ import { motion, AnimatePresence } from "framer-motion";
 // ─── Reglas de negocio ────────────────────────────────────────────────────────
 type ClienteType = "nuevo" | "existente";
 
-function calcular(monto: number, semanas: number, tipo: ClienteType) {
+function calcular(monto: number, plazo: number, tipo: ClienteType) {
+  // nuevo: plazo = 4 semanas fijas, interés 30% plano, pago semanal
+  // existente: plazo = N meses, interés 60% anual pro-rata, pago mensual
   const interes = tipo === "nuevo"
     ? monto * 0.30
-    : monto * 0.60 * (semanas / 52);
+    : monto * 0.60 * (plazo / 12);
   const total = monto + interes;
-  const pago  = total / semanas;
+  const pago  = tipo === "nuevo" ? total / 4 : total / plazo;
   return { interes, total, pago };
 }
 
@@ -112,8 +114,8 @@ function FilaResultado({
 }
 
 // ─── Tarjeta de info del 60% ──────────────────────────────────────────────────
-function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
-  semanas: number; monto: number; tasaEfectiva: number; interes: number;
+function InfoTasa({ meses, monto, tasaEfectiva, interes }: {
+  meses: number; monto: number; tasaEfectiva: number; interes: number;
 }) {
   return (
     <motion.div
@@ -144,9 +146,9 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
           border: "1px solid #bfdbfe", fontFamily: "monospace",
           fontSize: 12, color: "#1e40af", lineHeight: 2,
         }}>
-          <div>Tasa del período = 60% × ({semanas} sem ÷ 52 sem/año)</div>
+          <div>Tasa del período = 60% × ({meses} meses ÷ 12 meses/año)</div>
           <div style={{ fontWeight: 800 }}>
-            = 60% × {(semanas / 52).toFixed(4)} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
+            = 60% × {(meses / 12).toFixed(4)} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
           </div>
           <div style={{ borderTop: "1px solid #bfdbfe", marginTop: 6, paddingTop: 6 }}>
             Interés = {fmt(monto)} × {fmtPct(tasaEfectiva)} = <NumAnimado valor={interes} fmt={fmt} />
@@ -154,7 +156,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
         </div>
 
         <p style={{ margin: "10px 0 0", fontSize: 12, color: "#6b7280" }}>
-          A menor plazo → menos interés total. A mayor plazo → pago semanal más cómodo.
+          A menor plazo → menos interés total. A mayor plazo → pago mensual más accesible.
         </p>
       </div>
     </motion.div>
@@ -198,14 +200,14 @@ function BarraProporciones({ monto, interes }: { monto: number; interes: number 
 }
 
 // ─── Tabla de amortización ────────────────────────────────────────────────────
-function TablaAmort({ pago, total, semanas }: { pago: number; total: number; semanas: number }) {
-  const filas = Math.min(semanas, 5);
+function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: number; periodos: number; etiqueta: string }) {
+  const filas = Math.min(periodos, 5);
   return (
     <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead>
           <tr>
-            {["Semana", "Pago", "Saldo restante"].map(h => (
+            {[etiqueta, "Pago", "Saldo restante"].map(h => (
               <th key={h} style={{ textAlign: "right", padding: "6px 4px", fontWeight: 700, color: "#6b7280", borderBottom: "2px solid #f3f4f6", fontSize: 12 }}>{h}</th>
             ))}
           </tr>
@@ -213,7 +215,7 @@ function TablaAmort({ pago, total, semanas }: { pago: number; total: number; sem
         <tbody>
           {Array.from({ length: filas }).map((_, i) => {
             const saldo = Math.max(0, total - pago * (i + 1));
-            const esUltima = i + 1 === semanas;
+            const esUltima = i + 1 === periodos;
             return (
               <motion.tr
                 key={i}
@@ -229,10 +231,10 @@ function TablaAmort({ pago, total, semanas }: { pago: number; total: number; sem
               </motion.tr>
             );
           })}
-          {semanas > 5 && (
+          {periodos > 5 && (
             <tr>
               <td colSpan={3} style={{ textAlign: "center", padding: "10px 4px", fontSize: 12, color: "#9ca3af" }}>
-                ··· y {semanas - 5} semanas más al mismo pago de {fmt(pago)}
+                ··· y {periodos - 5} {etiqueta.toLowerCase()}s más al mismo pago de {fmt(pago)}
               </td>
             </tr>
           )}
@@ -244,26 +246,26 @@ function TablaAmort({ pago, total, semanas }: { pago: number; total: number; sem
 
 // ─── Página principal ─────────────────────────────────────────────────────────
 export default function Calculadora() {
-  const [tipo, setTipo]       = useState<ClienteType>("existente");
-  const [monto, setMonto]     = useState(5000);
-  const [semanas, setSemanas] = useState(12);
+  const [tipo, setTipo]   = useState<ClienteType>("existente");
+  const [monto, setMonto] = useState(5000);
+  const [meses, setMeses] = useState(12); // meses para existente; nuevo siempre 4 semanas fijas
 
   const montoMin = tipo === "nuevo" ? 500   : 1000;
   const montoMax = tipo === "nuevo" ? 1000  : 30000;
-  const semMax   = tipo === "nuevo" ? 4     : 48;
+  const mesesMax = 48; // solo aplica para existente
 
   function cambiarTipo(t: ClienteType) {
     setTipo(t);
-    if (t === "nuevo") { setMonto(750); setSemanas(4); }
-    else               { setMonto(5000); setSemanas(12); }
+    if (t === "nuevo") setMonto(750);
+    else               { setMonto(5000); setMeses(12); }
   }
 
   const { interes, total, pago } = useMemo(
-    () => calcular(monto, semanas, tipo),
-    [monto, semanas, tipo],
+    () => calcular(monto, meses, tipo),
+    [monto, meses, tipo],
   );
 
-  const tasaEfectiva = tipo === "nuevo" ? 30 : 60 * (semanas / 52);
+  const tasaEfectiva = tipo === "nuevo" ? 30 : 60 * (meses / 12);
 
   return (
     <div style={{
@@ -347,12 +349,23 @@ export default function Calculadora() {
             paso={tipo === "nuevo" ? 50 : 500}
             prefijo="$" onChange={setMonto}
           />
-          <SliderCampo
-            label="Plazo"
-            valor={semanas} min={4} max={semMax}
-            paso={1} sufijo=" sem"
-            onChange={setSemanas}
-          />
+          {tipo === "existente" ? (
+            <SliderCampo
+              label="Plazo (meses)"
+              valor={meses} min={4} max={mesesMax}
+              paso={1} sufijo=" meses"
+              onChange={setMeses}
+            />
+          ) : (
+            <div style={{ marginBottom: 24 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Plazo</span>
+                <span style={{ fontSize: 20, fontWeight: 900, color: AZUL2 }}>4 semanas</span>
+              </div>
+              <div style={{ height: 6, borderRadius: 99, background: `linear-gradient(90deg, ${AZUL}, ${AMARILLO})` }} />
+              <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>Plazo fijo para primer crédito</div>
+            </div>
+          )}
 
           {/* Badge de tasa */}
           <AnimatePresence mode="wait">
@@ -389,7 +402,7 @@ export default function Calculadora() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <InfoTasa semanas={semanas} monto={monto} tasaEfectiva={tasaEfectiva} interes={interes} />
+              <InfoTasa meses={meses} monto={monto} tasaEfectiva={tasaEfectiva} interes={interes} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -407,8 +420,8 @@ export default function Calculadora() {
           <BarraProporciones monto={monto} interes={interes} />
           <FilaResultado etiqueta="Capital prestado" valor={fmt(monto)} />
           <FilaResultado etiqueta="Intereses totales" valor={fmt(interes)} color="#d97706" />
-          <FilaResultado etiqueta="Plazo" valor={`${semanas} semanas (${(semanas / 4.33).toFixed(1)} meses)`} />
-          <FilaResultado etiqueta="Pago semanal" valor={fmt(pago)} color={AZUL} />
+          <FilaResultado etiqueta="Plazo" valor={tipo === "nuevo" ? "4 semanas (30 días)" : `${meses} meses`} />
+          <FilaResultado etiqueta={tipo === "nuevo" ? "Pago semanal" : "Pago mensual"} valor={fmt(pago)} color={AZUL} />
           <FilaResultado etiqueta="Total a pagar" valor={fmt(total)} grande color={AZUL2} />
         </motion.div>
 
@@ -423,8 +436,8 @@ export default function Calculadora() {
             Calendario de pagos
           </p>
           <AnimatePresence mode="wait">
-            <motion.div key={`${semanas}-${pago}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-              <TablaAmort pago={pago} total={total} semanas={semanas} />
+            <motion.div key={`${meses}-${pago}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+              <TablaAmort pago={pago} total={total} periodos={tipo === "nuevo" ? 4 : meses} etiqueta={tipo === "nuevo" ? "Semana" : "Mes"} />
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -451,7 +464,7 @@ export default function Calculadora() {
 
         <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 14, lineHeight: 1.6 }}>
           Cálculo estimado. El crédito final queda sujeto a aprobación.<br />
-          Sin comisión por apertura · Tasa Anual 60% (clientes frecuentes)
+          Sin comisión por apertura · Tasa Anual 60% · Hasta 48 meses
         </p>
       </div>
     </div>

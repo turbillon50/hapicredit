@@ -885,28 +885,30 @@ function AdminModeCard() {
   );
 }
 
-/* ─── Demote back to client ──────────────────────────────────────────────── */
+/* ─── Switch role from admin ─────────────────────────────────────────────── */
 function DemoteCard() {
-  const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr] = useState("");
+  const [open, setOpen]   = useState(false);
+  const [target, setTarget] = useState<"executive" | "client">("client");
+  const [busy, setBusy]   = useState(false);
+  const [err, setErr]     = useState("");
 
-  async function demote() {
+  async function switchRole() {
     setBusy(true);
     setErr("");
     try {
       const res = await fetch(`${API}/users/me/demote`, {
         method: "POST",
-        headers: auth(),
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ targetRole: target }),
       });
       const data = await res.json();
-      if (!res.ok) { setErr(data.error ?? "No se pudo salir del modo administrador"); return; }
+      if (!res.ok) { setErr(data.error ?? "No se pudo cambiar el rol"); return; }
       if (data.token) localStorage.setItem("credeti_token", data.token);
       if (data.user) {
         localStorage.setItem("credeti_role", data.user.role);
         localStorage.setItem("credeti_user", JSON.stringify(data.user));
       }
-      window.location.href = "/perfil";
+      window.location.href = target === "executive" ? "/dashboard" : "/mi-credito";
     } catch {
       setErr("Error de conexión. Intenta de nuevo.");
     } finally {
@@ -914,15 +916,17 @@ function DemoteCard() {
     }
   }
 
+  const roleOptions = [
+    { value: "executive" as const, label: "Asesor", desc: "Gestiona clientes y cobranza", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
+    { value: "client"   as const, label: "Cliente", desc: "Vista del acreditado",         color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+  ];
+
   return (
     <>
       <button
         onClick={() => { setOpen(true); setErr(""); }}
         className="card flex items-center gap-3 text-left pressable w-full"
-        style={{
-          background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
-          border: "1.5px solid #bbf7d0",
-        }}
+        style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)", border: "1.5px solid #bbf7d0" }}
       >
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#16a34a" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -930,8 +934,8 @@ function DemoteCard() {
           </svg>
         </div>
         <div className="flex-1 min-w-0">
-          <div className="text-sm font-bold text-gray-900">Salir de modo administrador</div>
-          <div className="text-xs text-gray-500">Volver a cuenta de usuario normal</div>
+          <div className="text-sm font-bold text-gray-900">Cambiar modo de usuario</div>
+          <div className="text-xs text-gray-500">Entrar como asesor o cliente</div>
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18l6-6-6-6"/>
@@ -946,16 +950,28 @@ function DemoteCard() {
         >
           <div className="w-full max-w-md bg-white rounded-t-3xl p-5" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
             <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4" />
-            <div className="flex items-start gap-3 mb-4">
-              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#16a34a" }}>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                </svg>
-              </div>
-              <div>
-                <div className="text-base font-bold text-gray-900">Salir del modo administrador</div>
-                <div className="text-xs text-gray-500 mt-0.5">Tu cuenta volverá a ser de usuario normal. Puedes volver a activar el modo administrador con la clave maestra.</div>
-              </div>
+            <div className="text-base font-bold text-gray-900 mb-1">Cambiar modo de usuario</div>
+            <div className="text-xs text-gray-500 mb-5">Elige el rol al que quieres cambiar temporalmente. Puedes volver a modo administrador con la clave maestra.</div>
+
+            <div className="flex flex-col gap-3 mb-5">
+              {roleOptions.map(opt => (
+                <button
+                  key={opt.value}
+                  onClick={() => setTarget(opt.value)}
+                  className="flex items-center gap-3 p-4 rounded-xl text-left pressable"
+                  style={{
+                    border: `2px solid ${target === opt.value ? opt.color : "#e5e7eb"}`,
+                    background: target === opt.value ? opt.bg : "#f9fafb",
+                    transition: "all 0.15s",
+                  }}
+                >
+                  <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: target === opt.value ? opt.color : "#d1d5db" }} />
+                  <div>
+                    <div className="text-sm font-bold" style={{ color: target === opt.value ? opt.color : "#374151" }}>{opt.label}</div>
+                    <div className="text-xs text-gray-500">{opt.desc}</div>
+                  </div>
+                </button>
+              ))}
             </div>
 
             {err && (
@@ -964,7 +980,7 @@ function DemoteCard() {
               </div>
             )}
 
-            <div className="flex gap-2 mt-2">
+            <div className="flex gap-2">
               <button
                 onClick={() => setOpen(false)}
                 className="flex-1 h-12 rounded-xl text-sm font-bold pressable"
@@ -973,12 +989,12 @@ function DemoteCard() {
                 Cancelar
               </button>
               <button
-                onClick={demote}
+                onClick={switchRole}
                 disabled={busy}
                 className="flex-1 h-12 rounded-xl text-sm font-bold text-white pressable disabled:opacity-60"
                 style={{ background: "#16a34a" }}
               >
-                {busy ? "Saliendo…" : "Salir"}
+                {busy ? "Cambiando…" : `Entrar como ${target === "executive" ? "Asesor" : "Cliente"}`}
               </button>
             </div>
           </div>
