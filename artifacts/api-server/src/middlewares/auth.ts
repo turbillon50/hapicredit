@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { db, sessionsTable, usersTable } from "@workspace/db";
-import { eq, and, gt } from "drizzle-orm";
+import { and, db, eq, gt, sessionsTable, usersTable } from "@workspace/db";
 import { verifyToken } from "@clerk/express";
 
 declare global {

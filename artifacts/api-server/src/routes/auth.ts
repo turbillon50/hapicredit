@@ -1,10 +1,10 @@
 import { Router, type IRouter } from "express";
-import { eq, and, isNull, gt } from "drizzle-orm";
-import { db, usersTable, sessionsTable, inviteCodesTable } from "@workspace/db";
+import { and, db, eq, gt, inviteCodesTable, isNull, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { LoginBody } from "@workspace/api-zod";
 import crypto from "crypto";
 import { sendWelcomeEmail } from "../lib/email";
+import { isValidStaffCode } from "../lib/staffCode";
 
 const router: IRouter = Router();
 
@@ -19,13 +19,10 @@ function generateToken(): string {
 // Master staff code validator.
 // Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
 //   The checked-in dev aliases never bypass the ops-configured secret.
-// Dev / first-time setup: when no env code is configured, accept either spelling
-//   the owner has used ("credite" / "credeti") so a typo doesn't lock anyone out.
+// Local/dev: when no env code is configured, accept the legacy aliases.
+// Production/Vercel: STAFF_MASTER_CODE must be configured.
 export function isValidMasterCode(submitted: unknown): boolean {
-  if (typeof submitted !== "string" || submitted.length === 0) return false;
-  const envCode = process.env.STAFF_MASTER_CODE;
-  if (envCode) return submitted === envCode;
-  return submitted === "credite" || submitted === "credeti";
+  return isValidStaffCode(submitted);
 }
 
 router.post("/auth/login", async (req, res): Promise<void> => {

@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, getTableColumns } from "drizzle-orm";
-import { db, creditsTable, clientsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreateCreditBody,

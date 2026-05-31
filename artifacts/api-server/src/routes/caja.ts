@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte, sum, sql, getTableColumns } from "drizzle-orm";
-import { db, cajaMovementsTable, usersTable } from "@workspace/db";
+import { and, cajaMovementsTable, db, eq, getTableColumns, gte, lte, sql, sum, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreateCajaMovementBody,

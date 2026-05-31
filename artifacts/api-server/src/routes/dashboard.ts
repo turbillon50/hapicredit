@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, count, sum, gte, lte, sql } from "drizzle-orm";
-import { db, clientsTable, creditsTable, paymentsTable, commitmentsTable, alertsTable, usersTable, cajaMovementsTable } from "@workspace/db";
+import { alertsTable, and, cajaMovementsTable, clientsTable, commitmentsTable, count, creditsTable, db, eq, gte, lte, paymentsTable, sql, sum, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { GetExecutiveDashboardQueryParams } from "@workspace/api-zod";
 

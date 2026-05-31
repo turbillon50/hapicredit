@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and } from "drizzle-orm";
-import { db, alertsTable, clientsTable, usersTable } from "@workspace/db";
+import { alertsTable, and, clientsTable, db, eq, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import {
   ListAlertsQueryParams,

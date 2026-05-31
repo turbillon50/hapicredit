@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, ilike, and, inArray } from "drizzle-orm";
-import { db, clientsTable, creditsTable, paymentsTable, notesTable, commitmentsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendClientReassignmentEmail } from "../lib/email";
 import {

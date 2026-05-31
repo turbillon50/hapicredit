@@ -18,32 +18,48 @@ This repo is configured for one-click Vercel deployment.
    ```sh
    pnpm --filter @workspace/db run push
    ```
-4. **Set env vars in Vercel project settings**:
+4. **Set env vars in Vercel project settings**. Keep `.env.example` in sync
+   with this table and never commit real secrets:
 
    | Variable | Required | Example | Notes |
    |---|---|---|---|
    | `DATABASE_URL` | ✓ | `postgres://user:pw@host/db?sslmode=require` | Pooled connection recommended |
-   | `STAFF_MASTER_CODE` | ✓ | `<your-secret>` | Master password for `/perfil` "Modo administrador" elevation. **If unset, the app accepts `credite` OR `credeti` as the dev fallback.** Set this in production to lock down the elevation. |
+   | `STAFF_MASTER_CODE` | ✓ | `<your-long-random-secret>` | Master password for first admin setup and `/perfil` "Modo administrador" elevation. In production/Vercel, no hardcoded fallback is accepted if this is missing. |
    | `RESEND_API_KEY` |   | `re_…` | Optional. Welcome/invite/payment emails fail silently if absent. |
    | `RESEND_FROM` |   | `Crede-Ti <noreply@your-domain.com>` | Must be a verified Resend sender |
    | `VITE_CLERK_PUBLISHABLE_KEY` |   | `pk_test_…` | Optional. Enables Clerk-based Google/passkey login |
    | `CLERK_SECRET_KEY` |   | `sk_test_…` | Required if `VITE_CLERK_PUBLISHABLE_KEY` is set |
+   | `CLERK_WEBHOOK_SECRET` |   | `whsec_…` | Required if the Clerk webhook route is configured |
+   | `BLOB_READ_WRITE_TOKEN` |   | `vercel_blob_rw_…` | Optional. Required only for Vercel Blob uploads |
+   | `VITE_APP_URL` |   | `https://crede-ti.info` | Optional public app URL exposed to the Vite build |
+   | `VITE_BRAND_NAME` |   | `Crede-Ti` | Optional brand label exposed to the Vite build |
+   | `BASE_PATH` |   | `/` | Optional. Use only when deploying under a subpath |
+   | `DEMO_MODE_ENABLED` |   | `false` | Keep false/missing in production |
    | `LOG_LEVEL` |   | `info` | `info` (default) / `debug` / `warn` |
 
 5. **Click Deploy.** Vercel builds the Vite SPA into
    `artifacts/crede-ti/dist/public/` and exposes the Express API as a
    single serverless function at `/api/*`.
-6. **First admin** — two ways:
+6. **First admin** — supported production paths:
 
    **a) Recommended (Clerk-native):** sign up normally via `/sign-up`. Then
    in https://dashboard.clerk.com → Users → your user → **Public metadata** →
    `{ "role": "admin" }`. Sign out, sign back in, you land in `/admin`.
 
-   **b) Elevation from /perfil:** sign up normally, go to `/perfil`, tap
-   the purple "Modo administrador" card, enter `credite` (or whatever
-   `STAFF_MASTER_CODE` is set to in Vercel). The flow updates the DB row
-   and sends you to `/admin`. This is also how an existing asesor with a
-   subtree can promote themselves — the subtree migrates with them.
+   **b) Master-code staff registration/elevation:** set `STAFF_MASTER_CODE`
+   in Vercel first. Then create/elevate an account with that code through the
+   staff registration or `/perfil` "Modo administrador" flow. The flow updates
+   the DB row to `role = 'admin'`, sets `treeId` to the user's own id, issues a
+   fresh session token, and redirects to `/admin`.
+
+   **c) Direct DB promotion:** after a normal sign-up, run a controlled SQL
+   update against production Postgres:
+   ```sql
+   update users
+   set role = 'admin', parent_id = null, tree_id = id, updated_at = now()
+   where email = 'owner@example.com';
+   ```
+   Sign out and sign in again after the update.
 
 ### Local development
 
@@ -66,15 +82,15 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti
 
 - **3 roles**: `admin`, `executive` (asesor), `client` (acreditado)
 - **Registration**: via invite code (`/registro?inv=CODE`) OR master password for staff
-- **Master password**: `credeti` (env `STAFF_MASTER_CODE`) — for admin/executive registration. Admin limit removed for testing.
+- **Master password**: `STAFF_MASTER_CODE` — required in production for admin/executive registration and admin elevation. Local dev accepts `credite` / `credeti` only when no env code is configured.
 - **Sucursal hierarchy** (3 levels): Crede-Ti root (superadmin, parentId=null) → Branch admins (parentId=superadmin's id) → Executives (treeId=branch admin's id)
 - **Tree isolation**: admin with `parentId != null` (branch admin) → sees only their tree's clients/credits. admin with `parentId = null` (superadmin) → sees all trees.
 - **Admin invite**: sets `parentId = creatorId` (not null) — branch admin belongs to creator's hierarchy
 - **Admin treeId**: Always set to their own userId (each admin is root of their own branch tree)
-- **Login**: `/login` — username/password. NO auto-redirect even with active session; shows banner with "Continuar" / "Cambiar usuario". Google via Clerk at `/sign-in`.
+- **Login**: `/login` redirects into Clerk at `/sign-in` when Clerk is configured; DB username/password endpoints remain available for legacy/native sessions.
 - **Sessions**: JWT stored in `localStorage` (`credeti_token`, `credeti_role`, `credeti_user`). Sessions are persistent (30 days).
 - **Logout**: Server-side session invalidation + localStorage.clear() + hard redirect to /login.
-- **Google OAuth**: Clerk handles Google sign-in at `/sign-in`. After Clerk auth, user is synced with our DB via `/auth/clerk-sync`.
+- **Google OAuth**: Clerk handles sign-in at `/sign-in`. The app mirrors the Clerk JWT into the legacy localStorage session shape, and the API verifies Clerk JWTs when `CLERK_SECRET_KEY` is configured.
 - **Route protection**: Layout.tsx redirects to `/login` for protected routes.
 - **Genealogical tree**: `parentId` = who invited this user. `treeId` = root admin's user ID. `/users/my-tree` returns role-filtered tree.
 - **Invite code API**: `POST /invite-codes/generate`, `GET /invite-codes/mine`, `DELETE /invite-codes/:id`, `GET /invite-codes/validate/:code` (public)
@@ -136,7 +152,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
-- **Node.js version**: 24
+- **Node.js version**: 22.x on Vercel (`package.json` engines)
 - **Package manager**: pnpm
 - **TypeScript version**: 5.9
 - **Frontend**: React + Vite (artifact: `crede-ti`, served at `/`)
@@ -146,7 +162,7 @@ Premium mobile-first PWA CRM and loan portfolio management platform for Crede-Ti
 - **Build**: esbuild (CJS bundle)
 - **Charts**: Recharts
 - **Icons**: react-icons (ri, fi, hi, md, bi families) — NO lucide-react
-- **Auth**: Auto-admin token on mount (no login page). Token in localStorage key `credeti_token`.
+- **Auth**: Clerk JWT or DB session token stored in localStorage key `credeti_token`.
 - **UI**: Custom components in `src/components/hapi/`. NO Radix, NO shadcn.
 - **Language**: All UI in Spanish. No emojis in UI.
 
@@ -280,7 +296,7 @@ Default (no var set) = closed.
 | Variable | Required | Notes |
 |---|---|---|
 | `DATABASE_URL` | ✓ | Neon pooled |
-| `STAFF_MASTER_CODE` | ✓ in prod | When set, only this value is accepted for `/users/me/elevate`. Dev fallback accepts `credite` / `credeti` when unset. |
+| `STAFF_MASTER_CODE` | ✓ in prod | Required for `/users/me/elevate`, `/auth/master-login`, and staff registration. Production/Vercel accepts no hardcoded fallback. |
 | `VITE_CLERK_PUBLISHABLE_KEY` | (rec.) | Vite injects this into the bundle. The `NEXT_PUBLIC_*` variant does NOT work in Vite. |
 | `CLERK_SECRET_KEY` | (rec.) | Server-only |
 | `CLERK_WEBHOOK_SECRET` | Part B | For `svix` verification of `/api/webhooks/clerk` |
@@ -295,4 +311,3 @@ Default (no var set) = closed.
 - `/api/uploads/sign` issuing Vercel Blob signed URLs via `@vercel/blob` (deps already installed)
 - Extending `requireAuth` to validate Clerk JWTs (`sessionClaims.publicMetadata.role`) alongside the existing DB-session tokens
 - Customer / reviewer / admin panels wired to the new tables with real CRUD
-

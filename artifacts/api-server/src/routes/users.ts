@@ -1,9 +1,9 @@
 import { Router, type IRouter } from "express";
-import { eq, and, inArray } from "drizzle-orm";
-import { db, usersTable, clientsTable, creditsTable, sessionsTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, eq, inArray, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
 import crypto from "crypto";
+import { isValidStaffCode } from "../lib/staffCode";
 
 const router: IRouter = Router();
 
@@ -241,18 +241,10 @@ router.patch("/users/:id/parent", requireAuth, requireRole("admin"), async (req,
 // code to upgrade their account to "admin". The newly elevated user becomes
 // the root of their own tree (treeId = own id, parentId = null).
 //
-// Security: when STAFF_MASTER_CODE is configured in env, ONLY that value is
-// accepted. The dev aliases "credite" / "credeti" are honored only when no
-// env code is set, so an ops-configured secret is never bypassed.
+// Security: production/Vercel accepts only STAFF_MASTER_CODE. Legacy aliases
+// are allowed only for local development when no env code is configured.
 function isValidElevationCode(submitted: unknown): boolean {
-  if (typeof submitted !== "string" || submitted.length === 0) return false;
-  // Institutional master key. "credite" (and the legacy alias "credeti")
-  // is always accepted so the owner can take control of a fresh deploy even
-  // if STAFF_MASTER_CODE was never configured in Vercel.
-  if (submitted === "credite" || submitted === "credeti") return true;
-  // Any additional code ops configured in env is honored too.
-  const envCode = process.env.STAFF_MASTER_CODE;
-  return envCode ? submitted === envCode : false;
+  return isValidStaffCode(submitted);
 }
 
 router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> => {

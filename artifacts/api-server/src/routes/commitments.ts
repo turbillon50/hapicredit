@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, getTableColumns } from "drizzle-orm";
-import { db, commitmentsTable, clientsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, commitmentsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreateCommitmentBody,

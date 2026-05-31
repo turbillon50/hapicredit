@@ -1,7 +1,6 @@
 import type { Request, Response } from "express";
 import { Webhook } from "svix";
-import { eq } from "drizzle-orm";
-import { db, usersTable } from "@workspace/db";
+import { db, eq, usersTable } from "@workspace/db";
 import { logger } from "../lib/logger";
 
 // In-process dedup of recently-seen svix message ids. A small ring is enough:

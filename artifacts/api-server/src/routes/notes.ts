@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq } from "drizzle-orm";
-import { db, notesTable, usersTable } from "@workspace/db";
+import { db, eq, notesTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import {
   CreateNoteBody,

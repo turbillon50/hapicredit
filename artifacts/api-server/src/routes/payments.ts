@@ -1,6 +1,5 @@
 import { Router, type IRouter } from "express";
-import { eq, and, gte, lte, getTableColumns } from "drizzle-orm";
-import { db, paymentsTable, creditsTable, clientsTable, usersTable, cajaMovementsTable, alertsTable } from "@workspace/db";
+import { alertsTable, and, cajaMovementsTable, clientsTable, creditsTable, db, eq, getTableColumns, gte, lte, paymentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreatePaymentBody,
