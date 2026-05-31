@@ -9,7 +9,7 @@
   },
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
-    "build": "pnpm --filter @workspace/crede-ti run build && pnpm run build:mirror",
+    "build": "pnpm --filter @workspace/api-server run build && pnpm --filter @workspace/crede-ti run build && pnpm run build:mirror",
     "build:mirror": "node -e \"const fs=require('fs');const path=require('path');const src=path.resolve('artifacts/crede-ti/dist/public');for(const name of ['public','dist','build']){const dst=path.resolve(name);fs.rmSync(dst,{recursive:true,force:true});fs.cpSync(src,dst,{recursive:true});console.log('Mirrored ->',dst);}\"",
     "vercel-build": "pnpm run build",
     "build:all": "pnpm run typecheck && pnpm -r --if-present run build",
