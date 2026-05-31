@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-import { and, db, eq, gt, sessionsTable, usersTable } from "@workspace/db";
+import { and, db, eq, gt, pool, sessionsTable, usersTable } from "@workspace/db";
 import { verifyToken } from "@clerk/express";
 
 declare global {
@@ -22,6 +22,40 @@ export const DEMO_USERS: Record<string, { id: number; role: string; fullName: st
 
 export function isDemoModeEnabled(): boolean {
   return process.env.DEMO_MODE_ENABLED === "true";
+}
+
+type SessionUser = {
+  id: number;
+  role: string;
+  fullName: string;
+  isActive: boolean;
+  treeId: number | null;
+  parentId: number | null;
+};
+
+async function loadSessionUser(userId: number): Promise<SessionUser | null> {
+  const columnResult = await pool.query<{ column_name: string }>(
+    "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'users'",
+  );
+  const columns = new Set(columnResult.rows.map(row => row.column_name));
+  if (!columns.has("id") || !columns.has("role")) {
+    throw new Error("users.id and users.role columns are required");
+  }
+
+  const selectParts = [
+    "id",
+    "role",
+    columns.has("full_name") ? "full_name as \"fullName\"" : "'Usuario' as \"fullName\"",
+    columns.has("is_active") ? "is_active as \"isActive\"" : "true as \"isActive\"",
+    columns.has("tree_id") ? "tree_id as \"treeId\"" : "null as \"treeId\"",
+    columns.has("parent_id") ? "parent_id as \"parentId\"" : "null as \"parentId\"",
+  ];
+
+  const userResult = await pool.query<SessionUser>(
+    `select ${selectParts.join(", ")} from users where id = $1 limit 1`,
+    [userId],
+  );
+  return userResult.rows[0] ?? null;
 }
 
 export async function requireAuth(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -131,10 +165,7 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
       return;
     }
 
-    const [user] = await db
-      .select({ id: usersTable.id, role: usersTable.role, fullName: usersTable.fullName, isActive: usersTable.isActive, treeId: usersTable.treeId, parentId: usersTable.parentId })
-      .from(usersTable)
-      .where(eq(usersTable.id, session.userId));
+    const user = await loadSessionUser(session.userId);
 
     if (!user || !user.isActive) {
       res.status(401).json({ error: "User not found or inactive" });

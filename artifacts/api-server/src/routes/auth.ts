@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, db, eq, gt, inviteCodesTable, isNull, sessionsTable, usersTable } from "@workspace/db";
+import { and, db, eq, gt, inviteCodesTable, isNull, pool, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { LoginBody } from "@workspace/api-zod";
 import crypto from "crypto";
@@ -37,6 +37,45 @@ const publicAuthUserColumns = {
   role: usersTable.role,
   treeId: usersTable.treeId,
 };
+
+type MasterLoginUser = {
+  id: number;
+  username: string;
+  fullName: string;
+  email: string | null;
+  role: string;
+  treeId: number | null;
+};
+
+type AuthMeUser = MasterLoginUser & {
+  isActive: boolean;
+};
+
+async function selectFlexibleUserById(userId: number): Promise<AuthMeUser | null> {
+  const columnResult = await pool.query<{ column_name: string }>(
+    "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'users'",
+  );
+  const columns = new Set(columnResult.rows.map(row => row.column_name));
+  if (!columns.has("id") || !columns.has("role")) {
+    throw new Error("users.id and users.role columns are required");
+  }
+
+  const selectParts = [
+    "id",
+    columns.has("username") ? "username" : "'user' as username",
+    columns.has("full_name") ? "full_name as \"fullName\"" : "'Usuario' as \"fullName\"",
+    columns.has("email") ? "email" : "null as email",
+    "role",
+    columns.has("tree_id") ? "tree_id as \"treeId\"" : "null as \"treeId\"",
+    columns.has("is_active") ? "is_active as \"isActive\"" : "true as \"isActive\"",
+  ];
+
+  const result = await pool.query<AuthMeUser>(
+    `select ${selectParts.join(", ")} from users where id = $1 limit 1`,
+    [userId],
+  );
+  return result.rows[0] ?? null;
+}
 
 // Master staff code validator.
 // Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
@@ -417,10 +456,31 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
   }
 
   try {
-    const [admin] = await db
-      .select(authUserColumns)
-      .from(usersTable)
-      .where(and(eq(usersTable.role, "admin"), eq(usersTable.isActive, true)));
+    const columnResult = await pool.query<{ column_name: string }>(
+      "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'users'",
+    );
+    const columns = new Set(columnResult.rows.map(row => row.column_name));
+    const required = ["id", "role"];
+    for (const column of required) {
+      if (!columns.has(column)) {
+        throw new Error(`users.${column} column is required`);
+      }
+    }
+
+    const selectParts = [
+      "id",
+      columns.has("username") ? "username" : "'admin' as username",
+      columns.has("full_name") ? "full_name as \"fullName\"" : "'Administrador' as \"fullName\"",
+      columns.has("email") ? "email" : "null as email",
+      "role",
+      columns.has("tree_id") ? "tree_id as \"treeId\"" : "null as \"treeId\"",
+    ];
+    const activeFilter = columns.has("is_active") ? "and is_active = true" : "";
+    const adminResult = await pool.query<MasterLoginUser>(
+      `select ${selectParts.join(", ")} from users where role = $1 ${activeFilter} limit 1`,
+      ["admin"],
+    );
+    const [admin] = adminResult.rows;
 
     if (!admin) {
       res.status(404).json({ error: "no_admin", message: "Aún no hay un administrador registrado. Crea tu cuenta primero." });
@@ -429,7 +489,10 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
 
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-    await db.insert(sessionsTable).values({ userId: admin.id, token, expiresAt });
+    await pool.query(
+      "insert into sessions (user_id, token, expires_at) values ($1, $2, $3)",
+      [admin.id, token, expiresAt],
+    );
 
     res.json({
       token,
@@ -439,7 +502,7 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
     logger.error({ err }, "master login failed");
     res.status(503).json({
       error: "Error de base de datos",
-      detail: err instanceof Error ? err.message : "unknown",
+      ...(process.env.NODE_ENV === "production" ? {} : { detail: err instanceof Error ? err.message : "unknown" }),
     });
   }
 });
@@ -467,8 +530,8 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   }
 
   try {
-    const [user] = await db.select(authUserColumns).from(usersTable).where(eq(usersTable.id, req.userId!));
-    if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+    const user = await selectFlexibleUserById(req.userId!);
+    if (!user || !user.isActive) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
     res.json({ id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role, treeId: user.treeId });
   } catch {
     res.status(503).json({ error: "Database not configured" });
