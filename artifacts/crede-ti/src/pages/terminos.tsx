@@ -128,7 +128,7 @@ export default function Terminos() {
             <p style={{ ...s.p, color: "#1e40af", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
             <ul style={s.ul}>
               <li style={{ ...s.li, color: "#1e40af" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 semanas</strong></li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 meses</strong></li>
               <li style={{ ...s.li, color: "#1e40af" }}>Interés: <strong>60% anual</strong> (calculado proporcional al plazo)</li>
               <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con día de pago a elección (lunes a domingo)</li>
             </ul>
