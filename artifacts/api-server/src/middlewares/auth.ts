@@ -35,7 +35,7 @@ type SessionUser = {
 
 async function loadSessionUser(userId: number): Promise<SessionUser | null> {
   const columnResult = await pool.query<{ column_name: string }>(
-    "select column_name from information_schema.columns where table_schema = 'public' and table_name = 'users'",
+    "select attname as column_name from pg_attribute where attrelid = 'users'::regclass and attnum > 0 and not attisdropped",
   );
   const columns = new Set(columnResult.rows.map(row => row.column_name));
   if (!columns.has("id") || !columns.has("role")) {
