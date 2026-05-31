@@ -112,6 +112,11 @@ export default function Solicitar() {
 
   const [docs, setDocs] = useState<UploadedDoc[]>([]);
 
+  // Bank info — required for deposit
+  const [bankName, setBankName]           = useState("");
+  const [clabe, setClabe]                 = useState("");
+  const [accountHolder, setAccountHolder] = useState("");
+
   // ── Derived ranges + computed schedule ────────────────────────────────────
   const amountMin = isNewClient ? NEW_AMOUNT_MIN : EXISTING_AMOUNT_MIN;
   const amountMax = isNewClient ? NEW_AMOUNT_MAX : EXISTING_AMOUNT_MAX;
@@ -121,15 +126,17 @@ export default function Solicitar() {
   // Clamp current values when switching client type
   const clampedAmount = Math.min(amountMax, Math.max(amountMin, amount));
   const clampedTerm   = Math.min(termMax,   Math.max(termMin,   termWeeks));
+  const termLabel     = isNewClient ? "semanas" : "meses";
 
   const interestAmount = isNewClient
     ? clampedAmount * NEW_INTEREST
-    : clampedAmount * EXISTING_ANNUAL * (clampedTerm / 52);
+    : clampedAmount * EXISTING_ANNUAL * (clampedTerm / 12);
 
   const totalPayment  = clampedAmount + interestAmount;
-  const installments  = paymentFrequency === "biweekly"
-    ? Math.ceil(clampedTerm / 2)
-    : clampedTerm;
+  // New clients: weekly=4 sem, biweekly=2. Existing: weekly=months×4, biweekly=months×2
+  const installments  = isNewClient
+    ? (paymentFrequency === "biweekly" ? Math.ceil(clampedTerm / 2) : clampedTerm)
+    : (paymentFrequency === "biweekly" ? clampedTerm * 2 : clampedTerm * 4);
   const installmentLabel = paymentFrequency === "biweekly" ? "quincenal" : "semanal";
   const perInstallment = totalPayment / installments;
   const disbursement   = clampedAmount; // no commission anymore
@@ -182,7 +189,8 @@ export default function Solicitar() {
         ],
         creditRequest: {
           requestedAmount: clampedAmount,
-          termWeeks: clampedTerm,
+          termWeeks: isNewClient ? clampedTerm : clampedTerm * 4,
+          termMonths: isNewClient ? null : clampedTerm,
           purpose,
           isNewClient,
           interestRate: isNewClient ? NEW_INTEREST : EXISTING_ANNUAL,
@@ -190,6 +198,11 @@ export default function Solicitar() {
           perInstallment,
           paymentFrequency,
           payDay,
+          bankInfo: {
+            bankName: bankName.trim(),
+            clabe,
+            accountHolder: accountHolder.trim(),
+          },
         },
         documents: docsData,
       };
@@ -228,12 +241,12 @@ export default function Solicitar() {
             <div className="grid grid-cols-2 gap-3 text-center text-xs">
               <div><div className="text-gray-400">Monto solicitado</div><div className="font-bold">{fmt(clampedAmount)}</div></div>
               <div><div className="text-gray-400">Recibes</div><div className="font-bold text-green-600">{fmt(disbursement)}</div></div>
-              <div><div className="text-gray-400">Plazo</div><div className="font-bold">{clampedTerm} sem.</div></div>
+              <div><div className="text-gray-400">Plazo</div><div className="font-bold">{clampedTerm} {termLabel}</div></div>
               <div><div className="text-gray-400">Pago {installmentLabel}</div><div className="font-bold">{fmt(perInstallment)}</div></div>
             </div>
           </div>
           <a
-            href="https://wa.me/521XXXXXXXXXX"
+            href="https://wa.me/529984292748"
             className="flex items-center justify-center gap-2 w-full max-w-xs rounded-2xl py-3.5 text-white text-sm font-semibold pressable mb-6"
             style={{ background: "#25d366" }}
           >
@@ -350,7 +363,7 @@ export default function Solicitar() {
               </div>
             </div>
 
-            <NavButtons canNext onNext={() => setStep(1)} />
+            <NavButtons canNext onNext={() => { if (!accountHolder.trim() && fullName.trim()) setAccountHolder(fullName.trim()); setStep(1); }} />
           </div>
         )}
 
@@ -380,7 +393,7 @@ export default function Solicitar() {
                   style={!isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
                 >
                   Cliente recurrente
-                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 sem · 60% anual</div>
+                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 meses · 60% anual</div>
                 </button>
               </div>
             </div>
@@ -406,7 +419,7 @@ export default function Solicitar() {
 
               <label className="text-sm font-semibold text-gray-700">Plazo</label>
               <div className="text-3xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>
-                {clampedTerm} <span className="text-base font-medium text-gray-500">semanas</span>
+                {clampedTerm} <span className="text-base font-medium text-gray-500">{termLabel}</span>
               </div>
               {!isNewClient ? (
                 <>
@@ -421,13 +434,13 @@ export default function Solicitar() {
                     style={{ accentColor: "#2A3CD6" }}
                   />
                   <div className="flex justify-between text-xs text-gray-400">
-                    <span>{termMin} sem</span>
-                    <span>{termMax} sem</span>
+                    <span>{termMin} {termLabel}</span>
+                    <span>{termMax} {termLabel}</span>
                   </div>
                 </>
               ) : (
                 <div className="text-[11px] text-center text-gray-400">
-                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 semanas.
+                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 meses.
                 </div>
               )}
 
@@ -446,7 +459,7 @@ export default function Solicitar() {
                   <div className="border-t border-gray-100 my-1" />
                   <Row label={`Pago ${installmentLabel}`} value={fmt(perInstallment)} accent />
                   <Row label="Total a pagar" value={fmt(totalPayment)} />
-                  <Row label="Plazo" value={`${clampedTerm} semanas`} />
+                  <Row label="Plazo" value={`${clampedTerm} ${termLabel}`} />
                 </div>
               </div>
             </div>
@@ -502,7 +515,44 @@ export default function Solicitar() {
               ))}
             </div>
 
-            <NavButtons canNext onNext={() => setStep(2)} onBack={() => setStep(0)} />
+            {/* Bank account for deposit */}
+            <div className="card flex flex-col gap-4">
+              <div>
+                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Datos bancarios</div>
+                <div className="text-[11px] text-gray-400 mt-0.5">Cuenta donde recibirás el depósito</div>
+              </div>
+              <Field label="Banco" required>
+                <input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="Ej: BBVA, Banamex, HSBC, Bancoppel..." className="input-field" />
+              </Field>
+              <Field label="CLABE interbancaria" required>
+                <input
+                  value={clabe}
+                  onChange={e => setClabe(e.target.value.replace(/\D/g, "").slice(0, 18))}
+                  placeholder="18 dígitos"
+                  maxLength={18}
+                  className="input-field"
+                  inputMode="numeric"
+                />
+                {clabe.length > 0 && clabe.length < 18 && (
+                  <span className="text-xs text-red-500 mt-0.5">Faltan {18 - clabe.length} dígito{18 - clabe.length !== 1 ? "s" : ""}</span>
+                )}
+                {clabe.length === 18 && (
+                  <span className="text-xs text-green-600 font-semibold mt-0.5">CLABE válida ✓</span>
+                )}
+              </Field>
+              <Field label="Nombre del titular" required>
+                <input value={accountHolder} onChange={e => setAccountHolder(e.target.value)} placeholder="Igual que en tu INE" className="input-field" />
+              </Field>
+              <div className="text-[11px] bg-amber-50 text-amber-700 rounded-xl px-3 py-2 border border-amber-200">
+                El titular de la cuenta debe ser el mismo que el solicitante. No se realizarán depósitos a cuentas de terceros.
+              </div>
+            </div>
+
+            <NavButtons
+              canNext={bankName.trim().length > 0 && clabe.length === 18 && accountHolder.trim().length > 0}
+              onNext={() => setStep(2)}
+              onBack={() => setStep(0)}
+            />
           </div>
         )}
 
@@ -592,7 +642,7 @@ export default function Solicitar() {
               <div className="flex flex-col gap-2 text-sm">
                 <Row label="Tipo" value={isNewClient ? "Cliente nuevo" : "Cliente recurrente"} />
                 <Row label="Monto" value={fmt(clampedAmount)} />
-                <Row label="Plazo" value={`${clampedTerm} semanas`} />
+                <Row label="Plazo" value={`${clampedTerm} ${termLabel}`} />
                 <Row label={isNewClient ? "Interés (30% fijo)" : "Interés (60% anual)"} value={`+${fmt(interestAmount)}`} />
                 <div className="border-t border-gray-100 my-1" />
                 <Row label="Recibes" value={fmt(disbursement)} highlight />
@@ -601,6 +651,15 @@ export default function Solicitar() {
                 <Row label="Frecuencia" value={paymentFrequency === "biweekly" ? "Quincenal" : "Semanal"} />
                 <Row label="Día de pago" value={payDay} capitalize />
                 <Row label="Destino" value={purpose} />
+              </div>
+            </div>
+
+            <div className="card">
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Cuenta bancaria</div>
+              <div className="flex flex-col gap-2 text-sm">
+                <Row label="Banco" value={bankName} />
+                <Row label="CLABE" value={clabe} />
+                <Row label="Titular" value={accountHolder} />
               </div>
             </div>
 
