@@ -25,7 +25,7 @@ function Header() {
           padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
         }}
       >
-        Iniciar sesion
+        Iniciar sesión
       </button>
     </header>
   );
@@ -58,7 +58,7 @@ export default function Privacidad() {
             Aviso de Privacidad
           </h1>
           <p style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.65 }}>
-            Ultima actualizacion: 17 de abril de 2026
+            Última actualización: 17 de abril de 2026
           </p>
         </div>
 
@@ -66,10 +66,10 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>1. Responsable del tratamiento de sus datos personales</h2>
           <p style={s.p}>
-            <strong>Crede-Ti</strong>, con domicilio en Ignacio Lopez Rayon Sur 702,
-            Despacho 104, Col. Cuauhtemoc, Toluca, Estado de Mexico, es responsable
+            <strong>Crede-Ti</strong>, con domicilio en Ignacio López Rayón Sur 702,
+            Despacho 104, Col. Cuauhtémoc, Toluca, Estado de México, es responsable
             del tratamiento de sus datos personales conforme a la Ley Federal de
-            Proteccion de Datos Personales en Posesion de los Particulares (LFPDPPP).
+            Protección de Datos Personales en Posesión de los Particulares (LFPDPPP).
           </p>
           <div style={{
             background: "#eff6ff", border: "1px solid #bfdbfe",
@@ -86,16 +86,16 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>2. Datos personales que recabamos</h2>
           <p style={s.p}>
-            En Crede-Ti protegemos la informacion de nuestros clientes.
-            Para la prestacion del servicio de credito recabamos los siguientes datos:
+            En Crede-Ti protegemos la información de nuestros clientes.
+            Para la prestación del servicio de crédito recabamos los siguientes datos:
           </p>
           <ul style={s.ul}>
-            <li style={s.li}><strong>Identificacion:</strong> Nombre completo, INE, CURP.</li>
-            <li style={s.li}><strong>Contacto:</strong> Numero de telefono, domicilio.</li>
+            <li style={s.li}><strong>Identificación:</strong> Nombre completo, INE, CURP.</li>
+            <li style={s.li}><strong>Contacto:</strong> Número de teléfono, domicilio.</li>
             <li style={s.li}><strong>Referencias:</strong> Datos de dos referencias personales.</li>
           </ul>
           <p style={s.p}>
-            No compartimos informacion con terceros sin autorizacion, salvo requerimiento legal.
+            No compartimos información con terceros sin autorización, salvo requerimiento legal.
             Los datos son resguardados de forma segura y confidencial.
           </p>
         </div>
@@ -103,11 +103,11 @@ export default function Privacidad() {
         {/* 3. Finalidades */}
         <div style={s.section}>
           <h2 style={s.h2}>3. Finalidades del tratamiento</h2>
-          <p style={s.p}>Esta informacion se utiliza unicamente para:</p>
+          <p style={s.p}>Esta información se utiliza únicamente para:</p>
           <ul style={s.ul}>
-            <li style={s.li}>Evaluacion y otorgamiento de credito.</li>
-            <li style={s.li}>Validacion de identidad del solicitante.</li>
-            <li style={s.li}>Seguimiento y cobranza del credito.</li>
+            <li style={s.li}>Evaluación y otorgamiento de crédito.</li>
+            <li style={s.li}>Validación de identidad del solicitante.</li>
+            <li style={s.li}>Seguimiento y cobranza del crédito.</li>
             <li style={s.li}>Cumplimiento de obligaciones legales.</li>
           </ul>
         </div>
@@ -116,12 +116,12 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>4. Transferencia de datos personales</h2>
           <p style={s.p}>
-            Sus datos podran ser transferidos unicamente en los casos establecidos
-            por el Articulo 37 de la LFPDPPP:
+            Sus datos podrán ser transferidos únicamente en los casos establecidos
+            por el Artículo 37 de la LFPDPPP:
           </p>
           <ul style={s.ul}>
             <li style={s.li}>Autoridades competentes en cumplimiento de obligaciones legales.</li>
-            <li style={s.li}>Empresas del mismo grupo corporativo bajo los mismos terminos.</li>
+            <li style={s.li}>Empresas del mismo grupo corporativo bajo los mismos términos.</li>
           </ul>
         </div>
 
@@ -129,9 +129,9 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>5. Derechos ARCO</h2>
           <p style={s.p}>
-            El cliente puede solicitar informacion sobre el uso de sus datos, asi como
-            ejercer sus derechos de <strong>Acceso, Rectificacion, Cancelacion u Oposicion (ARCO)</strong>.
-            Para ello, envie su solicitud a:
+            El cliente puede solicitar información sobre el uso de sus datos, así como
+            ejercer sus derechos de <strong>Acceso, Rectificación, Cancelación u Oposición (ARCO)</strong>.
+            Para ello, envíe su solicitud a:
           </p>
           <div style={{
             background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: 12,
@@ -140,7 +140,7 @@ export default function Privacidad() {
             <p style={{ ...s.p, margin: 0 }}>
               <strong>Correo:</strong> hola@crede-ti.info<br />
               <strong>Asunto:</strong> Ejercicio de Derechos ARCO<br />
-              <strong>Tiempo de respuesta:</strong> 20 dias habiles
+              <strong>Tiempo de respuesta:</strong> 20 días hábiles
             </p>
           </div>
         </div>
@@ -149,7 +149,7 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>6. Cambios al aviso de privacidad</h2>
           <p style={s.p}>
-            Cualquier modificacion a este Aviso sera notificada a traves de la plataforma
+            Cualquier modificación a este Aviso será notificada a través de la plataforma
             <strong> crede-ti.info</strong>.
           </p>
         </div>
@@ -160,7 +160,7 @@ export default function Privacidad() {
             Crede-Ti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Este aviso cumple con la Ley Federal de Proteccion de Datos Personales en Posesion de los Particulares.
+            Este aviso cumple con la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.
           </p>
         </div>
       </div>

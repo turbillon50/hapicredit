@@ -25,7 +25,7 @@ function Header() {
           padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
         }}
       >
-        Iniciar sesion
+        Iniciar sesión
       </button>
     </header>
   );
@@ -77,37 +77,37 @@ export default function Terminos() {
             Documento legal
           </div>
           <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 10 }}>
-            Terminos y Condiciones
+            Términos y Condiciones
           </h1>
           <p style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.65 }}>
-            Ultima actualizacion: 17 de abril de 2026
+            Última actualización: 17 de abril de 2026
           </p>
         </div>
 
-        {/* 1. Aceptacion */}
+        {/* 1. Aceptación */}
         <div style={s.section}>
-          <h2 style={s.h2}>1. Aceptacion de los terminos</h2>
+          <h2 style={s.h2}>1. Aceptación de los términos</h2>
           <p style={s.p}>
-            Al solicitar un credito con <strong>Crede-Ti</strong>, el cliente acepta
-            expresamente los presentes Terminos y Condiciones. Si no esta de acuerdo con
+            Al solicitar un crédito con <strong>Crede-Ti</strong>, el cliente acepta
+            expresamente los presentes Términos y Condiciones. Si no está de acuerdo con
             alguno de ellos, debe abstenerse de utilizar el servicio.
           </p>
         </div>
 
-        {/* 2. Descripcion */}
+        {/* 2. Descripción */}
         <div style={s.section}>
-          <h2 style={s.h2}>2. Descripcion del servicio</h2>
+          <h2 style={s.h2}>2. Descripción del servicio</h2>
           <p style={s.p}>
-            Crede-Ti es una plataforma de gestion de microcreditos personales que opera
-            dentro del territorio mexicano. El credito es <strong>personal</strong> y debe
-            ser pagado en los tiempos establecidos (semanal o quincenal segun contrato).
+            Crede-Ti es una plataforma de gestión de microcréditos personales que opera
+            dentro del territorio mexicano. El crédito es <strong>personal</strong> y debe
+            ser pagado en los tiempos establecidos (semanal o quincenal según contrato).
           </p>
         </div>
 
-        {/* 3. Condiciones del credito */}
+        {/* 3. Condiciones del crédito */}
         <div style={s.section}>
-          <h2 style={s.h2}>3. Condiciones del credito</h2>
-          <p style={s.p}>Los creditos otorgados a traves de Crede-Ti se rigen bajo las siguientes reglas:</p>
+          <h2 style={s.h2}>3. Condiciones del crédito</h2>
+          <p style={s.p}>Los créditos otorgados a través de Crede-Ti se rigen bajo las siguientes reglas:</p>
 
           <div style={{
             background: "#f0fdf4", border: "1px solid #bbf7d0",
@@ -116,8 +116,8 @@ export default function Terminos() {
             <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
             <ul style={s.ul}>
               <li style={{ ...s.li, color: "#166534" }}>Monto: <strong>$500 a $1,000 MXN</strong></li>
-              <li style={{ ...s.li, color: "#166534" }}>Plazo: <strong>4 semanas (30 dias)</strong></li>
-              <li style={{ ...s.li, color: "#166534" }}>Interes: <strong>30% fijo</strong> sobre el monto</li>
+              <li style={{ ...s.li, color: "#166534" }}>Plazo: <strong>4 semanas (30 días)</strong></li>
+              <li style={{ ...s.li, color: "#166534" }}>Interés: <strong>30% fijo</strong> sobre el monto</li>
             </ul>
           </div>
 
@@ -129,41 +129,41 @@ export default function Terminos() {
             <ul style={s.ul}>
               <li style={{ ...s.li, color: "#1e40af" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
               <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 semanas</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Interes: <strong>60% anual</strong> (calculado proporcional al plazo)</li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con dia de pago a eleccion (lunes a domingo)</li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Interés: <strong>60% anual</strong> (calculado proporcional al plazo)</li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con día de pago a elección (lunes a domingo)</li>
             </ul>
           </div>
 
           <Nota>
-            <strong>Cargo por pago tardio:</strong> Se aplicara una multa equivalente al <strong>10% del pago atrasado</strong>.
-            Ejemplo: si el pago era de $300, la multa es de $30. El horario limite de pago es a las
-            <strong> 5:00 PM del dia acordado</strong>. Crede-Ti <strong>no cobra comision por apertura</strong>.
+            <strong>Cargo por pago tardío:</strong> Se aplicará una multa equivalente al <strong>10% del pago atrasado</strong>.
+            Ejemplo: si el pago era de $300, la multa es de $30. El horario límite de pago es a las
+            <strong> 5:00 PM del día acordado</strong>. Crede-Ti <strong>no cobra comisión por apertura</strong>.
           </Nota>
 
           <ul style={s.ul}>
-            <li style={s.li}>El credito se otorga sujeto a evaluacion y aprobacion del Asesor y Administrador asignado.</li>
+            <li style={s.li}>El crédito se otorga sujeto a evaluación y aprobación del Asesor y Administrador asignado.</li>
             <li style={s.li}>Los pagos deben realizarse en la fecha y forma acordadas con su Asesor.</li>
-            <li style={s.li}>Crede-Ti podra realizar <strong>validaciones de informacion y visitas domiciliarias</strong>.</li>
-            <li style={s.li}>En caso de incumplimiento, se podran tomar acciones de cobranza correspondientes.</li>
+            <li style={s.li}>Crede-Ti podrá realizar <strong>validaciones de información y visitas domiciliarias</strong>.</li>
+            <li style={s.li}>En caso de incumplimiento, se podrán tomar acciones de cobranza correspondientes.</li>
           </ul>
         </div>
 
-        {/* 4. Informacion del cliente */}
+        {/* 4. Información del cliente */}
         <div style={s.section}>
-          <h2 style={s.h2}>4. Informacion requerida al cliente</h2>
+          <h2 style={s.h2}>4. Información requerida al cliente</h2>
           <p style={s.p}>
-            El cliente se compromete a proporcionar informacion <strong>veridica y comprobable</strong>.
+            El cliente se compromete a proporcionar información <strong>verídica y comprobable</strong>.
             Los datos solicitados incluyen:
           </p>
           <ul style={s.ul}>
             <li style={s.li}>Nombre completo, INE, CURP</li>
-            <li style={s.li}>Domicilio, telefono y referencias personales</li>
+            <li style={s.li}>Domicilio, teléfono y referencias personales</li>
             <li style={s.li}>Documentos: INE (frente y reverso), selfie con INE, comprobante de domicilio</li>
           </ul>
           <p style={s.p}>
-            El cliente autoriza el uso de su informacion para fines de validacion,
+            El cliente autoriza el uso de su información para fines de validación,
             seguimiento y cobranza. Al continuar con el proceso, el cliente confirma
-            que ha leido y acepta estos terminos.
+            que ha leído y acepta estos términos.
           </p>
         </div>
 
@@ -173,22 +173,22 @@ export default function Terminos() {
 
           <p style={s.p}><strong>Acreditado (cliente):</strong></p>
           <ul style={s.ul}>
-            <li style={s.li}>Proporcionar informacion veraz y actualizada.</li>
+            <li style={s.li}>Proporcionar información veraz y actualizada.</li>
             <li style={s.li}>Cumplir con el calendario de pagos establecido.</li>
             <li style={s.li}>Notificar a su Asesor cualquier cambio que afecte su capacidad de pago.</li>
           </ul>
 
-          <p style={s.p}><strong>Asesor (ejecutivo de credito):</strong></p>
+          <p style={s.p}><strong>Asesor (ejecutivo de crédito):</strong></p>
           <ul style={s.ul}>
             <li style={s.li}>Validar la identidad y solvencia del Acreditado.</li>
             <li style={s.li}>Gestionar la cobranza semanal de manera puntual y profesional.</li>
-            <li style={s.li}>No compartir codigos de invitacion con personas no autorizadas.</li>
+            <li style={s.li}>No compartir códigos de invitación con personas no autorizadas.</li>
           </ul>
 
           <p style={s.p}><strong>Administrador:</strong></p>
           <ul style={s.ul}>
-            <li style={s.li}>Supervisar la cartera, aprobar creditos y gestionar la plataforma.</li>
-            <li style={s.li}>Garantizar el cumplimiento de las politicas internas de Crede-Ti.</li>
+            <li style={s.li}>Supervisar la cartera, aprobar créditos y gestionar la plataforma.</li>
+            <li style={s.li}>Garantizar el cumplimiento de las políticas internas de Crede-Ti.</li>
           </ul>
         </div>
 
@@ -198,44 +198,44 @@ export default function Terminos() {
           <p style={s.p}>El usuario se compromete a:</p>
           <ul style={s.ul}>
             <li style={s.li}>No compartir sus credenciales de acceso con terceros.</li>
-            <li style={s.li}>No intentar acceder a cuentas o informacion de otros usuarios.</li>
+            <li style={s.li}>No intentar acceder a cuentas o información de otros usuarios.</li>
             <li style={s.li}>No utilizar la plataforma para actividades fraudulentas o ilegales.</li>
-            <li style={s.li}>Mantener la confidencialidad de los codigos de invitacion.</li>
+            <li style={s.li}>Mantener la confidencialidad de los códigos de invitación.</li>
           </ul>
           <p style={s.p}>
-            El incumplimiento puede resultar en la suspension inmediata de la cuenta
+            El incumplimiento puede resultar en la suspensión inmediata de la cuenta
             y acciones legales correspondientes.
           </p>
         </div>
 
         {/* 7. Privacidad */}
         <div style={s.section}>
-          <h2 style={s.h2}>7. Privacidad y proteccion de datos</h2>
+          <h2 style={s.h2}>7. Privacidad y protección de datos</h2>
           <p style={s.p}>
             El tratamiento de sus datos personales se rige por nuestro{" "}
             <a href="/privacidad" style={{ color: "#1d4ed8", fontWeight: 600 }}>
               Aviso de Privacidad
             </a>
-            , el cual forma parte integral de estos Terminos y Condiciones.
+            , el cual forma parte integral de estos Términos y Condiciones.
           </p>
         </div>
 
         {/* 8. Modificaciones */}
         <div style={s.section}>
-          <h2 style={s.h2}>8. Modificaciones a los terminos</h2>
+          <h2 style={s.h2}>8. Modificaciones a los términos</h2>
           <p style={s.p}>
-            Crede-Ti se reserva el derecho de modificar estos Terminos en cualquier
-            momento. Los cambios se notificaran a traves de la plataforma.
+            Crede-Ti se reserva el derecho de modificar estos Términos en cualquier
+            momento. Los cambios se notificarán a través de la plataforma.
           </p>
         </div>
 
-        {/* 9. Jurisdiccion */}
+        {/* 9. Jurisdicción */}
         <div style={s.section}>
-          <h2 style={s.h2}>9. Jurisdiccion y legislacion aplicable</h2>
+          <h2 style={s.h2}>9. Jurisdicción y legislación aplicable</h2>
           <p style={s.p}>
-            Estos Terminos se rigen por las leyes de los Estados Unidos Mexicanos.
-            Cualquier controversia sera resuelta ante los tribunales competentes de
-            Toluca, Estado de Mexico.
+            Estos Términos se rigen por las leyes de los Estados Unidos Mexicanos.
+            Cualquier controversia será resuelta ante los tribunales competentes de
+            Toluca, Estado de México.
           </p>
         </div>
 
@@ -244,9 +244,9 @@ export default function Terminos() {
           <h2 style={s.h2}>10. Contacto</h2>
           <InfoBox>
             <strong>Crede-Ti</strong><br />
-            Ignacio Lopez Rayon Sur 702, Despacho 104<br />
-            Col. Cuauhtemoc, Toluca, Estado de Mexico<br />
-            (A un costado de la Secretaria del Trabajo)<br /><br />
+            Ignacio López Rayón Sur 702, Despacho 104<br />
+            Col. Cuauhtémoc, Toluca, Estado de México<br />
+            (A un costado de la Secretaría del Trabajo)<br /><br />
             Correo: <strong>hola@crede-ti.info</strong><br />
             Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong>
           </InfoBox>
@@ -258,7 +258,7 @@ export default function Terminos() {
             Crede-Ti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Al utilizar Crede-Ti, usted confirma haber leido y aceptado estos Terminos y Condiciones.
+            Al utilizar Crede-Ti, usted confirma haber leído y aceptado estos Términos y Condiciones.
           </p>
         </div>
       </div>
