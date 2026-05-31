@@ -1,123 +1,257 @@
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
-// ─── Reglas de negocio (espejo de api-server/routes/credits.ts) ───────────────
-// Clientes nuevos:     $500–$1,000 | 4 semanas fijas | 30% interés plano
-// Clientes existentes: $1,000–$30,000 | 4–48 semanas  | 60% TAN pro-rata
-// ─────────────────────────────────────────────────────────────────────────────
-
+// ─── Reglas de negocio ────────────────────────────────────────────────────────
 type ClienteType = "nuevo" | "existente";
 
 function calcular(monto: number, semanas: number, tipo: ClienteType) {
-  const interes =
-    tipo === "nuevo"
-      ? monto * 0.30
-      : monto * 0.60 * (semanas / 52);
+  const interes = tipo === "nuevo"
+    ? monto * 0.30
+    : monto * 0.60 * (semanas / 52);
   const total = monto + interes;
-  const pago = total / semanas;
+  const pago  = total / semanas;
   return { interes, total, pago };
-}
-
-// ─── Slider + input sincronizados ─────────────────────────────────────────────
-function Campo({
-  label, valor, min, max, paso, prefijo = "", sufijo = "",
-  onChange,
-}: {
-  label: string; valor: number; min: number; max: number; paso: number;
-  prefijo?: string; sufijo?: string;
-  onChange: (v: number) => void;
-}) {
-  return (
-    <div style={{ marginBottom: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        <span style={labelStyle}>{label}</span>
-        <span style={valueStyle}>
-          {prefijo}
-          <input
-            type="number"
-            min={min}
-            max={max}
-            step={paso}
-            value={valor}
-            onChange={e => {
-              const v = parseFloat(e.target.value);
-              if (!isNaN(v)) onChange(Math.min(max, Math.max(min, v)));
-            }}
-            style={inputNumStyle}
-          />
-          {sufijo}
-        </span>
-      </div>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={paso}
-        value={valor}
-        onChange={e => onChange(parseFloat(e.target.value))}
-        style={{ width: "100%", accentColor: "#2A3CD6", cursor: "pointer" }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 2 }}>
-        <span style={rangeLabel}>{prefijo}{min.toLocaleString("es-MX")}{sufijo}</span>
-        <span style={rangeLabel}>{prefijo}{max.toLocaleString("es-MX")}{sufijo}</span>
-      </div>
-    </div>
-  );
-}
-
-// ─── Fila de resultado ────────────────────────────────────────────────────────
-function Fila({ etiqueta, valor, destacado = false }: { etiqueta: string; valor: string; destacado?: boolean }) {
-  return (
-    <div style={{
-      display: "flex", justifyContent: "space-between", alignItems: "center",
-      padding: "10px 0",
-      borderBottom: "1px solid rgba(0,0,0,0.06)",
-    }}>
-      <span style={{ fontSize: 14, color: "#6b7280" }}>{etiqueta}</span>
-      <span style={{ fontSize: destacado ? 18 : 15, fontWeight: destacado ? 800 : 600, color: destacado ? "#15206E" : "#111" }}>
-        {valor}
-      </span>
-    </div>
-  );
 }
 
 const fmt = (n: number) =>
   n.toLocaleString("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 2 });
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
-const card: React.CSSProperties = {
-  background: "#fff",
-  borderRadius: 20,
-  boxShadow: "0 4px 24px rgba(21,32,110,0.1)",
-  padding: 24,
-  marginBottom: 16,
-};
-const labelStyle: React.CSSProperties = { fontSize: 13, fontWeight: 600, color: "#374151" };
-const valueStyle: React.CSSProperties = { fontSize: 13, fontWeight: 700, color: "#15206E", display: "flex", alignItems: "center", gap: 2 };
-const inputNumStyle: React.CSSProperties = {
-  border: "none", outline: "none", background: "transparent",
-  fontSize: 13, fontWeight: 700, color: "#15206E",
-  width: 72, textAlign: "right", padding: 0,
-};
-const rangeLabel: React.CSSProperties = { fontSize: 11, color: "#9ca3af" };
-const toggleBtn = (active: boolean): React.CSSProperties => ({
-  flex: 1, padding: "10px 0", borderRadius: 12, border: "none", cursor: "pointer",
-  fontWeight: 700, fontSize: 14, transition: "all 0.15s",
-  background: active ? "#2A3CD6" : "transparent",
-  color: active ? "#fff" : "#6b7280",
-});
+const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
-// ─── Componente principal ─────────────────────────────────────────────────────
+// ─── Colores ──────────────────────────────────────────────────────────────────
+const AZUL   = "#2A3CD6";
+const AZUL2  = "#15206E";
+const AMARILLO = "#F0A93A";
+const VERDE  = "#16a34a";
+
+// ─── Componentes pequeños ─────────────────────────────────────────────────────
+function SliderCampo({
+  label, valor, min, max, paso, prefijo = "", sufijo = "", onChange,
+}: {
+  label: string; valor: number; min: number; max: number; paso: number;
+  prefijo?: string; sufijo?: string; onChange: (v: number) => void;
+}) {
+  const pct = ((valor - min) / (max - min)) * 100;
+  return (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "flex-end" }}>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>{label}</span>
+        <motion.span
+          key={valor}
+          initial={{ scale: 1.15, color: AZUL }}
+          animate={{ scale: 1, color: AZUL2 }}
+          transition={{ duration: 0.2 }}
+          style={{ fontSize: 20, fontWeight: 900, display: "inline-block" }}
+        >
+          {prefijo}{typeof valor === "number" && paso < 1
+            ? valor.toFixed(1)
+            : valor.toLocaleString("es-MX")}{sufijo}
+        </motion.span>
+      </div>
+      <div style={{ position: "relative", height: 6, borderRadius: 99, background: "#e5e7eb" }}>
+        <div style={{
+          position: "absolute", left: 0, top: 0, height: "100%",
+          width: `${pct}%`, borderRadius: 99,
+          background: `linear-gradient(90deg, ${AZUL}, ${AMARILLO})`,
+          transition: "width 0.15s",
+        }} />
+        <input
+          type="range" min={min} max={max} step={paso} value={valor}
+          onChange={e => onChange(parseFloat(e.target.value))}
+          style={{
+            position: "absolute", inset: 0, width: "100%", height: "100%",
+            opacity: 0, cursor: "pointer", margin: 0,
+          }}
+        />
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
+        <span style={{ fontSize: 11, color: "#9ca3af" }}>{prefijo}{min.toLocaleString("es-MX")}{sufijo}</span>
+        <span style={{ fontSize: 11, color: "#9ca3af" }}>{prefijo}{max.toLocaleString("es-MX")}{sufijo}</span>
+      </div>
+    </div>
+  );
+}
+
+function NumAnimado({ valor, fmt: fmtFn }: { valor: number; fmt: (n: number) => string }) {
+  return (
+    <motion.span
+      key={Math.round(valor * 100)}
+      initial={{ opacity: 0, y: -6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      style={{ display: "inline-block" }}
+    >
+      {fmtFn(valor)}
+    </motion.span>
+  );
+}
+
+function FilaResultado({
+  etiqueta, valor, grande = false, color,
+}: { etiqueta: string; valor: string; grande?: boolean; color?: string }) {
+  return (
+    <div style={{
+      display: "flex", justifyContent: "space-between", alignItems: "center",
+      padding: "11px 0", borderBottom: "1px solid #f3f4f6",
+    }}>
+      <span style={{ fontSize: 13, color: "#6b7280" }}>{etiqueta}</span>
+      <motion.span
+        key={valor}
+        initial={{ opacity: 0, x: 8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.2 }}
+        style={{
+          fontSize: grande ? 20 : 15, fontWeight: grande ? 900 : 700,
+          color: color ?? (grande ? AZUL2 : "#111"),
+        }}
+      >
+        {valor}
+      </motion.span>
+    </div>
+  );
+}
+
+// ─── Tarjeta de info del 60% ──────────────────────────────────────────────────
+function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
+  semanas: number; monto: number; tasaEfectiva: number; interes: number;
+}) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      style={{
+        background: "linear-gradient(135deg,#eff6ff,#dbeafe)",
+        border: "1px solid #bfdbfe", borderRadius: 16,
+        padding: "18px 20px", marginBottom: 16,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 10, background: AZUL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+          <span style={{ color: "#fff", fontSize: 16 }}>%</span>
+        </div>
+        <span style={{ fontWeight: 800, fontSize: 14, color: AZUL2 }}>¿Cómo se calcula tu interés?</span>
+      </div>
+
+      <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
+        <p style={{ margin: "0 0 8px" }}>
+          Crede‑Ti cobra una <strong>Tasa Anual del 60%</strong>, pero solo pagas
+          la parte proporcional al tiempo que dura tu crédito:
+        </p>
+
+        <div style={{
+          background: "#fff", borderRadius: 12, padding: "12px 14px",
+          border: "1px solid #bfdbfe", fontFamily: "monospace",
+          fontSize: 12, color: "#1e40af", lineHeight: 2,
+        }}>
+          <div>Tasa del período = 60% × ({semanas} sem ÷ 52 sem/año)</div>
+          <div style={{ fontWeight: 800 }}>
+            = 60% × {(semanas / 52).toFixed(4)} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
+          </div>
+          <div style={{ borderTop: "1px solid #bfdbfe", marginTop: 6, paddingTop: 6 }}>
+            Interés = {fmt(monto)} × {fmtPct(tasaEfectiva)} = <NumAnimado valor={interes} fmt={fmt} />
+          </div>
+        </div>
+
+        <p style={{ margin: "10px 0 0", fontSize: 12, color: "#6b7280" }}>
+          A menor plazo → menos interés total. A mayor plazo → pago semanal más cómodo.
+        </p>
+      </div>
+    </motion.div>
+  );
+}
+
+// ─── Barra de progreso de interés ─────────────────────────────────────────────
+function BarraProporciones({ monto, interes }: { monto: number; interes: number }) {
+  const total = monto + interes;
+  const pctCapital = (monto / total) * 100;
+  const pctInteres = (interes / total) * 100;
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <span style={{ fontSize: 12, color: "#6b7280" }}>Composición del total</span>
+      </div>
+      <div style={{ display: "flex", height: 10, borderRadius: 99, overflow: "hidden", gap: 2 }}>
+        <motion.div
+          animate={{ width: `${pctCapital}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          style={{ background: AZUL, borderRadius: "99px 0 0 99px" }}
+        />
+        <motion.div
+          animate={{ width: `${pctInteres}%` }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          style={{ background: AMARILLO, borderRadius: "0 99px 99px 0" }}
+        />
+      </div>
+      <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 3, background: AZUL }} />
+          <span style={{ fontSize: 11, color: "#6b7280" }}>Capital {fmtPct(pctCapital)}</span>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
+          <div style={{ width: 10, height: 10, borderRadius: 3, background: AMARILLO }} />
+          <span style={{ fontSize: 11, color: "#6b7280" }}>Interés {fmtPct(pctInteres)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Tabla de amortización ────────────────────────────────────────────────────
+function TablaAmort({ pago, total, semanas }: { pago: number; total: number; semanas: number }) {
+  const filas = Math.min(semanas, 5);
+  return (
+    <div style={{ overflowX: "auto" }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <thead>
+          <tr>
+            {["Semana", "Pago", "Saldo restante"].map(h => (
+              <th key={h} style={{ textAlign: "right", padding: "6px 4px", fontWeight: 700, color: "#6b7280", borderBottom: "2px solid #f3f4f6", fontSize: 12 }}>{h}</th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {Array.from({ length: filas }).map((_, i) => {
+            const saldo = Math.max(0, total - pago * (i + 1));
+            const esUltima = i + 1 === semanas;
+            return (
+              <motion.tr
+                key={i}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
+                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: "#374151", fontWeight: 600 }}>{i + 1}</td>
+                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: AZUL, fontWeight: 700 }}>{fmt(pago)}</td>
+                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: esUltima || saldo < 0.01 ? VERDE : "#111", fontWeight: esUltima ? 700 : 400 }}>
+                  {saldo < 0.01 ? "✓ Liquidado" : fmt(saldo)}
+                </td>
+              </motion.tr>
+            );
+          })}
+          {semanas > 5 && (
+            <tr>
+              <td colSpan={3} style={{ textAlign: "center", padding: "10px 4px", fontSize: 12, color: "#9ca3af" }}>
+                ··· y {semanas - 5} semanas más al mismo pago de {fmt(pago)}
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ─── Página principal ─────────────────────────────────────────────────────────
 export default function Calculadora() {
-  const [tipo, setTipo] = useState<ClienteType>("existente");
-  const [monto, setMonto] = useState(5000);
+  const [tipo, setTipo]       = useState<ClienteType>("existente");
+  const [monto, setMonto]     = useState(5000);
   const [semanas, setSemanas] = useState(12);
 
-  const montoMin  = tipo === "nuevo" ? 500  : 1000;
-  const montoMax  = tipo === "nuevo" ? 1000 : 30000;
-  const semMin    = 4;
-  const semMax    = tipo === "nuevo" ? 4 : 48;
+  const montoMin = tipo === "nuevo" ? 500   : 1000;
+  const montoMax = tipo === "nuevo" ? 1000  : 30000;
+  const semMax   = tipo === "nuevo" ? 4     : 48;
 
-  // Ajustar cuando cambia tipo
   function cambiarTipo(t: ClienteType) {
     setTipo(t);
     if (t === "nuevo") { setMonto(750); setSemanas(4); }
@@ -126,161 +260,200 @@ export default function Calculadora() {
 
   const { interes, total, pago } = useMemo(
     () => calcular(monto, semanas, tipo),
-    [monto, semanas, tipo]
+    [monto, semanas, tipo],
   );
 
-  const tasaEfectiva = tipo === "nuevo"
-    ? 30
-    : parseFloat((0.60 * (semanas / 52) * 100).toFixed(1));
+  const tasaEfectiva = tipo === "nuevo" ? 30 : 60 * (semanas / 52);
 
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
-      display: "flex", flexDirection: "column", alignItems: "center",
-      padding: "env(safe-area-inset-top, 24px) 16px 32px",
+      background: `linear-gradient(150deg, ${AZUL2} 0%, ${AZUL} 55%, #3F51E6 100%)`,
       fontFamily: "'Inter', -apple-system, sans-serif",
+      paddingBottom: 40,
     }}>
-      {/* Header */}
-      <div style={{ width: "100%", maxWidth: 440, marginBottom: 20, color: "#fff" }}>
+
+      {/* ── Header ── */}
+      <div style={{ padding: "env(safe-area-inset-top,20px) 20px 0", maxWidth: 460, margin: "0 auto" }}>
         <button
           onClick={() => history.back()}
-          style={{ background: "none", border: "none", color: "rgba(255,255,255,0.6)", cursor: "pointer", padding: "4px 0 12px", display: "flex", alignItems: "center", gap: 6, fontSize: 14 }}
+          style={{ background: "none", border: "none", color: "rgba(255,255,255,0.55)", cursor: "pointer", padding: "12px 0", fontSize: 14, display: "flex", alignItems: "center", gap: 6 }}
         >
           ← Regresar
         </button>
-        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 800, letterSpacing: "-0.04em" }}>
+        <motion.h1
+          initial={{ opacity: 0, y: -12 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{ margin: 0, fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: "-0.04em" }}
+        >
           Calculadora de crédito
-        </h1>
-        <p style={{ margin: "4px 0 0", fontSize: 13, color: "rgba(255,255,255,0.55)" }}>
-          Simula tu crédito antes de solicitarlo
-        </p>
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.1 }}
+          style={{ margin: "4px 0 20px", fontSize: 13, color: "rgba(255,255,255,0.5)" }}
+        >
+          Simula tu crédito sin compromiso
+        </motion.p>
       </div>
 
-      <div style={{ width: "100%", maxWidth: 440 }}>
-        {/* Toggle tipo de cliente */}
-        <div style={{ ...card, padding: 8 }}>
-          <div style={{ display: "flex", background: "#f3f4f6", borderRadius: 14, padding: 4, gap: 4 }}>
-            <button style={toggleBtn(tipo === "nuevo")} onClick={() => cambiarTipo("nuevo")}>
-              Cliente nuevo
-            </button>
-            <button style={toggleBtn(tipo === "existente")} onClick={() => cambiarTipo("existente")}>
-              Cliente frecuente
-            </button>
-          </div>
-        </div>
+      <div style={{ maxWidth: 460, margin: "0 auto", padding: "0 16px" }}>
 
-        {/* Controles */}
-        <div style={card}>
-          <Campo
+        {/* ── Toggle tipo ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12 }}
+          style={{ background: "#fff", borderRadius: 20, padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+        >
+          <div style={{ display: "flex", background: "#f3f4f6", borderRadius: 14, padding: 4, gap: 4 }}>
+            {(["nuevo", "existente"] as ClienteType[]).map(t => (
+              <button
+                key={t}
+                onClick={() => cambiarTipo(t)}
+                style={{
+                  flex: 1, padding: "11px 0", borderRadius: 12, border: "none",
+                  cursor: "pointer", fontWeight: 700, fontSize: 14, position: "relative",
+                  background: "transparent", color: tipo === t ? "#fff" : "#6b7280",
+                  transition: "color 0.2s",
+                }}
+              >
+                {tipo === t && (
+                  <motion.div
+                    layoutId="tab-bg"
+                    style={{ position: "absolute", inset: 0, borderRadius: 12, background: AZUL, zIndex: 0 }}
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+                <span style={{ position: "relative", zIndex: 1 }}>
+                  {t === "nuevo" ? "Cliente nuevo" : "Cliente frecuente"}
+                </span>
+              </button>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* ── Sliders ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          style={{ background: "#fff", borderRadius: 20, padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+        >
+          <SliderCampo
             label="Monto del crédito"
-            valor={monto}
-            min={montoMin}
-            max={montoMax}
+            valor={monto} min={montoMin} max={montoMax}
             paso={tipo === "nuevo" ? 50 : 500}
-            prefijo="$"
-            onChange={setMonto}
+            prefijo="$" onChange={setMonto}
           />
-          <Campo
+          <SliderCampo
             label="Plazo"
-            valor={semanas}
-            min={semMin}
-            max={semMax}
-            paso={1}
-            sufijo=" sem."
+            valor={semanas} min={4} max={semMax}
+            paso={1} sufijo=" sem"
             onChange={setSemanas}
           />
 
-          {/* Indicador de tasa */}
-          <div style={{
-            background: "rgba(42,60,214,0.07)", borderRadius: 12,
-            padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center",
-          }}>
-            <span style={{ fontSize: 13, color: "#374151" }}>
-              {tipo === "nuevo" ? "Interés plano" : "TAN (pro-rata del 60% anual)"}
-            </span>
-            <span style={{ fontSize: 15, fontWeight: 800, color: "#2A3CD6" }}>
-              {tasaEfectiva}%
-            </span>
-          </div>
-        </div>
+          {/* Badge de tasa */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${tipo}-${semanas}`}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                display: "flex", justifyContent: "space-between", alignItems: "center",
+                background: tipo === "nuevo" ? "#f0fdf4" : "#eff6ff",
+                border: `1px solid ${tipo === "nuevo" ? "#bbf7d0" : "#bfdbfe"}`,
+                borderRadius: 12, padding: "10px 14px",
+              }}
+            >
+              <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "#1e40af", fontWeight: 600 }}>
+                {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva del período`}
+              </span>
+              <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "#166534" : AZUL }}>
+                <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
+              </span>
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
 
-        {/* Resultados */}
-        <div style={card}>
-          <p style={{ margin: "0 0 8px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
-            Resumen del crédito
-          </p>
-          <Fila etiqueta="Capital prestado"   valor={fmt(monto)} />
-          <Fila etiqueta="Intereses"           valor={fmt(interes)} />
-          <Fila etiqueta="Duración"            valor={`${semanas} semanas`} />
-          <Fila etiqueta="Pago semanal"        valor={fmt(pago)} />
-          <Fila etiqueta="Total a pagar"       valor={fmt(total)} destacado />
-        </div>
+        {/* ── Explicación 60% (solo cliente frecuente) ── */}
+        <AnimatePresence>
+          {tipo === "existente" && (
+            <motion.div
+              key="info-tasa"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <InfoTasa semanas={semanas} monto={monto} tasaEfectiva={tasaEfectiva} interes={interes} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        {/* Tabla de amortización simplificada */}
-        <div style={card}>
+        {/* ── Resultados ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.24 }}
+          style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+        >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
-            Tabla de pagos (primeras 4 semanas)
+            Resumen
           </p>
-          <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
-              <thead>
-                <tr style={{ color: "#6b7280" }}>
-                  {["Semana", "Pago", "Saldo restante"].map(h => (
-                    <th key={h} style={{ textAlign: "right", padding: "6px 4px", fontWeight: 600, borderBottom: "1px solid #f3f4f6" }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from({ length: Math.min(semanas, 4) }).map((_, i) => {
-                  const saldo = total - pago * (i + 1);
-                  return (
-                    <tr key={i}>
-                      <td style={tdStyle}>{i + 1}</td>
-                      <td style={tdStyle}>{fmt(pago)}</td>
-                      <td style={{ ...tdStyle, color: saldo <= 0.01 ? "#16a34a" : "#111" }}>
-                        {saldo <= 0.01 ? "✓ Liquidado" : fmt(Math.max(0, saldo))}
-                      </td>
-                    </tr>
-                  );
-                })}
-                {semanas > 4 && (
-                  <tr>
-                    <td colSpan={3} style={{ textAlign: "center", padding: "8px 4px", fontSize: 12, color: "#9ca3af" }}>
-                      …y {semanas - 4} semanas más al mismo pago
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          <BarraProporciones monto={monto} interes={interes} />
+          <FilaResultado etiqueta="Capital prestado" valor={fmt(monto)} />
+          <FilaResultado etiqueta="Intereses totales" valor={fmt(interes)} color="#d97706" />
+          <FilaResultado etiqueta="Plazo" valor={`${semanas} semanas (${(semanas / 4.33).toFixed(1)} meses)`} />
+          <FilaResultado etiqueta="Pago semanal" valor={fmt(pago)} color={AZUL} />
+          <FilaResultado etiqueta="Total a pagar" valor={fmt(total)} grande color={AZUL2} />
+        </motion.div>
 
-        {/* CTA */}
-        <a
+        {/* ── Tabla de amortización ── */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+        >
+          <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
+            Calendario de pagos
+          </p>
+          <AnimatePresence mode="wait">
+            <motion.div key={`${semanas}-${pago}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+              <TablaAmort pago={pago} total={total} semanas={semanas} />
+            </motion.div>
+          </AnimatePresence>
+        </motion.div>
+
+        {/* ── CTA ── */}
+        <motion.a
           href="/solicitar"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.97 }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.36 }}
           style={{
-            display: "block", width: "100%", padding: "16px 0",
-            background: "#F0A93A", color: "#15206E",
-            borderRadius: 16, border: "none", cursor: "pointer",
-            fontWeight: 800, fontSize: 16, textAlign: "center",
-            textDecoration: "none",
-            boxShadow: "0 4px 20px rgba(240,169,58,0.4)",
-            boxSizing: "border-box",
+            display: "block", width: "100%", padding: "17px 0",
+            background: AMARILLO, color: AZUL2,
+            borderRadius: 18, border: "none", cursor: "pointer",
+            fontWeight: 900, fontSize: 17, textAlign: "center",
+            textDecoration: "none", boxSizing: "border-box",
+            boxShadow: "0 6px 24px rgba(240,169,58,0.5)",
           }}
         >
-          Solicitar este crédito →
-        </a>
+          Solicitar {fmt(monto)} →
+        </motion.a>
 
-        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.4)", marginTop: 16 }}>
-          Cálculo estimado. El crédito final queda sujeto a aprobación.
+        <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 14, lineHeight: 1.6 }}>
+          Cálculo estimado. El crédito final queda sujeto a aprobación.<br />
+          Sin comisión por apertura · Tasa Anual 60% (clientes frecuentes)
         </p>
       </div>
     </div>
   );
 }
-
-const tdStyle: React.CSSProperties = {
-  textAlign: "right", padding: "8px 4px",
-  borderBottom: "1px solid #f9fafb", color: "#111",
-};
