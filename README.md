@@ -27,12 +27,14 @@ This repo is configured for one-click Vercel deployment.
    | `STAFF_MASTER_CODE` | ✓ | `<your-long-random-secret>` | Master password for first admin setup and `/perfil` "Modo administrador" elevation. In production/Vercel, no hardcoded fallback is accepted if this is missing. |
    | `RESEND_API_KEY` |   | `re_…` | Optional. Welcome/invite/payment emails fail silently if absent. |
    | `RESEND_FROM` |   | `Crede-Ti <noreply@your-domain.com>` | Must be a verified Resend sender |
-   | `VITE_CLERK_PUBLISHABLE_KEY` |   | `pk_test_…` | Optional. Enables Clerk-based Google/passkey login |
+   | `VITE_CLERK_PUBLISHABLE_KEY` or `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` |   | `pk_test_…` | Optional. Enables Clerk-based Google/passkey login. Vercel currently uses the `NEXT_PUBLIC_*` alias; the Vite build accepts both. |
    | `CLERK_SECRET_KEY` |   | `sk_test_…` | Required if `VITE_CLERK_PUBLISHABLE_KEY` is set |
    | `CLERK_WEBHOOK_SECRET` |   | `whsec_…` | Required if the Clerk webhook route is configured |
+   | `NEXT_PUBLIC_CLERK_SIGN_IN_URL` |   | `/sign-in` | Optional Clerk sign-in route metadata |
+   | `NEXT_PUBLIC_CLERK_SIGN_UP_URL` |   | `/sign-up` | Optional Clerk sign-up route metadata |
    | `BLOB_READ_WRITE_TOKEN` |   | `vercel_blob_rw_…` | Optional. Required only for Vercel Blob uploads |
-   | `VITE_APP_URL` |   | `https://crede-ti.info` | Optional public app URL exposed to the Vite build |
-   | `VITE_BRAND_NAME` |   | `Crede-Ti` | Optional brand label exposed to the Vite build |
+   | `VITE_APP_URL` or `NEXT_PUBLIC_APP_URL` |   | `https://crede-ti.info` | Optional public app URL exposed to the Vite build |
+   | `VITE_BRAND_NAME` or `NEXT_PUBLIC_BRAND_NAME` |   | `Crede-Ti` | Optional brand label exposed to the Vite build |
    | `BASE_PATH` |   | `/` | Optional. Use only when deploying under a subpath |
    | `DEMO_MODE_ENABLED` |   | `false` | Keep false/missing in production |
    | `LOG_LEVEL` |   | `info` | `info` (default) / `debug` / `warn` |
@@ -51,6 +53,15 @@ This repo is configured for one-click Vercel deployment.
    staff registration or `/perfil` "Modo administrador" flow. The flow updates
    the DB row to `role = 'admin'`, sets `treeId` to the user's own id, issues a
    fresh session token, and redirects to `/admin`.
+
+   API equivalent for controlled operations:
+   ```sh
+   curl -X POST "$APP_URL/api/auth/register-staff" \
+     -H "content-type: application/json" \
+     -d '{"staffPassword":"<master-code>","role":"admin","username":"admin","password":"<strong-password>","fullName":"Administrador Principal","email":"owner@example.com"}'
+   ```
+   After at least one admin exists, `/api/auth/master-login` can issue an admin
+   session with the master code without exposing the code in the repository.
 
    **c) Direct DB promotion:** after a normal sign-up, run a controlled SQL
    update against production Postgres:
