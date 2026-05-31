@@ -341,4 +341,47 @@ router.post("/users/me/elevate", requireAuth, async (req, res): Promise<void> =>
   }
 });
 
+// ─── DEMOTE FROM ADMIN (self-demotion to client from /perfil) ────────────────
+router.post("/users/me/demote", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  try {
+    const userId = req.userId!;
+    const [updated] = await db.update(usersTable)
+      .set({ role: "client", updatedAt: new Date() })
+      .where(eq(usersTable.id, userId))
+      .returning();
+
+    if (!updated) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+    if (updated.clerkId && process.env.CLERK_SECRET_KEY) {
+      fetch(`https://api.clerk.com/v1/users/${updated.clerkId}/metadata`, {
+        method: "PATCH",
+        headers: {
+          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ public_metadata: { role: "client" } }),
+      }).catch(() => {});
+    }
+
+    const token = crypto.randomBytes(32).toString("hex");
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await db.insert(sessionsTable).values({ userId, token, expiresAt });
+
+    res.json({
+      ok: true,
+      token,
+      user: {
+        id: updated.id,
+        username: updated.username,
+        fullName: updated.fullName,
+        email: updated.email,
+        role: updated.role,
+        treeId: updated.treeId,
+      },
+    });
+  } catch {
+    res.status(503).json({ error: "Database not configured" });
+  }
+});
+
 export default router;
