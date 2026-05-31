@@ -256,6 +256,64 @@ export async function sendClientReassignmentEmail(opts: {
   });
 }
 
+// ── Email: Decisión de crédito (aprobado / rechazado) ─────────────────────────
+export async function sendCreditDecisionEmail(opts: {
+  to: string;
+  clientName: string;
+  action: "approve" | "reject";
+  amount: number;
+  notes?: string;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const fmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+  const isApproved = opts.action === "approve";
+  const supportWa = "https://wa.me/529984292748";
+
+  const content = isApproved ? `
+    <h2 style="color:#16a34a;font-size:22px;margin:0 0 8px;">¡Tu crédito fue aprobado!</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
+      Hola <strong>${opts.clientName}</strong>, nos complace informarte que tu solicitud de crédito por
+      <strong style="color:#16a34a;">${fmt(opts.amount)}</strong> ha sido <strong>aprobada</strong>.
+    </p>
+    <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:20px;margin-bottom:24px;">
+      <p style="color:#15803d;font-size:14px;margin:0;">
+        Tu asesor se pondrá en contacto contigo para coordinar el desembolso.
+        Recuerda llevar tu identificación oficial.
+      </p>
+    </div>
+    ${opts.notes ? `<p style="color:#64748b;font-size:14px;margin:0 0 24px;">Notas: <em>${opts.notes}</em></p>` : ""}
+    <div style="margin:28px 0;text-align:center;">
+      <a href="https://crede-ti.info/mi-credito" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver mi crédito</a>
+    </div>
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">¿Tienes dudas? Contáctanos por WhatsApp al <a href="${supportWa}" style="color:#25d366;font-weight:700;">998 429 2748</a>.</p>
+  ` : `
+    <h2 style="color:#dc2626;font-size:22px;margin:0 0 8px;">Solicitud no aprobada</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
+      Hola <strong>${opts.clientName}</strong>, lamentamos informarte que tu solicitud de crédito por
+      <strong>${fmt(opts.amount)}</strong> no pudo ser aprobada en este momento.
+    </p>
+    ${opts.notes ? `
+    <div style="background:#fff1f2;border:1px solid #fecdd3;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+      <p style="color:#9f1239;font-size:13px;font-weight:700;margin:0 0 6px;text-transform:uppercase;">Motivo</p>
+      <p style="color:#be123c;font-size:14px;margin:0;">${opts.notes}</p>
+    </div>` : ""}
+    <p style="color:#64748b;font-size:14px;margin:0 0 24px;line-height:1.6;">
+      Puedes volver a solicitar cuando hayas regularizado tu situación.
+      Para más información contacta a tu asesor.
+    </p>
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">¿Tienes dudas? Contáctanos por WhatsApp al <a href="${supportWa}" style="color:#25d366;font-weight:700;">998 429 2748</a>.</p>
+  `;
+
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: opts.to,
+    subject: isApproved ? "¡Tu crédito fue aprobado! — Crede-Ti" : "Actualización de tu solicitud — Crede-Ti",
+    html: baseTemplate(content),
+  });
+}
+
 // ── Email: Recordatorio de pago ────────────────────────────────────────────────
 export async function sendPaymentReminderEmail(opts: {
   to: string;

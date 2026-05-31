@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { and, clientsTable, creditsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
+import { sendCreditDecisionEmail } from "../lib/email";
 import {
   CreateCreditBody,
   UpdateCreditBody,
@@ -143,7 +144,7 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
   const id = parseInt(req.params.id as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
 
-  const { action } = req.body;
+  const { action, notes } = req.body;
   if (action !== "approve" && action !== "reject") {
     res.status(400).json({ error: "action debe ser 'approve' o 'reject'" });
     return;
@@ -152,6 +153,7 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
   const newStatus = action === "approve" ? "active" : "rejected";
   const updates: Record<string, unknown> = { status: newStatus };
   if (action === "approve") updates.disbursementDate = new Date().toISOString().split("T")[0];
+  if (notes) updates.notes = String(notes);
 
   const [credit] = await db.update(creditsTable)
     .set(updates as any)
@@ -159,6 +161,26 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
     .returning();
 
   if (!credit) { res.status(404).json({ error: "Credit not found" }); return; }
+
+  // Notify client via email (best-effort: match client → user by fullName)
+  try {
+    const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, credit.clientId));
+    if (client) {
+      const [user] = await db
+        .select({ email: usersTable.email, fullName: usersTable.fullName })
+        .from(usersTable)
+        .where(eq(usersTable.fullName, client.fullName));
+      if (user?.email) {
+        sendCreditDecisionEmail({
+          to: user.email,
+          clientName: client.fullName,
+          action: action as "approve" | "reject",
+          amount: parseFloat(credit.amount),
+          notes: notes ? String(notes) : undefined,
+        }).catch(() => {});
+      }
+    }
+  } catch {}
 
   res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
 });

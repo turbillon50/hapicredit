@@ -56,6 +56,7 @@ export default function AdminSolicitudes() {
   const [selected, setSelected] = useState<PublicApp | PendingCredit | null>(null);
   const [isPublic, setIsPublic] = useState(true);
   const [reviewing, setReviewing] = useState<number | null>(null);
+  const [decisionNotes, setDecisionNotes] = useState("");
   const qc = useQueryClient();
 
   const { data: publicApps = [], isLoading: loadingPublic } = useQuery<PublicApp[]>({
@@ -72,16 +73,17 @@ export default function AdminSolicitudes() {
   });
 
   const reviewMut = useMutation({
-    mutationFn: ({ id, action }: { id: number; action: "approve" | "reject" }) =>
+    mutationFn: ({ id, action, notes }: { id: number; action: "approve" | "reject"; notes?: string }) =>
       fetch(`${API}/credits/${id}/review`, {
         method: "PATCH",
         headers: { ...auth(), "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify({ action, notes }),
       }).then(r => r.json()),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["credits"] });
       setSelected(null);
       setReviewing(null);
+      setDecisionNotes("");
     },
   });
 
@@ -262,6 +264,24 @@ export default function AdminSolicitudes() {
                 ))}
               </div>
 
+              {credit.bankInfo && (
+                <div className="bg-blue-50 rounded-xl p-3">
+                  <div className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">Datos bancarios</div>
+                  <div className="flex flex-col gap-1.5">
+                    {[
+                      ["Banco", credit.bankInfo.bankName],
+                      ["CLABE", credit.bankInfo.clabe],
+                      ["Titular", credit.bankInfo.accountHolder],
+                    ].filter(([, v]) => v).map(([k, v]) => (
+                      <div key={String(k)} className="flex justify-between text-sm">
+                        <span className="text-gray-500">{k}</span>
+                        <span className="font-mono font-semibold text-gray-800 text-xs">{v}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="bg-gray-50 rounded-xl p-3">
                 <div className="text-xs font-bold text-gray-600 uppercase tracking-wide mb-2">Documentos cargados</div>
                 <div className="flex flex-col gap-2">
@@ -352,9 +372,20 @@ export default function AdminSolicitudes() {
                 ))}
               </div>
 
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-3 pt-2">
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-semibold text-gray-600">Notas de decisión <span className="font-normal text-gray-400">(opcional)</span></label>
+                  <textarea
+                    value={decisionNotes}
+                    onChange={e => setDecisionNotes(e.target.value)}
+                    placeholder="Motivo de aprobación o rechazo. Se enviará al cliente por correo."
+                    className="input-field text-sm"
+                    rows={3}
+                    style={{ resize: "none" }}
+                  />
+                </div>
                 <button
-                  onClick={() => reviewMut.mutate({ id: credit.id, action: "approve" })}
+                  onClick={() => { setReviewing(credit.id); reviewMut.mutate({ id: credit.id, action: "approve", notes: decisionNotes || undefined }); }}
                   disabled={reviewMut.isPending}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white text-sm font-bold pressable"
                   style={{ background: "#10b981" }}
@@ -366,7 +397,7 @@ export default function AdminSolicitudes() {
                   Aprobar crédito
                 </button>
                 <button
-                  onClick={() => reviewMut.mutate({ id: credit.id, action: "reject" })}
+                  onClick={() => { setReviewing(credit.id); reviewMut.mutate({ id: credit.id, action: "reject", notes: decisionNotes || undefined }); }}
                   disabled={reviewMut.isPending}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-semibold pressable border-2 border-red-200 text-red-600"
                 >

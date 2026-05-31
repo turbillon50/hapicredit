@@ -6,7 +6,7 @@ import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
   IconTarjeta, IconCalendario, IconCheck, IconReloj,
-  IconAlerta, IconFlecha, IconMas,
+  IconAlerta, IconFlecha, IconMas, IconWhatsapp,
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
 
@@ -311,9 +311,24 @@ export default function MiCredito() {
             {/* ── Pending requests ── */}
             {pendingCredits.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
-                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Solicitudes en revisión
+                {/* Top banner */}
+                <div style={{
+                  background: "linear-gradient(135deg, #fefce8, #fef9c3)",
+                  border: "1.5px solid #fcd34d", borderRadius: 16,
+                  padding: "16px 18px", marginBottom: 12,
+                  display: "flex", alignItems: "flex-start", gap: 12,
+                }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1.5px solid #fcd34d" }}>
+                    <IconReloj size={18} color="#ca8a04" />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "#92400e" }}>Solicitud en revisión</div>
+                    <div style={{ fontSize: 12, color: "#a16207", marginTop: 2, lineHeight: 1.5 }}>
+                      Tu solicitud fue recibida y está siendo evaluada. Te notificaremos cuando haya una resolución.
+                    </div>
+                  </div>
                 </div>
+
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {pendingCredits.map((c) => (
                     <div
@@ -324,17 +339,26 @@ export default function MiCredito() {
                         background: "#fff", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                       }}
                     >
-                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <IconReloj size={16} color="#ca8a04" />
-                      </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{fmt(c.amount)}</div>
-                        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{c.termWeeks} semanas · {c.notes ?? ""}</div>
+                        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Crédito #{c.id} · {c.termWeeks} semanas</div>
                       </div>
-                      <Badge variant="warning" size="sm">En revision</Badge>
+                      <Badge variant="warning" size="sm">En revisión</Badge>
                     </div>
                   ))}
                 </div>
+
+                <a
+                  href="https://wa.me/529984292748"
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    marginTop: 12, padding: "12px 16px", borderRadius: 14,
+                    background: "#25d366", color: "#fff",
+                    fontSize: 13, fontWeight: 700, textDecoration: "none",
+                  }}
+                >
+                  <IconWhatsapp size={16} color="#fff" /> Consultar estado con soporte
+                </a>
               </div>
             )}
 
@@ -371,6 +395,24 @@ export default function MiCredito() {
                             </div>
                           ))}
                         </div>
+                        {c.status === "rejected" && c.notes && (
+                          <div style={{ marginTop: 10, padding: "10px 14px", background: "#fff1f2", borderRadius: 10, border: "1px solid #fecdd3" }}>
+                            <div style={{ fontSize: 10, fontWeight: 700, color: "#9f1239", textTransform: "uppercase", marginBottom: 3 }}>Motivo de rechazo</div>
+                            <div style={{ fontSize: 12, color: "#be123c" }}>{c.notes}</div>
+                          </div>
+                        )}
+                        {c.status === "rejected" && (
+                          <a
+                            href="https://wa.me/529984292748"
+                            style={{
+                              display: "inline-flex", alignItems: "center", gap: 6,
+                              marginTop: 10, fontSize: 12, color: "#25d366", fontWeight: 700,
+                              textDecoration: "none",
+                            }}
+                          >
+                            <IconWhatsapp size={13} color="#25d366" /> ¿Dudas? Contacta a soporte
+                          </a>
+                        )}
                       </div>
                     );
                   })}
