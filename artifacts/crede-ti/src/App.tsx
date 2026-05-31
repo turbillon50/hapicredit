@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 import { ClerkProvider, SignIn, SignUp, useClerk, useUser } from "@clerk/react";
+import { esES } from "@clerk/localizations";
 import { AuthProvider } from "@/hooks/use-auth";
 import logoImg from "@assets/logo-credeti-square.jpeg";
 
@@ -38,6 +39,7 @@ import ExecAlerts       from "@/pages/executive/alerts";
 import ExecCommitments  from "@/pages/executive/commitments";
 import ExecAgenda       from "@/pages/executive/agenda";
 
+import Calculadora     from "@/pages/calculadora";
 import Faq             from "@/pages/faq";
 import AdminFaq        from "@/pages/admin/faq";
 import NotFound         from "@/pages/not-found";
@@ -331,7 +333,8 @@ function Router() {
       <Route path="/login"      component={Login} />
       <Route path="/privacidad" component={Privacidad} />
       <Route path="/terminos"   component={Terminos} />
-      <Route path="/faq"        component={Faq} />
+      <Route path="/faq"          component={Faq} />
+      <Route path="/calculadora"  component={Calculadora} />
 
       {/* Clerk auth routes */}
       <Route path="/sign-in" component={SignInPage} />
@@ -388,6 +391,7 @@ function ClerkApp() {
   return (
     <ClerkProvider
       publishableKey={clerkPubKey!}
+      localization={esES}
       {...(clerkProxyUrl ? { proxyUrl: clerkProxyUrl } : {})}
     >
       <QueryClientProvider client={queryClient}>
