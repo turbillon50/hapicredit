@@ -1,8 +1,8 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { db, sql } from "@workspace/db";
 import { HealthCheckResponse } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 // Liveness — does not touch the DB. Used by uptime monitors that should
 // not wake a cold-started Postgres just to confirm the process is up.

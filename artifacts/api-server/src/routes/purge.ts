@@ -1,8 +1,8 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { db, inviteCodesTable, ne, sessionsTable, sql, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   const adminId = req.userId!;

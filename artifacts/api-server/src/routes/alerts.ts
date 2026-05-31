@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { alertsTable, and, clientsTable, db, eq, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import {
@@ -6,7 +6,7 @@ import {
   ResolveAlertParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.get("/alerts", requireAuth, async (req, res): Promise<void> => {
   const params = ListAlertsQueryParams.safeParse(req.query);

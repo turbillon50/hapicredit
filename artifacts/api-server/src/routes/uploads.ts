@@ -1,10 +1,10 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { db, documentsTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 
-const router: IRouter = Router();
+const router = Router();
 
 const ALLOWED_MIME = new Set([
   "image/jpeg",

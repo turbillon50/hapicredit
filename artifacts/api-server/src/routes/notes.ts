@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { db, eq, notesTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import {
@@ -6,7 +6,7 @@ import {
   ListNotesQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.get("/notes", requireAuth, async (req, res): Promise<void> => {
   const params = ListNotesQueryParams.safeParse(req.query);

@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { alertsTable, and, cajaMovementsTable, clientsTable, creditsTable, db, eq, getTableColumns, gte, lte, paymentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -12,7 +12,7 @@ import {
 // Si el pago es de $300 yo les cobro $30."
 const LATE_FEE_RATE = 0.10;
 
-const router: IRouter = Router();
+const router = Router();
 
 function formatPayment(p: typeof paymentsTable.$inferSelect & { clientName?: string | null; executiveName?: string | null }) {
   return {

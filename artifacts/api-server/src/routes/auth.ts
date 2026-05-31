@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, db, eq, gt, inviteCodesTable, isNull, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import { LoginBody } from "@workspace/api-zod";
@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { sendWelcomeEmail } from "../lib/email";
 import { isValidStaffCode } from "../lib/staffCode";
 
-const router: IRouter = Router();
+const router = Router();
 
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password + "credeti_salt").digest("hex");

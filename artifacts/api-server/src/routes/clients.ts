@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendClientReassignmentEmail } from "../lib/email";
@@ -10,7 +10,7 @@ import {
   ListClientsQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 function calcRiskLevel(client: typeof clientsTable.$inferSelect): string {
   if (client.status === "defaulted") return "high";

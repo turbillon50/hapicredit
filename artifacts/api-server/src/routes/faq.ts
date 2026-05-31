@@ -1,8 +1,8 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { asc, db, eq, faqTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 
-const router: IRouter = Router();
+const router = Router();
 
 // ─── Public: list active FAQ items ───────────────────────────────────────────
 router.get("/faq", async (req, res): Promise<void> => {

@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, cajaMovementsTable, db, eq, getTableColumns, gte, lte, sql, sum, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -6,7 +6,7 @@ import {
   ListCajaMovementsQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 function formatMovement(m: typeof cajaMovementsTable.$inferSelect & { executiveName?: string | null }) {
   return {

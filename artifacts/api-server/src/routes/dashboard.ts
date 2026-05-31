@@ -1,9 +1,9 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { alertsTable, and, cajaMovementsTable, clientsTable, commitmentsTable, count, creditsTable, db, eq, gte, lte, paymentsTable, sql, sum, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { GetExecutiveDashboardQueryParams } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 const today = () => new Date().toISOString().split("T")[0];
 const weekStart = () => {

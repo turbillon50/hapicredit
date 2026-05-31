@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, clientsTable, creditsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -9,7 +9,7 @@ import {
   ListCreditsQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 function formatCredit(c: typeof creditsTable.$inferSelect & { clientName?: string | null; executiveName?: string | null }) {
   return {

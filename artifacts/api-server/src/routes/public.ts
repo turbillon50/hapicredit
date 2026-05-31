@@ -1,9 +1,9 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { db, publicRequestsTable } from "@workspace/db";
 import { CreatePublicRequestBody } from "@workspace/api-zod";
 import { requireAuth, requireRole } from "../middlewares/auth";
 
-const router: IRouter = Router();
+const router = Router();
 
 router.post("/public/requests", async (req, res): Promise<void> => {
   const parsed = CreatePublicRequestBody.safeParse(req.body);

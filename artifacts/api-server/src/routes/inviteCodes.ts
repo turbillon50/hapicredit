@@ -1,9 +1,9 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, db, eq, gt, inviteCodesTable, isNull, sql, usersTable } from "@workspace/db";
 import { requireAuth } from "../middlewares/auth";
 import crypto from "crypto";
 
-const router: IRouter = Router();
+const router = Router();
 
 function generateCode(): string {
   return crypto.randomBytes(4).toString("hex").toUpperCase(); // 8 chars

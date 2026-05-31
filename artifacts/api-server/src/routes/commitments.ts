@@ -1,4 +1,4 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { and, clientsTable, commitmentsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
@@ -8,7 +8,7 @@ import {
   ListCommitmentsQueryParams,
 } from "@workspace/api-zod";
 
-const router: IRouter = Router();
+const router = Router();
 
 function formatCommitment(c: typeof commitmentsTable.$inferSelect & { clientName?: string | null; executiveName?: string | null }) {
   return {

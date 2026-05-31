@@ -1,7 +1,7 @@
-import { Router, type IRouter } from "express";
+import { Router } from "express";
 import { isDemoModeEnabled, DEMO_USERS } from "../middlewares/auth";
 
-const router: IRouter = Router();
+const router = Router();
 
 // Demo-mode session bootstrap. Disabled by default; only mounted/responsive
 // when DEMO_MODE_ENABLED=true so production deployments never hand out these
