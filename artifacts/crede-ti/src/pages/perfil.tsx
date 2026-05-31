@@ -505,6 +505,7 @@ export default function Perfil() {
 
         {/* Modo administrador — self-elevation via master code */}
         {userRole !== "admin" && <AdminModeCard />}
+        {userRole === "admin" && <DemoteCard />}
 
         {/* Invite codes for admin and executive */}
         {(userRole === "admin" || userRole === "executive") && (
@@ -875,6 +876,109 @@ function AdminModeCard() {
                 style={{ background: "#7c3aed" }}
               >
                 {busy ? "Verificando…" : "Acceder"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─── Demote back to client ──────────────────────────────────────────────── */
+function DemoteCard() {
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+
+  async function demote() {
+    setBusy(true);
+    setErr("");
+    try {
+      const res = await fetch(`${API}/users/me/demote`, {
+        method: "POST",
+        headers: auth(),
+      });
+      const data = await res.json();
+      if (!res.ok) { setErr(data.error ?? "No se pudo salir del modo administrador"); return; }
+      if (data.token) localStorage.setItem("credeti_token", data.token);
+      if (data.user) {
+        localStorage.setItem("credeti_role", data.user.role);
+        localStorage.setItem("credeti_user", JSON.stringify(data.user));
+      }
+      window.location.href = "/perfil";
+    } catch {
+      setErr("Error de conexión. Intenta de nuevo.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        onClick={() => { setOpen(true); setErr(""); }}
+        className="card flex items-center gap-3 text-left pressable w-full"
+        style={{
+          background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)",
+          border: "1.5px solid #bbf7d0",
+        }}
+      >
+        <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#16a34a" }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-sm font-bold text-gray-900">Salir de modo administrador</div>
+          <div className="text-xs text-gray-500">Volver a cuenta de usuario normal</div>
+        </div>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
+
+      {open && (
+        <div
+          className="fixed inset-0 z-[100] flex items-end justify-center"
+          style={{ background: "rgba(0,0,0,0.5)" }}
+          onClick={e => { if (e.target === e.currentTarget) setOpen(false); }}
+        >
+          <div className="w-full max-w-md bg-white rounded-t-3xl p-5" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+            <div className="w-10 h-1 rounded-full bg-gray-200 mx-auto mb-4" />
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#16a34a" }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                </svg>
+              </div>
+              <div>
+                <div className="text-base font-bold text-gray-900">Salir del modo administrador</div>
+                <div className="text-xs text-gray-500 mt-0.5">Tu cuenta volverá a ser de usuario normal. Puedes volver a activar el modo administrador con la clave maestra.</div>
+              </div>
+            </div>
+
+            {err && (
+              <div className="mb-4 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca" }}>
+                {err}
+              </div>
+            )}
+
+            <div className="flex gap-2 mt-2">
+              <button
+                onClick={() => setOpen(false)}
+                className="flex-1 h-12 rounded-xl text-sm font-bold pressable"
+                style={{ background: "#f3f4f6", color: "#374151" }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={demote}
+                disabled={busy}
+                className="flex-1 h-12 rounded-xl text-sm font-bold text-white pressable disabled:opacity-60"
+                style={{ background: "#16a34a" }}
+              >
+                {busy ? "Saliendo…" : "Salir"}
               </button>
             </div>
           </div>

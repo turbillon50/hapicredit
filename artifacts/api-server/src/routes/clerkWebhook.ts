@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { Webhook } from "svix";
 import { db, eq, usersTable } from "@workspace/db";
 import { logger } from "../lib/logger";
+import { sendWelcomeEmail } from "../lib/email";
 
 // In-process dedup of recently-seen svix message ids. A small ring is enough:
 // the same svix-id only repeats if Clerk retries after our 2xx is lost.
@@ -108,6 +109,9 @@ export async function clerkWebhookHandler(req: Request, res: Response): Promise<
           // passwordHash null — Clerk owns the credential.
         }).returning({ id: usersTable.id });
         logger.info({ clerkId: u.id, userId: created?.id }, "user.created synced");
+        if (email) {
+          sendWelcomeEmail({ to: email, fullName: fullName(u), username, role }).catch(() => {});
+        }
         res.json({ ok: true, action: "created", id: created?.id });
         return;
       }
