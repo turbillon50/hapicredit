@@ -17,6 +17,27 @@ function generateToken(): string {
   return crypto.randomBytes(32).toString("hex");
 }
 
+const authUserColumns = {
+  id: usersTable.id,
+  username: usersTable.username,
+  passwordHash: usersTable.passwordHash,
+  fullName: usersTable.fullName,
+  email: usersTable.email,
+  role: usersTable.role,
+  parentId: usersTable.parentId,
+  treeId: usersTable.treeId,
+  isActive: usersTable.isActive,
+};
+
+const publicAuthUserColumns = {
+  id: usersTable.id,
+  username: usersTable.username,
+  fullName: usersTable.fullName,
+  email: usersTable.email,
+  role: usersTable.role,
+  treeId: usersTable.treeId,
+};
+
 // Master staff code validator.
 // Production: when STAFF_MASTER_CODE is set, ONLY that exact value is accepted.
 //   The checked-in dev aliases never bypass the ops-configured secret.
@@ -36,7 +57,7 @@ router.post("/auth/login", async (req, res): Promise<void> => {
   const { username, password } = parsed.data;
 
   const [user] = await db
-    .select()
+    .select(authUserColumns)
     .from(usersTable)
     .where(eq(usersTable.username, username));
 
@@ -115,7 +136,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
     parentId: inviteCode.parentId,
     treeId,
     isActive: true,
-  }).returning();
+  }).returning(publicAuthUserColumns);
 
   await db.update(inviteCodesTable)
     .set({ usedById: newUser.id, usedAt: new Date(), isActive: false })
@@ -147,7 +168,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     return taken.length ? `${base}_${Date.now().toString().slice(-4)}` : base;
   }
 
-  const [existingUser] = await db.select().from(usersTable).where(eq(usersTable.email, email));
+  const [existingUser] = await db.select(authUserColumns).from(usersTable).where(eq(usersTable.email, email));
 
   if (existingUser) {
     if (!existingUser.isActive) { res.status(401).json({ error: "Cuenta inactiva" }); return; }
@@ -171,7 +192,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
       parentId: null,
       treeId: null,
       isActive: true,
-    }).returning();
+    }).returning(publicAuthUserColumns);
 
     if (requestedRole === "admin") {
       await db.update(usersTable).set({ treeId: newUser.id }).where(eq(usersTable.id, newUser.id));
@@ -225,7 +246,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     parentId: invCode.parentId,
     treeId: requestedRole === "admin" ? null : treeId, // admin treeId set below
     isActive: true,
-  }).returning();
+  }).returning(publicAuthUserColumns);
 
   // Admin becomes root of their own sub-tree (each branch is a separate tree)
   if (requestedRole === "admin") {
@@ -295,7 +316,7 @@ router.post("/auth/register-staff", async (req, res): Promise<void> => {
     parentId: null,
     treeId: null, // set below for admins
     isActive: true,
-  }).returning();
+  }).returning(publicAuthUserColumns);
 
   // Admin is the root of their own tree
   if (role === "admin") {
@@ -368,7 +389,7 @@ router.post("/auth/register-client", async (req, res): Promise<void> => {
     parentId,
     treeId,
     isActive: true,
-  }).returning();
+  }).returning(publicAuthUserColumns);
 
   const token = generateToken();
   const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
@@ -397,7 +418,7 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
 
   try {
     const [admin] = await db
-      .select()
+      .select(authUserColumns)
       .from(usersTable)
       .where(and(eq(usersTable.role, "admin"), eq(usersTable.isActive, true)));
 
@@ -446,7 +467,7 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   }
 
   try {
-    const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+    const [user] = await db.select(authUserColumns).from(usersTable).where(eq(usersTable.id, req.userId!));
     if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
     res.json({ id: user.id, username: user.username, fullName: user.fullName, email: user.email, role: user.role, treeId: user.treeId });
   } catch {
