@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
-const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 export default function Acceso() {
   const [pwd, setPwd] = useState("");
@@ -14,19 +14,25 @@ export default function Acceso() {
     setBusy(true);
     setErr("");
     try {
-      const res = await fetch(`${API}/users/me/elevate`, {
+      const res = await fetch(`${API}/auth/master-login`, {
         method: "POST",
-        headers: { ...auth(), "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ masterPassword: pwd }),
       });
       const data = await res.json();
-      if (!res.ok) { setErr(data.error ?? "Clave incorrecta"); setBusy(false); return; }
-      if (data.token) localStorage.setItem("credeti_token", data.token);
-      if (data.user) {
-        localStorage.setItem("credeti_role", data.user.role);
-        localStorage.setItem("credeti_user", JSON.stringify(data.user));
+      if (!res.ok) {
+        if (data.error === "no_admin") {
+          window.location.href = `${basePath}/registro`;
+        } else {
+          setErr(data.error ?? "Clave incorrecta");
+          setBusy(false);
+        }
+        return;
       }
-      window.location.href = "/admin";
+      localStorage.setItem("credeti_token", data.token);
+      localStorage.setItem("credeti_role", data.user.role);
+      localStorage.setItem("credeti_user", JSON.stringify(data.user));
+      window.location.href = `${basePath}/admin`;
     } catch {
       setErr("Error de conexión. Intenta de nuevo.");
       setBusy(false);
