@@ -248,7 +248,8 @@ export default function Terminos() {
             Col. Cuauhtémoc, Toluca, Estado de México<br />
             (A un costado de la Secretaría del Trabajo)<br /><br />
             Correo: <strong>hola@crede-ti.info</strong><br />
-            Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong>
+            Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong><br /><br />
+            Depto. de cobranza: <strong>56 3190 8262</strong>
           </InfoBox>
         </div>
 

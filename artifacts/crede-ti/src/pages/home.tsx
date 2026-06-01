@@ -460,6 +460,19 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Contacto */}
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y soporte</div>
+            <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
+              <a
+                href="tel:5631908262"
+                style={{ fontSize:12,color:"rgba(255,255,255,0.6)",textDecoration:"none" }}
+              >
+                Cobranza: <strong style={{ color:"rgba(255,255,255,0.85)" }}>56 3190 8262</strong>
+              </a>
+            </div>
+          </div>
+
           {/* Soporte técnico */}
           <div style={{ marginBottom:20 }}>
             <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Soporte técnico</div>
