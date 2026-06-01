@@ -249,7 +249,10 @@ export default function Terminos() {
             (A un costado de la Secretaría del Trabajo)<br /><br />
             Correo: <strong>hola@crede-ti.info</strong><br />
             Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong><br /><br />
-            Depto. de cobranza: <strong>56 3190 8262</strong>
+            <strong>Sucursal CDMX:</strong><br />
+            Av. Yucatan Sur #23, Milpa Alta, CDMX<br />
+            WhatsApp cobranza: <strong>55 5963 4368</strong><br />
+            Correo: <strong>financiamiento@crede-ti.com</strong>
           </InfoBox>
         </div>
 

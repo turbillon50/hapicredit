@@ -278,10 +278,10 @@ export default function MiCredito() {
                     </div>
                     {nextDays !== null && nextDays <= 0 && (
                       <a
-                        href="tel:5631908262"
+                        href="https://wa.me/525559634368"
                         style={{ fontSize: 12, color: "#ef4444", fontWeight: 700, marginTop: 4, display: "block" }}
                       >
-                        Cobranza: 56 3190 8262
+                        Cobranza WhatsApp: 55 5963 4368
                       </a>
                     )}
                   </div>

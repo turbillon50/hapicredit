@@ -462,13 +462,20 @@ export default function Home() {
 
           {/* Contacto */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y soporte</div>
-            <div style={{ display:"flex",flexDirection:"column",gap:8 }}>
+            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y cobranza</div>
+            <div style={{ display:"flex",flexDirection:"column",gap:6 }}>
               <a
-                href="tel:5631908262"
+                href="https://wa.me/525559634368"
+                target="_blank" rel="noopener noreferrer"
                 style={{ fontSize:12,color:"rgba(255,255,255,0.6)",textDecoration:"none" }}
               >
-                Cobranza: <strong style={{ color:"rgba(255,255,255,0.85)" }}>56 3190 8262</strong>
+                WhatsApp: <strong style={{ color:"rgba(255,255,255,0.85)" }}>55 5963 4368</strong>
+              </a>
+              <a
+                href="mailto:financiamiento@crede-ti.com"
+                style={{ fontSize:12,color:"rgba(255,255,255,0.6)",textDecoration:"none" }}
+              >
+                <strong style={{ color:"rgba(255,255,255,0.85)" }}>financiamiento@crede-ti.com</strong>
               </a>
             </div>
           </div>
