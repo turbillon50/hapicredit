@@ -77,7 +77,7 @@ export default function Privacidad() {
           }}>
             <p style={{ ...s.p, margin: 0 }}>
               <strong>Correo:</strong> hola@crede-ti.info<br />
-              <strong>Tel:</strong> 55 7796 0663 / 56 5265 7122
+              <strong>Tel:</strong> 56 3190 8262
             </p>
           </div>
         </div>
