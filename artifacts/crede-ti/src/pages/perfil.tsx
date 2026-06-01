@@ -503,8 +503,7 @@ export default function Perfil() {
           </>
         )}
 
-        {/* Modo administrador — self-elevation via master code */}
-        {userRole !== "admin" && <AdminModeCard />}
+        {/* Admin demote — only visible when already in admin mode */}
         {userRole === "admin" && <DemoteCard />}
 
         {/* Invite codes for admin and executive */}

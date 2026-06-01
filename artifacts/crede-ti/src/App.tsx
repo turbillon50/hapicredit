@@ -42,6 +42,7 @@ import ExecAgenda       from "@/pages/executive/agenda";
 import Calculadora     from "@/pages/calculadora";
 import Faq             from "@/pages/faq";
 import AdminFaq        from "@/pages/admin/faq";
+import Acceso          from "@/pages/acceso";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -329,6 +330,7 @@ function Router() {
     <Switch>
       {/* Public */}
       <Route path="/"           component={Home} />
+      <Route path="/a"          component={Acceso} />
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />
       <Route path="/privacidad" component={Privacidad} />
