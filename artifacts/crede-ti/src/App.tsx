@@ -56,114 +56,9 @@ const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 30_000 } },
 });
 
-// ─── Admin master-login modal ───────────────────────────────────────────────
-function AdminLoginModal({ onClose }: { onClose: () => void }) {
-  const [pwd, setPwd]   = useState("");
-  const [show, setShow] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [err, setErr]   = useState("");
-
-  async function submit() {
-    if (!pwd) return;
-    setBusy(true); setErr("");
-    try {
-      const res  = await fetch(`${API}/auth/master-login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ masterPassword: pwd }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        if (data.error === "no_admin") {
-          window.location.href = `${basePath}/registro`;
-        } else {
-          setErr(data.error ?? "Clave incorrecta");
-        }
-        return;
-      }
-      localStorage.setItem("credeti_token", data.token);
-      localStorage.setItem("credeti_role",  data.user.role);
-      localStorage.setItem("credeti_user",  JSON.stringify(data.user));
-      window.location.href = `${basePath}/admin`;
-    } catch {
-      setErr("Error de conexión. Intenta de nuevo.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  return (
-    <div
-      style={{ position: "fixed", inset: 0, zIndex: 200, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "flex-end", justifyContent: "center" }}
-      onClick={e => { if (e.target === e.currentTarget) onClose(); }}
-    >
-      <div style={{ width: "100%", maxWidth: 420, background: "#fff", borderRadius: "24px 24px 0 0", padding: "20px 20px max(20px, env(safe-area-inset-bottom))" }}>
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 14, background: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-            </svg>
-          </div>
-          <div>
-            <div style={{ fontSize: 16, fontWeight: 700, color: "#111" }}>Acceso administrador</div>
-            <div style={{ fontSize: 12, color: "#6b7280", marginTop: 2 }}>Ingresa la clave maestra para continuar</div>
-          </div>
-        </div>
-
-        <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: 6 }}>
-          Clave maestra
-        </label>
-        <div style={{ position: "relative", marginBottom: 16 }}>
-          <input
-            type={show ? "text" : "password"}
-            value={pwd}
-            onChange={e => { setPwd(e.target.value); setErr(""); }}
-            onKeyDown={e => e.key === "Enter" && pwd && submit()}
-            autoFocus
-            placeholder="••••••••"
-            style={{
-              width: "100%", padding: "13px 44px 13px 14px", borderRadius: 12,
-              border: `1.5px solid ${err ? "#f87171" : "#e2e8f0"}`,
-              fontSize: 15, outline: "none", boxSizing: "border-box",
-              background: err ? "#fff5f5" : "#f9fafb",
-            }}
-          />
-          <button
-            type="button"
-            onClick={() => setShow(s => !s)}
-            style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 4 }}
-          >
-            {show
-              ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-              : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            }
-          </button>
-        </div>
-
-        {err && <div style={{ fontSize: 13, color: "#dc2626", marginBottom: 12, padding: "8px 12px", background: "#fff5f5", borderRadius: 8, border: "1px solid #fca5a5" }}>{err}</div>}
-
-        <button
-          onClick={submit}
-          disabled={busy || !pwd}
-          style={{
-            width: "100%", padding: "15px", borderRadius: 14, border: "none", cursor: busy || !pwd ? "not-allowed" : "pointer",
-            background: busy || !pwd ? "#e2e8f0" : "#7c3aed",
-            color: busy || !pwd ? "#9ca3af" : "#fff",
-            fontWeight: 700, fontSize: 15, transition: "background 0.2s",
-          }}
-        >
-          {busy ? "Verificando..." : "Entrar como admin"}
-        </button>
-      </div>
-    </div>
-  );
-}
 
 // ─── Clerk sign-in page (Google hidden via appearance API) ─────────────────
 function SignInPage() {
-  const [adminOpen, setAdminOpen] = useState(false);
-
   return (
     <div style={{
       minHeight: "100dvh",
@@ -194,24 +89,10 @@ function SignInPage() {
           variables: { colorPrimary: "#2A3CD6" },
         }}
       />
-      <button
-        onClick={() => setAdminOpen(true)}
-        style={{
-          marginTop: 20, background: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.12)",
-          borderRadius: 12, padding: "10px 20px", color: "rgba(255,255,255,0.5)",
-          fontSize: 13, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
-        }}
-      >
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        Acceso administrador
-      </button>
       <div style={{ marginTop: 14, display: "flex", gap: 20 }}>
         <a href="/privacidad" style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, textDecoration: "none" }}>Aviso de privacidad</a>
         <a href="/terminos"   style={{ color: "rgba(255,255,255,0.3)", fontSize: 12, textDecoration: "none" }}>Términos y condiciones</a>
       </div>
-      {adminOpen && <AdminLoginModal onClose={() => setAdminOpen(false)} />}
     </div>
   );
 }
