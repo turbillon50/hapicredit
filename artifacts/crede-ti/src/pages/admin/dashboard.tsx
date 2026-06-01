@@ -8,6 +8,10 @@ import {
   IconValidar, IconBandeja, IconCartera, IconFinanzas, IconCaja,
   IconMedalla, IconArbol, IconEquipo, IconCheck,
 } from "@/components/hapi/HapiIcons";
+import {
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer,
+} from "recharts";
 
 interface AdminDashboardData {
   totalPortfolio: number;
@@ -72,6 +76,26 @@ export default function AdminDashboard() {
       return r.json();
     },
     staleTime: 30_000,
+  });
+
+  const { data: collectionTrend = [] } = useQuery({
+    queryKey: ["collection-trend"],
+    queryFn: async () => {
+      const r = await fetch(`${API}/dashboard/collection-trend`, { headers: auth() });
+      if (!r.ok) throw new Error("Error al cargar tendencia");
+      return r.json();
+    },
+    staleTime: 60_000,
+  });
+
+  const { data: agingData = [] } = useQuery({
+    queryKey: ["portfolio-aging"],
+    queryFn: async () => {
+      const r = await fetch(`${API}/dashboard/portfolio-aging`, { headers: auth() });
+      if (!r.ok) throw new Error("Error al cargar antigüedad");
+      return r.json();
+    },
+    staleTime: 60_000,
   });
 
   const collectPct  = d ? Math.min(100, (d.collectionToday / Math.max(1, d.expectedToday)) * 100) : 0;
@@ -300,8 +324,128 @@ export default function AdminDashboard() {
           </>
         )}
 
+        {/* ── Collection Trend Chart ── */}
+        {Array.isArray(collectionTrend) && collectionTrend.length > 0 && (
+          <div style={{ margin: "0 16px" }} className="anim-section anim-d5">
+            <div style={{ background: "#fff", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
+                <IconFinanzas size={16} color="var(--accent)" />
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
+                  Tendencia de cobranza — 8 semanas
+                </span>
+              </div>
+              <div style={{ padding: "16px 4px 8px" }}>
+                <ResponsiveContainer width="100%" height={180}>
+                  <AreaChart data={collectionTrend} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="gradCollected" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#2A3CD6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#2A3CD6" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="gradExpected" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#F0A93A" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#F0A93A" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+                    <XAxis
+                      dataKey="period"
+                      tick={{ fontSize: 9, fill: "#9ca3af", fontWeight: 600 }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 9, fill: "#9ca3af" }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`}
+                    />
+                    <Tooltip
+                      contentStyle={{ fontSize: 11, borderRadius: 10, border: "1px solid #e5e7eb", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                      formatter={(val: number, name: string) => [
+                        new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(val),
+                        name === "collected" ? "Cobrado" : "Meta",
+                      ]}
+                    />
+                    <Area type="monotone" dataKey="expected" stroke="#F0A93A" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#gradExpected)" dot={false} />
+                    <Area type="monotone" dataKey="collected" stroke="#2A3CD6" strokeWidth={2} fill="url(#gradCollected)" dot={{ r: 3, fill: "#2A3CD6", strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                  </AreaChart>
+                </ResponsiveContainer>
+                <div style={{ display: "flex", justifyContent: "center", gap: 20, paddingTop: 4 }}>
+                  {[
+                    { color: "#2A3CD6", label: "Cobrado" },
+                    { color: "#F0A93A", label: "Meta", dashed: true },
+                  ].map(l => (
+                    <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                      <div style={{ width: 20, height: 2, background: l.color, borderRadius: 1, borderTop: l.dashed ? "2px dashed currentColor" : undefined }} />
+                      <span style={{ fontSize: 10, color: "#6b7280", fontWeight: 600 }}>{l.label}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── Portfolio Aging Chart ── */}
+        {Array.isArray(agingData) && agingData.length > 0 && (
+          <div style={{ margin: "0 16px" }} className="anim-section anim-d5">
+            <div style={{ background: "#fff", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+              <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
+                <IconCartera size={16} color="var(--accent)" />
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
+                  Cartera por antigüedad
+                </span>
+              </div>
+              <div style={{ padding: "16px 18px" }}>
+                {(agingData as { bucket: string; clientCount: number; totalAmount: number; percentage: number }[]).map((row, i) => {
+                  const palette = [
+                    { bar: "#34d399", bg: "#d1fae5", text: "#065f46" },
+                    { bar: "#fbbf24", bg: "#fef3c7", text: "#92400e" },
+                    { bar: "#f97316", bg: "#ffedd5", text: "#7c2d12" },
+                    { bar: "#f87171", bg: "#fee2e2", text: "#991b1b" },
+                  ];
+                  const c = palette[Math.min(i, palette.length - 1)];
+                  const total = (agingData as any[]).reduce((s: number, r: any) => s + r.clientCount, 0) || 1;
+                  const pct = Math.round((row.clientCount / total) * 100);
+                  return (
+                    <div key={row.bucket} style={{ marginBottom: i < agingData.length - 1 ? 14 : 0 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: 2, background: c.bar, flexShrink: 0 }} />
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{row.bucket}</span>
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: c.bg, color: c.text }}>
+                            {row.clientCount} clientes
+                          </span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#111827", minWidth: 40, textAlign: "right" }}>
+                            {pct}%
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ height: 6, background: "#f3f4f6", borderRadius: 4, overflow: "hidden" }}>
+                        <div
+                          style={{
+                            height: "100%", borderRadius: 4, width: `${pct}%`,
+                            background: c.bar,
+                            transition: "width 0.8s cubic-bezier(0.16,1,0.3,1)",
+                          }}
+                        />
+                      </div>
+                      <div style={{ textAlign: "right", fontSize: 10, color: "#9ca3af", marginTop: 3 }}>
+                        {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(row.totalAmount)}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ── Quick access ── */}
-        <div style={{ padding: "4px 16px 0" }} className="anim-section anim-d5">
+        <div style={{ padding: "4px 16px 0" }} className="anim-section anim-d6">
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 12 }}>
             Control y gestion
           </div>
