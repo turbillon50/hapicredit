@@ -22,7 +22,7 @@ export default function Acceso() {
       const data = await res.json();
       if (!res.ok) {
         if (data.error === "no_admin") {
-          window.location.href = `${basePath}/registro`;
+          window.location.href = `${basePath}/sign-in`;
         } else {
           setErr(data.error ?? "Clave incorrecta");
           setBusy(false);
