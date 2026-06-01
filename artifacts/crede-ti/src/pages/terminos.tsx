@@ -128,8 +128,8 @@ export default function Terminos() {
             <p style={{ ...s.p, color: "#1e40af", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
             <ul style={s.ul}>
               <li style={{ ...s.li, color: "#1e40af" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 meses</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Interés: <strong>60% anual</strong> (calculado proporcional al plazo)</li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 semanas</strong></li>
+              <li style={{ ...s.li, color: "#1e40af" }}>Interés: <strong>5% mensual</strong> (calculado proporcional al plazo)</li>
               <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con día de pago a elección (lunes a domingo)</li>
             </ul>
           </div>
@@ -248,7 +248,11 @@ export default function Terminos() {
             Col. Cuauhtémoc, Toluca, Estado de México<br />
             (A un costado de la Secretaría del Trabajo)<br /><br />
             Correo: <strong>hola@crede-ti.info</strong><br />
-            Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong>
+            Tel: <strong>55 7796 0663</strong> / <strong>56 5265 7122</strong><br /><br />
+            <strong>Sucursal CDMX:</strong><br />
+            Av. Yucatan Sur #23, Milpa Alta, CDMX<br />
+            WhatsApp cobranza: <strong>55 5963 4368</strong><br />
+            Correo: <strong>financiamiento@crede-ti.com</strong>
           </InfoBox>
         </div>
 

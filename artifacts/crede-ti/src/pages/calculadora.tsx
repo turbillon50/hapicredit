@@ -6,12 +6,12 @@ type ClienteType = "nuevo" | "existente";
 
 function calcular(monto: number, plazo: number, tipo: ClienteType) {
   // nuevo: plazo = 4 semanas fijas, interés 30% plano, pago semanal
-  // existente: plazo = N meses, interés 60% anual pro-rata, pago mensual
+  // existente: plazo = N semanas, 5% mensual (≈ semanas/4 meses), pago semanal
   const interes = tipo === "nuevo"
     ? monto * 0.30
-    : monto * 0.60 * (plazo / 12);
+    : monto * 0.05 * (plazo / 4);
   const total = monto + interes;
-  const pago  = tipo === "nuevo" ? total / 4 : total / plazo;
+  const pago  = total / (tipo === "nuevo" ? 4 : plazo);
   return { interes, total, pago };
 }
 
@@ -113,10 +113,11 @@ function FilaResultado({
   );
 }
 
-// ─── Tarjeta de info del 60% ──────────────────────────────────────────────────
-function InfoTasa({ meses, monto, tasaEfectiva, interes }: {
-  meses: number; monto: number; tasaEfectiva: number; interes: number;
+// ─── Tarjeta de info del 5% mensual ──────────────────────────────────────────
+function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
+  semanas: number; monto: number; tasaEfectiva: number; interes: number;
 }) {
+  const mesesEquiv = (semanas / 4).toFixed(1);
   return (
     <motion.div
       layout
@@ -137,8 +138,8 @@ function InfoTasa({ meses, monto, tasaEfectiva, interes }: {
 
       <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
         <p style={{ margin: "0 0 8px" }}>
-          Crede‑Ti cobra una <strong>Tasa Anual del 60%</strong>, pero solo pagas
-          la parte proporcional al tiempo que dura tu crédito:
+          Crede‑Ti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
+          al número de semanas de tu crédito:
         </p>
 
         <div style={{
@@ -146,17 +147,15 @@ function InfoTasa({ meses, monto, tasaEfectiva, interes }: {
           border: "1px solid #bfdbfe", fontFamily: "monospace",
           fontSize: 12, color: "#1e40af", lineHeight: 2,
         }}>
-          <div>Tasa del período = 60% × ({meses} meses ÷ 12 meses/año)</div>
-          <div style={{ fontWeight: 800 }}>
-            = 60% × {(meses / 12).toFixed(4)} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
-          </div>
+          <div>Meses equiv. = {semanas} sem ÷ 4 sem/mes = {mesesEquiv} meses</div>
+          <div>Tasa = 5% × {mesesEquiv} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} /></div>
           <div style={{ borderTop: "1px solid #bfdbfe", marginTop: 6, paddingTop: 6 }}>
             Interés = {fmt(monto)} × {fmtPct(tasaEfectiva)} = <NumAnimado valor={interes} fmt={fmt} />
           </div>
         </div>
 
         <p style={{ margin: "10px 0 0", fontSize: 12, color: "#6b7280" }}>
-          A menor plazo → menos interés total. A mayor plazo → pago mensual más accesible.
+          A menor plazo → menos interés total. A mayor plazo → pago semanal más accesible.
         </p>
       </div>
     </motion.div>
@@ -248,24 +247,25 @@ function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: 
 export default function Calculadora() {
   const [tipo, setTipo]   = useState<ClienteType>("existente");
   const [monto, setMonto] = useState(5000);
-  const [meses, setMeses] = useState(12); // meses para existente; nuevo siempre 4 semanas fijas
+  const [semanas, setSemanas] = useState(12); // semanas para existente; nuevo siempre 4 semanas fijas
 
-  const montoMin = tipo === "nuevo" ? 500   : 1000;
-  const montoMax = tipo === "nuevo" ? 1000  : 30000;
-  const mesesMax = 48; // solo aplica para existente
+  const montoMin   = tipo === "nuevo" ? 500   : 1000;
+  const montoMax   = tipo === "nuevo" ? 1000  : 30000;
+  const semanasMax = 48;
 
   function cambiarTipo(t: ClienteType) {
     setTipo(t);
     if (t === "nuevo") setMonto(750);
-    else               { setMonto(5000); setMeses(12); }
+    else               { setMonto(5000); setSemanas(12); }
   }
 
   const { interes, total, pago } = useMemo(
-    () => calcular(monto, meses, tipo),
-    [monto, meses, tipo],
+    () => calcular(monto, semanas, tipo),
+    [monto, semanas, tipo],
   );
 
-  const tasaEfectiva = tipo === "nuevo" ? 30 : 60 * (meses / 12);
+  // 5% mensual × (semanas ÷ 4) para existente; 30% fijo para nuevo
+  const tasaEfectiva = tipo === "nuevo" ? 30 : 5 * (semanas / 4);
 
   return (
     <div style={{
@@ -351,10 +351,10 @@ export default function Calculadora() {
           />
           {tipo === "existente" ? (
             <SliderCampo
-              label="Plazo (meses)"
-              valor={meses} min={4} max={mesesMax}
-              paso={1} sufijo=" meses"
-              onChange={setMeses}
+              label="Plazo (semanas)"
+              valor={semanas} min={4} max={semanasMax}
+              paso={1} sufijo=" sem"
+              onChange={setSemanas}
             />
           ) : (
             <div style={{ marginBottom: 24 }}>
@@ -370,7 +370,7 @@ export default function Calculadora() {
           {/* Badge de tasa */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${tipo}-${semanas}`}
+              key={`${tipo}-${semanas}-badge`}
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -383,7 +383,7 @@ export default function Calculadora() {
               }}
             >
               <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "#1e40af", fontWeight: 600 }}>
-                {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva del período`}
+                {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva (5% mensual)`}
               </span>
               <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "#166534" : AZUL }}>
                 <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
@@ -402,7 +402,7 @@ export default function Calculadora() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <InfoTasa meses={meses} monto={monto} tasaEfectiva={tasaEfectiva} interes={interes} />
+              <InfoTasa semanas={semanas} monto={monto} tasaEfectiva={tasaEfectiva} interes={interes} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -420,8 +420,8 @@ export default function Calculadora() {
           <BarraProporciones monto={monto} interes={interes} />
           <FilaResultado etiqueta="Capital prestado" valor={fmt(monto)} />
           <FilaResultado etiqueta="Intereses totales" valor={fmt(interes)} color="#d97706" />
-          <FilaResultado etiqueta="Plazo" valor={tipo === "nuevo" ? "4 semanas (30 días)" : `${meses} meses`} />
-          <FilaResultado etiqueta={tipo === "nuevo" ? "Pago semanal" : "Pago mensual"} valor={fmt(pago)} color={AZUL} />
+          <FilaResultado etiqueta="Plazo" valor={tipo === "nuevo" ? "4 semanas (30 días)" : `${semanas} semanas`} />
+          <FilaResultado etiqueta="Pago semanal" valor={fmt(pago)} color={AZUL} />
           <FilaResultado etiqueta="Total a pagar" valor={fmt(total)} grande color={AZUL2} />
         </motion.div>
 
@@ -436,8 +436,8 @@ export default function Calculadora() {
             Calendario de pagos
           </p>
           <AnimatePresence mode="wait">
-            <motion.div key={`${meses}-${pago}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-              <TablaAmort pago={pago} total={total} periodos={tipo === "nuevo" ? 4 : meses} etiqueta={tipo === "nuevo" ? "Semana" : "Mes"} />
+            <motion.div key={`${semanas}-${pago}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+              <TablaAmort pago={pago} total={total} periodos={tipo === "nuevo" ? 4 : semanas} etiqueta="Semana" />
             </motion.div>
           </AnimatePresence>
         </motion.div>
@@ -464,7 +464,7 @@ export default function Calculadora() {
 
         <p style={{ textAlign: "center", fontSize: 11, color: "rgba(255,255,255,0.35)", marginTop: 14, lineHeight: 1.6 }}>
           Cálculo estimado. El crédito final queda sujeto a aprobación.<br />
-          Sin comisión por apertura · Tasa Anual 60% · Hasta 48 meses
+          Sin comisión por apertura · 5% mensual · Hasta 48 semanas
         </p>
       </div>
     </div>

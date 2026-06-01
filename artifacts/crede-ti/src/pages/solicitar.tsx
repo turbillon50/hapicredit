@@ -126,17 +126,17 @@ export default function Solicitar() {
   // Clamp current values when switching client type
   const clampedAmount = Math.min(amountMax, Math.max(amountMin, amount));
   const clampedTerm   = Math.min(termMax,   Math.max(termMin,   termWeeks));
-  const termLabel     = isNewClient ? "semanas" : "meses";
+  const termLabel     = "semanas";
 
+  // 5% mensual pro-rata por semanas (semanas ÷ 4 = meses aprox.)
   const interestAmount = isNewClient
     ? clampedAmount * NEW_INTEREST
-    : clampedAmount * EXISTING_ANNUAL * (clampedTerm / 12);
+    : clampedAmount * 0.05 * (clampedTerm / 4);
 
   const totalPayment  = clampedAmount + interestAmount;
-  // New clients: weekly=4 sem, biweekly=2. Existing: weekly=months×4, biweekly=months×2
-  const installments  = isNewClient
-    ? (paymentFrequency === "biweekly" ? Math.ceil(clampedTerm / 2) : clampedTerm)
-    : (paymentFrequency === "biweekly" ? clampedTerm * 2 : clampedTerm * 4);
+  const installments  = paymentFrequency === "biweekly"
+    ? Math.ceil(clampedTerm / 2)
+    : clampedTerm;
   const installmentLabel = paymentFrequency === "biweekly" ? "quincenal" : "semanal";
   const perInstallment = totalPayment / installments;
   const disbursement   = clampedAmount; // no commission anymore
@@ -189,11 +189,10 @@ export default function Solicitar() {
         ],
         creditRequest: {
           requestedAmount: clampedAmount,
-          termWeeks: isNewClient ? clampedTerm : clampedTerm * 4,
-          termMonths: isNewClient ? null : clampedTerm,
+          termWeeks: clampedTerm,
           purpose,
           isNewClient,
-          interestRate: isNewClient ? NEW_INTEREST : EXISTING_ANNUAL,
+          interestRate: isNewClient ? 0.30 : 0.05,
           totalToRepay: totalPayment,
           perInstallment,
           paymentFrequency,
@@ -263,7 +262,7 @@ export default function Solicitar() {
               {[
                 { name: "Facebook", href: "https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg: "#1877F2" },
                 { name: "TikTok",   href: "https://www.tiktok.com/@credeti4?_r=1&_t=ZS-93SMngFBDLb",         bg: "#000"     },
-                { name: "YouTube",  href: "https://youtube.com/@crede-tiventaspedidos?si=tqv4p0hqu1GHH62x", bg: "#FF0000"  },
+                { name: "YouTube",  href: "https://youtube.com/@crede-ti?si=LMHLBMcXqtG3Il25", bg: "#FF0000"  },
               ].map(s => (
                 <a key={s.name} href={s.href} target="_blank" rel="noopener noreferrer"
                   className="px-3 py-1.5 rounded-full text-[11px] font-bold text-white"
@@ -393,7 +392,7 @@ export default function Solicitar() {
                   style={!isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
                 >
                   Cliente recurrente
-                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 meses · 60% anual</div>
+                  <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 sem · 5% mensual</div>
                 </button>
               </div>
             </div>
@@ -440,7 +439,7 @@ export default function Solicitar() {
                 </>
               ) : (
                 <div className="text-[11px] text-center text-gray-400">
-                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 meses.
+                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 semanas.
                 </div>
               )}
 
@@ -451,7 +450,7 @@ export default function Solicitar() {
                 <div className="p-4 flex flex-col gap-2 text-sm">
                   <Row label="Monto solicitado"  value={fmt(clampedAmount)} />
                   <Row
-                    label={isNewClient ? "Interés (30% fijo)" : `Interés (${Math.round(EXISTING_ANNUAL * 100)}% anual)`}
+                    label={isNewClient ? "Interés (30% fijo)" : "Interés (5% mensual)"}
                     value={`+${fmt(interestAmount)}`}
                   />
                   <div className="border-t border-dashed border-gray-200 my-1" />

@@ -19,7 +19,7 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 meses, 60% de interés anual." },
+  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 semanas, 5% de interés mensual." },
   { q: "Hay comisión por apertura?",              a: "No. Crede-Ti no cobra comisión por apertura." },
   { q: "Que pasa si pago tarde?",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
   { q: "Como elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
@@ -140,7 +140,7 @@ export default function Home() {
           <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
               { val:"$30K", label:"Monto maximo" },
-              { val:"48",   label:"Meses max"    },
+              { val:"48",   label:"Sem. max"      },
               { val:"0%",   label:"Comision"     },
             ].map((s,i) => (
               <div key={s.val} style={{
@@ -270,7 +270,7 @@ export default function Home() {
               {
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>,
                 iconBg:"#dbeafe",iconColor:"#2563eb",
-                title:"Hasta 48 meses",body:"Cliente recurrente puede pagar de 4 a 48 meses.",
+                title:"Hasta 48 semanas",body:"Cliente recurrente puede pagar de 4 a 48 semanas.",
               },
               {
                 icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7L9 18l-5-5"/></svg>,
@@ -311,7 +311,7 @@ export default function Home() {
           <div style={{ display:"flex",flexDirection:"column",gap:10 }}>
             {[
               { label:"Cliente nuevo",            value:"$500 – $1,000 · 4 semanas · 30%"     },
-              { label:"Cliente recurrente",       value:"$1,000 – $30,000 · 4–48 meses · 60% anual" },
+              { label:"Cliente recurrente",       value:"$1,000 – $30,000 · 4–48 sem · 5% mensual" },
               { label:"Frecuencia de pago",       value:"Semanal o quincenal"                  },
               { label:"Día de pago",              value:"A elección (lun a dom)"               },
               { label:"Comisión por apertura",    value:"Sin comisión"                         },
@@ -440,7 +440,7 @@ export default function Home() {
               {[
                 { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg:"#1877F2" },
                 { name:"TikTok",   href:"https://www.tiktok.com/@credeti4?_r=1&_t=ZS-93SMngFBDLb", bg:"#000" },
-                { name:"YouTube",  href:"https://youtube.com/@crede-tiventaspedidos?si=tqv4p0hqu1GHH62x", bg:"#FF0000" },
+                { name:"YouTube",  href:"https://youtube.com/@crede-ti?si=LMHLBMcXqtG3Il25", bg:"#FF0000" },
               ].map(s => (
                 <a
                   key={s.name}
@@ -457,6 +457,26 @@ export default function Home() {
                   {s.name}
                 </a>
               ))}
+            </div>
+          </div>
+
+          {/* Contacto */}
+          <div style={{ marginBottom:20 }}>
+            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y cobranza</div>
+            <div style={{ display:"flex",flexDirection:"column",gap:6 }}>
+              <a
+                href="https://wa.me/525559634368"
+                target="_blank" rel="noopener noreferrer"
+                style={{ fontSize:12,color:"rgba(255,255,255,0.6)",textDecoration:"none" }}
+              >
+                WhatsApp: <strong style={{ color:"rgba(255,255,255,0.85)" }}>55 5963 4368</strong>
+              </a>
+              <a
+                href="mailto:financiamiento@crede-ti.com"
+                style={{ fontSize:12,color:"rgba(255,255,255,0.6)",textDecoration:"none" }}
+              >
+                <strong style={{ color:"rgba(255,255,255,0.85)" }}>financiamiento@crede-ti.com</strong>
+              </a>
             </div>
           </div>
 

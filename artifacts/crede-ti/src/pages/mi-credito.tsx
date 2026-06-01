@@ -276,6 +276,14 @@ export default function MiCredito() {
                     <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>
                       {fmtDate(activeCredit.nextPaymentDate)} · {fmt(activeCredit.weeklyPayment)}
                     </div>
+                    {nextDays !== null && nextDays <= 0 && (
+                      <a
+                        href="https://wa.me/525559634368"
+                        style={{ fontSize: 12, color: "#ef4444", fontWeight: 700, marginTop: 4, display: "block" }}
+                      >
+                        Cobranza WhatsApp: 55 5963 4368
+                      </a>
+                    )}
                   </div>
                 </div>
               </div>
