@@ -440,7 +440,7 @@ export default function Home() {
               {[
                 { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg:"#1877F2" },
                 { name:"TikTok",   href:"https://www.tiktok.com/@credeti4?_r=1&_t=ZS-93SMngFBDLb", bg:"#000" },
-                { name:"YouTube",  href:"https://youtube.com/@crede-tiventaspedidos?si=tqv4p0hqu1GHH62x", bg:"#FF0000" },
+                { name:"YouTube",  href:"https://youtube.com/@crede-ti?si=LMHLBMcXqtG3Il25", bg:"#FF0000" },
               ].map(s => (
                 <a
                   key={s.name}
