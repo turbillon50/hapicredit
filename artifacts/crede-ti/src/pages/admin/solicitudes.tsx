@@ -66,14 +66,17 @@ export default function AdminSolicitudes() {
 
   const { data: pendingCredits = [], isLoading: loadingInternal } = useQuery<PendingCredit[]>({
     queryKey: ["credits", "pending"],
-    queryFn: () =>
-      fetch(`${API}/credits?status=pending`, { headers: auth() })
-        .then(r => r.json())
-        .then((rows: any[]) => rows.map(r => ({ ...r, clientName: r.clientName ?? `Cliente #${r.clientId}` }))),
+    queryFn: async () => {
+      const [pending, needsInfo] = await Promise.all([
+        fetch(`${API}/credits?status=pending`, { headers: auth() }).then(r => r.json()),
+        fetch(`${API}/credits?status=needs_info`, { headers: auth() }).then(r => r.json()),
+      ]);
+      return [...pending, ...needsInfo].map((r: any) => ({ ...r, clientName: r.clientName ?? `Cliente #${r.clientId}` }));
+    },
   });
 
   const reviewMut = useMutation({
-    mutationFn: ({ id, action, notes }: { id: number; action: "approve" | "reject"; notes?: string }) =>
+    mutationFn: ({ id, action, notes }: { id: number; action: "approve" | "reject" | "needs_info"; notes?: string }) =>
       fetch(`${API}/credits/${id}/review`, {
         method: "PATCH",
         headers: { ...auth(), "Content-Type": "application/json" },
@@ -184,7 +187,9 @@ export default function AdminSolicitudes() {
                         <div className="text-sm font-bold text-gray-900 truncate">{credit.clientName}</div>
                         <div className="text-xs text-gray-500">Crédito #{credit.id}</div>
                       </div>
-                      <Badge variant="warning" size="sm">Pendiente</Badge>
+                      <Badge variant={credit.status === "needs_info" ? "danger" : "warning"} size="sm">
+                        {credit.status === "needs_info" ? "Falta info" : "Pendiente"}
+                      </Badge>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center">
                       <div className="bg-gray-50 rounded-xl py-2">
@@ -372,13 +377,22 @@ export default function AdminSolicitudes() {
                 ))}
               </div>
 
+              {credit.status === "needs_info" && credit.notes && (
+                <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 12, padding: "12px 16px" }}>
+                  <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#92400e" }}>Información solicitada</div>
+                  <div className="text-sm" style={{ color: "#b45309" }}>{credit.notes}</div>
+                </div>
+              )}
+
               <div className="flex flex-col gap-3 pt-2">
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-xs font-semibold text-gray-600">Notas de decisión <span className="font-normal text-gray-400">(opcional)</span></label>
+                  <label className="text-xs font-semibold text-gray-600">
+                    Notas <span className="font-normal text-gray-400">(requerido para solicitar información)</span>
+                  </label>
                   <textarea
                     value={decisionNotes}
                     onChange={e => setDecisionNotes(e.target.value)}
-                    placeholder="Motivo de aprobación o rechazo. Se enviará al cliente por correo."
+                    placeholder="Motivo de aprobación, rechazo o información que se necesita del cliente."
                     className="input-field text-sm"
                     rows={3}
                     style={{ resize: "none" }}
@@ -395,6 +409,22 @@ export default function AdminSolicitudes() {
                     : <IconCheck size={16} />
                   }
                   Aprobar crédito
+                </button>
+                <button
+                  onClick={() => {
+                    if (!decisionNotes.trim()) return;
+                    setReviewing(credit.id);
+                    reviewMut.mutate({ id: credit.id, action: "needs_info", notes: decisionNotes });
+                  }}
+                  disabled={reviewMut.isPending || !decisionNotes.trim()}
+                  className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
+                  style={{
+                    background: decisionNotes.trim() ? "#F0A93A" : "#e5e7eb",
+                    color: decisionNotes.trim() ? "#15206E" : "#9ca3af",
+                    border: "none",
+                  }}
+                >
+                  <IconDocumento size={16} /> Solicitar información
                 </button>
                 <button
                   onClick={() => { setReviewing(credit.id); reviewMut.mutate({ id: credit.id, action: "reject", notes: decisionNotes || undefined }); }}
