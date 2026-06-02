@@ -145,12 +145,16 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
   if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
 
   const { action, notes } = req.body;
-  if (action !== "approve" && action !== "reject") {
-    res.status(400).json({ error: "action debe ser 'approve' o 'reject'" });
+  if (action !== "approve" && action !== "reject" && action !== "needs_info") {
+    res.status(400).json({ error: "action debe ser 'approve', 'reject' o 'needs_info'" });
+    return;
+  }
+  if (action === "needs_info" && !notes) {
+    res.status(400).json({ error: "Especifica qué información se requiere en las notas" });
     return;
   }
 
-  const newStatus = action === "approve" ? "active" : "rejected";
+  const newStatus = action === "approve" ? "active" : action === "reject" ? "rejected" : "needs_info";
   const updates: Record<string, unknown> = { status: newStatus };
   if (action === "approve") updates.disbursementDate = new Date().toISOString().split("T")[0];
   if (notes) updates.notes = String(notes);
@@ -174,7 +178,7 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
         sendCreditDecisionEmail({
           to: user.email,
           clientName: client.fullName,
-          action: action as "approve" | "reject",
+          action: action as "approve" | "reject" | "needs_info",
           amount: parseFloat(credit.amount),
           notes: notes ? String(notes) : undefined,
         }).catch(() => {});

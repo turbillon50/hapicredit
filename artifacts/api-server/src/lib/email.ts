@@ -260,7 +260,7 @@ export async function sendClientReassignmentEmail(opts: {
 export async function sendCreditDecisionEmail(opts: {
   to: string;
   clientName: string;
-  action: "approve" | "reject";
+  action: "approve" | "reject" | "needs_info";
   amount: number;
   notes?: string;
 }) {
@@ -268,10 +268,14 @@ export async function sendCreditDecisionEmail(opts: {
   if (!ctx) return;
 
   const fmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
-  const isApproved = opts.action === "approve";
   const supportWa = "https://wa.me/529984292748";
 
-  const content = isApproved ? `
+  let content: string;
+  let subject: string;
+
+  if (opts.action === "approve") {
+    subject = "¡Tu crédito fue aprobado! — Crede-Ti";
+    content = `
     <h2 style="color:#16a34a;font-size:22px;margin:0 0 8px;">¡Tu crédito fue aprobado!</h2>
     <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
       Hola <strong>${opts.clientName}</strong>, nos complace informarte que tu solicitud de crédito por
@@ -288,7 +292,27 @@ export async function sendCreditDecisionEmail(opts: {
       <a href="https://crede-ti.info/mi-credito" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver mi crédito</a>
     </div>
     <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">¿Tienes dudas? Contáctanos por WhatsApp al <a href="${supportWa}" style="color:#25d366;font-weight:700;">998 429 2748</a>.</p>
-  ` : `
+  `;
+  } else if (opts.action === "needs_info") {
+    subject = "Información adicional requerida — Crede-Ti";
+    content = `
+    <h2 style="color:#d97706;font-size:22px;margin:0 0 8px;">Necesitamos más información</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
+      Hola <strong>${opts.clientName}</strong>, estamos revisando tu solicitud de crédito por
+      <strong>${fmt(opts.amount)}</strong> y necesitamos información adicional para continuar.
+    </p>
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:12px;padding:16px 20px;margin-bottom:24px;">
+      <p style="color:#92400e;font-size:13px;font-weight:700;margin:0 0 6px;text-transform:uppercase;">Información requerida</p>
+      <p style="color:#b45309;font-size:14px;margin:0;">${opts.notes}</p>
+    </div>
+    <p style="color:#64748b;font-size:14px;margin:0 0 24px;line-height:1.6;">
+      Por favor comunícate con tu asesor o responde a este correo con la información solicitada.
+    </p>
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">¿Tienes dudas? Contáctanos por WhatsApp al <a href="${supportWa}" style="color:#25d366;font-weight:700;">998 429 2748</a>.</p>
+  `;
+  } else {
+    subject = "Actualización de tu solicitud — Crede-Ti";
+    content = `
     <h2 style="color:#dc2626;font-size:22px;margin:0 0 8px;">Solicitud no aprobada</h2>
     <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
       Hola <strong>${opts.clientName}</strong>, lamentamos informarte que tu solicitud de crédito por
@@ -305,11 +329,12 @@ export async function sendCreditDecisionEmail(opts: {
     </p>
     <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">¿Tienes dudas? Contáctanos por WhatsApp al <a href="${supportWa}" style="color:#25d366;font-weight:700;">998 429 2748</a>.</p>
   `;
+  }
 
   await ctx.client.emails.send({
     from: ctx.from,
     to: opts.to,
-    subject: isApproved ? "¡Tu crédito fue aprobado! — Crede-Ti" : "Actualización de tu solicitud — Crede-Ti",
+    subject,
     html: baseTemplate(content),
   });
 }
