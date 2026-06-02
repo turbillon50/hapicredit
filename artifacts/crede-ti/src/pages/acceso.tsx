@@ -43,7 +43,7 @@ export default function Acceso() {
     <div
       style={{
         minHeight: "100dvh",
-        background: "linear-gradient(160deg, #0f1650 0%, #2A3CD6 60%, #3F51E6 100%)",
+        background: "linear-gradient(160deg, #06143B 0%, #215DFF 60%, #19D7D7 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
@@ -62,7 +62,7 @@ export default function Acceso() {
           />
         </svg>
         <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
-          Crede<span style={{ color: "#F0A93A" }}>-Ti</span>
+          Crede<span style={{ color: "#19D7D7" }}>-Ti</span>
         </div>
       </div>
 
@@ -165,8 +165,8 @@ export default function Acceso() {
             border: "none",
             background: busy || !pwd
               ? "rgba(255,255,255,0.12)"
-              : "linear-gradient(135deg, #F0A93A, #e8951e)",
-            color: busy || !pwd ? "rgba(255,255,255,0.4)" : "#15206E",
+              : "linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",
+            color: busy || !pwd ? "rgba(255,255,255,0.4)" : "#fff",
             fontSize: 15,
             fontWeight: 800,
             cursor: busy || !pwd ? "not-allowed" : "pointer",

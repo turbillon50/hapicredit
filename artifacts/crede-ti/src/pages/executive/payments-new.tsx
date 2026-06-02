@@ -85,7 +85,7 @@ export default function ExecutivePaymentsNew() {
                     : "border-border hover:border-primary/40 hover:bg-secondary"
                 }`}
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#2A3CD6" }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0" style={{ background: "#215DFF" }}>
                   <span className="text-[11px] font-bold text-white uppercase">
                     {client.fullName.trim().split(" ").slice(0,2).map((p: string) => p[0]).join("")}
                   </span>
@@ -166,7 +166,7 @@ export default function ExecutivePaymentsNew() {
                 type="submit"
                 disabled={createPayment.isPending}
                 className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg, #2A3CD6, #3F51E6)" }}
+                style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}
               >
                 <IconMoneda size={20} color="#fff" />
                 {createPayment.isPending ? "Procesando..." : "Confirmar pago"}

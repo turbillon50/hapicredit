@@ -30,7 +30,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
         minHeight: "100dvh",
         padding: "max(24px, env(safe-area-inset-top)) 24px 24px",
         background: "#f7f5f0",
-        fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+        fontFamily: "'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
         display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
       }}>
         <div style={{
@@ -41,10 +41,10 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           boxShadow: "0 8px 28px rgba(0,0,0,0.06)",
           border: "1px solid #e8e4dc",
         }}>
-          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#F0A93A", textTransform: "uppercase", marginBottom: 8 }}>
-            ● Crede-Ti
+          <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#19D7D7", textTransform: "uppercase", marginBottom: 8 }}>
+            ● credeti
           </div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: "#2A3CD6", marginBottom: 8 }}>
+          <div style={{ fontSize: 17, fontWeight: 900, color: "#215DFF", marginBottom: 8 }}>
             Algo se atoró
           </div>
           <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.55, marginBottom: 16 }}>
@@ -62,7 +62,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <button onClick={this.reset}
             style={{
               width: "100%", padding: "12px 16px",
-              background: "#2A3CD6", color: "#fff",
+              background: "#215DFF", color: "#fff",
               border: "none", borderRadius: 12,
               fontWeight: 800, fontSize: 14, cursor: "pointer",
             }}>

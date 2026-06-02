@@ -71,36 +71,36 @@ export default function AdminCodigos() {
 
     if (role === "admin") {
       text =
-        `*Crede-Ti — Invitación de Administrador*\n\n` +
-        `Hola! Eres parte del equipo directivo de *Crede-Ti* como *Administrador*.\n\n` +
+        `*credeti — Invitación de Administrador*\n\n` +
+        `Hola! Eres parte del equipo directivo de *credeti* como *Administrador*.\n\n` +
         `Para comenzar:\n` +
         `1. Abre este enlace: ${link}\n` +
         `2. Ingresa la clave de acceso institucional\n` +
         `3. Crea tu cuenta con correo y verifícala\n` +
         `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
         `_Válido 30 días · Código de un solo uso_\n\n` +
-        `*Crede-Ti* — Creemos en ti`;
+        `*credeti* — Creemos en ti`;
     } else if (role === "executive") {
       text =
-        `*Crede-Ti — Invitación de Asesor*\n\n` +
-        `Hola! Te invito a ser parte del equipo de asesores de *Crede-Ti*.\n\n` +
+        `*credeti — Invitación de Asesor*\n\n` +
+        `Hola! Te invito a ser parte del equipo de asesores de *credeti*.\n\n` +
         `Para registrarte como *Asesor*:\n` +
         `1. Entra a: ${link}\n` +
         `2. Ingresa la clave de acceso que te compartí\n` +
         `3. Crea tu cuenta con correo y verifícala\n` +
         `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
         `_Válido 30 días · Código de un solo uso_\n\n` +
-        `*Crede-Ti* — Creemos en ti`;
+        `*credeti* — Creemos en ti`;
     } else {
       text =
-        `*Crede-Ti — Tu acceso está listo*\n\n` +
-        `Hola! Tu acceso a *Crede-Ti* ha sido habilitado.\n\n` +
+        `*credeti — Tu acceso está listo*\n\n` +
+        `Hola! Tu acceso a *credeti* ha sido habilitado.\n\n` +
         `Para registrarte y consultar tu crédito:\n` +
         `1. Entra a este enlace: ${link}\n` +
         `2. Crea tu cuenta con correo y verifícala\n` +
         `3. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
         `_Válido 30 días · Código de un solo uso_\n\n` +
-        `*Crede-Ti* — Creemos en ti`;
+        `*credeti* — Creemos en ti`;
     }
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");

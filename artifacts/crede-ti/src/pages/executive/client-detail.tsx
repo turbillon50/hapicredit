@@ -70,7 +70,7 @@ export default function ExecutiveClientDetail() {
       <div className="space-y-4">
 
         <div className="bg-white rounded-2xl shadow-card p-5 flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #2A3CD6, #3F51E6)" }}>
+          <div className="w-20 h-20 rounded-2xl flex items-center justify-center mb-4" style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}>
             <Initials name={client.fullName} />
           </div>
           <h2 className="text-[18px] font-bold text-foreground">{client.fullName}</h2>
@@ -83,7 +83,7 @@ export default function ExecutiveClientDetail() {
         </div>
 
         {activeCredit && (
-          <div className="rounded-2xl p-5 shadow-card-md relative overflow-hidden" style={{ background: "linear-gradient(135deg, #15206E, #2A3CD6)" }}>
+          <div className="rounded-2xl p-5 shadow-card-md relative overflow-hidden" style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}>
             <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>Crédito activo</p>
             <div className="flex items-end justify-between">
               <div>

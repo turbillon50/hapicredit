@@ -33,7 +33,7 @@ export default function Registro() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
+      background: "linear-gradient(150deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",

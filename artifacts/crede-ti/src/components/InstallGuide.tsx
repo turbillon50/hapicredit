@@ -27,11 +27,11 @@ export function InstallGuide() {
         <div className="p-5" style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom, 0px))" }}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#15206E" }}>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#0A2E8A" }}>
                 <span className="text-white font-bold text-[13px]" style={{ fontFamily: "Georgia, serif" }}>HC</span>
               </div>
               <div>
-                <p className="text-[15px] font-bold text-foreground">Instalar Crede-Ti</p>
+                <p className="text-[15px] font-bold text-foreground">Instalar credeti</p>
                 <p className="text-[11px] text-muted-foreground">Acceso directo desde tu pantalla</p>
               </div>
             </div>
@@ -80,7 +80,7 @@ export function InstallGuide() {
 
           <div className="mt-5 p-3 rounded-xl bg-blue-50 border border-blue-100">
             <p className="text-[11px] text-blue-800 leading-relaxed">
-              Al instalar, Crede-Ti se abrirá a pantalla completa sin barra de navegador, como una app nativa. Funciona incluso sin conexión para las pantallas ya visitadas.
+              Al instalar, credeti se abrirá a pantalla completa sin barra de navegador, como una app nativa. Funciona incluso sin conexión para las pantallas ya visitadas.
             </p>
           </div>
         </div>

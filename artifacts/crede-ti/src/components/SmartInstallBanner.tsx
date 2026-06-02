@@ -60,7 +60,7 @@ export default function SmartInstallBanner() {
     return (
       <div style={{
         position: "fixed", bottom: 88, left: 12, right: 12, zIndex: 200,
-        background: "#2A3CD6", borderRadius: 20,
+        background: "#215DFF", borderRadius: 20,
         padding: "14px 16px",
         boxShadow: "0 8px 40px rgba(0,0,0,0.4)",
         display: "flex", alignItems: "center", gap: 12,
@@ -75,14 +75,14 @@ export default function SmartInstallBanner() {
           </svg>
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 800, fontSize: 14, color: "#fff", lineHeight: 1.2 }}>Instalar Crede-Ti</div>
+          <div style={{ fontWeight: 800, fontSize: 14, color: "#fff", lineHeight: 1.2 }}>Instalar credeti</div>
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.55)", marginTop: 2 }}>Acceso rápido desde tu inicio</div>
         </div>
         <button
           onClick={installAndroid}
           style={{
             padding: "8px 14px", borderRadius: 10,
-            background: "#2A3CD6", color: "#fff",
+            background: "#215DFF", color: "#fff",
             border: "none", fontWeight: 700, fontSize: 12, cursor: "pointer", flexShrink: 0,
           }}
         >
@@ -129,7 +129,7 @@ export default function SmartInstallBanner() {
             </button>
           </div>
           <div style={{ fontSize: 13, color: "#64748b", marginBottom: 18, lineHeight: 1.5 }}>
-            Agrega Crede-Ti a tu pantalla de inicio para usarla como app nativa, sin abrir el navegador.
+            Agrega credeti a tu pantalla de inicio para usarla como app nativa, sin abrir el navegador.
           </div>
           {[
             { num: 1, color: "#4f46e5", bg: "#e0e7ff", title: 'Toca el botón "Compartir"', sub: "El ícono de cuadro con flecha hacia arriba, en la barra inferior de Safari" },

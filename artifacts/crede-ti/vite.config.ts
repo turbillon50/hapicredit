@@ -23,7 +23,7 @@ export default defineConfig(({ mode }) => {
   const brandName =
     env.VITE_BRAND_NAME      || process.env.VITE_BRAND_NAME
     || env.NEXT_PUBLIC_BRAND_NAME || process.env.NEXT_PUBLIC_BRAND_NAME
-    || "Crede-Ti";
+    || "credeti";
 
   return {
     base: basePath,
@@ -39,11 +39,11 @@ export default defineConfig(({ mode }) => {
         registerType: "autoUpdate",
         includeAssets: ["favicon-64.png", "apple-touch-icon.png", "pwa-192.png", "pwa-512.png", "logo-credeti-full.jpeg"],
         manifest: {
-          name: "Crede-Ti — Creemos en ti",
-          short_name: "Crede-Ti",
-          description: "Crede-Ti — Más que un crédito, una forma distinta de vivir.",
-          theme_color: "#2A3CD6",
-          background_color: "#15206E",
+          name: "credeti — Crédito para ti",
+          short_name: "credeti",
+          description: "credeti — Más que un crédito, una forma distinta de vivir.",
+          theme_color: "#215DFF",
+          background_color: "#06143B",
           display: "standalone",
           orientation: "portrait",
           start_url: ".",

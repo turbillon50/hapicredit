@@ -86,7 +86,7 @@ function isActive(path: string, current: string) {
   return false;
 }
 
-function HapiIcon({ size = 20, color = "#2A3CD6" }: { size?: number; color?: string }) {
+function HapiIcon({ size = 20, color = "#215DFF" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <circle cx="90" cy="52" r="16" fill={color} />
@@ -284,7 +284,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
           <button
             onClick={() => { localStorage.clear(); window.location.href = "/"; }}
             style={{
-              background: "rgba(10,31,74,0.12)", color: "#15206E",
+              background: "rgba(10,31,74,0.12)", color: "#0A2E8A",
               border: "none", borderRadius: 100, padding: "3px 10px",
               fontWeight: 700, fontSize: 10, cursor: "pointer",
               letterSpacing: "0.04em",

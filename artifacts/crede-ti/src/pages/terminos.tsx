@@ -4,7 +4,7 @@ function Header() {
   const [, navigate] = useLocation();
   return (
     <header style={{
-      background: "#2A3CD6", padding: "16px 24px",
+      background: "#215DFF", padding: "16px 24px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       position: "sticky", top: 0, zIndex: 10,
     }}>
@@ -14,7 +14,7 @@ function Header() {
           <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
         </svg>
         <span style={{ color: "white", fontWeight: 800, fontSize: 18 }}>
-          Crede<span style={{ color: "#F0A93A" }}>-Ti</span>
+          Crede<span style={{ color: "#19D7D7" }}>-Ti</span>
         </span>
       </div>
       <button
@@ -33,7 +33,7 @@ function Header() {
 
 const s: Record<string, React.CSSProperties> = {
   section: { marginBottom: 36 },
-  h2: { fontSize: 17, fontWeight: 800, color: "#2A3CD6", marginBottom: 10 },
+  h2: { fontSize: 17, fontWeight: 800, color: "#215DFF", marginBottom: 10 },
   p:  { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 10 },
   li: { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 6, paddingLeft: 6 },
   ul: { paddingLeft: 20, marginBottom: 10 },
@@ -70,7 +70,7 @@ export default function Terminos() {
 
         {/* Hero */}
         <div style={{
-          background: "linear-gradient(135deg, #2A3CD6, #3F51E6)",
+          background: "linear-gradient(135deg, #3A00C8, #215DFF)",
           borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
@@ -88,7 +88,7 @@ export default function Terminos() {
         <div style={s.section}>
           <h2 style={s.h2}>1. Aceptación de los términos</h2>
           <p style={s.p}>
-            Al solicitar un crédito con <strong>Crede-Ti</strong>, el cliente acepta
+            Al solicitar un crédito con <strong>credeti</strong>, el cliente acepta
             expresamente los presentes Términos y Condiciones. Si no está de acuerdo con
             alguno de ellos, debe abstenerse de utilizar el servicio.
           </p>
@@ -98,7 +98,7 @@ export default function Terminos() {
         <div style={s.section}>
           <h2 style={s.h2}>2. Descripción del servicio</h2>
           <p style={s.p}>
-            Crede-Ti es una plataforma de gestión de microcréditos personales que opera
+            credeti es una plataforma de gestión de microcréditos personales que opera
             dentro del territorio mexicano. El crédito es <strong>personal</strong> y debe
             ser pagado en los tiempos establecidos (semanal o quincenal según contrato).
           </p>
@@ -107,7 +107,7 @@ export default function Terminos() {
         {/* 3. Condiciones del crédito */}
         <div style={s.section}>
           <h2 style={s.h2}>3. Condiciones del crédito</h2>
-          <p style={s.p}>Los créditos otorgados a través de Crede-Ti se rigen bajo las siguientes reglas:</p>
+          <p style={s.p}>Los créditos otorgados a través de credeti se rigen bajo las siguientes reglas:</p>
 
           <div style={{
             background: "#f0fdf4", border: "1px solid #bbf7d0",
@@ -137,13 +137,13 @@ export default function Terminos() {
           <Nota>
             <strong>Cargo por pago tardío:</strong> Se aplicará una multa equivalente al <strong>10% del pago atrasado</strong>.
             Ejemplo: si el pago era de $300, la multa es de $30. El horario límite de pago es a las
-            <strong> 5:00 PM del día acordado</strong>. Crede-Ti <strong>no cobra comisión por apertura</strong>.
+            <strong> 5:00 PM del día acordado</strong>. credeti <strong>no cobra comisión por apertura</strong>.
           </Nota>
 
           <ul style={s.ul}>
             <li style={s.li}>El crédito se otorga sujeto a evaluación y aprobación del Asesor y Administrador asignado.</li>
             <li style={s.li}>Los pagos deben realizarse en la fecha y forma acordadas con su Asesor.</li>
-            <li style={s.li}>Crede-Ti podrá realizar <strong>validaciones de información y visitas domiciliarias</strong>.</li>
+            <li style={s.li}>credeti podrá realizar <strong>validaciones de información y visitas domiciliarias</strong>.</li>
             <li style={s.li}>En caso de incumplimiento, se podrán tomar acciones de cobranza correspondientes.</li>
           </ul>
         </div>
@@ -188,7 +188,7 @@ export default function Terminos() {
           <p style={s.p}><strong>Administrador:</strong></p>
           <ul style={s.ul}>
             <li style={s.li}>Supervisar la cartera, aprobar créditos y gestionar la plataforma.</li>
-            <li style={s.li}>Garantizar el cumplimiento de las políticas internas de Crede-Ti.</li>
+            <li style={s.li}>Garantizar el cumplimiento de las políticas internas de credeti.</li>
           </ul>
         </div>
 
@@ -224,7 +224,7 @@ export default function Terminos() {
         <div style={s.section}>
           <h2 style={s.h2}>8. Modificaciones a los términos</h2>
           <p style={s.p}>
-            Crede-Ti se reserva el derecho de modificar estos Términos en cualquier
+            credeti se reserva el derecho de modificar estos Términos en cualquier
             momento. Los cambios se notificarán a través de la plataforma.
           </p>
         </div>
@@ -243,7 +243,7 @@ export default function Terminos() {
         <div style={s.section}>
           <h2 style={s.h2}>10. Contacto</h2>
           <InfoBox>
-            <strong>Crede-Ti</strong><br />
+            <strong>credeti</strong><br />
             Ignacio López Rayón Sur 702, Despacho 104<br />
             Col. Cuauhtémoc, Toluca, Estado de México<br />
             (A un costado de la Secretaría del Trabajo)<br /><br />
@@ -259,10 +259,10 @@ export default function Terminos() {
         {/* Footer */}
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 24, textAlign: "center" }}>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Crede-Ti — crede-ti.info
+            credeti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Al utilizar Crede-Ti, usted confirma haber leído y aceptado estos Términos y Condiciones.
+            Al utilizar credeti, usted confirma haber leído y aceptado estos Términos y Condiciones.
           </p>
         </div>
       </div>

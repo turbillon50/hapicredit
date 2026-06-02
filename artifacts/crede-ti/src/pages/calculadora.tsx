@@ -21,9 +21,9 @@ const fmt = (n: number) =>
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
 // ─── Colores ──────────────────────────────────────────────────────────────────
-const AZUL   = "#2A3CD6";
-const AZUL2  = "#15206E";
-const AMARILLO = "#F0A93A";
+const AZUL   = "#215DFF";
+const AZUL2  = "#0A2E8A";
+const AMARILLO = "#19D7D7";
 const VERDE  = "#16a34a";
 
 // ─── Componentes pequeños ─────────────────────────────────────────────────────
@@ -270,7 +270,7 @@ export default function Calculadora() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: `linear-gradient(150deg, ${AZUL2} 0%, ${AZUL} 55%, #3F51E6 100%)`,
+      background: `linear-gradient(150deg, ${AZUL2} 0%, ${AZUL} 55%, #215DFF 100%)`,
       fontFamily: "'Inter', -apple-system, sans-serif",
       paddingBottom: 40,
     }}>

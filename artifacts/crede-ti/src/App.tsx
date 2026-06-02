@@ -62,15 +62,15 @@ function SignInPage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
+      background: "linear-gradient(150deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
         <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
-          <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+          <img src={logoImg} alt="credeti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
-        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#F0A93A" }}>-Ti</span></div>
-        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Creemos en ti</div>
+        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>crede<span style={{ color: "#19D7D7" }}>ti</span></div>
+        <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Crédito para ti</div>
       </div>
       <SignIn
         routing="path"
@@ -86,7 +86,7 @@ function SignInPage() {
             headerTitle:             { fontSize: 20 },
             headerSubtitle:          { fontSize: 13 },
           },
-          variables: { colorPrimary: "#2A3CD6" },
+          variables: { colorPrimary: "#215DFF" },
         }}
       />
       <div style={{ marginTop: 14, display: "flex", gap: 20 }}>
@@ -102,14 +102,14 @@ function SignUpPage() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(150deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
+      background: "linear-gradient(150deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
       display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24,
     }}>
       <div style={{ marginBottom: 28, textAlign: "center" }}>
         <div style={{ width: 72, height: 72, borderRadius: 20, overflow: "hidden", margin: "0 auto 12px", boxShadow: "0 8px 28px rgba(0,0,0,0.4)", background: "#fff" }}>
-          <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
+          <img src={logoImg} alt="credeti" style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }} />
         </div>
-        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>Crede<span style={{ color: "#F0A93A" }}>-Ti</span></div>
+        <div style={{ color: "white", fontWeight: 800, fontSize: 22, letterSpacing: "-0.04em" }}>crede<span style={{ color: "#19D7D7" }}>ti</span></div>
         <div style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, marginTop: 3 }}>Crea tu cuenta</div>
       </div>
       <SignUp
@@ -124,7 +124,7 @@ function SignUpPage() {
             dividerRow:              { display: "none" },
             card:                    { boxShadow: "0 24px 80px rgba(0,0,0,0.4)", borderRadius: 20 },
           },
-          variables: { colorPrimary: "#2A3CD6" },
+          variables: { colorPrimary: "#215DFF" },
         }}
       />
     </div>
