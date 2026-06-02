@@ -43,26 +43,30 @@ export default function Acceso() {
     <div
       style={{
         minHeight: "100dvh",
-        background: "linear-gradient(160deg, #0f1650 0%, #2A3CD6 60%, #3F51E6 100%)",
+        background: "linear-gradient(160deg, #06143B 0%, #215DFF 60%, #19D7D7 100%)",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: "24px 20px",
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+        fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
       }}
     >
       {/* Logo */}
       <div style={{ marginBottom: 40, textAlign: "center" }}>
-        <svg width="56" height="56" viewBox="0 0 180 180" fill="none" style={{ marginBottom: 12 }}>
-          <circle cx="90" cy="52" r="16" fill="white" />
-          <path
-            d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z"
-            fill="white"
-          />
+        <svg width="56" height="56" viewBox="0 0 100 100" fill="none" style={{ marginBottom: 12 }}>
+          <defs>
+            <linearGradient id="cgLA" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#3A00C8"/>
+              <stop offset="100%" stopColor="#215DFF"/>
+            </linearGradient>
+          </defs>
+          <path d="M72 18C62 10 42 8 26 18C12 27 8 42 12 56C16 70 30 80 48 82C58 83 68 80 76 74" stroke="url(#cgLA)" strokeWidth="14" strokeLinecap="round" fill="none"/>
+          <circle cx="80" cy="18" r="9" fill="#19D7D7"/>
+          <rect x="62" y="46" width="26" height="11" rx="5.5" fill="#19D7D7"/>
         </svg>
         <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
-          Crede<span style={{ color: "#F0A93A" }}>-Ti</span>
+          crede<span style={{ color: "#19D7D7" }}>ti</span>
         </div>
       </div>
 
@@ -165,8 +169,8 @@ export default function Acceso() {
             border: "none",
             background: busy || !pwd
               ? "rgba(255,255,255,0.12)"
-              : "linear-gradient(135deg, #F0A93A, #e8951e)",
-            color: busy || !pwd ? "rgba(255,255,255,0.4)" : "#15206E",
+              : "linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",
+            color: busy || !pwd ? "rgba(255,255,255,0.4)" : "#fff",
             fontSize: 15,
             fontWeight: 800,
             cursor: busy || !pwd ? "not-allowed" : "pointer",

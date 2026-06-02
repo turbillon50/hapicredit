@@ -21,9 +21,9 @@ const fmt = (n: number) =>
 const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 
 // ─── Colores ──────────────────────────────────────────────────────────────────
-const AZUL   = "#2A3CD6";
-const AZUL2  = "#15206E";
-const AMARILLO = "#F0A93A";
+const AZUL   = "#215DFF";
+const AZUL2  = "#0A2E8A";
+const AMARILLO = "#19D7D7";
 const VERDE  = "#16a34a";
 
 // ─── Componentes pequeños ─────────────────────────────────────────────────────
@@ -138,7 +138,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
 
       <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
         <p style={{ margin: "0 0 8px" }}>
-          Crede‑Ti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
+          credeti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
           al número de semanas de tu crédito:
         </p>
 
@@ -270,8 +270,8 @@ export default function Calculadora() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: `linear-gradient(150deg, ${AZUL2} 0%, ${AZUL} 55%, #3F51E6 100%)`,
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      background: `linear-gradient(150deg, #06143B 0%, ${AZUL} 55%, ${AMARILLO} 100%)`,
+      fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
       paddingBottom: 40,
     }}>
 

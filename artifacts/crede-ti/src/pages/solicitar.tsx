@@ -230,11 +230,11 @@ export default function Solicitar() {
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Solicitud enviada</h2>
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
-            Un asesor de Crede-Ti revisará tu expediente y te contactará pronto.
+            Un asesor de credeti revisará tu expediente y te contactará pronto.
           </p>
           <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#eff6ff", border: "1.5px solid #bfdbfe" }}>
-            <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#2A3CD6" }}>Folio</div>
-            <div className="text-2xl font-extrabold" style={{ color: "#2A3CD6" }}>{done}</div>
+            <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#215DFF" }}>Folio</div>
+            <div className="text-2xl font-extrabold" style={{ color: "#215DFF" }}>{done}</div>
           </div>
           <div className="bg-gray-50 rounded-2xl p-4 w-full max-w-xs mb-6">
             <div className="grid grid-cols-2 gap-3 text-center text-xs">
@@ -253,7 +253,7 @@ export default function Solicitar() {
           </a>
 
           {/* Thank you + social — matches the owner's WhatsApp script */}
-          <div className="w-full max-w-xs rounded-2xl p-5 text-center" style={{ background: "#2A3CD6" }}>
+          <div className="w-full max-w-xs rounded-2xl p-5 text-center" style={{ background: "#215DFF" }}>
             <div className="text-base font-extrabold text-white mb-1">Gracias por formar parte</div>
             <div className="text-xs text-white/75 mb-3 leading-relaxed">
               Síguenos en redes y entérate de todas nuestras promociones, servicios y productos.
@@ -409,7 +409,7 @@ export default function Solicitar() {
                 value={clampedAmount}
                 onChange={e => setAmount(Number(e.target.value))}
                 className="w-full"
-                style={{ accentColor: "#2A3CD6" }}
+                style={{ accentColor: "#215DFF" }}
               />
               <div className="flex justify-between text-xs text-gray-400">
                 <span>{fmt(amountMin)}</span>
@@ -430,7 +430,7 @@ export default function Solicitar() {
                     value={clampedTerm}
                     onChange={e => setTermWeeks(Number(e.target.value))}
                     className="w-full"
-                    style={{ accentColor: "#2A3CD6" }}
+                    style={{ accentColor: "#215DFF" }}
                   />
                   <div className="flex justify-between text-xs text-gray-400">
                     <span>{termMin} {termLabel}</span>

@@ -115,7 +115,7 @@ export default function AdminDashboard() {
               className="anim-section anim-d1"
               style={{
                 borderRadius: 22, padding: "20px",
-                background: "linear-gradient(140deg,#15206E 0%,#2A3CD6 50%,#3F51E6 100%)",
+                background: "linear-gradient(140deg,#06143B 0%,#215DFF 50%,#19D7D7 100%)",
                 position: "relative", overflow: "hidden",
               }}
             >
@@ -339,12 +339,12 @@ export default function AdminDashboard() {
                   <AreaChart data={collectionTrend} margin={{ top: 4, right: 16, left: -16, bottom: 0 }}>
                     <defs>
                       <linearGradient id="gradCollected" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#2A3CD6" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#2A3CD6" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#215DFF" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#215DFF" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradExpected" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#F0A93A" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#F0A93A" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#19D7D7" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#19D7D7" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
@@ -367,14 +367,14 @@ export default function AdminDashboard() {
                         name === "collected" ? "Cobrado" : "Meta",
                       ]}
                     />
-                    <Area type="monotone" dataKey="expected" stroke="#F0A93A" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#gradExpected)" dot={false} />
-                    <Area type="monotone" dataKey="collected" stroke="#2A3CD6" strokeWidth={2} fill="url(#gradCollected)" dot={{ r: 3, fill: "#2A3CD6", strokeWidth: 0 }} activeDot={{ r: 5 }} />
+                    <Area type="monotone" dataKey="expected" stroke="#19D7D7" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#gradExpected)" dot={false} />
+                    <Area type="monotone" dataKey="collected" stroke="#215DFF" strokeWidth={2} fill="url(#gradCollected)" dot={{ r: 3, fill: "#215DFF", strokeWidth: 0 }} activeDot={{ r: 5 }} />
                   </AreaChart>
                 </ResponsiveContainer>
                 <div style={{ display: "flex", justifyContent: "center", gap: 20, paddingTop: 4 }}>
                   {[
-                    { color: "#2A3CD6", label: "Cobrado" },
-                    { color: "#F0A93A", label: "Meta", dashed: true },
+                    { color: "#215DFF", label: "Cobrado" },
+                    { color: "#19D7D7", label: "Meta", dashed: true },
                   ].map(l => (
                     <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <div style={{ width: 20, height: 2, background: l.color, borderRadius: 1, borderTop: l.dashed ? "2px dashed currentColor" : undefined }} />
@@ -486,13 +486,13 @@ export default function AdminDashboard() {
         <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d6">
           <div style={{
             borderRadius: 20,
-            background: "linear-gradient(135deg, #15206E 0%, #2A3CD6 60%, #3F51E6 100%)",
+            background: "linear-gradient(135deg, #3A00C8, #215DFF)",
             padding: "20px",
             position: "relative",
             overflow: "hidden",
           }}>
             <div style={{ position:"absolute",top:-60,right:-60,width:160,height:160,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#F0A93A", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>Mi red</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#19D7D7", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>Mi red</div>
             <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>
               Control completo de tu operación
             </div>
@@ -519,7 +519,7 @@ export default function AdminDashboard() {
                 </div>
               </Link>
               <Link href="/admin/codigos">
-                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "#F0A93A", color: "#15206E", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
+                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "#19D7D7", color: "#0A2E8A", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
                   Invitar al equipo
                 </div>
               </Link>
@@ -534,7 +534,7 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-              { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#2A3CD6" },
+              { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#215DFF" },
               { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "#16a34a" },
               { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "#d97706" },
               { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "#7c3aed" },

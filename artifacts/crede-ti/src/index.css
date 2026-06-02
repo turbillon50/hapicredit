@@ -1,25 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,300;0,14..32,400;0,14..32,500;0,14..32,600;0,14..32,700;0,14..32,800;0,14..32,900;1,14..32,400&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap');
 @import "tailwindcss";
 
 /* ════════════════════════════════════════════════════════════════════
-   Crede-Ti — Design tokens
-   "Banco premium": estructura limpia, calidez, profundidad.
+   credeti — Design tokens
+   Identidad: azul eléctrico + turquesa digital.
    Light-first con modo oscuro vía [data-theme="dark"].
-   Paleta derivada del logo: azul cobalto + ámbar/oro.
    ════════════════════════════════════════════════════════════════════ */
 :root {
-  /* ── Brand (del logo) ── */
-  --brand-blue:        #2A3CD6;   /* cobalto del wordmark "Crede-Ti" */
-  --brand-blue-hover:  #2230BE;
-  --brand-blue-deep:   #15206E;   /* navy profundo (héroes, superficies oscuras) */
-  --brand-blue-mid:    #3F51E6;
-  --brand-blue-light:  #6E7CF2;
+  /* ── Brand credeti ── */
+  --brand-blue:        #215DFF;   /* Azul Eléctrico (primario) */
+  --brand-blue-hover:  #1A4FE0;
+  --brand-blue-deep:   #0A2E8A;   /* Azul Corporativo (oscuro/texto) */
+  --brand-blue-mid:    #3A00C8;   /* violeta-azul del gradiente */
+  --brand-blue-light:  #6E8FFF;
 
-  --brand-gold:        #F0A93A;   /* ámbar del óvalo + swoosh */
-  --brand-gold-hover:  #D98E1E;
-  --brand-gold-deep:   #B9770F;
-  --brand-gold-light:  rgba(240,169,58,0.14);
-  --brand-gold-xlight: rgba(240,169,58,0.07);
+  --brand-gold:        #19D7D7;   /* Turquesa Digital (acento) */
+  --brand-gold-hover:  #12B8B8;
+  --brand-gold-deep:   #0A9090;
+  --brand-gold-light:  rgba(25,215,215,0.14);
+  --brand-gold-xlight: rgba(25,215,215,0.07);
 
   /* ── Aliases legacy → marca (para que el código existente se adapte) ── */
   --coral:        var(--brand-gold);
@@ -67,7 +66,7 @@
   --border-mid:   #D6DBE4;
 
   /* ── Anillo de foco ── */
-  --ring:         rgba(42,60,214,0.16);
+  --ring:         rgba(33,93,255,0.16);
 
   /* ── Sombras (limpias, frías) ── */
   --shadow-xs:   0 1px 2px rgba(15,23,42,0.05);
@@ -83,7 +82,7 @@
   --r-lg: 18px;
   --r-xl: 24px;
 
-  --font-display: 'Fraunces', 'Liberation Serif', Georgia, serif;
+  --font-display: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* ── Modo oscuro (Apple-TV-ish: navy-negro con profundidad) ── */
@@ -94,10 +93,10 @@
   --brand-blue-mid:    #6E7CF2;
   --brand-blue-light:  #8E9AF8;
 
-  --brand-gold:        #F4B454;
-  --brand-gold-hover:  #F6C173;
-  --brand-gold-light:  rgba(244,180,84,0.16);
-  --brand-gold-xlight: rgba(244,180,84,0.08);
+  --brand-gold:        #19D7D7;
+  --brand-gold-hover:  #12B8B8;
+  --brand-gold-light:  rgba(25,215,215,0.16);
+  --brand-gold-xlight: rgba(25,215,215,0.08);
 
   --success-bg:   rgba(14,159,110,0.18);
   --warning-bg:   rgba(217,142,30,0.18);
@@ -143,7 +142,7 @@ html {
 
 body {
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: var(--app-bg);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;

@@ -98,7 +98,7 @@ function EditModal({ node, onSave, onCancel, loading }: { node: TreeNode; onSave
         <button
           onClick={() => onSave(name)}
           disabled={loading || !name.trim()}
-          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#2A3CD6", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
+          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#215DFF", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
         >
           {loading ? "Guardando..." : "Guardar cambios"}
         </button>
@@ -282,7 +282,7 @@ export default function AdminArbol() {
     <Layout>
       <div style={{ padding: "16px 16px 100px" }}>
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#2A3CD6" }}>
+          <h1 style={{ fontSize: 20, fontWeight: 800, color: "#215DFF" }}>
             {userRole === "admin" ? "Mi Arbol" : "Mi Red"}
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
@@ -293,7 +293,7 @@ export default function AdminArbol() {
         {/* Summary */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
           <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid #f1f5f9" }}>
-            <div style={{ fontSize: 22, fontWeight: 800, color: "#2A3CD6" }}>{totalAll}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#215DFF" }}>{totalAll}</div>
             <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Total</div>
           </div>
           {userRole === "admin" && (
@@ -330,7 +330,7 @@ export default function AdminArbol() {
             </p>
             <a
               href="/perfil"
-              style={{ display: "inline-block", padding: "13px 28px", background: "#2A3CD6", color: "#fff", borderRadius: 14, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+              style={{ display: "inline-block", padding: "13px 28px", background: "#215DFF", color: "#fff", borderRadius: 14, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
             >
               Ir a mi perfil — Códigos de invitación
             </a>
@@ -341,7 +341,7 @@ export default function AdminArbol() {
         {!isLoading && !error && level1.length > 0 && (
           <>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#2A3CD6", borderRadius: 14, padding: "14px 16px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#215DFF", borderRadius: 14, padding: "14px 16px" }}>
                 <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <IconAdmin size={16} color="white" />
                 </div>
@@ -438,7 +438,7 @@ export default function AdminArbol() {
             <button
               onClick={() => newParentId && cambiarSucursalMut.mutate({ execId: cambiarSucursalTarget.id, parentId: newParentId })}
               disabled={!newParentId || cambiarSucursalMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#2A3CD6", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newParentId || cambiarSucursalMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newParentId || cambiarSucursalMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newParentId || cambiarSucursalMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newParentId || cambiarSucursalMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {cambiarSucursalMut.isPending ? "Moviendo..." : "Cambiar sucursal"}
             </button>

@@ -3,7 +3,7 @@ import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import logoImg from "@assets/logo-credeti-square.jpeg";
 
-function HapiIcon({ size = 24, color = "#2A3CD6" }: { size?: number; color?: string }) {
+function HapiIcon({ size = 24, color = "#215DFF" }: { size?: number; color?: string }) {
   return (
     <svg width={size} height={size} viewBox="0 0 180 180" fill="none">
       <circle cx="90" cy="52" r="16" fill={color} />
@@ -20,7 +20,7 @@ const steps = [
 
 const faqs = [
   { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 semanas, 5% de interés mensual." },
-  { q: "Hay comisión por apertura?",              a: "No. Crede-Ti no cobra comisión por apertura." },
+  { q: "Hay comisión por apertura?",              a: "No. credeti no cobra comisión por apertura." },
   { q: "Que pasa si pago tarde?",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
   { q: "Como elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
 ];
@@ -69,13 +69,13 @@ export default function Home() {
 
   return (
     <Layout>
-      <div style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      <div style={{ fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}>
 
         {/* ═══════════════════════════════════════════
             HERO
         ═══════════════════════════════════════════ */}
         <section style={{
-          background: "linear-gradient(160deg,#15206E 0%,#2A3CD6 55%,#3F51E6 100%)",
+          background: "linear-gradient(160deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
           padding: "44px 24px 60px",
           position: "relative",
           overflow: "hidden",
@@ -86,7 +86,7 @@ export default function Home() {
 
           {/* Logo */}
           <div className="anim-section anim-d1" style={{ width:84,height:84,borderRadius:22,overflow:"hidden",marginBottom:28,boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
-            <img src={logoImg} alt="Crede-Ti" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
+            <img src={logoImg} alt="credeti" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
           </div>
 
           {/* Headline */}
@@ -99,7 +99,7 @@ export default function Home() {
             maxWidth:360,
           }}>
             Credito rapido<br />
-            <span style={{ background:"linear-gradient(90deg,#F0A93A 0%,#F6C173 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
+            <span style={{ background:"linear-gradient(90deg,#19D7D7 0%,#7DF0F0 100%)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent" }}>
               para crecer.
             </span>
           </h1>
@@ -112,7 +112,7 @@ export default function Home() {
           <div className="anim-section anim-d4" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
             <button onClick={handleCTA} style={{
               padding:"15px 32px",
-              background:"#2A3CD6",color:"#fff",
+              background:"#215DFF",color:"#fff",
               border:"none",borderRadius:100,
               fontWeight:800,fontSize:15,
               cursor:"pointer",fontFamily:"inherit",
@@ -165,14 +165,14 @@ export default function Home() {
         <section style={{
           background:"linear-gradient(135deg,#FFF7E6 0%,#FFF1D6 100%)",
           padding:"32px 24px",
-          borderTop:"3px solid #F0A93A",
+          borderTop:"3px solid #19D7D7",
           borderBottom:"1px solid #F5D88F",
         }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:6 }}>
-            <span style={{ fontSize:10,fontWeight:800,color:"#15206E",background:"#F0A93A",padding:"3px 9px",borderRadius:100,letterSpacing:"0.08em" }}>MODO DEMO</span>
+            <span style={{ fontSize:10,fontWeight:800,color:"#0A2E8A",background:"#19D7D7",padding:"3px 9px",borderRadius:100,letterSpacing:"0.08em" }}>MODO DEMO</span>
             <span style={{ fontSize:11,color:"#7C5B14",fontWeight:600 }}>Para revisión</span>
           </div>
-          <h3 style={{ fontSize:18,fontWeight:800,color:"#15206E",margin:"0 0 6px",letterSpacing:"-0.02em" }}>
+          <h3 style={{ fontSize:18,fontWeight:800,color:"#0A2E8A",margin:"0 0 6px",letterSpacing:"-0.02em" }}>
             Entra sin cuenta a ver cada pantalla
           </h3>
           <p style={{ fontSize:13,color:"#6B5219",margin:"0 0 18px",lineHeight:1.55 }}>
@@ -183,7 +183,7 @@ export default function Home() {
           <div style={{ display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8 }}>
             {[
               { role:"client",    label:"Cliente",  sub:"Acreditado", color:"#059669" },
-              { role:"executive", label:"Asesor",   sub:"Ejecutivo",  color:"#2A3CD6" },
+              { role:"executive", label:"Asesor",   sub:"Ejecutivo",  color:"#215DFF" },
               { role:"admin",     label:"Admin",    sub:"Control",    color:"#7C3AED" },
             ].map(d => (
               <button
@@ -216,7 +216,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:36 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Tres pasos,<br />y listo.
             </h2>
@@ -230,7 +230,7 @@ export default function Home() {
               }}>
                 <div style={{
                   width:46,height:46,borderRadius:14,flexShrink:0,
-                  background: s.active?"#2A3CD6":"var(--bg-warm)",
+                  background: s.active?"#215DFF":"var(--bg-warm)",
                   display:"flex",alignItems:"center",justifyContent:"center",
                   boxShadow: s.active?"0 4px 16px rgba(14,104,204,0.35)":"none",
                 }}>
@@ -250,7 +250,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Financiamiento<br />hecho para ti.
             </h2>
@@ -303,7 +303,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Claro y<br />sin sorpresas.
             </h2>
@@ -337,7 +337,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Resolvemos<br />tus dudas.
             </h2>
@@ -362,7 +362,7 @@ export default function Home() {
                   <span style={{ fontSize:15,fontWeight:700,color:"#111",letterSpacing:"-0.02em",paddingRight:12 }}>{f.q}</span>
                   <span style={{
                     width:28,height:28,borderRadius:8,flexShrink:0,
-                    background: openFaq===i?"#2A3CD6":"var(--bg-warm)",
+                    background: openFaq===i?"#215DFF":"var(--bg-warm)",
                     display:"flex",alignItems:"center",justifyContent:"center",
                     transition:"background 0.2s",
                   }}>
@@ -383,7 +383,7 @@ export default function Home() {
             FINAL CTA — royal blue + gold accent
         ═══════════════════════════════════════════ */}
         <section style={{
-          background:"linear-gradient(135deg,#15206E 0%,#2A3CD6 60%,#3F51E6 100%)",
+          background:"linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",
           padding:"60px 24px 68px",
           textAlign:"center",
           position:"relative",
@@ -397,9 +397,9 @@ export default function Home() {
             display:"flex",alignItems:"center",justifyContent:"center",
             margin:"0 auto 22px",
           }}>
-            <HapiIcon size={30} color="#F0A93A" />
+            <HapiIcon size={30} color="#19D7D7" />
           </div>
-          <div style={{ fontSize:11,fontWeight:700,color:"#F0A93A",letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10 }}>
+          <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.18em",textTransform:"uppercase",marginBottom:10 }}>
             Creemos en ti
           </div>
           <h2 style={{ fontSize:32,fontWeight:900,color:"#fff",letterSpacing:"-0.04em",margin:"0 0 12px",lineHeight:1.1 }}>
@@ -410,7 +410,7 @@ export default function Home() {
           </p>
           <button onClick={handleCTA} style={{
             padding:"16px 42px",
-            background:"#F0A93A",color:"#15206E",
+            background:"#19D7D7",color:"#0A2E8A",
             border:"none",borderRadius:100,
             fontWeight:800,fontSize:16,
             cursor:"pointer",fontFamily:"inherit",
@@ -422,11 +422,11 @@ export default function Home() {
         </section>
 
         {/* FOOTER */}
-        <footer style={{ background:"#15206E",padding:"36px 24px 48px",color:"rgba(255,255,255,0.32)" }}>
+        <footer style={{ background:"#0A2E8A",padding:"36px 24px 48px",color:"rgba(255,255,255,0.32)" }}>
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:16 }}>
-            <HapiIcon size={16} color="#2A3CD6" />
+            <HapiIcon size={16} color="#215DFF" />
             <span style={{ fontWeight:800,fontSize:14,color:"rgba(255,255,255,0.65)",letterSpacing:"-0.03em" }}>
-              Crede<span style={{ color:"#F0A93A" }}>-Ti</span>
+              crede<span style={{ color:"#19D7D7" }}>ti</span>
             </span>
           </div>
           <div style={{ fontSize:12,lineHeight:1.7,marginBottom:20 }}>
@@ -435,7 +435,7 @@ export default function Home() {
 
           {/* Social media */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Síguenos</div>
+            <div style={{ fontSize:10,fontWeight:700,color:"#19D7D7",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Síguenos</div>
             <div style={{ display:"flex",gap:10,flexWrap:"wrap" }}>
               {[
                 { name:"Facebook", href:"https://www.facebook.com/profile.php?id=61557831849432&sfnsn=wa", bg:"#1877F2" },
@@ -462,7 +462,7 @@ export default function Home() {
 
           {/* Contacto */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y cobranza</div>
+            <div style={{ fontSize:10,fontWeight:700,color:"#19D7D7",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Contacto y cobranza</div>
             <div style={{ display:"flex",flexDirection:"column",gap:6 }}>
               <a
                 href="https://wa.me/525631908262"
@@ -482,7 +482,7 @@ export default function Home() {
 
           {/* Soporte técnico */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Soporte técnico</div>
+            <div style={{ fontSize:10,fontWeight:700,color:"#19D7D7",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Soporte técnico</div>
             <a
               href="https://wa.me/529984292748"
               target="_blank"
@@ -502,7 +502,7 @@ export default function Home() {
 
           {/* Pago en línea */}
           <div style={{ marginBottom:20 }}>
-            <div style={{ fontSize:10,fontWeight:700,color:"#F0A93A",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Pago en línea</div>
+            <div style={{ fontSize:10,fontWeight:700,color:"#19D7D7",textTransform:"uppercase",letterSpacing:"0.12em",marginBottom:10 }}>Pago en línea</div>
             <a
               href="https://link.mercadopago.com.mx/credeti"
               target="_blank"
@@ -526,7 +526,7 @@ export default function Home() {
             <a href="/faq"        style={{ fontSize:12,color:"rgba(255,255,255,0.45)",textDecoration:"none" }}>FAQ</a>
           </div>
           <div style={{ marginTop:24,fontSize:11,color:"rgba(255,255,255,0.18)" }}>
-            © {new Date().getFullYear()} Crede-Ti. Todos los derechos reservados.
+            © {new Date().getFullYear()} credeti. Todos los derechos reservados.
           </div>
         </footer>
 

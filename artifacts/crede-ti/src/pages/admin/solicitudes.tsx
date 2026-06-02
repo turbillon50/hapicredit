@@ -419,8 +419,8 @@ export default function AdminSolicitudes() {
                   disabled={reviewMut.isPending || !decisionNotes.trim()}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
                   style={{
-                    background: decisionNotes.trim() ? "#F0A93A" : "#e5e7eb",
-                    color: decisionNotes.trim() ? "#15206E" : "#9ca3af",
+                    background: decisionNotes.trim() ? "#19D7D7" : "#e5e7eb",
+                    color: decisionNotes.trim() ? "#0A2E8A" : "#9ca3af",
                     border: "none",
                   }}
                 >

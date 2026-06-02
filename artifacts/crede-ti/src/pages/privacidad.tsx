@@ -4,7 +4,7 @@ function Header() {
   const [, navigate] = useLocation();
   return (
     <header style={{
-      background: "#2A3CD6", padding: "16px 24px",
+      background: "#215DFF", padding: "16px 24px",
       display: "flex", alignItems: "center", justifyContent: "space-between",
       position: "sticky", top: 0, zIndex: 10,
     }}>
@@ -14,7 +14,7 @@ function Header() {
           <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
         </svg>
         <span style={{ color: "white", fontWeight: 800, fontSize: 18 }}>
-          Crede<span style={{ color: "#F0A93A" }}>-Ti</span>
+          crede<span style={{ color: "#19D7D7" }}>ti</span>
         </span>
       </div>
       <button
@@ -33,7 +33,7 @@ function Header() {
 
 const s: Record<string, React.CSSProperties> = {
   section: { marginBottom: 36 },
-  h2: { fontSize: 17, fontWeight: 800, color: "#2A3CD6", marginBottom: 10 },
+  h2: { fontSize: 17, fontWeight: 800, color: "#215DFF", marginBottom: 10 },
   p:  { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 10 },
   li: { fontSize: 14, lineHeight: 1.75, color: "#4b5563", marginBottom: 6, paddingLeft: 6 },
   ul: { paddingLeft: 20, marginBottom: 10 },
@@ -41,14 +41,14 @@ const s: Record<string, React.CSSProperties> = {
 
 export default function Privacidad() {
   return (
-    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Header />
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 64px" }}>
 
         {/* Hero */}
         <div style={{
-          background: "linear-gradient(135deg, #2A3CD6, #3F51E6)",
+          background: "linear-gradient(135deg, #3A00C8, #215DFF)",
           borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
@@ -66,7 +66,7 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>1. Responsable del tratamiento de sus datos personales</h2>
           <p style={s.p}>
-            <strong>Crede-Ti</strong>, con domicilio en Ignacio López Rayón Sur 702,
+            <strong>credeti</strong>, con domicilio en Ignacio López Rayón Sur 702,
             Despacho 104, Col. Cuauhtémoc, Toluca, Estado de México, es responsable
             del tratamiento de sus datos personales conforme a la Ley Federal de
             Protección de Datos Personales en Posesión de los Particulares (LFPDPPP).
@@ -86,7 +86,7 @@ export default function Privacidad() {
         <div style={s.section}>
           <h2 style={s.h2}>2. Datos personales que recabamos</h2>
           <p style={s.p}>
-            En Crede-Ti protegemos la información de nuestros clientes.
+            En credeti protegemos la información de nuestros clientes.
             Para la prestación del servicio de crédito recabamos los siguientes datos:
           </p>
           <ul style={s.ul}>
@@ -157,7 +157,7 @@ export default function Privacidad() {
         {/* Footer */}
         <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 24, textAlign: "center" }}>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
-            Crede-Ti — crede-ti.info
+            credeti — crede-ti.info
           </p>
           <p style={{ fontSize: 12, color: "#9ca3af" }}>
             Este aviso cumple con la Ley Federal de Protección de Datos Personales en Posesión de los Particulares.

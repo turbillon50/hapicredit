@@ -27,11 +27,21 @@ export function InstallGuide() {
         <div className="p-5" style={{ paddingBottom: "max(2rem, env(safe-area-inset-bottom, 0px))" }}>
           <div className="flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#15206E" }}>
-                <span className="text-white font-bold text-[13px]" style={{ fontFamily: "Georgia, serif" }}>HC</span>
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#06143B" }}>
+                <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
+                  <defs>
+                    <linearGradient id="cgLI" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#3A00C8"/>
+                      <stop offset="100%" stopColor="#215DFF"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M72 18C62 10 42 8 26 18C12 27 8 42 12 56C16 70 30 80 48 82C58 83 68 80 76 74" stroke="url(#cgLI)" strokeWidth="14" strokeLinecap="round" fill="none"/>
+                  <circle cx="80" cy="18" r="9" fill="#19D7D7"/>
+                  <rect x="62" y="46" width="26" height="11" rx="5.5" fill="#19D7D7"/>
+                </svg>
               </div>
               <div>
-                <p className="text-[15px] font-bold text-foreground">Instalar Crede-Ti</p>
+                <p className="text-[15px] font-bold text-foreground">Instalar credeti</p>
                 <p className="text-[11px] text-muted-foreground">Acceso directo desde tu pantalla</p>
               </div>
             </div>
@@ -80,7 +90,7 @@ export function InstallGuide() {
 
           <div className="mt-5 p-3 rounded-xl bg-blue-50 border border-blue-100">
             <p className="text-[11px] text-blue-800 leading-relaxed">
-              Al instalar, Crede-Ti se abrirá a pantalla completa sin barra de navegador, como una app nativa. Funciona incluso sin conexión para las pantallas ya visitadas.
+              Al instalar, credeti se abrirá a pantalla completa sin barra de navegador, como una app nativa. Funciona incluso sin conexión para las pantallas ya visitadas.
             </p>
           </div>
         </div>

@@ -28,7 +28,7 @@ export default function UpdatePrompt() {
       left: 16,
       right: 16,
       zIndex: 9999,
-      background: "#2A3CD6",
+      background: "#215DFF",
       color: "#fff",
       borderRadius: 16,
       padding: "16px 20px",
@@ -37,7 +37,7 @@ export default function UpdatePrompt() {
       alignItems: "center",
       justifyContent: "space-between",
       gap: 12,
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     }}>
       <div>
         <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>
@@ -50,7 +50,7 @@ export default function UpdatePrompt() {
       <button
         onClick={() => updateServiceWorker(true)}
         style={{
-          background: "#2A3CD6",
+          background: "#215DFF",
           color: "#fff",
           border: "none",
           borderRadius: 10,

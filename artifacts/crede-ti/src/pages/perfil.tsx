@@ -121,28 +121,28 @@ function InviteCodes({ userRole }: { userRole: string }) {
     let text = "";
 
     if (role === "admin") {
-      text = `¡Hola! Eres parte del equipo directivo de *Crede-Ti* como *Administrador*.\n\n` +
+      text = `¡Hola! Eres parte del equipo directivo de *credeti* como *Administrador*.\n\n` +
         `Para comenzar:\n` +
         `1. Abre este enlace en tu cel: ${link}\n` +
         `2. Ingresa la clave de acceso institucional\n` +
         `3. Crea tu cuenta con correo y verifica\n` +
         `4. Instala la app: toca el menú de tu navegador → *"Agregar a inicio"*\n\n` +
-        `_Crede-Ti — Creemos en ti_`;
+        `_credeti — Creemos en ti_`;
     } else if (role === "executive") {
-      text = `¡Hola! Te invito a ser parte del equipo de asesores de *Crede-Ti*.\n\n` +
+      text = `¡Hola! Te invito a ser parte del equipo de asesores de *credeti*.\n\n` +
         `Para registrarte como *Asesor*:\n` +
         `1. Entra a: ${link}\n` +
         `2. Ingresa la clave de acceso que te compartí\n` +
         `3. Crea tu cuenta con correo y verifica\n` +
         `4. Instala la app: menú del navegador → *"Agregar a inicio"*\n\n` +
-        `_Crede-Ti — Creemos en ti_`;
+        `_credeti — Creemos en ti_`;
     } else {
-      text = `¡Hola! Tu acceso a *Crede-Ti* ya está listo.\n\n` +
+      text = `¡Hola! Tu acceso a *credeti* ya está listo.\n\n` +
         `Para registrarte y consultar tu crédito:\n` +
         `1. Entra a este enlace: ${link}\n` +
         `2. Crea tu cuenta con correo y verifica\n` +
         `3. Instala la app: toca menú del navegador → *"Agregar a inicio"*\n\n` +
-        `¡Bienvenido/a! _Crede-Ti — Creemos en ti_`;
+        `¡Bienvenido/a! _credeti — Creemos en ti_`;
     }
 
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
@@ -420,7 +420,7 @@ export default function Perfil() {
             {/* Document upload */}
             <div className="card" style={{ border: "2px dashed #e2e8f0", background: "#f8fafc" }}>
               <div className="flex items-center gap-2 mb-3">
-                <IconSubir size={20} color="#2A3CD6" />
+                <IconSubir size={20} color="#215DFF" />
                 <div className="text-sm font-bold text-gray-800">Cargar documento</div>
               </div>
               <div className="flex flex-col gap-3">
@@ -437,7 +437,7 @@ export default function Perfil() {
                 <label
                   htmlFor="doc-up"
                   className="flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold pressable cursor-pointer"
-                  style={{ background: "#2A3CD6", color: "#fff", opacity: uploading ? 0.6 : 1 }}
+                  style={{ background: "#215DFF", color: "#fff", opacity: uploading ? 0.6 : 1 }}
                 >
                   {uploading ? <IconLoader size={16} className="animate-spin" /> : <IconSubir size={16} />}
                   {uploading ? "Subiendo..." : "Seleccionar archivo"}
@@ -555,9 +555,9 @@ export default function Perfil() {
         <div className="card flex items-start gap-3" style={{ background: "#f8fafc" }}>
           <span className="mt-0.5 shrink-0"><IconInfo size={20} color="#9ca3af" /></span>
           <div>
-            <div className="text-sm font-semibold text-gray-700">Crede-Ti v1.0</div>
+            <div className="text-sm font-semibold text-gray-700">credeti v1.0</div>
             <div className="text-xs text-gray-400 leading-relaxed mt-1">
-              Sistema de gestión de créditos de Crede-Ti
+              Sistema de gestión de créditos de credeti
             </div>
           </div>
         </div>
@@ -582,7 +582,7 @@ export default function Perfil() {
             });
           }}
           className="w-full py-3.5 rounded-2xl text-sm font-bold pressable"
-          style={{ background: "#fff0f0", color: "#2A3CD6" }}
+          style={{ background: "#fff0f0", color: "#215DFF" }}
         >
           Cerrar sesión
         </button>
