@@ -138,7 +138,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
 
       <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
         <p style={{ margin: "0 0 8px" }}>
-          Crede‑Ti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
+          credeti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
           al número de semanas de tu crédito:
         </p>
 
@@ -271,7 +271,7 @@ export default function Calculadora() {
     <div style={{
       minHeight: "100dvh",
       background: `linear-gradient(150deg, #06143B 0%, ${AZUL} 55%, ${AMARILLO} 100%)`,
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
       paddingBottom: 40,
     }}>
 

@@ -63,7 +63,7 @@ function InfoBox({ children }: { children: React.ReactNode }) {
 
 export default function Terminos() {
   return (
-    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}>
       <Header />
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "32px 20px 64px" }}>

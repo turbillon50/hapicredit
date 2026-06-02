@@ -38,7 +38,7 @@ export default function Registro() {
       alignItems: "center",
       justifyContent: "center",
       color: "rgba(255,255,255,0.7)",
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
       fontSize: 14,
     }}>
       Redirigiendo al registro…

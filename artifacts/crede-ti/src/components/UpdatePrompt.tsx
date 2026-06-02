@@ -37,7 +37,7 @@ export default function UpdatePrompt() {
       alignItems: "center",
       justifyContent: "space-between",
       gap: 12,
-      fontFamily: "'Inter', -apple-system, sans-serif",
+      fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif",
     }}>
       <div>
         <div style={{ fontWeight: 700, fontSize: 14, marginBottom: 2 }}>

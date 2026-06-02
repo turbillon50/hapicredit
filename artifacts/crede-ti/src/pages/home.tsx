@@ -69,7 +69,7 @@ export default function Home() {
 
   return (
     <Layout>
-      <div style={{ fontFamily: "'Inter', -apple-system, sans-serif" }}>
+      <div style={{ fontFamily: "Montserrat, Inter, -apple-system, BlinkMacSystemFont, sans-serif" }}>
 
         {/* ═══════════════════════════════════════════
             HERO
