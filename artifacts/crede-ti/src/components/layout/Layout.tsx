@@ -40,15 +40,30 @@ function ThemeToggle({ tone = "dark" }: { tone?: "dark" | "light" }) {
   );
 }
 
-/* Marca Crede-Ti con wordmark serif (eco del logo). */
+/* Símbolo "Ci" — la C con figura humana que forma la i */
+function CredetiSymbol({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" fill="none">
+      <defs>
+        <linearGradient id="cgL" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3A00C8"/>
+          <stop offset="100%" stopColor="#215DFF"/>
+        </linearGradient>
+      </defs>
+      <path d="M72 18C62 10 42 8 26 18C12 27 8 42 12 56C16 70 30 80 48 82C58 83 68 80 76 74" stroke="url(#cgL)" strokeWidth="14" strokeLinecap="round" fill="none"/>
+      <circle cx="80" cy="18" r="9" fill="#19D7D7"/>
+      <rect x="62" y="46" width="26" height="11" rx="5.5" fill="#19D7D7"/>
+    </svg>
+  );
+}
+
+/* Marca credeti con wordmark serif (eco del logo). */
 function BrandMark() {
   return (
     <div className="flex items-center gap-2">
-      <div style={{ width: 30, height: 30, borderRadius: 9, overflow: "hidden", flexShrink: 0, boxShadow: "var(--shadow-xs)" }}>
-        <img src={logoImg} alt="Crede-Ti" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-      </div>
+      <CredetiSymbol size={32} />
       <span className="font-display" style={{ fontWeight: 700, fontSize: 19, color: "var(--text-primary)" }}>
-        Crede<span style={{ color: "var(--brand-gold)" }}>-Ti</span>
+        crede<span style={{ color: "var(--brand-gold)" }}>ti</span>
       </span>
     </div>
   );
@@ -209,7 +224,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
         <div className="flex items-center gap-2">
           {!title && <RoleBadge role={role} />}
           <span className="font-display" style={{ color: "#fff", fontWeight: 700, fontSize: 17 }}>
-            {title ?? <>Crede<span style={{ color: "var(--brand-gold)" }}>-Ti</span></>}
+            {title ?? <>crede<span style={{ color: "var(--brand-gold)" }}>ti</span></>}
           </span>
         </div>
 

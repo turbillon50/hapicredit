@@ -62,7 +62,7 @@ export default function Acceso() {
           />
         </svg>
         <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
-          Crede<span style={{ color: "#19D7D7" }}>-Ti</span>
+          crede<span style={{ color: "#19D7D7" }}>ti</span>
         </div>
       </div>
 

@@ -426,7 +426,7 @@ export default function Home() {
           <div style={{ display:"flex",alignItems:"center",gap:8,marginBottom:16 }}>
             <HapiIcon size={16} color="#215DFF" />
             <span style={{ fontWeight:800,fontSize:14,color:"rgba(255,255,255,0.65)",letterSpacing:"-0.03em" }}>
-              Crede<span style={{ color:"#19D7D7" }}>-Ti</span>
+              crede<span style={{ color:"#19D7D7" }}>ti</span>
             </span>
           </div>
           <div style={{ fontSize:12,lineHeight:1.7,marginBottom:20 }}>

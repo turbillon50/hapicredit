@@ -14,7 +14,7 @@ function Header() {
           <path d="M90 140 C90 140 40 100 40 75 C40 58 53 48 66 48 C75 48 83 53 90 62 C97 53 105 48 114 48 C127 48 140 58 140 75 C140 100 90 140 90 140Z" fill="white"/>
         </svg>
         <span style={{ color: "white", fontWeight: 800, fontSize: 18 }}>
-          Crede<span style={{ color: "#19D7D7" }}>-Ti</span>
+          crede<span style={{ color: "#19D7D7" }}>ti</span>
         </span>
       </div>
       <button

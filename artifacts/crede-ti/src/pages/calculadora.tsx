@@ -270,7 +270,7 @@ export default function Calculadora() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: `linear-gradient(150deg, ${AZUL2} 0%, ${AZUL} 55%, #215DFF 100%)`,
+      background: `linear-gradient(150deg, #06143B 0%, ${AZUL} 55%, ${AMARILLO} 100%)`,
       fontFamily: "'Inter', -apple-system, sans-serif",
       paddingBottom: 40,
     }}>
