@@ -111,10 +111,10 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     }
   }
 
-  // Flat 30% for new clients, 60% APR pro-rated for existing clients.
+  // Flat 30% for new clients, 5% monthly (weeks/4 months) for existing clients.
   const interest = isNewClient
     ? amt * 0.30
-    : amt * 0.60 * (weeks / 52);
+    : amt * 0.05 * (weeks / 4);
 
   const totalToRepay = amt + interest;
   const weeklyPayment = totalToRepay / weeks;

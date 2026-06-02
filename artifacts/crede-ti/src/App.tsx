@@ -206,11 +206,18 @@ function ClerkCacheInvalidator() {
   return null;
 }
 
+function RootRedirect() {
+  const role = localStorage.getItem("credeti_role");
+  if (role === "admin")     return <Redirect to="/admin" />;
+  if (role === "executive") return <Redirect to="/dashboard" />;
+  return <Home />;
+}
+
 function Router() {
   return (
     <Switch>
       {/* Public */}
-      <Route path="/"           component={Home} />
+      <Route path="/"           component={RootRedirect} />
       <Route path="/a"          component={Acceso} />
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />
