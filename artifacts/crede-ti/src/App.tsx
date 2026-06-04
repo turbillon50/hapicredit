@@ -46,6 +46,7 @@ import Acceso          from "@/pages/acceso";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const clerkPubKey  = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY as string | undefined;
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL as string | undefined;
@@ -309,8 +310,11 @@ function NoClerkApp() {
 }
 
 export default function App() {
+  const [splash, setSplash] = useState(() => !sessionStorage.getItem("credeti_splashed"));
+
   return (
     <WouterRouter base={basePath}>
+      {splash && <SplashScreen onDone={() => { sessionStorage.setItem("credeti_splashed", "1"); setSplash(false); }} />}
       {clerkPubKey ? <ClerkApp /> : <NoClerkApp />}
     </WouterRouter>
   );
