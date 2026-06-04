@@ -59,6 +59,8 @@ export default defineConfig(({ mode }) => {
           globPatterns: ["**/*.{js,css,html,svg,png,woff2}"],
           skipWaiting: true,
           clientsClaim: true,
+          cacheId: "credeti-v3",
+          cleanupOutdatedCaches: true,
         },
       }),
     ],
