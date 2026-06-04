@@ -58,24 +58,20 @@ function parseApp(app: PublicApp) {
 }
 
 // ─── Stats strip ─────────────────────────────────────────────────────────────
-function StatsStrip({ credits }: { credits: PendingCredit[] }) {
-  const pending   = credits.filter(c => c.status === "pending");
-  const needsInfo = credits.filter(c => c.status === "needs_info");
-  const total     = pending.reduce((s, c) => s + c.amount, 0);
+function StatsStrip({ pending, needsInfo }: { pending: PendingCredit[]; needsInfo: PendingCredit[] }) {
+  const totalAmount = [...pending, ...needsInfo].reduce((s, c) => s + c.amount, 0);
   return (
     <div className="flex gap-2 px-4 mb-1">
       <div className="flex-1 bg-blue-50 border border-blue-100 rounded-2xl p-3 text-center">
-        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Pendientes</div>
+        <div className="text-[10px] font-bold text-blue-400 uppercase tracking-wide">Por aprobar</div>
         <div className="text-lg font-extrabold text-blue-700">{pending.length}</div>
-        <div className="text-[10px] text-blue-400">{fmt(total)}</div>
+        <div className="text-[10px] text-blue-400">{new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(totalAmount)}</div>
       </div>
-      {needsInfo.length > 0 && (
-        <div className="flex-1 bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
-          <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wide">Falta info</div>
-          <div className="text-lg font-extrabold text-amber-600">{needsInfo.length}</div>
-          <div className="text-[10px] text-amber-400">En espera de cliente</div>
-        </div>
-      )}
+      <div className="flex-1 bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
+        <div className="text-[10px] font-bold text-amber-500 uppercase tracking-wide">Falta info</div>
+        <div className="text-lg font-extrabold text-amber-600">{needsInfo.length}</div>
+        <div className="text-[10px] text-amber-400">Esperando cliente</div>
+      </div>
     </div>
   );
 }
@@ -144,7 +140,10 @@ function CreditDetail({
         headers: { ...auth(), "Content-Type": "application/json" },
         body: JSON.stringify({ action, notes: n }),
       }).then(r => r.json()),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["credits"] }); onDone(); },
+    onSuccess: () => {
+      qc.invalidateQueries(); // invalida todo
+      onDone();
+    },
   });
 
   const rows = [
@@ -407,36 +406,66 @@ function PublicAppDetail({ app }: { app: PublicApp }) {
 }
 
 // ─── Main page ────────────────────────────────────────────────────────────────
+type Tab = "pending" | "needs_info" | "history" | "public";
+
 export default function AdminSolicitudes() {
-  const [tab, setTab]         = useState<"public" | "internal">("internal");
+  const [tab, setTab]           = useState<Tab>("pending");
   const [selected, setSelected] = useState<{ data: PublicApp | PendingCredit; isPublic: boolean } | null>(null);
 
-  const { data: publicApps    = [], isLoading: loadingPublic }   = useQuery<PublicApp[]>({
+  const { data: publicApps = [], isLoading: loadingPublic } = useQuery<PublicApp[]>({
     queryKey: ["public-requests"],
     queryFn: () => fetch(`${API}/public/requests`, { headers: auth() }).then(r => r.json()),
   });
 
-  const { data: pendingCredits = [], isLoading: loadingInternal } = useQuery<PendingCredit[]>({
-    queryKey: ["credits", "pending"],
-    queryFn: async () => {
-      const [pending, needsInfo] = await Promise.all([
-        fetch(`${API}/credits?status=pending`,    { headers: auth() }).then(r => r.json()),
-        fetch(`${API}/credits?status=needs_info`, { headers: auth() }).then(r => r.json()),
-      ]);
-      return [...needsInfo, ...pending].map((r: any) => ({
+  // Pendientes de aprobación
+  const { data: pendingCredits = [], isLoading: loadingPending } = useQuery<PendingCredit[]>({
+    queryKey: ["credits", "pending-only"],
+    queryFn: () => fetch(`${API}/credits?status=pending`, { headers: auth() }).then(r => r.json())
+      .then((d: any[]) => d.map(r => ({
         ...r,
-        clientName:    r.clientName    ?? `Cliente #${r.clientId}`,
+        clientName: r.clientName ?? `Cliente #${r.clientId}`,
         executiveName: r.executiveName ?? null,
-        totalToRepay:  r.totalToRepay  ?? r.weeklyPayment * r.termWeeks,
-      }));
-    },
+        totalToRepay: r.totalToRepay ?? r.weeklyPayment * r.termWeeks,
+      }))),
   });
+
+  // Falta info
+  const { data: needsInfoCredits = [], isLoading: loadingNeedsInfo } = useQuery<PendingCredit[]>({
+    queryKey: ["credits", "needs_info"],
+    queryFn: () => fetch(`${API}/credits?status=needs_info`, { headers: auth() }).then(r => r.json())
+      .then((d: any[]) => d.map(r => ({
+        ...r,
+        clientName: r.clientName ?? `Cliente #${r.clientId}`,
+        executiveName: r.executiveName ?? null,
+        totalToRepay: r.totalToRepay ?? r.weeklyPayment * r.termWeeks,
+      }))),
+  });
+
+  // Historial (aprobados + rechazados)
+  const { data: historyCredits = [], isLoading: loadingHistory } = useQuery({
+    queryKey: ["credits", "history"],
+    queryFn: async () => {
+      const [approved, rejected] = await Promise.all([
+        fetch(`${API}/credits?status=active`,   { headers: auth() }).then(r => r.json()),
+        fetch(`${API}/credits?status=rejected`, { headers: auth() }).then(r => r.json()),
+      ]);
+      return [
+        ...(Array.isArray(approved)  ? approved  : []).map((c: any) => ({ ...c, decision: "approved" })),
+        ...(Array.isArray(rejected)  ? rejected  : []).map((c: any) => ({ ...c, decision: "rejected" })),
+      ].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+       .slice(0, 50);
+    },
+    staleTime: 60_000,
+    enabled: tab === "history",
+  });
+
+  const pendingOnly   = pendingCredits  as PendingCredit[];
+  const needsInfoOnly = needsInfoCredits as PendingCredit[];
+  const totalCredits  = pendingOnly.length + needsInfoOnly.length;
 
   const publicFiltered = (publicApps as PublicApp[]).filter(a => {
     try { const d = JSON.parse(a.message); return d.type === "credit_application"; } catch { return true; }
   });
-
-  const credits = pendingCredits as PendingCredit[];
 
   return (
     <Layout>
@@ -445,19 +474,24 @@ export default function AdminSolicitudes() {
         <div className="px-4 pt-4 md:pt-0">
           <h1 className="text-xl font-bold text-gray-900">Solicitudes</h1>
           <p className="text-sm text-gray-500 mt-0.5">
-            {credits.length} internas · {publicFiltered.length} afiliaciones públicas
+            {pendingOnly.length + needsInfoOnly.length} por aprobar · {publicFiltered.length} afiliaciones
           </p>
         </div>
 
+        {/* Stats strip */}
+        <StatsStrip pending={pendingOnly} needsInfo={needsInfoOnly} />
+
         {/* Tabs */}
-        <div className="px-4 flex gap-2">
+        <div className="px-4 flex gap-2 flex-wrap">
           {[
-            { key: "internal", label: `Créditos (${credits.length})` },
-            { key: "public",   label: `Afiliaciones (${publicFiltered.length})` },
+            { key: "pending",    label: `Pendientes (${pendingOnly.length})` },
+            { key: "needs_info", label: `Falta info (${needsInfoOnly.length})` },
+            { key: "history",    label: "Historial" },
+            { key: "public",     label: `Públicas (${publicFiltered.length})` },
           ].map(t => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key as any)}
+              onClick={() => setTab(t.key as Tab)}
               className={`px-4 py-2 rounded-full text-xs font-semibold transition-all pressable ${tab === t.key ? "text-white" : "bg-gray-100 text-gray-600"}`}
               style={tab === t.key ? { background: "var(--accent)" } : {}}
             >
@@ -466,26 +500,73 @@ export default function AdminSolicitudes() {
           ))}
         </div>
 
-        {/* Internal tab */}
-        {tab === "internal" && (
-          loadingInternal ? <div className="px-4"><SkeletonList count={3} /></div> :
-          credits.length === 0 ? (
+        {/* Pending tab */}
+        {tab === "pending" && (
+          loadingPending ? <div className="px-4"><SkeletonList count={3} /></div> :
+          pendingOnly.length === 0 ? (
             <div className="px-4">
-              <EmptyState icon={<IconDocumento size={18} />} title="Sin solicitudes" description="No hay créditos pendientes de aprobación." />
+              <EmptyState icon={<IconCheck size={18} />} title="¡Todo aprobado!" description="No hay créditos pendientes de revisión." />
             </div>
           ) : (
-            <>
-              <StatsStrip credits={credits} />
-              <div className="flex flex-col gap-3 px-4">
-                {credits.map((c: PendingCredit) => (
-                  <CreditCard
-                    key={c.id}
-                    credit={c}
-                    onClick={() => setSelected({ data: c, isPublic: false })}
-                  />
-                ))}
-              </div>
-            </>
+            <div className="flex flex-col gap-3 px-4">
+              {pendingOnly.map((c: PendingCredit) => (
+                <CreditCard key={c.id} credit={c} onClick={() => setSelected({ data: c, isPublic: false })} />
+              ))}
+            </div>
+          )
+        )}
+
+        {/* Needs info tab */}
+        {tab === "needs_info" && (
+          loadingNeedsInfo ? <div className="px-4"><SkeletonList count={3} /></div> :
+          needsInfoOnly.length === 0 ? (
+            <div className="px-4">
+              <EmptyState icon={<IconDocumento size={18} />} title="Sin pendientes" description="No hay créditos esperando información." />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 px-4">
+              {needsInfoOnly.map((c: PendingCredit) => (
+                <CreditCard key={c.id} credit={c} onClick={() => setSelected({ data: c, isPublic: false })} />
+              ))}
+            </div>
+          )
+        )}
+
+        {/* History tab */}
+        {tab === "history" && (
+          loadingHistory ? <div className="px-4"><SkeletonList count={5} /></div> :
+          (historyCredits as any[]).length === 0 ? (
+            <div className="px-4">
+              <EmptyState icon={<IconDocumento size={18} />} title="Sin historial" description="Aún no hay créditos aprobados o rechazados." />
+            </div>
+          ) : (
+            <div className="flex flex-col gap-3 px-4">
+              {(historyCredits as any[]).map((credit: any) => {
+                const approved = credit.decision === "approved";
+                return (
+                  <div key={credit.id} className="card" style={{ borderLeft: `4px solid ${approved ? "#10b981" : "#ef4444"}` }}>
+                    <div className="flex items-center gap-3">
+                      <Avatar name={credit.clientName ?? "C"} size="sm" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-bold text-gray-900 truncate">{credit.clientName ?? `Cliente #${credit.clientId}`}</div>
+                        <div className="text-xs text-gray-400">{new Date(credit.createdAt).toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})}</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <div className="text-sm font-extrabold" style={{ color: approved ? "#059669" : "#dc2626" }}>
+                          {new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(credit.amount)}
+                        </div>
+                        <Badge variant={approved ? "success" : "danger"} size="sm">
+                          {approved ? "Aprobado" : "Rechazado"}
+                        </Badge>
+                      </div>
+                    </div>
+                    {credit.notes && (
+                      <div className="mt-2 text-xs text-gray-500 italic truncate">"{credit.notes}"</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           )
         )}
 

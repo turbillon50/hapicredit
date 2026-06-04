@@ -78,6 +78,21 @@ export default function AdminDashboard() {
     staleTime: 30_000,
   });
 
+  const { data: pendingCreditsRaw = [] } = useQuery({
+    queryKey: ["credits-pending-dashboard"],
+    queryFn: async () => {
+      const [pending, needsInfo] = await Promise.all([
+        fetch(`${API}/credits?status=pending`,    { headers: auth() }).then(r => r.json()),
+        fetch(`${API}/credits?status=needs_info`, { headers: auth() }).then(r => r.json()),
+      ]);
+      return [...(Array.isArray(pending) ? pending : []), ...(Array.isArray(needsInfo) ? needsInfo : [])];
+    },
+    staleTime: 30_000,
+  });
+  const pendingCreditsCount = Array.isArray(pendingCreditsRaw) ? pendingCreditsRaw.length : 0;
+  const needsInfoCount = Array.isArray(pendingCreditsRaw) ? (pendingCreditsRaw as any[]).filter((c: any) => c.status === "needs_info").length : 0;
+  const pendingAmount = Array.isArray(pendingCreditsRaw) ? (pendingCreditsRaw as any[]).reduce((s: number, c: any) => s + (parseFloat(c.amount) || 0), 0) : 0;
+
   const { data: collectionTrend = [] } = useQuery({
     queryKey: ["collection-trend"],
     queryFn: async () => {
@@ -238,6 +253,54 @@ export default function AdminDashboard() {
             </div>
           )}
         </div>
+
+        {/* ── Pending credits approval alert ── */}
+        {pendingCreditsCount > 0 && (
+          <div style={{ margin: "0 16px" }} className="anim-section anim-d2">
+            <Link href="/admin/solicitudes">
+              <div
+                className="pressable"
+                style={{
+                  display: "flex", alignItems: "center", gap: 14,
+                  padding: "14px 16px", borderRadius: 16,
+                  background: "#eff6ff",
+                  border: "1.5px solid #93c5fd",
+                  boxShadow: "0 2px 12px rgba(37,99,235,0.12)",
+                }}
+              >
+                <div
+                  style={{
+                    width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                    background: "#215DFF",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: "0 2px 8px rgba(33,93,255,0.35)",
+                    position: "relative",
+                  }}
+                >
+                  <IconBandeja size={22} color="#fff" />
+                  {needsInfoCount > 0 && (
+                    <span style={{
+                      position: "absolute", top: -4, right: -4,
+                      background: "#f59e0b", color: "#fff",
+                      fontSize: 9, fontWeight: 800, width: 16, height: 16,
+                      borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                      border: "1.5px solid #fff",
+                    }}>{needsInfoCount}</span>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: "#1e3a8a" }}>
+                    {pendingCreditsCount} crédito{pendingCreditsCount !== 1 ? "s" : ""} por aprobar — {fmt(pendingAmount)}
+                  </div>
+                  <div style={{ fontSize: 12, color: "#1d4ed8", marginTop: 1 }}>
+                    {needsInfoCount > 0 ? `${needsInfoCount} esperando información del cliente` : "Pendientes de tu decisión"}
+                  </div>
+                </div>
+                <IconFlecha size={16} color="#2563eb" />
+              </div>
+            </Link>
+          </div>
+        )}
 
         {/* ── Stat cards ── */}
         {isLoading ? (
