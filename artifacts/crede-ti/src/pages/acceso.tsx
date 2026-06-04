@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -8,6 +8,15 @@ export default function Acceso() {
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr]   = useState("");
+
+  // Si ya hay sesión admin activa, ir directo al panel
+  useEffect(() => {
+    const role = localStorage.getItem("credeti_role");
+    const token = localStorage.getItem("credeti_token");
+    if (token && (role === "admin" || role === "executive")) {
+      window.location.replace(`${basePath}/${role === "executive" ? "dashboard" : "admin"}`);
+    }
+  }, []);
 
   async function elevate() {
     if (!pwd) return;
