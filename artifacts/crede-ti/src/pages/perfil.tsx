@@ -7,6 +7,7 @@ import {
 } from "@/components/hapi/HapiIcons";
 import { useState, useRef } from "react";
 import { useLocation } from "wouter";
+import { usePush } from "@/hooks/usePush";
 // @vercel/blob/client is dynamically imported inside handleFile so an error
 // in that bundle never blocks the initial render of the perfil page.
 
@@ -286,6 +287,38 @@ function InviteCodes({ userRole }: { userRole: string }) {
 }
 
 /* ─── Main Component ───────────────────────────────────────────────────────── */
+
+function NotificationsCard() {
+  const { supported, enabled, denied, busy, enable, disable } = usePush();
+  if (!supported) return null;
+  return (
+    <div className="card flex flex-col gap-2">
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-bold text-gray-900">Notificaciones push</div>
+          <div className="text-xs text-gray-400">
+            {denied
+              ? "Bloqueadas en tu navegador. Actívalas en la configuración del sitio."
+              : "Entérate al instante del estado de tu crédito y tus pagos."}
+          </div>
+        </div>
+        <button
+          className="pressable"
+          disabled={busy || denied}
+          onClick={() => (enabled ? disable() : enable())}
+          style={{
+            minWidth: 96, padding: "9px 14px", borderRadius: 14, border: "none", cursor: "pointer",
+            fontSize: 13, fontWeight: 700, color: "#fff", opacity: busy || denied ? 0.6 : 1,
+            background: enabled ? "#10b981" : "#215DFF",
+          }}
+        >
+          {busy ? "..." : enabled ? "Activas ✓" : "Activar"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Perfil() {
   const [, navigate] = useLocation();
   const qc = useQueryClient();
@@ -512,6 +545,9 @@ export default function Perfil() {
             <InviteCodes userRole={userRole} />
           </div>
         )}
+
+        {/* Push notifications */}
+        <NotificationsCard />
 
         {/* Legal links */}
         <div className="card" style={{ padding: "4px 0", background: "#fff" }}>

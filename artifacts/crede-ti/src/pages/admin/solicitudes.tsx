@@ -286,7 +286,21 @@ function CreditDetail({
 }
 
 // ─── Public app detail ────────────────────────────────────────────────────────
-function PublicAppDetail({ app }: { app: PublicApp }) {
+function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void }) {
+  const qc = useQueryClient();
+  const convertM = useMutation({
+    mutationFn: async () => {
+      const r = await fetch(`${API}/public/requests/${app.id}/convert`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: "{}" });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error ?? "Error al convertir");
+      return d;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["public-requests"] });
+      qc.invalidateQueries({ queryKey: ["credits"] });
+      onDone?.();
+    },
+  });
   const parsed = parseApp(app);
   const info   = parsed?.personalInfo ?? {};
   const gtor   = parsed?.guarantor    ?? {};
@@ -304,6 +318,24 @@ function PublicAppDetail({ app }: { app: PublicApp }) {
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> · {fmtDateTime(app.createdAt)}</div>
         </div>
       </div>
+
+      {parsed?.creditId ? (
+        <div className="rounded-2xl p-3 text-center text-sm font-semibold" style={{ background: "#f0fdf4", color: "#059669", border: "1.5px solid #bbf7d0" }}>
+          ✓ Convertida — crédito #{parsed.creditId} en revisión
+        </div>
+      ) : (
+        <button
+          className="pressable"
+          disabled={convertM.isPending}
+          onClick={() => convertM.mutate()}
+          style={{ width: "100%", padding: "13px 16px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#fff", background: "#215DFF", opacity: convertM.isPending ? 0.6 : 1 }}
+        >
+          {convertM.isPending ? "Convirtiendo..." : "Convertir en cliente + crédito pendiente"}
+        </button>
+      )}
+      {convertM.isError && (
+        <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(convertM.error as Error).message}</div>
+      )}
 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-blue-50 rounded-2xl p-3 text-center">
@@ -632,7 +664,7 @@ export default function AdminSolicitudes() {
         title={selected?.isPublic ? "Afiliación pública" : "Revisión de crédito"}
       >
         {selected?.isPublic
-          ? <PublicAppDetail app={selected.data as PublicApp} />
+          ? <PublicAppDetail app={selected.data as PublicApp} onDone={() => setSelected(null)} />
           : selected
             ? <CreditDetail
                 credit={selected.data as PendingCredit}

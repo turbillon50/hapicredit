@@ -9,6 +9,7 @@ import {
   IconAlerta, IconFlecha, IconMas, IconWhatsapp,
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
+import { usePush } from "@/hooks/usePush";
 
 interface Credit {
   id: number;
@@ -160,6 +161,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
 }
 
 export default function MiCredito() {
+  const push = usePush();
   useRequireAuth(["client"]);
 
   const { data: client, isLoading } = useQuery<ClientProfile | null>({
@@ -205,6 +207,24 @@ export default function MiCredito() {
 
   return (
     <Layout>
+      {push.supported && !push.enabled && !push.denied && (
+        <button
+          className="pressable"
+          onClick={() => push.enable()}
+          disabled={push.busy}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", gap: 10,
+            padding: "12px 16px", margin: "12px 0", borderRadius: 16, border: "1.5px solid #bfdbfe",
+            background: "#eff6ff", cursor: "pointer", textAlign: "left",
+          }}
+        >
+          <span style={{ fontSize: 20 }}>🔔</span>
+          <span style={{ flex: 1 }}>
+            <span className="text-sm font-bold" style={{ color: "#215DFF", display: "block" }}>Activa las notificaciones</span>
+            <span className="text-xs text-gray-500">Te avisamos cuando tu crédito sea aprobado y al validar tus pagos.</span>
+          </span>
+        </button>
+      )}
       <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingBottom: 24 }}>
 
         {isLoading ? (

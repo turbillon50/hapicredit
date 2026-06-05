@@ -205,11 +205,20 @@ export default function Solicitar() {
         },
         documents: docsData,
       };
-      const res = await fetch(`${API}/public/apply`, {
+      const token = localStorage.getItem("credeti_token");
+      let res = await fetch(`${API}/me/apply`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify(payload),
       });
+      if (res.status === 401 || res.status === 403) {
+        // Session expired or not a client account — keep the public fallback.
+        res = await fetch(`${API}/public/apply`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Error al enviar");
       setDone(data.referenceNumber ?? `CT-${Date.now()}`);

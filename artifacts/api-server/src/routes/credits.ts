@@ -1,7 +1,8 @@
 import { Router } from "express";
-import { and, clientsTable, creditsTable, db, eq, getTableColumns, usersTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, eq, getTableColumns, publicRequestsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
+import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
 import {
   CreateCreditBody,
   UpdateCreditBody,
@@ -22,7 +23,18 @@ function formatCredit(c: typeof creditsTable.$inferSelect & { clientName?: strin
     openingFee: c.openingFee ? parseFloat(c.openingFee) : null,
     clientName: c.clientName ?? null,
     executiveName: c.executiveName ?? null,
+    nextPaymentDate: deriveNextPaymentDate(c),
   };
+}
+
+// Derived: disbursement + 7 days per upcoming payment number. Only for active credits.
+function deriveNextPaymentDate(c: typeof creditsTable.$inferSelect): string | null {
+  if (c.status !== "active" || !c.disbursementDate) return null;
+  const base = new Date(c.disbursementDate + "T12:00:00Z");
+  if (isNaN(base.getTime())) return null;
+  const n = Math.min((c.currentPaymentNumber ?? 0) + 1, c.termWeeks);
+  base.setUTCDate(base.getUTCDate() + 7 * n);
+  return base.toISOString().split("T")[0];
 }
 
 router.get("/credits", requireAuth, async (req, res): Promise<void> => {
@@ -174,6 +186,11 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
         .select({ email: usersTable.email, fullName: usersTable.fullName })
         .from(usersTable)
         .where(eq(usersTable.fullName, client.fullName));
+      const pushMsg =
+        action === "approve" ? `Tu crédito por $${parseFloat(credit.amount).toLocaleString("es-MX")} fue aprobado 🎉`
+        : action === "reject" ? "Tu solicitud de crédito fue rechazada."
+        : "Necesitamos más información para tu solicitud de crédito.";
+      sendPushToClientByName(client.fullName, { title: "credeti", body: pushMsg, url: "/mi-credito" }).catch(() => {});
       if (user?.email) {
         sendCreditDecisionEmail({
           to: user.email,
@@ -272,6 +289,121 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
   }
 
   res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
+});
+
+
+// ─── POST /api/me/apply — logged-in client applies for a credit ──────────────
+// Creates (or reuses) the client record linked to this user and a pending
+// credit, so the application shows up in the admin "solicitudes" queue and in
+// the client's "mi crédito" page immediately.
+router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
+
+  const { personalInfo, businessInfo, references, guarantor, creditRequest, documents, source } = req.body ?? {};
+  const fullName = (personalInfo?.fullName ?? user.fullName ?? "").trim();
+  const phone = (personalInfo?.phone ?? user.phone ?? "").trim();
+  if (!fullName || !phone) {
+    res.status(400).json({ error: "Nombre y teléfono son requeridos" });
+    return;
+  }
+
+  // Find or create the client record (match by name, then phone).
+  let [client] = await db.select().from(clientsTable).where(eq(clientsTable.fullName, fullName));
+  if (!client) [client] = await db.select().from(clientsTable).where(eq(clientsTable.phone, phone));
+  if (!client) {
+    [client] = await db.insert(clientsTable).values({
+      fullName,
+      phone,
+      address: personalInfo?.address ?? null,
+      curp: personalInfo?.curp ?? null,
+      guarantorName: guarantor?.fullName ?? null,
+      guarantorPhone: guarantor?.phone ?? null,
+      status: "current",
+    }).returning();
+  }
+
+  // Reject duplicate open applications.
+  const open = await db.select({ id: creditsTable.id, status: creditsTable.status })
+    .from(creditsTable)
+    .where(and(eq(creditsTable.clientId, client.id), eq(creditsTable.status, "pending")));
+  if (open.length > 0) {
+    res.status(409).json({ error: "Ya tienes una solicitud en revisión", creditId: open[0].id });
+    return;
+  }
+
+  // Owner business rules. A client is "new" if they have no completed credits.
+  const history = await db.select({ id: creditsTable.id })
+    .from(creditsTable)
+    .where(and(eq(creditsTable.clientId, client.id), eq(creditsTable.status, "completed")));
+  const isNewClient = history.length === 0;
+
+  const amt = parseFloat(creditRequest?.requestedAmount);
+  const weeks = parseInt(creditRequest?.termWeeks, 10);
+  if (isNaN(amt) || isNaN(weeks)) {
+    res.status(400).json({ error: "Monto y plazo son requeridos" });
+    return;
+  }
+  if (isNewClient) {
+    if (amt < 500 || amt > 1000) { res.status(400).json({ error: "Clientes nuevos: monto entre $500 y $1,000" }); return; }
+    if (weeks !== 4) { res.status(400).json({ error: "Clientes nuevos: plazo fijo de 4 semanas" }); return; }
+  } else {
+    if (amt < 1000 || amt > 30000) { res.status(400).json({ error: "Monto entre $1,000 y $30,000" }); return; }
+    if (weeks < 4 || weeks > 48) { res.status(400).json({ error: "Plazo entre 4 y 48 semanas" }); return; }
+  }
+
+  const interest = isNewClient ? amt * 0.30 : amt * 0.05 * (weeks / 4);
+  const totalToRepay = amt + interest;
+  const weeklyPayment = totalToRepay / weeks;
+
+  const [credit] = await db.insert(creditsTable).values({
+    clientId: client.id,
+    executiveId: client.executiveId ?? null,
+    amount: amt.toString(),
+    disbursementDate: new Date().toISOString().split("T")[0],
+    termWeeks: weeks,
+    weeklyPayment: weeklyPayment.toFixed(2),
+    openingFee: "0.00",
+    totalToRepay: totalToRepay.toFixed(2),
+    remainingBalance: totalToRepay.toFixed(2),
+    status: "pending",
+    notes: creditRequest?.purpose ?? null,
+  }).returning();
+
+  // Archive the full KYC payload for the expediente (same shape as /public/apply).
+  try {
+  await db.insert(publicRequestsTable).values({
+    name: fullName,
+    phone,
+    email: user.email ?? null,
+    message: JSON.stringify({
+      type: "credit_application",
+      creditId: credit.id,
+      userId: user.id,
+      clientId: client.id,
+      personalInfo: personalInfo ?? { fullName, phone },
+      businessInfo: businessInfo ?? {},
+      references: references ?? [],
+      guarantor: guarantor ?? {},
+      creditRequest: { ...creditRequest, requestedAmount: amt, termWeeks: weeks, weeklyPayment, totalToRepay, isNewClient },
+      documents: documents ?? {},
+      source: source ?? "app",
+      submittedAt: new Date().toISOString(),
+    }),
+  });
+  } catch { /* archive is best-effort */ }
+
+  sendPushToAdmins({
+    title: "Nueva solicitud de crédito",
+    body: `${fullName} solicitó $${amt.toLocaleString("es-MX")} a ${weeks} semanas`,
+    url: "/admin/solicitudes",
+  }).catch(() => {});
+
+  res.status(201).json({
+    success: true,
+    referenceNumber: `CT-${String(credit.id).padStart(5, "0")}`,
+    credit: formatCredit({ ...credit, clientName: fullName, executiveName: null }),
+  });
 });
 
 export default router;
