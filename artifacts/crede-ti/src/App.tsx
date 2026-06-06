@@ -204,6 +204,31 @@ function ClerkCacheInvalidator() {
     return () => { cancelled = true; };
   }, [isLoaded, isSignedIn, clerkUser, session, qc]);
 
+  // Keep the legacy credeti_token FRESH. Clerk session JWTs expire after ~60s,
+  // and the whole app reads this token synchronously from localStorage as its
+  // Bearer. Without refreshing, every client API call (mi-credito, solicitar,
+  // perfil) starts returning 401 about a minute after sign-in — which made the
+  // credit application silently fall back to the public-leads endpoint instead
+  // of landing in the admin "solicitudes" queue. Refresh every 30s + on focus.
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !session) return;
+    let active = true;
+    const refresh = async () => {
+      try { const t = await session.getToken(); if (active && t) localStorage.setItem("credeti_token", t); } catch { /* keep last token */ }
+    };
+    refresh();
+    const iv = setInterval(refresh, 30_000);
+    const onFocus = () => { refresh(); };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      active = false;
+      clearInterval(iv);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [isLoaded, isSignedIn, session]);
+
   return null;
 }
 

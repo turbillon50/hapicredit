@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useAuth } from "@clerk/react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
@@ -77,6 +78,7 @@ function fileToDataUrl(file: File): Promise<string> {
 }
 
 export default function Solicitar() {
+  const { getToken, isSignedIn } = useAuth();
   useRequireAuth(["client"]);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -205,7 +207,13 @@ export default function Solicitar() {
         },
         documents: docsData,
       };
-      const token = localStorage.getItem("credeti_token");
+      // Use a FRESH Clerk session JWT for the write — a stale localStorage copy
+      // expires after ~60s and would 401, kicking us to the public fallback so
+      // the application never reaches the admin solicitudes queue.
+      let token = localStorage.getItem("credeti_token");
+      if (isSignedIn) {
+        try { const fresh = await getToken(); if (fresh) { token = fresh; localStorage.setItem("credeti_token", fresh); } } catch { /* keep stored token */ }
+      }
       let res = await fetch(`${API}/me/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
