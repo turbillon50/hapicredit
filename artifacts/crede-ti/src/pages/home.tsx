@@ -380,7 +380,7 @@ export default function Home() {
         </section>
 
         {/* ═══════════════════════════════════════════
-            FINAL CTA — royal blue + gold accent
+            FINAL CTA — royal blue + teal accent (no gold)
         ═══════════════════════════════════════════ */}
         <section style={{
           background:"linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",
@@ -389,11 +389,11 @@ export default function Home() {
           position:"relative",
           overflow:"hidden",
         }}>
-          <div style={{ position:"absolute",top:-100,left:"50%",transform:"translateX(-50%)",width:340,height:340,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.18) 0%,transparent 70%)",pointerEvents:"none" }} />
+          <div style={{ position:"absolute",top:-100,left:"50%",transform:"translateX(-50%)",width:340,height:340,borderRadius:"50%",background:"radial-gradient(circle,rgba(25,215,215,0.18) 0%,transparent 70%)",pointerEvents:"none" }} />
           <div style={{
             width:64,height:64,borderRadius:20,position:"relative",
             background:"rgba(255,255,255,0.10)",
-            border:"1.5px solid rgba(232,168,47,0.5)",
+            border:"1.5px solid rgba(25,215,215,0.45)",
             display:"flex",alignItems:"center",justifyContent:"center",
             margin:"0 auto 22px",
           }}>
@@ -415,7 +415,7 @@ export default function Home() {
             fontWeight:800,fontSize:16,
             cursor:"pointer",fontFamily:"inherit",
             letterSpacing:"-0.01em",
-            boxShadow:"0 6px 28px rgba(232,168,47,0.45), inset 0 1px 0 rgba(255,255,255,0.25)",
+            boxShadow:"0 6px 28px rgba(25,215,215,0.40), inset 0 1px 0 rgba(255,255,255,0.25)",
           }}>
             {token?"Ir a mi cuenta":"Crear cuenta gratis"}
           </button>

@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
-import { useClerk } from "@clerk/react";
+import { useClerk, useUser } from "@clerk/react";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil,
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
@@ -147,10 +147,8 @@ function RoleBadge({ role }: { role: string | null }) {
   );
 }
 
-function checkAccess(location: string): "ok" | "login" | string {
-  const t = localStorage.getItem("credeti_token");
-  const r = localStorage.getItem("credeti_role");
-  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq"];
+function checkAccess(location: string, t: string | null, r: string | null): "ok" | "login" | string {
+  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
   if (!t) return publicPaths.includes(location) ? "ok" : "login";
   if (location.startsWith("/admin") && r !== "admin") return r === "executive" ? "/dashboard" : "/mi-credito";
   if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive") return r === "admin" ? "/admin" : "/mi-credito";
@@ -165,12 +163,38 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   const [location, navigate] = useLocation();
   const queryClient = useQueryClient();
   const { signOut } = useClerk();
+  const { isLoaded: clerkLoaded, isSignedIn, user: clerkUser } = useUser();
 
-  const role  = localStorage.getItem("credeti_role");
-  const token = localStorage.getItem("credeti_token");
+  // Auth is derived from BOTH the legacy localStorage token (demo mode + admin
+  // master-code login) AND the live Clerk session. The Clerk session is the
+  // reason a brand-new user who just signed up is authenticated even before
+  // ClerkCacheInvalidator has finished writing credeti_token to localStorage.
+  // Deriving from useUser() (reactive) is what stops the "me regresa al login"
+  // bounce right after registering.
+  const tokenLS = localStorage.getItem("credeti_token");
+  const roleLS  = localStorage.getItem("credeti_role");
+  const clerkRole = (clerkUser?.publicMetadata?.role as string | undefined) ?? undefined;
+  const token = tokenLS ?? (isSignedIn ? "clerk-session" : null);
+  const role  = roleLS ?? clerkRole ?? (isSignedIn ? "client" : null);
   const user  = (() => { try { return JSON.parse(localStorage.getItem("credeti_user") || "{}"); } catch { return {}; } })();
 
-  const access = checkAccess(location);
+  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
+  const isPublicPath = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
+
+  // On a protected route with no token yet: if Clerk is still booting OR the
+  // user IS signed in (token sync in flight), show a loader instead of bouncing
+  // them to /login. Once Clerk settles this re-renders with the right auth.
+  if (!token && !isPublicPath && (!clerkLoaded || isSignedIn)) {
+    return (
+      <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(150deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
+        color: "rgba(255,255,255,0.75)", fontFamily: "Montserrat, Inter, sans-serif", fontSize: 14 }}>
+        Cargando tu cuenta…
+      </div>
+    );
+  }
+
+  const access = checkAccess(location, token, role);
   if (access === "login") { navigate("/login"); return null; }
   if (access !== "ok") { navigate(access); return null; }
 
@@ -180,10 +204,10 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   const navItems = isAdmin ? adminNav : isExec ? execNav : clientNav;
 
   useEffect(() => {
-    const t = localStorage.getItem("credeti_token");
-    const r = localStorage.getItem("credeti_role");
-    const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq"];
-    const isPublic = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
+    if (!clerkLoaded) return; // wait for Clerk before making routing decisions
+    const t = token;
+    const r = role;
+    const isPublic = isPublicPath;
     if (!t) { if (!isPublic) navigate("/login"); return; }
     if (location.startsWith("/admin"))     { if (r !== "admin")     { navigate(r === "executive" ? "/dashboard" : "/mi-credito"); return; } }
     if (location.startsWith("/dashboard") || location === "/executive") { if (r !== "executive") { navigate(r === "admin" ? "/admin" : "/mi-credito"); return; } }
@@ -191,7 +215,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       if (r === "admin")     { navigate("/admin");     return; }
       if (r === "executive") { navigate("/dashboard"); return; }
     }
-  }, [location]);
+  }, [location, clerkLoaded, token, role]);
 
   function handleLogout() {
     localStorage.removeItem("credeti_token");

@@ -283,6 +283,16 @@ function ClerkApp() {
     <ClerkProvider
       publishableKey={clerkPubKey!}
       localization={esES}
+      // Force Clerk to use THIS app's own sign-in/sign-up pages instead of the
+      // hosted Account Portal (accounts.crede-ti.info), which is not configured
+      // and was sending users to a blank page / bouncing them back. These props
+      // override the instance display_config for redirectToSignIn, the in-widget
+      // "sign in / sign up" links, and post-auth/sign-out redirects.
+      signInUrl={`${basePath}/sign-in`}
+      signUpUrl={`${basePath}/sign-up`}
+      signInFallbackRedirectUrl={`${basePath}/mi-credito`}
+      signUpFallbackRedirectUrl={`${basePath}/mi-credito`}
+      afterSignOutUrl={`${basePath}/`}
       {...(clerkProxyUrl ? { proxyUrl: clerkProxyUrl } : {})}
     >
       <QueryClientProvider client={queryClient}>
