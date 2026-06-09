@@ -141,7 +141,7 @@ export default function AdminCodigos() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
             <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--navy-800)" }}>Codigos de invitacion</h1>
-            <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Genera y comparte codigos para registrar nuevos usuarios</p>
+            <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Genera y comparte códigos para registrar nuevos usuarios</p>
           </div>
           <button
             onClick={() => setGenerating(true)}
@@ -296,7 +296,7 @@ export default function AdminCodigos() {
         {!isLoading && codes.length === 0 && (
           <div style={{ textAlign: "center", marginTop: 60 }}>
             <IconEquipo size={40} color="#cbd5e1" />
-            <p style={{ color: "#94a3b8", marginTop: 12 }}>Aun no has generado codigos</p>
+            <p style={{ color: "#94a3b8", marginTop: 12 }}>Aún no has generado códigos</p>
             <p style={{ color: "#cbd5e1", fontSize: 13 }}>Toca "Nuevo" para crear tu primer código de invitación</p>
           </div>
         )}

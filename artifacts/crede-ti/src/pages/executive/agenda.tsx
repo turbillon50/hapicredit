@@ -102,7 +102,7 @@ export default function ExecAgenda() {
       <div className="pb-24">
         <div className="px-4 pt-4 pb-3">
           <h1 className="text-xl font-bold text-gray-900 mb-0.5">Agenda de cobros</h1>
-          <p className="text-sm text-gray-400">Clientes por dia de pago semanal</p>
+          <p className="text-sm text-gray-400">Clientes por día de pago semanal</p>
         </div>
 
         {/* Day selector */}
@@ -166,7 +166,7 @@ export default function ExecAgenda() {
             <div className="rounded-2xl bg-gray-50 p-8 text-center">
               <div className="text-3xl mb-2">📅</div>
               <div className="text-sm font-semibold text-gray-700">Sin cobros los {DAYS[selectedDay].toLowerCase()}s</div>
-              <div className="text-xs text-gray-400 mt-1">No hay creditos activos con dia de pago en este dia</div>
+              <div className="text-xs text-gray-400 mt-1">No hay créditos activos con día de pago en este día</div>
             </div>
           ) : (
             dayCredits.map(credit => {

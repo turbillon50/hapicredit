@@ -215,7 +215,7 @@ export default function AdminCartera() {
               onClick={() => setViewMode("day")}
               className="p-2 rounded-md pressable"
               style={viewMode === "day" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
-              title="Agrupar por dia"
+              title="Agrupar por día"
             >
               <IconCalendario size={16} color={viewMode === "day" ? "#2563eb" : "#9ca3af"} />
             </button>
