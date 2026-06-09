@@ -458,7 +458,7 @@ export default function MiCredito() {
                           variant={isPaid ? "success" : isPending ? "warning" : "info"}
                           size="sm"
                         >
-                          {isPaid ? "Pagado" : isPending ? "En validacion" : "Pendiente"}
+                          {isPaid ? "Pagado" : isPending ? "En validación" : "Pendiente"}
                         </Badge>
                       </div>
                     );

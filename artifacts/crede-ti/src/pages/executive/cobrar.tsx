@@ -122,7 +122,7 @@ export default function ExecutiveCobrar() {
         {success && (
           <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 mb-5 text-sm font-semibold" style={{ background: "#d1fae5", color: "#065f46" }}>
             <IconCheck size={20} />
-            Pago registrado — pendiente de validacion por el admin.
+            Pago registrado — pendiente de validación por el admin.
           </div>
         )}
 
