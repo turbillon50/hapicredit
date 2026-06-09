@@ -323,7 +323,7 @@ export default function AdminDashboard() {
                 },
                 {
                   icon: <IconDesembolso size={18} />, iconBg: "#dbeafe", iconColor: "#2563eb",
-                  label: "Colocacion mes", value: fmt(d?.placementThisMonth ?? 0),
+                  label: "Colocación mes", value: fmt(d?.placementThisMonth ?? 0),
                   sub: `Semana: ${fmt(d?.placementThisWeek ?? 0)}`,
                 },
                 {
