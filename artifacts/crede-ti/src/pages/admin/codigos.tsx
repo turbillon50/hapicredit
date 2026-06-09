@@ -140,7 +140,7 @@ export default function AdminCodigos() {
       <div style={{ padding: "16px 16px 100px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
           <div>
-            <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--navy-800)" }}>Codigos de invitacion</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 700, color: "var(--navy-800)" }}>Códigos de invitación</h1>
             <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>Genera y comparte códigos para registrar nuevos usuarios</p>
           </div>
           <button
