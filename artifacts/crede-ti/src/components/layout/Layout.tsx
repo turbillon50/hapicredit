@@ -74,7 +74,7 @@ type NavItem = { icon: React.ReactNode; label: string; path: string };
 const clientNav: NavItem[] = [
   { icon: <IconHome size={22} />,      label: "Inicio",      path: "/"           },
   { icon: <IconSolicitar size={22} />, label: "Solicitar",   path: "/solicitar"  },
-  { icon: <IconMiCredito size={22} />, label: "Mi Credito",  path: "/mi-credito" },
+  { icon: <IconMiCredito size={22} />, label: "Mi Crédito",  path: "/mi-credito" },
   { icon: <IconPerfil size={22} />,    label: "Perfil",      path: "/perfil"     },
 ];
 

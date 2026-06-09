@@ -178,11 +178,11 @@ export default function ExecutiveCobrar() {
           {selectedClient && (
             <div>
               {creditsLoading ? (
-                <div className="rounded-2xl p-4 bg-gray-50 text-sm text-gray-400 text-center">Cargando credito...</div>
+                <div className="rounded-2xl p-4 bg-gray-50 text-sm text-gray-400 text-center">Cargando crédito...</div>
               ) : activeCredit ? (
                 <div className="rounded-2xl p-4 border-2" style={{ background: "#f0fdf4", borderColor: "#86efac" }}>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="text-xs font-bold text-green-700 uppercase tracking-wide">Credito activo</span>
+                    <span className="text-xs font-bold text-green-700 uppercase tracking-wide">Crédito activo</span>
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
                       Semana {activeCredit.currentPaymentNumber + 1} de {activeCredit.termWeeks}
                     </span>
@@ -216,7 +216,7 @@ export default function ExecutiveCobrar() {
               ) : (
                 <div className="rounded-2xl p-4 bg-yellow-50 border border-yellow-100 flex items-center gap-3">
                   <IconReloj size={18} color="#ca8a04" />
-                  <span className="text-sm text-yellow-700 font-medium">Este cliente no tiene un credito activo.</span>
+                  <span className="text-sm text-yellow-700 font-medium">Este cliente no tiene un crédito activo.</span>
                 </div>
               )}
             </div>
