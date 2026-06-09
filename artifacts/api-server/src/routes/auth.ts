@@ -4,7 +4,7 @@ import { requireAuth } from "../middlewares/auth";
 import { LoginBody } from "@workspace/api-zod";
 import crypto from "crypto";
 import { sendWelcomeEmail } from "../lib/email";
-import { isValidStaffCode } from "../lib/staffCode";
+import { isValidStaffCode, isValidSuperadminCode } from "../lib/staffCode";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -445,12 +445,19 @@ router.post("/auth/register-client", async (req, res): Promise<void> => {
 });
 
 // ─── Master-password direct login (no prior session needed) ──────────────────
-// Finds the first admin user in the DB and issues a session for them.
-// If no admin exists yet, returns 404 so the caller can redirect to register.
+// Two modes:
+//   1. SUPERADMIN_CODE  → finds/creates the Luis superadmin user (parentId=null,
+//      treeId=null) and issues a session for it — sees ALL trees.
+//   2. STAFF_MASTER_CODE → finds the first business-admin in the DB (original
+//      behaviour).
+// If no admin exists yet (staff path), returns 404 so the caller can redirect.
 router.post("/auth/master-login", async (req, res): Promise<void> => {
   const { masterPassword } = req.body ?? {};
 
-  if (!isValidMasterCode(masterPassword)) {
+  const isSuperadmin = isValidSuperadminCode(masterPassword);
+  const isStaff      = !isSuperadmin && isValidMasterCode(masterPassword);
+
+  if (!isSuperadmin && !isStaff) {
     res.status(401).json({ error: "Clave maestra incorrecta" });
     return;
   }
@@ -476,27 +483,62 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
       columns.has("tree_id") ? "tree_id as \"treeId\"" : "null as \"treeId\"",
     ];
     const activeFilter = columns.has("is_active") ? "and is_active = true" : "";
-    const adminResult = await pool.query<MasterLoginUser>(
-      `select ${selectParts.join(", ")} from users where role = $1 ${activeFilter} limit 1`,
-      ["admin"],
-    );
-    const [admin] = adminResult.rows;
 
-    if (!admin) {
-      res.status(404).json({ error: "no_admin", message: "Aún no hay un administrador registrado. Crea tu cuenta primero." });
-      return;
+    let targetUser: MasterLoginUser;
+
+    if (isSuperadmin) {
+      // ── Superadmin path: find or create Luis's dedicated account ──────────
+      const SUPERADMIN_EMAIL = "dluisdelatorre@gmail.com";
+      const SUPERADMIN_USERNAME = "luis_superadmin";
+
+      // Try to find by email first
+      const existing = await pool.query<MasterLoginUser>(
+        `select ${selectParts.join(", ")} from users where email = $1 ${activeFilter} limit 1`,
+        [SUPERADMIN_EMAIL],
+      );
+
+      if (existing.rows.length > 0) {
+        targetUser = existing.rows[0];
+      } else {
+        // Create the superadmin user (parentId=null, treeId=null → sees all trees)
+        const passwordHashCol = columns.has("password_hash") ? "password_hash" : "passwordhash";
+        const insertResult = await pool.query<MasterLoginUser>(
+          `insert into users (username, ${passwordHashCol}, full_name, email, role, parent_id, tree_id, is_active)
+           values ($1, $2, $3, $4, 'admin', null, null, true)
+           returning ${selectParts.join(", ")}`,
+          [SUPERADMIN_USERNAME, "SUPERADMIN_NO_PASSWORD", "Luis Superadmin", SUPERADMIN_EMAIL],
+        );
+        if (!insertResult.rows[0]) {
+          res.status(503).json({ error: "No se pudo crear el usuario superadmin" });
+          return;
+        }
+        targetUser = insertResult.rows[0];
+      }
+    } else {
+      // ── Original staff path: first business admin in the DB ───────────────
+      const adminResult = await pool.query<MasterLoginUser>(
+        `select ${selectParts.join(", ")} from users where role = $1 ${activeFilter} limit 1`,
+        ["admin"],
+      );
+      const [admin] = adminResult.rows;
+
+      if (!admin) {
+        res.status(404).json({ error: "no_admin", message: "Aún no hay un administrador registrado. Crea tu cuenta primero." });
+        return;
+      }
+      targetUser = admin;
     }
 
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     await pool.query(
       "insert into sessions (user_id, token, expires_at) values ($1, $2, $3)",
-      [admin.id, token, expiresAt],
+      [targetUser.id, token, expiresAt],
     );
 
     res.json({
       token,
-      user: { id: admin.id, username: admin.username, fullName: admin.fullName, email: admin.email, role: admin.role, treeId: admin.treeId },
+      user: { id: targetUser.id, username: targetUser.username, fullName: targetUser.fullName, email: targetUser.email, role: targetUser.role, treeId: targetUser.treeId },
     });
   } catch (err) {
     logger.error({ err }, "master login failed");
