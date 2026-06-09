@@ -46,7 +46,7 @@ function FaqItem({ item }: { item: any }) {
     <div
       style={{
         borderRadius: 16,
-        background: open ? "#fff" : "#f8fafc",
+        background: open ? "var(--surface)" : "var(--surface-2)",
         border: `1.5px solid ${open ? "#215DFF" : "#e2e8f0"}`,
         overflow: "hidden",
         transition: "border-color 0.18s, background 0.18s",
@@ -161,7 +161,7 @@ export default function Faq() {
               padding: "12px 14px 12px 38px",
               borderRadius: 14,
               border: "1.5px solid #e2e8f0",
-              background: "#f8fafc",
+              background: "var(--surface-inset)",
               fontSize: 14,
               color: "#1e293b",
               outline: "none",

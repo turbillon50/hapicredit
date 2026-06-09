@@ -209,7 +209,7 @@ function CreditDetail({
 
       {/* Needs-info banner */}
       {credit.status === "needs_info" && credit.notes && (
-        <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 14, padding: "12px 16px" }}>
+        <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: 14, padding: "12px 16px" }}>
           <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#92400e" }}>
             Información solicitada anteriormente
           </div>
@@ -277,7 +277,7 @@ function CreditDetail({
       <button
         onClick={() => setConfirm("reject")}
         className="py-3 text-sm font-semibold text-red-500 pressable rounded-2xl border border-red-100"
-        style={{ background: "#fff5f5" }}
+        style={{ background: "var(--danger-bg)" }}
       >
         Rechazar solicitud
       </button>
@@ -320,7 +320,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       </div>
 
       {parsed?.creditId ? (
-        <div className="rounded-2xl p-3 text-center text-sm font-semibold" style={{ background: "#f0fdf4", color: "#059669", border: "1.5px solid #bbf7d0" }}>
+        <div className="rounded-2xl p-3 text-center text-sm font-semibold" style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid #bbf7d0" }}>
           ✓ Convertida — crédito #{parsed.creditId} en revisión
         </div>
       ) : (

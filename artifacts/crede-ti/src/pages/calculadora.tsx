@@ -143,7 +143,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
         </p>
 
         <div style={{
-          background: "#fff", borderRadius: 12, padding: "12px 14px",
+          background: "var(--surface)", borderRadius: 12, padding: "12px 14px",
           border: "1px solid #bfdbfe", fontFamily: "monospace",
           fontSize: 12, color: "#1e40af", lineHeight: 2,
         }}>
@@ -307,9 +307,9 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          style={{ background: "#fff", borderRadius: 20, padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: 20, padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
-          <div style={{ display: "flex", background: "#f3f4f6", borderRadius: 14, padding: 4, gap: 4 }}>
+          <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: 14, padding: 4, gap: 4 }}>
             {(["nuevo", "existente"] as ClienteType[]).map(t => (
               <button
                 key={t}
@@ -341,7 +341,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
-          style={{ background: "#fff", borderRadius: 20, padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: 20, padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <SliderCampo
             label="Monto del crédito"
@@ -412,7 +412,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.24 }}
-          style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
             Resumen
@@ -430,7 +430,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
             Calendario de pagos

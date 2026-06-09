@@ -165,7 +165,7 @@ export default function ExecutiveDashboard() {
               <div
                 key={s.label}
                 style={{
-                  background: "#fff", borderRadius: 16, padding: "16px",
+                  background: "var(--surface)", borderRadius: 16, padding: "16px",
                   border: "1px solid var(--border)", boxShadow: "var(--shadow-card)",
                 }}
               >
@@ -183,7 +183,7 @@ export default function ExecutiveDashboard() {
         {/* ── Monthly target ── */}
         {!isLoading && (d?.targetMonth ?? 0) > 0 && (
           <div style={{ margin: "0 16px" }} className="anim-section anim-d3">
-            <div style={{ background: "#fff", borderRadius: 18, padding: "16px 18px", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}>
+            <div style={{ background: "var(--surface)", borderRadius: 18, padding: "16px 18px", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)", marginBottom: 3 }}>
@@ -230,7 +230,7 @@ export default function ExecutiveDashboard() {
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
                     padding: "14px 16px", borderRadius: 16,
-                    background: "#fff",
+                    background: "var(--surface)",
                     border: "1px solid var(--border)",
                     boxShadow: "var(--shadow-xs)",
                   }}

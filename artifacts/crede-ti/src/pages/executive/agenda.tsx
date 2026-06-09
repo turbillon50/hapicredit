@@ -118,7 +118,7 @@ export default function ExecAgenda() {
                   onClick={() => setSelectedDay(dow)}
                   className="flex flex-col items-center rounded-2xl px-3 py-2.5 min-w-[56px] transition-all pressable shrink-0"
                   style={{
-                    background: isSelected ? "var(--navy)" : isToday ? "#fff0f0" : "#f3f4f6",
+                    background: isSelected ? "var(--navy)" : isToday ? "var(--danger-bg)" : "var(--surface-2)",
                     border: isToday && !isSelected ? "1.5px solid var(--accent)" : "1.5px solid transparent",
                   }}
                 >
@@ -179,7 +179,7 @@ export default function ExecAgenda() {
                   <div
                     className="rounded-2xl p-4 flex items-center gap-3 pressable"
                     style={{
-                      background: paid ? "#f0fdf4" : "#fff",
+                      background: paid ? "var(--success-bg)" : "var(--surface)",
                       border: paid ? "1.5px solid #86efac" : "1.5px solid #f3f4f6",
                     }}
                   >
@@ -240,7 +240,7 @@ export default function ExecAgenda() {
                     <div
                       className="w-full rounded-lg py-1.5 text-center"
                       style={{
-                        background: dow === selectedDay ? "var(--navy)" : isToday ? "#fff0f0" : "#e5e7eb",
+                        background: dow === selectedDay ? "var(--navy)" : isToday ? "var(--danger-bg)" : "var(--surface-3)",
                         border: isToday && dow !== selectedDay ? "1px solid var(--accent)" : "none",
                       }}
                     >

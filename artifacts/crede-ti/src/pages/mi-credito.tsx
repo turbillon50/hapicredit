@@ -304,7 +304,7 @@ export default function MiCredito() {
                       key={msg.id}
                       style={{
                         padding: "14px 16px", borderRadius: 16,
-                        background: "#fff", border: "1px solid #dbeafe",
+                        background: "var(--surface)", border: "1px solid #dbeafe",
                         boxShadow: "var(--shadow-xs)",
                       }}
                     >
@@ -329,7 +329,7 @@ export default function MiCredito() {
                     style={{
                       display: "flex", alignItems: "center", gap: 12,
                       padding: "14px 16px", borderRadius: 16,
-                      background: "#fff",
+                      background: "var(--surface)",
                       border: "1px solid var(--border)",
                       boxShadow: "var(--shadow-xs)",
                     }}
@@ -359,7 +359,7 @@ export default function MiCredito() {
                       style={{
                         display: "flex", alignItems: "center", gap: 12,
                         padding: "14px 16px", borderRadius: 16,
-                        background: "#fff", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
+                        background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                       }}
                     >
                       <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -388,7 +388,7 @@ export default function MiCredito() {
                       <div
                         key={c.id}
                         style={{
-                          background: "#fff", borderRadius: 16, padding: "16px",
+                          background: "var(--surface)", borderRadius: 16, padding: "16px",
                           border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
@@ -431,7 +431,7 @@ export default function MiCredito() {
                         style={{
                           display: "flex", alignItems: "center", gap: 12,
                           padding: "12px 16px", borderRadius: 14,
-                          background: "#fff", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
+                          background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
                         <div
