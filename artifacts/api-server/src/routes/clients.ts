@@ -149,14 +149,16 @@ router.get("/clients/:id", requireAuth, async (req, res): Promise<void> => {
     res.status(403).json({ error: "Forbidden" });
     return;
   }
-  // Client can only see themselves - check if they're linked
+  // Client can only see their own record — enforce via userId FK
   if (req.userRole === "client") {
     const [linked] = await db
       .select({ id: clientsTable.id })
       .from(clientsTable)
-      .where(and(eq(clientsTable.id, params.data.id), eq(clientsTable.executiveId, req.userId!)));
-    // For client role, allow if they see their own record via a different mechanism
-    // (In a real app, users table would link to clients; keep simple here)
+      .where(and(eq(clientsTable.id, params.data.id), eq(clientsTable.userId, req.userId!)));
+    if (!linked) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
   }
 
   const credits = await db
@@ -350,9 +352,6 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
 
 // ─── GET /api/me/client — link logged-in client user to their client record ───
 router.get("/me/client", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
-  if (!user) { res.status(404).json({ error: "User not found" }); return; }
-
   const [client] = await db
     .select({
       id: clientsTable.id,
@@ -369,7 +368,7 @@ router.get("/me/client", requireAuth, requireRole("client"), async (req, res): P
     })
     .from(clientsTable)
     .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
-    .where(eq(clientsTable.fullName, user.fullName));
+    .where(eq(clientsTable.userId, req.userId!));
 
   if (!client) { res.status(404).json({ error: "No client record linked to this user" }); return; }
 

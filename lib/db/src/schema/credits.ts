@@ -16,7 +16,7 @@ export const creditsTable = pgTable("credits", {
   totalToRepay: numeric("total_to_repay", { precision: 12, scale: 2 }).notNull(),
   currentPaymentNumber: integer("current_payment_number").notNull().default(0),
   remainingBalance: numeric("remaining_balance", { precision: 12, scale: 2 }).notNull(),
-  status: text("status").notNull().default("active"), // active | completed | defaulted | restructured
+  status: text("status").notNull().default("active"), // active | completed | defaulted | restructured | pending | rejected | needs_info | closed
   renewalEligible: boolean("renewal_eligible").notNull().default(false),
   notes: text("notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

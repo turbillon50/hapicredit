@@ -48,10 +48,8 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
   const conditions = [];
 
   if (req.userRole === "client") {
-    // Client: find their client record by fullName then filter credits
-    const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
-    if (!user) { res.status(404).json({ error: "User not found" }); return; }
-    const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+    // Client: find their client record via userId FK (robust, not by name)
+    const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
     if (!clientRecord) { res.json([]); return; }
     conditions.push(eq(creditsTable.clientId, clientRecord.id));
   } else if (req.userRole === "executive") {
@@ -95,10 +93,7 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 // GET /credits/my-credit -- active credit for authenticated client
 // NOTE: must be before /credits/:id
 router.get("/credits/my-credit", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
-  if (!user) { res.status(404).json({ error: "User not found" }); return; }
-
-  const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+  const [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
   if (!clientRecord) { res.status(404).json({ error: "No client record found" }); return; }
 
   const rows = await db
@@ -337,8 +332,10 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
     return;
   }
 
-  // Find or create the client record (match by name, then phone).
-  let [client] = await db.select().from(clientsTable).where(eq(clientsTable.fullName, fullName));
+  // Find or create the client record.
+  // Priority: userId FK > name match > phone match (userId is most reliable)
+  let [client] = await db.select().from(clientsTable).where(eq(clientsTable.userId, req.userId!));
+  if (!client) [client] = await db.select().from(clientsTable).where(eq(clientsTable.fullName, fullName));
   if (!client) [client] = await db.select().from(clientsTable).where(eq(clientsTable.phone, phone));
   if (!client) {
     [client] = await db.insert(clientsTable).values({
@@ -349,7 +346,11 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
       guarantorName: guarantor?.fullName ?? null,
       guarantorPhone: guarantor?.phone ?? null,
       status: "current",
+      userId: req.userId!,
     }).returning();
+  } else if (!client.userId) {
+    // Backfill userId FK on existing record
+    [client] = await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, client.id)).returning();
   }
 
   // Reject duplicate open applications.

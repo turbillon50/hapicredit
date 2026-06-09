@@ -12,6 +12,7 @@ export const clientsTable = pgTable("clients", {
   curp: text("curp"),
   status: text("status").notNull().default("current"), // current | at_risk | overdue | defaulted | inactive
   executiveId: integer("executive_id").references(() => usersTable.id),
+  userId: integer("user_id").references(() => usersTable.id),
   guarantorName: text("guarantor_name"),
   guarantorPhone: text("guarantor_phone"),
   internalNotes: text("internal_notes"),
