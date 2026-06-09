@@ -280,7 +280,7 @@ export default function MiCredito() {
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
                       {nextDays < 0
-                        ? `Pago vencido hace ${Math.abs(nextDays)} dia${Math.abs(nextDays) !== 1 ? "s" : ""}`
+                        ? `Pago vencido hace ${Math.abs(nextDays)} día${Math.abs(nextDays) !== 1 ? "s" : ""}`
                         : nextDays === 0
                           ? "Pago vence hoy"
                           : `Próximo pago en ${nextDays} día${nextDays !== 1 ? "s" : ""}`}

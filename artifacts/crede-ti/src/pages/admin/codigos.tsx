@@ -155,8 +155,8 @@ export default function AdminCodigos() {
         {generating && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <div style={{ background: "white", borderRadius: 20, padding: 28, width: "100%", maxWidth: 360 }}>
-              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar codigo</h3>
-              <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>Selecciona el rol para el que generaras el codigo:</p>
+              <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar código</h3>
+              <p style={{ fontSize: 14, color: "#64748b", marginBottom: 20 }}>Selecciona el rol para el que generarás el código:</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
                 {(userRole === "admin" ? ["admin", "executive", "client"] : ["client"]).map(r => (
                   <button
@@ -197,7 +197,7 @@ export default function AdminCodigos() {
                     </svg>
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 8 }}>Correo enviado</h3>
-                  <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>El codigo <strong>{emailModal.code}</strong> fue enviado a <strong>{emailTo}</strong></p>
+                  <p style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>El código <strong>{emailModal.code}</strong> fue enviado a <strong>{emailTo}</strong></p>
                   <button onClick={() => setEmailModal(null)} style={{ padding: "12px 32px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Listo</button>
                 </div>
               ) : (
@@ -220,7 +220,7 @@ export default function AdminCodigos() {
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid #e2e8f0", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
                     <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>
-                      {emailLoading ? "Enviando..." : "Enviar codigo"}
+                      {emailLoading ? "Enviando..." : "Enviar código"}
                     </button>
                   </div>
                 </>
@@ -297,7 +297,7 @@ export default function AdminCodigos() {
           <div style={{ textAlign: "center", marginTop: 60 }}>
             <IconEquipo size={40} color="#cbd5e1" />
             <p style={{ color: "#94a3b8", marginTop: 12 }}>Aun no has generado codigos</p>
-            <p style={{ color: "#cbd5e1", fontSize: 13 }}>Toca "Nuevo" para crear tu primer codigo de invitacion</p>
+            <p style={{ color: "#cbd5e1", fontSize: 13 }}>Toca "Nuevo" para crear tu primer código de invitación</p>
           </div>
         )}
       </div>
