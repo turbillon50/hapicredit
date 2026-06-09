@@ -304,7 +304,7 @@ export default function AdminMovimientos() {
 
                   <input
                     type="text"
-                    placeholder="Descripcion (opcional)"
+                    placeholder="Descripción (opcional)"
                     value={formDesc}
                     onChange={(e) => setFormDesc(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl text-sm border border-border bg-surface-2 focus:outline-none focus:ring-2 focus:ring-accent"
@@ -419,7 +419,7 @@ export default function AdminMovimientos() {
               />
               <input
                 type="text"
-                placeholder="Descripcion"
+                placeholder="Descripción"
                 value={editDesc}
                 onChange={e => setEditDesc(e.target.value)}
                 style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}

@@ -19,7 +19,7 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 semanas, 5% de interés mensual." },
+  { q: "¿Cuánto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 semanas, 5% de interés mensual." },
   { q: "Hay comisión por apertura?",              a: "No. credeti no cobra comisión por apertura." },
   { q: "¿Qué pasa si pago tarde??",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
   { q: "¿Cómo elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
@@ -216,7 +216,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:36 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Como funciona</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>¿Cómo funciona?</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Tres pasos,<br />y listo.
             </h2>
@@ -250,7 +250,7 @@ export default function Home() {
         ═══════════════════════════════════════════ */}
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
-            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Por que nosotros</div>
+            <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>¿Por qué nosotros?</div>
             <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Financiamiento<br />hecho para ti.
             </h2>

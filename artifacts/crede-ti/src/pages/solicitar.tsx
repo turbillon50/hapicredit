@@ -364,7 +364,7 @@ export default function Solicitar() {
             </div>
 
             <div className="card flex flex-col gap-3">
-              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Como nos conociste</div>
+              <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">¿Cómo nos conociste?</div>
               <div className="flex flex-wrap gap-2">
                 {SOURCES.map(s => (
                   <button
