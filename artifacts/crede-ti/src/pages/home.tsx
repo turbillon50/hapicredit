@@ -139,8 +139,8 @@ export default function Home() {
           {/* Trust stats */}
           <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
-              { val:"$30K", label:"Monto maximo" },
-              { val:"48",   label:"Sem. max"      },
+              { val:"$30K", label:"Monto máximo" },
+              { val:"48",   label:"Sem. máx"      },
               { val:"0%",   label:"Comisión"     },
             ].map((s,i) => (
               <div key={s.val} style={{
