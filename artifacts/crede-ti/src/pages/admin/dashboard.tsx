@@ -510,7 +510,7 @@ export default function AdminDashboard() {
         {/* ── Quick access ── */}
         <div style={{ padding: "4px 16px 0" }} className="anim-section anim-d6">
           <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)", marginBottom: 12 }}>
-            Control y gestion
+            Control y gestión
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {ACCESOS.map(a => (

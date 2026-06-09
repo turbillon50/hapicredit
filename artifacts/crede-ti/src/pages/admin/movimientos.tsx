@@ -449,7 +449,7 @@ export default function AdminMovimientos() {
             <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
             <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>Eliminar movimiento</h3>
             <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px", lineHeight: 1.5 }}>
-              Vas a eliminar <strong>{deleteTarget.description}</strong> por <strong>{fmt(deleteTarget.amount)}</strong>. Esta accion no se puede deshacer.
+              Vas a eliminar <strong>{deleteTarget.description}</strong> por <strong>{fmt(deleteTarget.amount)}</strong>. Esta acción no se puede deshacer.
             </p>
             <button
               onClick={() => deleteExpense.mutate(deleteTarget.id)}
