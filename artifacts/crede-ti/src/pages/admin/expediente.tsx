@@ -33,6 +33,8 @@ export default function AdminExpediente() {
   const [showReasignar, setShowReasignar] = useState(false);
   const [showCambiarFecha, setShowCambiarFecha] = useState(false);
   const [newExecId, setNewExecId] = useState<number | null>(null);
+  const [msgText, setMsgText] = useState("");
+  const [sendingMsg, setSendingMsg] = useState(false);
   const [newDate, setNewDate] = useState("");
 
   const { data: client, isLoading } = useQuery<any>({
@@ -99,12 +101,31 @@ export default function AdminExpediente() {
   const payments = client.recentPayments ?? client.payments ?? [];
   const allNotes: any[] = client.recentNotes ?? client.notes ?? [];
   const docNotes = allNotes.filter((n: any) => n.noteType === "document");
-  const notes = allNotes.filter((n: any) => n.noteType !== "document");
+  const chatNotes = allNotes.filter((n: any) => n.noteType === "mensaje_cliente");
+  const notes = allNotes.filter((n: any) => n.noteType !== "document" && n.noteType !== "mensaje_cliente");
   const commitments = client.openCommitments ?? client.commitments ?? [];
   const activeCredit = credits.find((c: any) => c.status === "active");
   const paid = payments.filter((p: any) => p.paymentStatus === "completed" || p.status === "completed").length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct = total > 0 ? (paid / total) * 100 : 0;
+
+  async function sendMsg() {
+    if (!msgText.trim() || sendingMsg) return;
+    setSendingMsg(true);
+    try {
+      const r = await fetch(`${API}/notes`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId: client.id, noteType: "mensaje_cliente", content: msgText.trim() }),
+      });
+      if (r.ok) {
+        setMsgText("");
+        queryClient.invalidateQueries({ queryKey: ["client", id] });
+      }
+    } finally {
+      setSendingMsg(false);
+    }
+  }
 
   return (
     <Layout>
@@ -287,6 +308,70 @@ export default function AdminExpediente() {
             </div>
           </div>
         )}
+
+        {/* ── Chat con cliente ──────────────────────────────────── */}
+        <div className="px-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
+            Mensajes con cliente
+          </div>
+          <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+            {/* Thread */}
+            <div style={{ padding: "12px 12px 4px", display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
+              {chatNotes.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0", fontSize: 13, color: "var(--text-muted)" }}>
+                  Sin mensajes — inicia la conversación
+                </div>
+              ) : (
+                chatNotes.map((n: any) => {
+                  const isAdmin = n.authorName && n.authorName !== client.fullName;
+                  return (
+                    <div key={n.id} style={{ display: "flex", flexDirection: "column", alignItems: isAdmin ? "flex-end" : "flex-start" }}>
+                      <div style={{
+                        maxWidth: "78%", padding: "9px 13px",
+                        borderRadius: isAdmin ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                        background: isAdmin ? "var(--accent)" : "var(--surface-2)",
+                        color: isAdmin ? "#fff" : "var(--text-primary)",
+                        fontSize: 14, lineHeight: 1.5,
+                      }}>
+                        {n.content}
+                      </div>
+                      <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, paddingLeft: 4, paddingRight: 4 }}>
+                        {isAdmin ? (n.authorName ?? "Asesor") : client.fullName} · {new Date(n.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            {/* Input */}
+            <div style={{ borderTop: "1px solid var(--border)", display: "flex", gap: 8, padding: "10px 12px" }}>
+              <input
+                type="text"
+                value={msgText}
+                onChange={e => setMsgText(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
+                placeholder={`Mensaje a ${client.fullName.split(" ")[0]}...`}
+                style={{
+                  flex: 1, borderRadius: 10, border: "1.5px solid var(--border)",
+                  background: "var(--surface-2)", color: "var(--text-primary)",
+                  fontSize: 14, padding: "8px 12px", outline: "none",
+                }}
+              />
+              <button
+                onClick={sendMsg}
+                disabled={!msgText.trim() || sendingMsg}
+                style={{
+                  borderRadius: 10, border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default",
+                  background: msgText.trim() && !sendingMsg ? "var(--accent)" : "var(--border)",
+                  color: msgText.trim() && !sendingMsg ? "#fff" : "var(--text-muted)",
+                  padding: "0 14px", fontWeight: 700, fontSize: 14, transition: "all .15s",
+                }}
+              >
+                {sendingMsg ? "…" : "Enviar"}
+              </button>
+            </div>
+          </div>
+        </div>
 
         {notes.length > 0 && (
           <div className="px-4">

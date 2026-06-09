@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { Badge } from "@/components/hapi/Badge";
@@ -163,6 +164,121 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
   );
 }
 
+// ─── Mensajes Section Component ─────────────────────────────────────────────
+function MensajesSection({ messages, client, queryClient }: {
+  messages: Message[];
+  client: ClientProfile | null | undefined;
+  queryClient: ReturnType<typeof useQueryClient>;
+}) {
+  const [text, setText] = useState("");
+  const [sending, setSending] = useState(false);
+  const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages.length]);
+
+  const myName = client?.fullName ?? "";
+
+  async function send() {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    try {
+      const r = await fetch(`${API}/notes/my-message`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text.trim() }),
+      });
+      if (r.ok) {
+        setText("");
+        queryClient.invalidateQueries({ queryKey: ["client-messages"] });
+      }
+    } finally {
+      setSending(false);
+    }
+  }
+
+  return (
+    <div style={{ padding: "0 16px" }} className="anim-section anim-d3">
+      <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+        Mensajes con tu asesor
+      </div>
+      <div
+        style={{
+          borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)",
+          boxShadow: "var(--shadow-xs)", overflow: "hidden",
+        }}
+      >
+        {/* Thread */}
+        <div style={{ padding: "12px 12px 4px", display: "flex", flexDirection: "column", gap: 8, maxHeight: 320, overflowY: "auto" }}>
+          {messages.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "20px 0", fontSize: 13, color: "var(--text-muted)" }}>
+              Sin mensajes aún — escríbenos 👋
+            </div>
+          ) : (
+            messages.map((msg) => {
+              const isMe = msg.authorName === myName;
+              return (
+                <div
+                  key={msg.id}
+                  style={{
+                    display: "flex", flexDirection: "column",
+                    alignItems: isMe ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <div
+                    style={{
+                      maxWidth: "78%", padding: "9px 13px", borderRadius: isMe ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                      background: isMe ? "var(--accent)" : "var(--surface-2)",
+                      color: isMe ? "#fff" : "var(--text-primary)",
+                      fontSize: 14, lineHeight: 1.5,
+                    }}
+                  >
+                    {msg.content}
+                  </div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, paddingLeft: 4, paddingRight: 4 }}>
+                    {isMe ? "Tú" : (msg.authorName ?? "Asesor")} · {new Date(msg.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                  </div>
+                </div>
+              );
+            })
+          )}
+          <div ref={bottomRef} />
+        </div>
+
+        {/* Input */}
+        <div style={{ borderTop: "1px solid var(--border)", display: "flex", gap: 8, padding: "10px 12px" }}>
+          <input
+            type="text"
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
+            placeholder="Escribe un mensaje..."
+            style={{
+              flex: 1, borderRadius: 10, border: "1.5px solid var(--border)",
+              background: "var(--surface-2)", color: "var(--text-primary)",
+              fontSize: 14, padding: "8px 12px", outline: "none",
+            }}
+          />
+          <button
+            onClick={send}
+            disabled={!text.trim() || sending}
+            style={{
+              borderRadius: 10, border: "none", cursor: text.trim() && !sending ? "pointer" : "default",
+              background: text.trim() && !sending ? "var(--accent)" : "var(--border)",
+              color: text.trim() && !sending ? "#fff" : "var(--text-muted)",
+              padding: "0 14px", fontWeight: 700, fontSize: 14, transition: "all .15s",
+            }}
+          >
+            {sending ? "…" : "Enviar"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 export default function MiCredito() {
   useRequireAuth(["client"]);
 
@@ -200,7 +316,8 @@ export default function MiCredito() {
     enabled: !!activeCredit?.id,
   });
 
-  const { data: messages = [] } = useQuery<Message[]>({
+  const qc = useQueryClient();
+  const { data: messages = [], refetch: refetchMessages } = useQuery<Message[]>({
     queryKey: ["client-messages", client?.id],
     queryFn: async () => {
       const r = await fetch(`${API}/notes/my-messages`, { headers: auth() });
@@ -208,6 +325,7 @@ export default function MiCredito() {
       return r.json() as Promise<Message[]>;
     },
     enabled: !!client?.id,
+    refetchInterval: 15_000,
   });
 
   const paid  = payments.filter(p => ["on_time","completed","late","partial","approved","validated"].includes(p.paymentStatus ?? p.status ?? "")).length;
@@ -293,33 +411,7 @@ export default function MiCredito() {
               </div>
             )}
 
-            {messages.length > 0 && (
-              <div style={{ padding: "0 16px" }} className="anim-section anim-d3">
-                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Mensajes de tu asesor
-                </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                  {messages.slice(-3).reverse().map((msg) => (
-                    <div
-                      key={msg.id}
-                      style={{
-                        padding: "14px 16px", borderRadius: 16,
-                        background: "var(--surface)", border: "1px solid #dbeafe",
-                        boxShadow: "var(--shadow-xs)",
-                      }}
-                    >
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                        <span style={{ fontSize: 12, fontWeight: 700, color: "#0E68CC" }}>{msg.authorName ?? "Asesor"}</span>
-                        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
-                          {new Date(msg.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
-                        </span>
-                      </div>
-                      <p style={{ margin: 0, fontSize: 14, color: "var(--text-primary)", lineHeight: 1.5 }}>{msg.content}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <MensajesSection messages={messages} client={client} queryClient={qc} />
 
             {activeCredit && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d4">

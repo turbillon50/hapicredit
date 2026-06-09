@@ -5,6 +5,7 @@ import {
   CreateNoteBody,
   ListNotesQueryParams,
 } from "@workspace/api-zod";
+import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
 
 const router = Router();
 
@@ -15,7 +16,6 @@ router.get("/notes", requireAuth, async (req, res): Promise<void> => {
     return;
   }
 
-  // Client role: only see notes of type "mensaje_cliente" directed at their client record
   if (req.userRole === "client") {
     const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
     if (!user) { res.status(404).json({ error: "User not found" }); return; }
@@ -65,7 +65,6 @@ router.get("/notes", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.post("/notes", requireAuth, async (req, res): Promise<void> => {
-  // Clients cannot create notes
   if (req.userRole === "client") {
     res.status(403).json({ error: "Forbidden" });
     return;
@@ -88,13 +87,28 @@ router.post("/notes", requireAuth, async (req, res): Promise<void> => {
     ? await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, authorId))
     : [null];
 
+  // Push notification to client when admin/executive sends a mensaje_cliente
+  if (parsed.data.noteType === "mensaje_cliente" && parsed.data.clientId) {
+    const [clientRow] = await db
+      .select({ fullName: clientsTable.fullName })
+      .from(clientsTable)
+      .where(eq(clientsTable.id, parsed.data.clientId));
+    if (clientRow) {
+      sendPushToClientByName(clientRow.fullName, {
+        title: `Mensaje de ${author?.fullName ?? "tu asesor"}`,
+        body: parsed.data.content.slice(0, 100),
+        url: "/mi-credito",
+      }).catch(() => {});
+    }
+  }
+
   res.status(201).json({
     ...note,
     authorName: author?.fullName ?? null,
   });
 });
 
-// GET /notes/my-messages -- messages from executive directed to the authenticated client
+// GET /notes/my-messages -- all mensaje_cliente notes for the authenticated client
 router.get("/notes/my-messages", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
   const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
@@ -121,6 +135,36 @@ router.get("/notes/my-messages", requireAuth, requireRole("client"), async (req,
     .orderBy(notesTable.createdAt);
 
   res.json(rows);
+});
+
+// POST /notes/my-message -- client sends a message to their advisor
+router.post("/notes/my-message", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  const { content } = req.body;
+  if (!content || typeof content !== "string" || !content.trim()) {
+    res.status(400).json({ error: "El mensaje no puede estar vacío" });
+    return;
+  }
+
+  const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+  if (!clientRecord) { res.status(404).json({ error: "Perfil de cliente no encontrado" }); return; }
+
+  const [note] = await db.insert(notesTable).values({
+    clientId: clientRecord.id,
+    authorId: req.userId!,
+    noteType: "mensaje_cliente",
+    content: content.trim(),
+  }).returning();
+
+  sendPushToAdmins({
+    title: `Mensaje de ${user.fullName}`,
+    body: content.trim().slice(0, 100),
+    url: `/admin/cartera/${clientRecord.id}`,
+  }).catch(() => {});
+
+  res.status(201).json({ ...note, authorName: user.fullName });
 });
 
 export default router;
