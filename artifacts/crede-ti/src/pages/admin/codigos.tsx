@@ -40,7 +40,7 @@ export default function AdminCodigos() {
     queryKey: ["invite-codes-mine"],
     queryFn: async () => {
       const res = await fetch(`${API}/invite-codes/mine`, { headers: auth() });
-      if (!res.ok) throw new Error("Error al cargar codigos");
+      if (!res.ok) throw new Error("Error al cargar códigos");
       return res.json();
     },
   });
