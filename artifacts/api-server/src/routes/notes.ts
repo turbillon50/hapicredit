@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { db, eq, notesTable, usersTable } from "@workspace/db";
-import { requireAuth } from "../middlewares/auth";
+import { and, db, eq, notesTable, usersTable, clientsTable } from "@workspace/db";
+import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreateNoteBody,
   ListNotesQueryParams,
@@ -12,6 +12,35 @@ router.get("/notes", requireAuth, async (req, res): Promise<void> => {
   const params = ListNotesQueryParams.safeParse(req.query);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
+    return;
+  }
+
+  // Client role: only see notes of type "mensaje_cliente" directed at their client record
+  if (req.userRole === "client") {
+    const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+    if (!clientRecord) { res.json([]); return; }
+
+    const rows = await db
+      .select({
+        id: notesTable.id,
+        clientId: notesTable.clientId,
+        authorId: notesTable.authorId,
+        authorName: usersTable.fullName,
+        noteType: notesTable.noteType,
+        content: notesTable.content,
+        createdAt: notesTable.createdAt,
+      })
+      .from(notesTable)
+      .leftJoin(usersTable, eq(notesTable.authorId, usersTable.id))
+      .where(and(
+        eq(notesTable.clientId, clientRecord.id),
+        eq(notesTable.noteType, "mensaje_cliente"),
+      ))
+      .orderBy(notesTable.createdAt);
+
+    res.json(rows);
     return;
   }
 
@@ -36,6 +65,12 @@ router.get("/notes", requireAuth, async (req, res): Promise<void> => {
 });
 
 router.post("/notes", requireAuth, async (req, res): Promise<void> => {
+  // Clients cannot create notes
+  if (req.userRole === "client") {
+    res.status(403).json({ error: "Forbidden" });
+    return;
+  }
+
   const parsed = CreateNoteBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -57,6 +92,35 @@ router.post("/notes", requireAuth, async (req, res): Promise<void> => {
     ...note,
     authorName: author?.fullName ?? null,
   });
+});
+
+// GET /notes/my-messages -- messages from executive directed to the authenticated client
+router.get("/notes/my-messages", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+  if (!clientRecord) { res.json([]); return; }
+
+  const rows = await db
+    .select({
+      id: notesTable.id,
+      clientId: notesTable.clientId,
+      authorId: notesTable.authorId,
+      authorName: usersTable.fullName,
+      noteType: notesTable.noteType,
+      content: notesTable.content,
+      createdAt: notesTable.createdAt,
+    })
+    .from(notesTable)
+    .leftJoin(usersTable, eq(notesTable.authorId, usersTable.id))
+    .where(and(
+      eq(notesTable.clientId, clientRecord.id),
+      eq(notesTable.noteType, "mensaje_cliente"),
+    ))
+    .orderBy(notesTable.createdAt);
+
+  res.json(rows);
 });
 
 export default router;

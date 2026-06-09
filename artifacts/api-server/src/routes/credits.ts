@@ -10,6 +10,7 @@ import {
   UpdateCreditParams,
   ListCreditsQueryParams,
 } from "@workspace/api-zod";
+import { sendCreditStatusEmail } from "../lib/email";
 
 const router = Router();
 
@@ -46,22 +47,29 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
   const conditions = [];
 
-  if (req.userRole === "executive") {
+  if (req.userRole === "client") {
+    // Client: find their client record by fullName then filter credits
+    const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+    if (!user) { res.status(404).json({ error: "User not found" }); return; }
+    const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+    if (!clientRecord) { res.json([]); return; }
+    conditions.push(eq(creditsTable.clientId, clientRecord.id));
+  } else if (req.userRole === "executive") {
     conditions.push(eq(creditsTable.executiveId, req.userId!));
   } else if (req.userRole === "admin" && req.userParentId !== null) {
-    // Branch admin: only see credits from their tree's executives
+    // Branch admin: only see credits from their tree
     conditions.push(eq(usersTable.treeId, req.userTreeId!));
     if (params.data.executiveId) {
       conditions.push(eq(creditsTable.executiveId, params.data.executiveId));
     }
   } else {
-    // Superadmin (parentId=null): sees all trees
+    // Superadmin: sees all trees
     if (params.data.executiveId) {
       conditions.push(eq(creditsTable.executiveId, params.data.executiveId));
     }
   }
 
-  if (params.data.clientId) {
+  if (params.data.clientId && req.userRole !== "client") {
     conditions.push(eq(creditsTable.clientId, params.data.clientId));
   }
 
@@ -84,7 +92,34 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
   res.json(rows.map(formatCredit));
 });
 
-// ─── Apply for a credit (creates pending application) ────────────────────────
+// GET /credits/my-credit -- active credit for authenticated client
+// NOTE: must be before /credits/:id
+router.get("/credits/my-credit", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  const [user] = await db.select({ fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.fullName, user.fullName));
+  if (!clientRecord) { res.status(404).json({ error: "No client record found" }); return; }
+
+  const rows = await db
+    .select({
+      ...getTableColumns(creditsTable),
+      clientName: clientsTable.fullName,
+      executiveName: usersTable.fullName,
+    })
+    .from(creditsTable)
+    .leftJoin(clientsTable, eq(creditsTable.clientId, clientsTable.id))
+    .leftJoin(usersTable, eq(creditsTable.executiveId, usersTable.id))
+    .where(and(eq(creditsTable.clientId, clientRecord.id), eq(creditsTable.status, "active")))
+    .orderBy(creditsTable.createdAt);
+
+  const credit = rows[0];
+  if (!credit) { res.status(404).json({ error: "No active credit found" }); return; }
+
+  res.json(formatCredit(credit));
+});
+
+// Apply for a credit (creates pending application)
 router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
   const { clientId, amount, termWeeks, purpose, executiveId: bodyExecId } = req.body;
 
@@ -92,15 +127,10 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
   const weeks = parseInt(termWeeks, 10);
 
   if (!clientId || isNaN(amt) || isNaN(weeks) || amt <= 0 || weeks <= 0) {
-    res.status(400).json({ error: "clientId, amount y termWeeks son requeridos y deben ser válidos" });
+    res.status(400).json({ error: "clientId, amount y termWeeks son requeridos y deben ser validos" });
     return;
   }
 
-  // Business rules (owner specification):
-  // - New clients: $500–$1,000 over 4 weeks, flat 30% interest
-  // - Existing clients: $1,000–$30,000 over 4–48 weeks, 60% annual rate (pro rata)
-  // The classification is done by the caller (which decides isNewClient).
-  // Here we just accept the bounds and compute the schedule.
   const isNewClient = Boolean(req.body.isNewClient);
 
   if (isNewClient) {
@@ -140,7 +170,6 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
     disbursementDate,
     termWeeks: weeks,
     weeklyPayment: weeklyPayment.toFixed(2),
-    // Opening commission removed per owner request — no commission charged.
     openingFee: "0.00",
     totalToRepay: totalToRepay.toFixed(2),
     remainingBalance: totalToRepay.toFixed(2),
@@ -151,10 +180,10 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
   res.status(201).json(formatCredit({ ...credit, clientName: null, executiveName: null }));
 });
 
-// ─── Review (approve / reject) a pending application ─────────────────────────
+// Review (approve / reject) a pending application
 router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   const id = parseInt(req.params.id as string, 10);
-  if (isNaN(id)) { res.status(400).json({ error: "id inválido" }); return; }
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
 
   const { action, notes } = req.body;
   if (action !== "approve" && action !== "reject" && action !== "needs_info") {
@@ -206,7 +235,7 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
   res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
 });
 
-// ─── Standard Create ──────────────────────────────────────────────────────────
+// Standard Create
 router.post("/credits", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
   const parsed = CreateCreditBody.safeParse(req.body);
   if (!parsed.success) {

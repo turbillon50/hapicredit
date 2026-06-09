@@ -376,3 +376,73 @@ export async function sendPaymentReminderEmail(opts: {
     html: baseTemplate(content),
   });
 }
+
+// -- Email: Estado de credito (aprobado o rechazado) --
+export async function sendCreditStatusEmail(opts: {
+  to: string;
+  clientName: string;
+  action: "approve" | "reject";
+  amount: number;
+  weeklyPayment: number;
+  termWeeks: number;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const fmt = (n: number) => n.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+  const isApproved = opts.action === "approve";
+
+  const approvedBlock = `
+    <table width="100%" style="background:#f8fafc;border-radius:12px;padding:20px;" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #e2e8f0;">
+          <span style="color:#64748b;font-size:13px;">Monto del credito</span>
+          <span style="float:right;color:#0E68CC;font-weight:700;font-size:16px;">${fmt(opts.amount)}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;border-bottom:1px solid #e2e8f0;">
+          <span style="color:#64748b;font-size:13px;">Pago semanal</span>
+          <span style="float:right;color:#0E68CC;font-weight:700;font-size:14px;">${fmt(opts.weeklyPayment)}</span>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;">
+          <span style="color:#64748b;font-size:13px;">Plazo</span>
+          <span style="float:right;color:#0E68CC;font-weight:700;font-size:14px;">${opts.termWeeks} semanas</span>
+        </td>
+      </tr>
+    </table>
+    <div style="margin:28px 0;text-align:center;">
+      <a href="https://crede-ti.info/mi-credito" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver mi credito</a>
+    </div>`;
+
+  const rejectedBlock = `
+    <div style="background:#fef2f2;border-left:4px solid #ef4444;border-radius:8px;padding:16px 20px;margin:24px 0;">
+      <p style="margin:0;color:#7f1d1d;font-size:14px;line-height:1.6;">
+        Comunicate con tu asesor para informacion sobre los requisitos o el proceso de nueva solicitud.
+      </p>
+    </div>`;
+
+  const content = `
+    <h2 style="color:${isApproved ? "#16a34a" : "#dc2626"};font-size:22px;margin:0 0 8px;">
+      Tu credito fue ${isApproved ? "aprobado" : "rechazado"}
+    </h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">
+      Hola <strong>${opts.clientName}</strong>,
+      ${isApproved
+        ? "nos complace informarte que tu solicitud de credito ha sido <strong>aprobada</strong>."
+        : "lamentamos informarte que tu solicitud de credito no fue aprobada en esta ocasion."
+      }
+    </p>
+    ${isApproved ? approvedBlock : rejectedBlock}
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Para soporte escribe a soporte@crede-ti.info.</p>
+  `;
+
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: opts.to,
+    subject: `Tu credito fue ${isApproved ? "aprobado" : "rechazado"} -- Crede-Ti`,
+    html: baseTemplate(content),
+  });
+}
