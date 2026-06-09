@@ -21,7 +21,7 @@ const steps = [
 const faqs = [
   { q: "Cuanto puedo solicitar?",                 a: "Si es tu primer crédito con nosotros: de $500 a $1,000 MXN a 4 semanas con 30% de interés. Cliente recurrente: de $1,000 a $30,000 MXN, de 4 a 48 semanas, 5% de interés mensual." },
   { q: "Hay comisión por apertura?",              a: "No. credeti no cobra comisión por apertura." },
-  { q: "Que pasa si pago tarde?",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
+  { q: "¿Qué pasa si pago tarde??",                 a: "El cargo por pago tardío es del 10% del pago atrasado. Por ejemplo, si tu cuota es de $300, la mora sería de $30." },
   { q: "¿Cómo elijo la frecuencia y el dia de pago?", a: "En la solicitud puedes elegir pago semanal o quincenal, y el día de pago que prefieras de lunes a domingo." },
 ];
 
