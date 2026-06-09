@@ -207,7 +207,7 @@ export default function AdminCartera() {
           <div>
             <h1 className="text-xl font-bold text-gray-900">Cartera Detallada</h1>
             <p className="text-sm text-gray-500 mt-0.5">
-              {activeData.length} credito{activeData.length !== 1 ? "s" : ""} activo{activeData.length !== 1 ? "s" : ""} · Cartera: {fmt(totalPortfolio)}
+              {activeData.length} crédito{activeData.length !== 1 ? "s" : ""} activo{activeData.length !== 1 ? "s" : ""} · Cartera: {fmt(totalPortfolio)}
             </p>
           </div>
           <div className="flex bg-gray-100 rounded-lg p-0.5">
@@ -286,7 +286,7 @@ export default function AdminCartera() {
             <EmptyState
               icon={<IconCartera />}
               title="Sin resultados"
-              description="No se encontraron creditos con ese filtro."
+              description="No se encontraron créditos con ese filtro."
             />
           ) : viewMode === "day" ? (
             <div className="flex flex-col gap-4">

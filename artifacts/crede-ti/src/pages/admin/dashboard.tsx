@@ -313,7 +313,7 @@ export default function AdminDashboard() {
               {[
                 {
                   icon: <IconAlerta size={18} />, iconBg: "#fee2e2", iconColor: "#dc2626",
-                  label: "Indice de mora", value: `${moraPct.toFixed(1)}%`,
+                  label: "Índice de mora", value: `${moraPct.toFixed(1)}%`,
                   sub: `${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`,
                 },
                 {

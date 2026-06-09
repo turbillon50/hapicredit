@@ -229,7 +229,7 @@ export default function AdminMovimientos() {
                   <div>
                     <p className="text-sm font-semibold text-white">{data.executiveName}</p>
                     <p className="text-[10px] text-white/50">
-                      {data.totalClients} clientes | {data.activeCredits} creditos activos
+                      {data.totalClients} clientes | {data.activeCredits} créditos activos
                     </p>
                   </div>
                 </div>

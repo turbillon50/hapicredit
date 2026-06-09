@@ -6,10 +6,9 @@ import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
   IconTarjeta, IconCalendario, IconCheck, IconReloj,
-  IconAlerta, IconFlecha, IconMas, IconWhatsapp,
+  IconAlerta, IconFlecha, IconMas,
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
-import { usePush } from "@/hooks/usePush";
 
 interface Credit {
   id: number;
@@ -36,6 +35,16 @@ interface ClientProfile {
   fullName: string;
 }
 
+interface Message {
+  id: number;
+  clientId: number;
+  authorId: number | null;
+  authorName: string | null;
+  noteType: string;
+  content: string;
+  createdAt: string;
+}
+
 const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
 
@@ -43,9 +52,9 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
 const fmtDate = (d: string | null | undefined) => {
-  if (!d) return "\u2014";
+  if (!d) return "—";
   const dt = new Date(d + "T12:00:00");
-  if (isNaN(dt.getTime())) return "\u2014";
+  if (isNaN(dt.getTime())) return "—";
   return dt.toLocaleDateString("es-MX", { weekday: "long", day: "numeric", month: "long" });
 };
 
@@ -74,15 +83,12 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
     <div
       style={{
         borderRadius: 24, padding: "24px 22px",
-        background: "linear-gradient(140deg,#06143B 0%,#215DFF 50%,#19D7D7 100%)",
+        background: "linear-gradient(140deg,#15206E 0%,#2A3CD6 50%,#3F51E6 100%)",
         position: "relative", overflow: "hidden",
         boxShadow: "0 8px 40px rgba(8,15,31,0.35)",
       }}
     >
-      {/* Shine overlay */}
       <div className="credit-card-shine" />
-
-      {/* Decorative circles */}
       <div style={{ position: "absolute", bottom: -40, right: -40, width: 200, height: 200, borderRadius: "50%", background: "rgba(14,104,204,0.06)", pointerEvents: "none" }} />
       <div style={{ position: "absolute", top: -60, left: -20, width: 160, height: 160, borderRadius: "50%", background: "rgba(255,255,255,0.02)", pointerEvents: "none" }} />
 
@@ -99,7 +105,6 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
       </div>
 
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20 }}>
-        {/* Balance + weekly */}
         <div>
           <div style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.35)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>
             Saldo pendiente
@@ -112,7 +117,6 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
           </div>
         </div>
 
-        {/* Circular progress ring */}
         <div style={{ position: "relative", width: 92, height: 92, flexShrink: 0 }}>
           <svg width={92} height={92} viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
             <circle cx="50" cy="50" r={radius} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
@@ -136,7 +140,6 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
         </div>
       </div>
 
-      {/* Payments mini indicator */}
       <div style={{ borderTop: "1px solid rgba(255,255,255,0.07)", paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)" }}>{paid} de {total} pagos completados</span>
         <div style={{ display: "flex", gap: 3 }}>
@@ -161,7 +164,6 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
 }
 
 export default function MiCredito() {
-  const push = usePush();
   useRequireAuth(["client"]);
 
   const { data: client, isLoading } = useQuery<ClientProfile | null>({
@@ -177,8 +179,8 @@ export default function MiCredito() {
   const { data: credits = [] } = useQuery<Credit[]>({
     queryKey: ["client-credits", client?.id],
     queryFn: async () => {
-      const r = await fetch(`${API}/credits?clientId=${client!.id}`, { headers: auth() });
-      if (!r.ok) throw new Error("Error al cargar creditos");
+      const r = await fetch(`${API}/credits`, { headers: auth() });
+      if (!r.ok) throw new Error("Error al cargar créditos");
       return r.json() as Promise<Credit[]>;
     },
     enabled: !!client?.id,
@@ -198,6 +200,16 @@ export default function MiCredito() {
     enabled: !!activeCredit?.id,
   });
 
+  const { data: messages = [] } = useQuery<Message[]>({
+    queryKey: ["client-messages", client?.id],
+    queryFn: async () => {
+      const r = await fetch(`${API}/notes/my-messages`, { headers: auth() });
+      if (!r.ok) return [];
+      return r.json() as Promise<Message[]>;
+    },
+    enabled: !!client?.id,
+  });
+
   const paid  = payments.filter(p => ["on_time","completed","late","partial","approved","validated"].includes(p.paymentStatus ?? p.status ?? "")).length;
   const total = activeCredit?.termWeeks ?? 0;
   const pct   = total > 0 ? (paid / total) * 100 : 0;
@@ -207,24 +219,6 @@ export default function MiCredito() {
 
   return (
     <Layout>
-      {push.supported && !push.enabled && !push.denied && (
-        <button
-          className="pressable"
-          onClick={() => push.enable()}
-          disabled={push.busy}
-          style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 10,
-            padding: "12px 16px", margin: "12px 0", borderRadius: 16, border: "1.5px solid #bfdbfe",
-            background: "#eff6ff", cursor: "pointer", textAlign: "left",
-          }}
-        >
-          <span style={{ fontSize: 20 }}>🔔</span>
-          <span style={{ flex: 1 }}>
-            <span className="text-sm font-bold" style={{ color: "#215DFF", display: "block" }}>Activa las notificaciones</span>
-            <span className="text-xs text-gray-500">Te avisamos cuando tu crédito sea aprobado y al validar tus pagos.</span>
-          </span>
-        </button>
-      )}
       <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingBottom: 24 }}>
 
         {isLoading ? (
@@ -253,7 +247,6 @@ export default function MiCredito() {
           </div>
         ) : (
           <>
-            {/* ── Credit card hero ── */}
             {activeCredit && (
               <div style={{ padding: "16px 16px 0" }} className="anim-section anim-d1">
                 <CreditCard
@@ -266,7 +259,6 @@ export default function MiCredito() {
               </div>
             )}
 
-            {/* ── Next payment alert ── */}
             {activeCredit && nextDays !== null && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d2">
                 <div
@@ -288,7 +280,7 @@ export default function MiCredito() {
                   <div>
                     <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>
                       {nextDays < 0
-                        ? `Pago vencido hace ${Math.abs(nextDays)} día${Math.abs(nextDays) !== 1 ? "s" : ""}`
+                        ? `Pago vencido hace ${Math.abs(nextDays)} dia${Math.abs(nextDays) !== 1 ? "s" : ""}`
                         : nextDays === 0
                           ? "Pago vence hoy"
                           : `Próximo pago en ${nextDays} día${nextDays !== 1 ? "s" : ""}`}
@@ -296,22 +288,41 @@ export default function MiCredito() {
                     <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>
                       {fmtDate(activeCredit.nextPaymentDate)} · {fmt(activeCredit.weeklyPayment)}
                     </div>
-                    {nextDays !== null && nextDays <= 0 && (
-                      <a
-                        href="https://wa.me/525631908262"
-                        style={{ fontSize: 12, color: "#ef4444", fontWeight: 700, marginTop: 4, display: "block" }}
-                      >
-                        Cobranza WhatsApp: 56 3190 8262
-                      </a>
-                    )}
                   </div>
                 </div>
               </div>
             )}
 
-            {/* ── Quick action ── */}
-            {activeCredit && (
+            {messages.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d3">
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  Mensajes de tu asesor
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {messages.slice(-3).reverse().map((msg) => (
+                    <div
+                      key={msg.id}
+                      style={{
+                        padding: "14px 16px", borderRadius: 16,
+                        background: "#fff", border: "1px solid #dbeafe",
+                        boxShadow: "var(--shadow-xs)",
+                      }}
+                    >
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                        <span style={{ fontSize: 12, fontWeight: 700, color: "#0E68CC" }}>{msg.authorName ?? "Asesor"}</span>
+                        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>
+                          {new Date(msg.createdAt).toLocaleDateString("es-MX", { day: "numeric", month: "short" })}
+                        </span>
+                      </div>
+                      <p style={{ margin: 0, fontSize: 14, color: "var(--text-primary)", lineHeight: 1.5 }}>{msg.content}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {activeCredit && (
+              <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
                 <Link href="/solicitar">
                   <div
                     className="pressable"
@@ -327,7 +338,7 @@ export default function MiCredito() {
                       <IconMas size={18} color="var(--coral)" />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Solicitar renovación</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>Solicitar renovacion</div>
                       <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Aplica para un nuevo crédito</div>
                     </div>
                     <IconFlecha size={16} color="var(--text-muted)" />
@@ -336,27 +347,11 @@ export default function MiCredito() {
               </div>
             )}
 
-            {/* ── Pending requests ── */}
             {pendingCredits.length > 0 && (
-              <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
-                {/* Top banner */}
-                <div style={{
-                  background: "linear-gradient(135deg, #fefce8, #fef9c3)",
-                  border: "1.5px solid #fcd34d", borderRadius: 16,
-                  padding: "16px 18px", marginBottom: 12,
-                  display: "flex", alignItems: "flex-start", gap: 12,
-                }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, border: "1.5px solid #fcd34d" }}>
-                    <IconReloj size={18} color="#ca8a04" />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: "#92400e" }}>Solicitud en revisión</div>
-                    <div style={{ fontSize: 12, color: "#a16207", marginTop: 2, lineHeight: 1.5 }}>
-                      Tu solicitud fue recibida y está siendo evaluada. Te notificaremos cuando haya una resolución.
-                    </div>
-                  </div>
+              <div style={{ padding: "0 16px" }} className="anim-section anim-d5">
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  Solicitudes en revision
                 </div>
-
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {pendingCredits.map((c) => (
                     <div
@@ -367,32 +362,22 @@ export default function MiCredito() {
                         background: "#fff", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                       }}
                     >
+                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <IconReloj size={16} color="#ca8a04" />
+                      </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{fmt(c.amount)}</div>
-                        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>Crédito #{c.id} · {c.termWeeks} semanas</div>
+                        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{c.termWeeks} semanas · {c.notes ?? ""}</div>
                       </div>
-                      <Badge variant="warning" size="sm">En revisión</Badge>
+                      <Badge variant="warning" size="sm">En revision</Badge>
                     </div>
                   ))}
                 </div>
-
-                <a
-                  href="https://wa.me/529984292748"
-                  style={{
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    marginTop: 12, padding: "12px 16px", borderRadius: 14,
-                    background: "#25d366", color: "#fff",
-                    fontSize: 13, fontWeight: 700, textDecoration: "none",
-                  }}
-                >
-                  <IconWhatsapp size={16} color="#fff" /> Consultar estado con soporte
-                </a>
               </div>
             )}
 
-            {/* ── Credit history ── */}
             {historicCredits.length > 0 && (
-              <div style={{ padding: "0 16px" }} className="anim-section anim-d5">
+              <div style={{ padding: "0 16px" }} className="anim-section anim-d6">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Historial de créditos
                 </div>
@@ -423,24 +408,6 @@ export default function MiCredito() {
                             </div>
                           ))}
                         </div>
-                        {c.status === "rejected" && c.notes && (
-                          <div style={{ marginTop: 10, padding: "10px 14px", background: "#fff1f2", borderRadius: 10, border: "1px solid #fecdd3" }}>
-                            <div style={{ fontSize: 10, fontWeight: 700, color: "#9f1239", textTransform: "uppercase", marginBottom: 3 }}>Motivo de rechazo</div>
-                            <div style={{ fontSize: 12, color: "#be123c" }}>{c.notes}</div>
-                          </div>
-                        )}
-                        {c.status === "rejected" && (
-                          <a
-                            href="https://wa.me/529984292748"
-                            style={{
-                              display: "inline-flex", alignItems: "center", gap: 6,
-                              marginTop: 10, fontSize: 12, color: "#25d366", fontWeight: 700,
-                              textDecoration: "none",
-                            }}
-                          >
-                            <IconWhatsapp size={13} color="#25d366" /> ¿Dudas? Contacta a soporte
-                          </a>
-                        )}
                       </div>
                     );
                   })}
@@ -448,11 +415,10 @@ export default function MiCredito() {
               </div>
             )}
 
-            {/* ── Recent payments ── */}
             {payments.length > 0 && (
-              <div style={{ padding: "0 16px" }} className="anim-section anim-d6">
+              <div style={{ padding: "0 16px" }} className="anim-section anim-d7">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  Últimos pagos
+                  Ultimos pagos
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {payments.slice(-5).reverse().map((p) => {
@@ -485,14 +451,14 @@ export default function MiCredito() {
                           <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>
                             {p.paymentDate
                               ? new Date(p.paymentDate).toLocaleDateString("es-MX", { day: "numeric", month: "short" })
-                              : "\u2014"}
+                              : "—"}
                           </div>
                         </div>
                         <Badge
                           variant={isPaid ? "success" : isPending ? "warning" : "info"}
                           size="sm"
                         >
-                          {isPaid ? "Pagado" : isPending ? "En validación" : "Pendiente"}
+                          {isPaid ? "Pagado" : isPending ? "En validacion" : "Pendiente"}
                         </Badge>
                       </div>
                     );

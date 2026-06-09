@@ -191,7 +191,7 @@ export default function AdminExpediente() {
           </div>
           <div className="flex flex-col gap-2">
             {credits.length === 0 ? (
-              <EmptyState icon={<IconMoneda />} title="Sin creditos" description="Este cliente no tiene creditos registrados." />
+              <EmptyState icon={<IconMoneda />} title="Sin créditos" description="Este cliente no tiene créditos registrados." />
             ) : credits.map((c: any) => {
               const sb = statusBadge(c.status);
               return (
@@ -470,7 +470,7 @@ export default function AdminExpediente() {
             <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Cambiar fecha de pago</h3>
             <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>
               Modifica la fecha de inicio del ciclo de {client?.fullName}.<br />
-              <span style={{ color: "#dc2626", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del credito activo.</span>
+              <span style={{ color: "#dc2626", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del crédito activo.</span>
             </p>
             <div style={{ marginBottom: 18 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Nueva fecha de inicio</label>

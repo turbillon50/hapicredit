@@ -283,10 +283,10 @@ export default function AdminArbol() {
       <div style={{ padding: "16px 16px 100px" }}>
         <div style={{ marginBottom: 20 }}>
           <h1 style={{ fontSize: 20, fontWeight: 800, color: "#215DFF" }}>
-            {userRole === "admin" ? "Mi Arbol" : "Mi Red"}
+            {userRole === "admin" ? "Mi Árbol" : "Mi Red"}
           </h1>
           <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
-            {userRole === "admin" ? "Todos los asesores y acreditados de tu organizacion" : "Acreditados que registraste"}
+            {userRole === "admin" ? "Todos los asesores y acreditados de tu organización" : "Acreditados que registraste"}
           </p>
         </div>
 

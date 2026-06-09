@@ -280,7 +280,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
             </button>
           ) : (
             <a href="/login" style={{ fontSize: 13, fontWeight: 700, color: "var(--brand-blue)", textDecoration: "none", padding: "6px 14px", border: "1.5px solid var(--border-mid)", borderRadius: 100 }}>
-              Iniciar sesion
+              Iniciar sesión
             </a>
           )}
         </div>
