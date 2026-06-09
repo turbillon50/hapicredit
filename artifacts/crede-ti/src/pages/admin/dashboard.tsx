@@ -50,6 +50,7 @@ const ACCESOS = [
   { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "#fef9c3", iconColor: "#854d0e" },
   { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "#e0f2fe", iconColor: "#0369a1" },
   { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Códigos de invitación",  sub: "Genera y comparte códigos de registro",  iconBg: "#fdf4ff", iconColor: "#7c3aed" },
+  { path: "/admin/configuracion",  icon: <IconConfig size={20} />,   label: "Configuración",          sub: "Tasas, montos y ajustes del negocio",    iconBg: "rgba(25,215,215,0.12)", iconColor: "#0A9090" },
 ];
 
 function dot(color: string) {

@@ -1,17 +1,25 @@
 import { useState, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
+
+async function fetchCalcConfig() {
+  const r = await fetch("/api/config/public");
+  if (!r.ok) throw new Error("cfg");
+  return r.json() as Promise<Record<string, string>>;
+}
+
 import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Reglas de negocio ────────────────────────────────────────────────────────
 type ClienteType = "nuevo" | "existente";
 
-function calcular(monto: number, plazo: number, tipo: ClienteType) {
-  // nuevo: plazo = 4 semanas fijas, interés 30% plano, pago semanal
-  // existente: plazo = N semanas, 5% mensual (≈ semanas/4 meses), pago semanal
+function calcular(monto: number, plazo: number, tipo: ClienteType, tasaNuevo = 30, tasaExist = 5, plazoNuevo = 4) {
+  // nuevo: plazo fijo, interés % plano
+  // existente: plazo N semanas, tasa % mensual × meses
   const interes = tipo === "nuevo"
-    ? monto * 0.30
-    : monto * 0.05 * (plazo / 4);
+    ? monto * (tasaNuevo / 100)
+    : monto * (tasaExist / 100) * (plazo / 4);
   const total = monto + interes;
-  const pago  = total / (tipo === "nuevo" ? 4 : plazo);
+  const pago  = total / (tipo === "nuevo" ? plazoNuevo : plazo);
   return { interes, total, pago };
 }
 
@@ -246,17 +254,31 @@ function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: 
 // ─── Página principal ─────────────────────────────────────────────────────────
 export default function Calculadora() {
   const [tipo, setTipo]   = useState<ClienteType>("existente");
-  const [monto, setMonto] = useState(5000);
-  const [semanas, setSemanas] = useState(12); // semanas para existente; nuevo siempre 4 semanas fijas
+  const { data: cfgRaw } = useQuery({ queryKey: ["calc-config"], queryFn: fetchCalcConfig, staleTime: 60_000 });
+  const c = cfgRaw ?? {};
 
-  const montoMin   = tipo === "nuevo" ? 500   : 1000;
-  const montoMax   = tipo === "nuevo" ? 1000  : 30000;
-  const semanasMax = 48;
+  // Dynamic config — fall back to hardcoded defaults if API not ready
+  const nuevoMin      = Number(c.calc_nuevo_min)          || 500;
+  const nuevoMax      = Number(c.calc_nuevo_max)          || 2000;
+  const nuevoPlazo    = Number(c.calc_nuevo_plazo)        || 4;
+  const nuevoTasa     = Number(c.calc_nuevo_tasa)         || 30;
+  const existMin      = Number(c.calc_exist_min)          || 1000;
+  const existMax      = Number(c.calc_exist_max)          || 30000;
+  const existPlazoMin = Number(c.calc_exist_plazo_min)    || 4;
+  const existPlazoMax = Number(c.calc_exist_plazo_max)    || 48;
+  const existTasa     = Number(c.calc_exist_tasa_mensual) || 5;
+
+  const [monto, setMonto] = useState(5000);
+  const [semanas, setSemanas] = useState(12);
+
+  const montoMin   = tipo === "nuevo" ? nuevoMin  : existMin;
+  const montoMax   = tipo === "nuevo" ? nuevoMax  : existMax;
+  const semanasMax = existPlazoMax;
 
   function cambiarTipo(t: ClienteType) {
     setTipo(t);
     if (t === "nuevo") setMonto(750);
-    else               { setMonto(5000); setSemanas(12); }
+    else               { setMonto(Math.round((existMin + existMax) / 2 / 500) * 500); setSemanas(existPlazoMin + Math.round((existPlazoMax - existPlazoMin) / 3)); }
   }
 
   const { interes, total, pago } = useMemo(
@@ -264,8 +286,7 @@ export default function Calculadora() {
     [monto, semanas, tipo],
   );
 
-  // 5% mensual × (semanas ÷ 4) para existente; 30% fijo para nuevo
-  const tasaEfectiva = tipo === "nuevo" ? 30 : 5 * (semanas / 4);
+  const tasaEfectiva = tipo === "nuevo" ? nuevoTasa : existTasa * (semanas / 4);
 
   return (
     <div style={{
@@ -346,7 +367,7 @@ export default function Calculadora() {
           <SliderCampo
             label="Monto del crédito"
             valor={monto} min={montoMin} max={montoMax}
-            paso={tipo === "nuevo" ? 50 : 500}
+            paso={tipo === "nuevo" ? Math.max(50, Math.round((nuevoMax - nuevoMin) / 20)) : 500}
             prefijo="$" onChange={setMonto}
           />
           {tipo === "existente" ? (
@@ -360,7 +381,7 @@ export default function Calculadora() {
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Plazo</span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: AZUL2 }}>4 semanas</span>
+                <span style={{ fontSize: 20, fontWeight: 900, color: AZUL2 }}>{nuevoPlazo} semanas</span>
               </div>
               <div style={{ height: 6, borderRadius: 99, background: `linear-gradient(90deg, ${AZUL}, ${AMARILLO})` }} />
               <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>Plazo fijo para primer crédito</div>

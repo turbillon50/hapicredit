@@ -41,7 +41,8 @@ import ExecAgenda       from "@/pages/executive/agenda";
 
 import Calculadora     from "@/pages/calculadora";
 import Faq             from "@/pages/faq";
-import AdminFaq        from "@/pages/admin/faq";
+import AdminFaq           from "@/pages/admin/faq";
+import AdminConfiguracion  from "@/pages/admin/configuracion";
 import Acceso          from "@/pages/acceso";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
@@ -280,6 +281,7 @@ function Router() {
       <Route path="/admin/codigos"          component={AdminCodigos} />
       <Route path="/admin/expediente/:id"   component={AdminExpediente} />
       <Route path="/admin/faq"              component={AdminFaq} />
+      <Route path="/admin/configuracion"   component={AdminConfiguracion} />
 
       {/* Executive */}
       <Route path="/executive"              component={ExecDashboard} />

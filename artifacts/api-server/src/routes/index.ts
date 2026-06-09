@@ -17,6 +17,7 @@ import purgeRouter from "./purge";
 import demoRouter from "./demo";
 import uploadsRouter from "./uploads";
 import pushRouter from "./push";
+import configRouter from "./config";
 
 const router = Router();
 
@@ -38,5 +39,6 @@ router.use(purgeRouter);
 router.use(demoRouter);
 router.use(uploadsRouter);
 router.use(pushRouter);
+router.use(configRouter);
 
 export default router;
