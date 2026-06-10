@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Switch, Route, Router as WouterRouter, Redirect } from "wouter";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
@@ -346,13 +347,33 @@ function NoClerkApp() {
   );
 }
 
+// Wraps ClerkApp — if Clerk JS CDN fails (network error, ad-block, etc.)
+// fall back to NoClerkApp so the DB-auth flow still works and the page renders.
+class ClerkErrorBoundary extends React.Component<
+  { children: React.ReactNode; fallback: React.ReactNode },
+  { hasError: boolean }
+> {
+  constructor(props: { children: React.ReactNode; fallback: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false };
+  }
+  static getDerivedStateFromError() { return { hasError: true }; }
+  componentDidCatch() { /* silent — we degrade gracefully */ }
+  render() {
+    return this.state.hasError ? this.props.fallback : this.props.children;
+  }
+}
+
 export default function App() {
   const [splash, setSplash] = useState(() => !sessionStorage.getItem("credeti_splashed"));
 
   return (
     <WouterRouter base={basePath}>
       {splash && <SplashScreen onDone={() => { sessionStorage.setItem("credeti_splashed", "1"); setSplash(false); }} />}
-      {clerkPubKey ? <ClerkApp /> : <NoClerkApp />}
+      {clerkPubKey
+          ? <ClerkErrorBoundary fallback={<NoClerkApp />}><ClerkApp /></ClerkErrorBoundary>
+          : <NoClerkApp />
+        }
     </WouterRouter>
   );
 }
