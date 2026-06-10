@@ -93,23 +93,17 @@ router.post("/public/apply", async (req, res): Promise<void> => {
 
   const refNumber = `HC-${String(record.id).padStart(5, "0")}`;
 
-  sendPushToAdmins({
-    title: "Nueva solicitud pública",
-    body: `${fullName} solicitó $${amt.toLocaleString("es-MX")} (${refNumber})`,
-    url: "/admin/solicitudes",
-  }).catch(() => {});
-
-  sendAdminNewRequestEmail({
-    name: fullName,
-    phone,
-    amount: amt,
-    ref: refNumber,
-    email: email ?? undefined,
-  }).catch(() => {});
-
-  if (email) {
-    sendApplicantConfirmationEmail({ to: email, name: fullName, ref: refNumber }).catch(() => {});
-  }
+  // Awaited so the serverless function does not freeze before the email HTTP completes.
+  const _notify = await Promise.allSettled([
+    sendPushToAdmins({
+      title: "Nueva solicitud pública",
+      body: `${fullName} solicitó $${amt.toLocaleString("es-MX")} (${refNumber})`,
+      url: "/admin/solicitudes",
+    }),
+    sendAdminNewRequestEmail({ name: fullName, phone, amount: amt, ref: refNumber, email: email ?? undefined }),
+    ...(email ? [sendApplicantConfirmationEmail({ to: email, name: fullName, ref: refNumber })] : []),
+  ]);
+  _notify.forEach((r, i) => { if (r.status === "rejected") console.error(`[notify:public/apply#${i}]`, r.reason?.message || r.reason); });
 
   res.status(201).json({ success: true, id: record.id, referenceNumber: refNumber });
 });
