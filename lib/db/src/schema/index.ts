@@ -16,3 +16,4 @@ export * from "./userProfiles";
 export * from "./documents";
 export * from "./applications";
 export * from "./auditLog";
+export * from "./supportTickets";

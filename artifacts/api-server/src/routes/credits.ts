@@ -224,16 +224,11 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
         action === "approve" ? `Tu crédito por $${parseFloat(credit.amount).toLocaleString("es-MX")} fue aprobado 🎉`
         : action === "reject" ? "Tu solicitud de crédito fue rechazada."
         : "Necesitamos más información para tu solicitud de crédito.";
-      sendPushToClientByName(client.fullName, { title: "credeti", body: pushMsg, url: "/mi-credito" }).catch(() => {});
-      if (user?.email) {
-        sendCreditDecisionEmail({
-          to: user.email,
-          clientName: client.fullName,
-          action: action as "approve" | "reject" | "needs_info",
-          amount: parseFloat(credit.amount),
-          notes: notes ? String(notes) : undefined,
-        }).catch(() => {});
-      }
+      const _n = await Promise.allSettled([
+        sendPushToClientByName(client.fullName, { title: "credeti", body: pushMsg, url: "/mi-credito" }),
+        ...(user?.email ? [sendCreditDecisionEmail({ to: user.email, clientName: client.fullName, action: action as "approve" | "reject" | "needs_info", amount: parseFloat(credit.amount), notes: notes ? String(notes) : undefined })] : []),
+      ]);
+      _n.forEach((r, i) => { if (r.status === "rejected") console.error(`[notify:review#${i}]`, r.reason?.message || r.reason); });
     }
   } catch {}
 
@@ -327,19 +322,18 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
     try {
       const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, credit.clientId));
       if (client) {
-        const [user] = await db
-          .select({ email: usersTable.email, fullName: usersTable.fullName })
-          .from(usersTable)
-          .where(eq(usersTable.fullName, client.fullName));
+        const [user] = client.userId
+          ? await db.select({ email: usersTable.email, fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.id, client.userId))
+          : await db.select({ email: usersTable.email, fullName: usersTable.fullName }).from(usersTable).where(eq(usersTable.fullName, client.fullName));
         if (user?.email) {
-          sendCreditStatusEmail({
+          await sendCreditStatusEmail({
             to: user.email,
             clientName: client.fullName,
             action: updates.status === "active" ? "approve" : "reject",
             amount: parseFloat(credit.amount),
             weeklyPayment: parseFloat(String(credit.weeklyPayment ?? "0")),
             termWeeks: Number(credit.termWeeks ?? 0),
-          }).catch(() => {});
+          }).catch((e: any) => console.error("[notify:creditStatus]", e?.message || e));
         }
       }
     } catch {}
@@ -456,11 +450,11 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
   });
   } catch { /* archive is best-effort */ }
 
-  sendPushToAdmins({
+  await sendPushToAdmins({
     title: "Nueva solicitud de crédito",
     body: `${fullName} solicitó $${amt.toLocaleString("es-MX")} a ${weeks} semanas`,
     url: "/admin/solicitudes",
-  }).catch(() => {});
+  }).catch((e: any) => console.error("[notify:me/apply admins]", e?.message || e));
 
   res.status(201).json({
     success: true,

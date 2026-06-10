@@ -18,6 +18,7 @@ import demoRouter from "./demo";
 import uploadsRouter from "./uploads";
 import pushRouter from "./push";
 import configRouter from "./config";
+import supportRouter from "./support";
 
 const router = Router();
 
@@ -40,5 +41,6 @@ router.use(demoRouter);
 router.use(uploadsRouter);
 router.use(pushRouter);
 router.use(configRouter);
+router.use(supportRouter);
 
 export default router;
