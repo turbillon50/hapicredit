@@ -446,3 +446,66 @@ export async function sendCreditStatusEmail(opts: {
     html: baseTemplate(content),
   });
 }
+
+// ── Email: Nueva solicitud → administración ───────────────────────────────────
+export async function sendAdminNewRequestEmail(opts: {
+  name: string;
+  phone: string;
+  amount: number | string;
+  ref: string;
+  email?: string;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const adminTo = process.env.ADMIN_NOTIFY_EMAIL ?? "admin@crede-ti.mx";
+  const panelUrl = "https://crede-ti.info/admin/solicitudes";
+  const amountStr = typeof opts.amount === "number"
+    ? `$${opts.amount.toLocaleString("es-MX")}`
+    : opts.amount;
+
+  const content = `
+    <h2 style="color:#0E68CC;font-size:22px;margin:0 0 8px;">Nueva solicitud de crédito</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">Se registró una nueva solicitud en Crede-Ti. Referencia <strong>${opts.ref}</strong>.</p>
+    <table width="100%" style="background:#f8fafc;border-radius:12px;padding:20px;" cellpadding="0" cellspacing="0">
+      <tr><td style="padding:6px 0;"><span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Nombre</span><br/><span style="color:#0E68CC;font-size:16px;font-weight:700;">${opts.name}</span></td></tr>
+      <tr><td style="padding:6px 0;"><span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Teléfono</span><br/><span style="color:#0E68CC;font-size:16px;font-weight:700;">${opts.phone}</span></td></tr>
+      <tr><td style="padding:6px 0;"><span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Monto</span><br/><span style="color:#0E68CC;font-size:16px;font-weight:700;">${amountStr}</span></td></tr>
+      ${opts.email ? `<tr><td style="padding:6px 0;"><span style="color:#94a3b8;font-size:12px;text-transform:uppercase;font-weight:600;">Email</span><br/><span style="color:#0E68CC;font-size:16px;font-weight:700;">${opts.email}</span></td></tr>` : ""}
+    </table>
+    <div style="margin:28px 0;text-align:center;">
+      <a href="${panelUrl}" style="display:inline-block;background:#0E68CC;color:#ffffff;font-size:15px;font-weight:700;padding:14px 36px;border-radius:10px;text-decoration:none;">Ver en el panel</a>
+    </div>
+  `;
+
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: adminTo,
+    cc: "dluisdelatorre@gmail.com",
+    subject: `Nueva solicitud de crédito — ${opts.ref}`,
+    html: baseTemplate(content),
+  });
+}
+
+// ── Email: Confirmación al solicitante ────────────────────────────────────────
+export async function sendApplicantConfirmationEmail(opts: {
+  to: string;
+  name?: string;
+  ref: string;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const content = `
+    <h2 style="color:#0E68CC;font-size:22px;margin:0 0 8px;">Recibimos tu solicitud</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 24px;line-height:1.6;">${opts.name ? `Hola ${opts.name}, ` : ""}recibimos tu solicitud de crédito con referencia <strong>${opts.ref}</strong>. Nuestro equipo la revisará y te contactaremos pronto.</p>
+    <p style="color:#94a3b8;font-size:13px;margin:0;line-height:1.6;">Gracias por confiar en Crede-Ti.</p>
+  `;
+
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: opts.to,
+    subject: `Recibimos tu solicitud ${opts.ref}`,
+    html: baseTemplate(content),
+  });
+}

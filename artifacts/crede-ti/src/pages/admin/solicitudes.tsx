@@ -579,12 +579,16 @@ export default function AdminSolicitudes() {
 
   const { data: publicApps = [], isLoading: loadingPublic } = useQuery<PublicApp[]>({
     queryKey: ["public-requests"],
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
     queryFn: () => fetch(`${API}/public/requests`, { headers: auth() }).then(r => r.json()),
   });
 
   // Pendientes de aprobación
   const { data: pendingCredits = [], isLoading: loadingPending } = useQuery<PendingCredit[]>({
     queryKey: ["credits", "pending-only"],
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
     queryFn: () => fetch(`${API}/credits?status=pending`, { headers: auth() }).then(r => r.json())
       .then((d: any[]) => d.map(r => ({
         ...r,
@@ -597,6 +601,8 @@ export default function AdminSolicitudes() {
   // Falta info
   const { data: needsInfoCredits = [], isLoading: loadingNeedsInfo } = useQuery<PendingCredit[]>({
     queryKey: ["credits", "needs_info"],
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
     queryFn: () => fetch(`${API}/credits?status=needs_info`, { headers: auth() }).then(r => r.json())
       .then((d: any[]) => d.map(r => ({
         ...r,

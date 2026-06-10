@@ -3,6 +3,7 @@ import { clientsTable, creditsTable, db, eq, publicRequestsTable } from "@worksp
 import { sendPushToAdmins } from "../lib/push";
 import { CreatePublicRequestBody } from "@workspace/api-zod";
 import { requireAuth, requireRole } from "../middlewares/auth";
+import { sendAdminNewRequestEmail, sendApplicantConfirmationEmail } from "../lib/email";
 
 const router = Router();
 
@@ -14,7 +15,21 @@ router.post("/public/requests", async (req, res): Promise<void> => {
   }
 
   const [record] = await db.insert(publicRequestsTable).values(parsed.data).returning();
-  res.status(201).json({ success: true, id: record.id, message: "Solicitud recibida. Te contactaremos pronto." });
+  const refNumber = `HC-${String(record.id).padStart(5, "0")}`;
+
+  sendAdminNewRequestEmail({
+    name: record.name,
+    phone: record.phone,
+    amount: (record as any).amount ?? "N/D",
+    ref: refNumber,
+    email: record.email ?? undefined,
+  }).catch(() => {});
+
+  if (record.email) {
+    sendApplicantConfirmationEmail({ to: record.email, name: record.name, ref: refNumber }).catch(() => {});
+  }
+
+  res.status(201).json({ success: true, id: record.id, referenceNumber: refNumber, message: "Solicitud recibida. Te contactaremos pronto." });
 });
 
 // Admin: list all public credit requests
@@ -83,6 +98,18 @@ router.post("/public/apply", async (req, res): Promise<void> => {
     body: `${fullName} solicitó $${amt.toLocaleString("es-MX")} (${refNumber})`,
     url: "/admin/solicitudes",
   }).catch(() => {});
+
+  sendAdminNewRequestEmail({
+    name: fullName,
+    phone,
+    amount: amt,
+    ref: refNumber,
+    email: email ?? undefined,
+  }).catch(() => {});
+
+  if (email) {
+    sendApplicantConfirmationEmail({ to: email, name: fullName, ref: refNumber }).catch(() => {});
+  }
 
   res.status(201).json({ success: true, id: record.id, referenceNumber: refNumber });
 });

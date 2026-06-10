@@ -322,6 +322,29 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
     return;
   }
 
+  // Notify client by email when the status changes to a decision state.
+  if (updates.status === "active" || updates.status === "rejected") {
+    try {
+      const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, credit.clientId));
+      if (client) {
+        const [user] = await db
+          .select({ email: usersTable.email, fullName: usersTable.fullName })
+          .from(usersTable)
+          .where(eq(usersTable.fullName, client.fullName));
+        if (user?.email) {
+          sendCreditStatusEmail({
+            to: user.email,
+            clientName: client.fullName,
+            action: updates.status === "active" ? "approve" : "reject",
+            amount: parseFloat(credit.amount),
+            weeklyPayment: parseFloat(String(credit.weeklyPayment ?? "0")),
+            termWeeks: Number(credit.termWeeks ?? 0),
+          }).catch(() => {});
+        }
+      }
+    } catch {}
+  }
+
   res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
 });
 
