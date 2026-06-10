@@ -1,3 +1,4 @@
+import React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState, useRef, useEffect } from "react";
 import { Layout } from "@/components/layout/Layout";
@@ -13,7 +14,7 @@ import { Link } from "wouter";
 
 interface Credit {
   id: number;
-  status: "active" | "pending" | "rejected" | "closed";
+  status: "active" | "pending" | "rejected" | "closed" | "needs_info";
   amount: number;
   termWeeks: number;
   weeklyPayment: number;
@@ -66,11 +67,12 @@ const daysDiff = (d: string | null | undefined) => {
   return Math.ceil((dt.getTime() - Date.now()) / 86400000);
 };
 
-const STATUS_MAP: Record<string, { label: string; variant: "success" | "warning" | "danger" | "info" }> = {
-  active:   { label: "Activo",      variant: "success" },
-  pending:  { label: "En revision", variant: "warning" },
-  rejected: { label: "Rechazado",   variant: "danger"  },
-  closed:   { label: "Liquidado",   variant: "info"    },
+const STATUS_MAP: Record<string, { label: string; color?: string; bg?: string; icon?: string; variant: "success" | "warning" | "danger" | "info" }> = {
+  active:     { label: "Activo",             variant: "success" },
+  pending:    { label: "En revision",        variant: "warning" },
+  rejected:   { label: "Rechazado",          variant: "danger"  },
+  closed:     { label: "Liquidado",          variant: "info"    },
+  needs_info: { label: "Falta información",  color: "#f59e0b", bg: "#fef3c7", icon: "⚠️", variant: "warning" },
 };
 
 function CreditCard({ credit, paid, total, pct, clientName }: {
@@ -279,6 +281,77 @@ function MensajesSection({ messages, client, queryClient }: {
 }
 
 
+function NeedsInfoResponse({ creditId }: { creditId: number }) {
+  const [msg, setMsg] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+  const [sent, setSent] = React.useState(false);
+  const qc = useQueryClient();
+
+  const respond = async () => {
+    if (!msg.trim()) return;
+    setSending(true);
+    try {
+      const token = localStorage.getItem("credeti_token");
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+
+      const r = await fetch(`/api/credits/${creditId}/client-response`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ message: msg.trim() }),
+      });
+      if (r.ok) {
+        setSent(true);
+        setMsg("");
+        qc.invalidateQueries({ queryKey: ["my-credits"] });
+        qc.invalidateQueries({ queryKey: ["messages"] });
+      }
+    } catch {}
+    setSending(false);
+  };
+
+  if (sent) return (
+    <div style={{ color: "#065f46", fontWeight: "600", fontSize: "14px" }}>
+      ✅ Información enviada. Tu solicitud está en revisión nuevamente.
+    </div>
+  );
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+      <textarea
+        value={msg}
+        onChange={e => setMsg(e.target.value)}
+        placeholder="Escribe tu respuesta o describe la información que envías..."
+        rows={3}
+        style={{
+          width: "100%",
+          borderRadius: "8px",
+          border: "1px solid #d1d5db",
+          padding: "10px",
+          fontSize: "14px",
+          resize: "none",
+        }}
+      />
+      <button
+        onClick={respond}
+        disabled={sending || !msg.trim()}
+        style={{
+          background: sending ? "#9ca3af" : "#f59e0b",
+          color: "white",
+          border: "none",
+          borderRadius: "8px",
+          padding: "10px 16px",
+          fontWeight: "700",
+          cursor: "pointer",
+          fontSize: "14px",
+        }}
+      >
+        {sending ? "Enviando..." : "📤 Ya envié la información — Reenviar a revisión"}
+      </button>
+    </div>
+  );
+}
+
 export default function MiCredito() {
   useRequireAuth(["client"]);
 
@@ -302,8 +375,8 @@ export default function MiCredito() {
     enabled: !!client?.id,
   });
 
-  const activeCredit   = credits.find(c => c.status === "active");
-  const pendingCredits = credits.filter(c => c.status === "pending");
+  const activeCredit    = credits.find(c => c.status === "active");
+  const pendingCredits  = credits.filter(c => c.status === "pending" || c.status === "needs_info");
   const historicCredits = credits.filter(c => c.status === "closed" || c.status === "rejected");
 
   const { data: payments = [] } = useQuery<Payment[]>({
@@ -446,22 +519,49 @@ export default function MiCredito() {
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
                   {pendingCredits.map((c) => (
-                    <div
-                      key={c.id}
-                      style={{
-                        display: "flex", alignItems: "center", gap: 12,
-                        padding: "14px 16px", borderRadius: 16,
-                        background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
-                      }}
-                    >
-                      <div style={{ width: 40, height: 40, borderRadius: 12, background: "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <IconReloj size={16} color="#ca8a04" />
+                    <div key={c.id}>
+                      {c.status === "needs_info" && (
+                        <div style={{
+                          background: "#fef3c7",
+                          border: "2px solid #f59e0b",
+                          borderRadius: "12px",
+                          padding: "16px",
+                          marginBottom: "12px",
+                        }}>
+                          <div style={{ display: "flex", gap: "8px", alignItems: "flex-start" }}>
+                            <span style={{ fontSize: "20px" }}>⚠️</span>
+                            <div>
+                              <p style={{ fontWeight: "700", color: "#92400e", marginBottom: "4px" }}>
+                                Tu asesor necesita información adicional
+                              </p>
+                              {c.notes && (
+                                <p style={{ color: "#78350f", fontSize: "14px", marginBottom: "12px" }}>
+                                  {c.notes}
+                                </p>
+                              )}
+                              <NeedsInfoResponse creditId={c.id} />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          display: "flex", alignItems: "center", gap: 12,
+                          padding: "14px 16px", borderRadius: 16,
+                          background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
+                        }}
+                      >
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: c.status === "needs_info" ? "#fef3c7" : "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          {c.status === "needs_info" ? <span style={{ fontSize: "16px" }}>⚠️</span> : <IconReloj size={16} color="#ca8a04" />}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{fmt(c.amount)}</div>
+                          <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{c.termWeeks} semanas · {c.notes ?? ""}</div>
+                        </div>
+                        <Badge variant={c.status === "needs_info" ? "warning" : "warning"} size="sm">
+                          {c.status === "needs_info" ? "Falta info" : "En revision"}
+                        </Badge>
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{fmt(c.amount)}</div>
-                        <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{c.termWeeks} semanas · {c.notes ?? ""}</div>
-                      </div>
-                      <Badge variant="warning" size="sm">En revision</Badge>
                     </div>
                   ))}
                 </div>

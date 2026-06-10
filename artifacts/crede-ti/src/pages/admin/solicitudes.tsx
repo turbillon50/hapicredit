@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
 import { Avatar } from "@/components/hapi/Avatar";
@@ -233,6 +233,9 @@ function CreditDetail({
         ))}
       </div>
 
+      {/* Mensajes con el cliente */}
+      <AdminMensajesSection clientId={credit.clientId} />
+
       {/* Notes */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold text-gray-600">
@@ -281,6 +284,136 @@ function CreditDetail({
       >
         Rechazar solicitud
       </button>
+    </div>
+  );
+}
+
+
+// ─── Admin Mensajes Section ───────────────────────────────────────────────────
+function AdminMensajesSection({ clientId }: { clientId: number }) {
+  const [msg, setMsg] = React.useState("");
+  const [sending, setSending] = React.useState(false);
+  const qc = useQueryClient();
+
+  const { data: notes = [] } = useQuery({
+    queryKey: ["admin-messages", clientId],
+    queryFn: async () => {
+      const token = localStorage.getItem("credeti_token");
+      const r = await fetch(`/api/notes?clientId=${clientId}&noteType=mensaje_cliente`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!r.ok) return [];
+      const d = await r.json();
+      return d.filter((n: any) => n.noteType === "mensaje_cliente");
+    },
+    refetchInterval: 10_000,
+  });
+
+  const sendMsg = async () => {
+    if (!msg.trim()) return;
+    setSending(true);
+    try {
+      const token = localStorage.getItem("credeti_token");
+      const r = await fetch("/api/notes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          clientId,
+          noteType: "mensaje_cliente",
+          content: msg.trim(),
+        }),
+      });
+      if (r.ok) {
+        setMsg("");
+        qc.invalidateQueries({ queryKey: ["admin-messages", clientId] });
+      }
+    } catch {}
+    setSending(false);
+  };
+
+  const adminName = localStorage.getItem("credeti_user") || "Admin";
+
+  return (
+    <div style={{ marginBottom: "24px" }}>
+      <h4 style={{ fontWeight: "700", marginBottom: "12px", color: "#1e293b" }}>
+        💬 Mensajes con el cliente
+      </h4>
+      <div style={{
+        border: "1px solid #e2e8f0",
+        borderRadius: "12px",
+        maxHeight: "260px",
+        overflowY: "auto",
+        padding: "12px",
+        marginBottom: "10px",
+        display: "flex",
+        flexDirection: "column",
+        gap: "8px",
+        background: "#f8fafc",
+      }}>
+        {notes.length === 0 ? (
+          <p style={{ color: "#94a3b8", textAlign: "center", fontSize: "14px" }}>
+            No hay mensajes aún
+          </p>
+        ) : (
+          notes.map((n: any) => {
+            const isAdmin = n.authorName === adminName || n.authorId !== null;
+            return (
+              <div key={n.id} style={{
+                display: "flex",
+                justifyContent: isAdmin ? "flex-end" : "flex-start",
+              }}>
+                <div style={{
+                  background: isAdmin ? "#3b82f6" : "#e2e8f0",
+                  color: isAdmin ? "white" : "#1e293b",
+                  borderRadius: "10px",
+                  padding: "8px 12px",
+                  maxWidth: "75%",
+                  fontSize: "13px",
+                }}>
+                  <div style={{ fontWeight: "600", fontSize: "11px", marginBottom: "2px", opacity: 0.8 }}>
+                    {n.authorName || "Sistema"}
+                  </div>
+                  {n.content}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+      <div style={{ display: "flex", gap: "8px" }}>
+        <input
+          value={msg}
+          onChange={e => setMsg(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && sendMsg()}
+          placeholder="Escribe un mensaje al cliente..."
+          style={{
+            flex: 1,
+            border: "1px solid #d1d5db",
+            borderRadius: "8px",
+            padding: "8px 12px",
+            fontSize: "14px",
+          }}
+        />
+        <button
+          onClick={sendMsg}
+          disabled={sending || !msg.trim()}
+          style={{
+            background: sending ? "#9ca3af" : "#3b82f6",
+            color: "white",
+            border: "none",
+            borderRadius: "8px",
+            padding: "8px 16px",
+            cursor: "pointer",
+            fontWeight: "600",
+            fontSize: "14px",
+          }}
+        >
+          {sending ? "..." : "Enviar"}
+        </button>
+      </div>
     </div>
   );
 }

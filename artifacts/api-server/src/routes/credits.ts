@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, clientsTable, creditsTable, db, eq, getTableColumns, publicRequestsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
 import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
@@ -182,7 +182,7 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
 
   const { action, notes } = req.body;
   if (action !== "approve" && action !== "reject" && action !== "needs_info") {
-    res.status(400).json({ error: "action debe ser 'approve', 'reject' o 'needs_info'" });
+    res.status(400).json({ error: "action debe ser \'approve\', \'reject\' o \'needs_info\'" });
     return;
   }
   if (action === "needs_info" && !notes) {
@@ -201,6 +201,16 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
     .returning();
 
   if (!credit) { res.status(404).json({ error: "Credit not found" }); return; }
+
+  // Insert note in client thread when needs_info
+  if (action === "needs_info") {
+    await db.insert(notesTable).values({
+      clientId: credit.clientId,
+      authorId: null,
+      noteType: "mensaje_cliente",
+      content: `📋 Requerimos información adicional: ${notes}`,
+    });
+  }
 
   // Notify client via email (best-effort: match client → user by fullName)
   try {
@@ -434,6 +444,50 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
     referenceNumber: `CT-${String(credit.id).padStart(5, "0")}`,
     credit: formatCredit({ ...credit, clientName: fullName, executiveName: null }),
   });
+});
+
+// Cliente responde a needs_info → regresa el crédito a pending
+router.patch("/credits/:id/client-response", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { message } = req.body;
+    const userId = (req as any).userId;
+
+    const [credit] = await db.select().from(creditsTable).where(eq(creditsTable.id, Number(id)));
+    if (!credit) { res.status(404).json({ error: "Crédito no encontrado" }); return; }
+    if (credit.status !== "needs_info") { res.status(400).json({ error: "El crédito no está en estado needs_info" }); return; }
+
+    // Verificar que el cliente es el dueño del crédito
+    const [client] = await db.select().from(clientsTable).where(eq(clientsTable.userId, userId));
+    if (!client || credit.clientId !== client.id) {
+      res.status(403).json({ error: "No autorizado" }); return;
+    }
+
+    // Regresar a pending
+    await db.update(creditsTable).set({ status: "pending" }).where(eq(creditsTable.id, Number(id)));
+
+    // Si el cliente mandó un mensaje, guardarlo
+    if (message) {
+      await db.insert(notesTable).values({
+        clientId: client.id,
+        authorId: client.userId ?? null,
+        noteType: "mensaje_cliente",
+        content: message,
+      });
+    }
+
+    // Push a admins
+    await sendPushToAdmins({
+      title: "📨 Cliente respondió a solicitud de info",
+      body: `${client.fullName} respondió a la solicitud de información adicional`,
+      url: "/admin/solicitudes",
+    });
+
+    res.json({ success: true, message: "Solicitud reenviada a revisión" });
+  } catch (error) {
+    console.error("client-response error:", error);
+    res.status(500).json({ error: "Error interno" });
+  }
 });
 
 export default router;
