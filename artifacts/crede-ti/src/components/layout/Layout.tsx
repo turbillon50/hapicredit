@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { ReportButton } from "@/components/ReportButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation, Link } from "wouter";
 import { useClerk, useUser } from "@clerk/react";
@@ -345,6 +346,8 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       <main style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>
         {children}
       </main>
+
+      <ReportButton />
 
       {/* ── Bottom Navigation ── */}
       <nav style={{
