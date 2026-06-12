@@ -373,6 +373,8 @@ export default function MiCredito() {
       return r.json() as Promise<Credit[]>;
     },
     enabled: !!client?.id,
+    refetchInterval: 15000,
+    refetchOnWindowFocus: true,
   });
 
   const activeCredit    = credits.find(c => c.status === "active");

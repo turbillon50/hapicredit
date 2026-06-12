@@ -91,6 +91,8 @@ export default function AdminDashboard() {
 
   const { data: pendingCreditsRaw = [] } = useQuery({
     queryKey: ["credits-pending-dashboard"],
+    refetchInterval: 8000,
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const [pending, needsInfo] = await Promise.all([
         fetch(`${API}/credits?status=pending`,    { headers: auth() }).then(r => r.json()),
@@ -98,7 +100,7 @@ export default function AdminDashboard() {
       ]);
       return [...(Array.isArray(pending) ? pending : []), ...(Array.isArray(needsInfo) ? needsInfo : [])];
     },
-    staleTime: 30_000,
+    staleTime: 0,
   });
   const pendingCreditsCount = Array.isArray(pendingCreditsRaw) ? pendingCreditsRaw.length : 0;
   const needsInfoCount = Array.isArray(pendingCreditsRaw) ? (pendingCreditsRaw as any[]).filter((c: any) => c.status === "needs_info").length : 0;
