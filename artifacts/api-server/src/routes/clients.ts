@@ -352,7 +352,7 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
 
 // ─── GET /api/me/client — link logged-in client user to their client record ───
 router.get("/me/client", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  const [client] = await db
+  let [client] = await db
     .select({
       id: clientsTable.id,
       fullName: clientsTable.fullName,
@@ -369,6 +369,32 @@ router.get("/me/client", requireAuth, requireRole("client"), async (req, res): P
     .from(clientsTable)
     .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
     .where(eq(clientsTable.userId, req.userId!));
+
+  // Fallback: match by fullName for admin-created clients
+  if (!client && req.userFullName) {
+    const [byName] = await db
+      .select({
+        id: clientsTable.id,
+        fullName: clientsTable.fullName,
+        phone: clientsTable.phone,
+        altPhone: clientsTable.altPhone,
+        address: clientsTable.address,
+        curp: clientsTable.curp,
+        status: clientsTable.status,
+        guarantorName: clientsTable.guarantorName,
+        guarantorPhone: clientsTable.guarantorPhone,
+        registeredAt: clientsTable.registeredAt,
+        executiveName: usersTable.fullName,
+      })
+      .from(clientsTable)
+      .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
+      .where(eq(clientsTable.fullName, req.userFullName));
+    if (byName) {
+      client = byName;
+      // Backfill userId FK
+      await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
+    }
+  }
 
   if (!client) { res.status(404).json({ error: "No client record linked to this user" }); return; }
 

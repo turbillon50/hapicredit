@@ -48,8 +48,17 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
   const conditions = [];
 
   if (req.userRole === "client") {
-    // Client: find their client record via userId FK (robust, not by name)
-    const [clientRecord] = await db.select({ id: clientsTable.id }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
+    // Client: find their client record via userId FK first, fallback to fullName match
+    let [clientRecord] = await db.select({ id: clientsTable.id, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
+    if (!clientRecord && req.userFullName) {
+      // Fallback: match by fullName (admin-created clients won't have userId yet)
+      const [byName] = await db.select({ id: clientsTable.id, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.fullName, req.userFullName));
+      if (byName) {
+        clientRecord = byName;
+        // Backfill userId FK so future queries are efficient
+        await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
+      }
+    }
     if (!clientRecord) { res.json([]); return; }
     conditions.push(eq(creditsTable.clientId, clientRecord.id));
   } else if (req.userRole === "executive") {
@@ -93,7 +102,14 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 // GET /credits/my-credit -- active credit for authenticated client
 // NOTE: must be before /credits/:id
 router.get("/credits/my-credit", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  const [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
+  let [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
+  if (!clientRecord && req.userFullName) {
+    const [byName] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.fullName, req.userFullName));
+    if (byName) {
+      clientRecord = byName;
+      await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
+    }
+  }
   if (!clientRecord) { res.status(404).json({ error: "No client record found" }); return; }
 
   const rows = await db
