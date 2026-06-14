@@ -1,4 +1,4 @@
-import { pgTable, text, serial, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, timestamp, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -8,6 +8,9 @@ export const publicRequestsTable = pgTable("public_requests", {
   phone: text("phone").notNull(),
   email: text("email"),
   message: text("message").notNull(),
+  status: text("status").notNull().default("pending"), // pending | approved | rejected | contacted
+  decidedBy: integer("decided_by"),
+  decidedAt: timestamp("decided_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

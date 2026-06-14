@@ -562,3 +562,26 @@ export async function sendCustomClientEmail(opts: {
   });
   return { sent: true };
 }
+
+// Update sent to a PUBLIC applicant (no account yet) about their request:
+// an advisor comment and/or an approve/reject decision.
+export async function sendApplicantUpdateEmail(opts: {
+  to: string; name: string; ref: string; decision?: string; comment?: string;
+}): Promise<{ sent: boolean }> {
+  const ctx = await getResendClient();
+  if (!ctx) return { sent: false };
+  const dmap: Record<string, { t: string; c: string }> = {
+    approved: { t: "Buenas noticias sobre tu solicitud", c: "Tu solicitud fue <strong>aprobada</strong>. En breve te contactamos para los siguientes pasos." },
+    rejected: { t: "Actualizacion de tu solicitud", c: "Despues de revisar tu solicitud, por ahora <strong>no fue aprobada</strong>. Puedes volver a intentarlo mas adelante o contactarnos." },
+    contacted: { t: "Actualizacion de tu solicitud", c: "Un asesor reviso tu solicitud y dejo un mensaje para ti." },
+  };
+  const d = opts.decision ? dmap[opts.decision] : null;
+  const head = d?.t ?? "Actualizacion de tu solicitud";
+  const intro = d?.c ?? "Un asesor dejo un comentario sobre tu solicitud.";
+  const commentBlock = opts.comment
+    ? `<div style="margin-top:16px;padding:14px 16px;background:#f1f5f9;border-radius:12px;border-left:3px solid #2f6bff;"><div style="font-size:12px;color:#64748b;margin-bottom:4px;">Mensaje de tu asesor</div><div style="font-size:15px;color:#0f172a;line-height:1.55;">${opts.comment}</div></div>`
+    : "";
+  const content = `<h2 style="color:#0E68CC;font-size:20px;margin:0 0 8px;">${head}</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0 0 4px;">Hola ${opts.name}, sobre tu solicitud <strong>${opts.ref}</strong> en Crede-Ti:</p><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">${intro}</p>${commentBlock}`;
+  await ctx.client.emails.send({ from: ctx.from, to: opts.to, subject: `${head} - Crede-Ti (${opts.ref})`, html: baseTemplate(content) });
+  return { sent: true };
+}

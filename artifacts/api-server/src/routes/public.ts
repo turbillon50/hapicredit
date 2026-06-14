@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { clientsTable, creditsTable, db, eq, publicRequestsTable } from "@workspace/db";
+import { clientsTable, creditsTable, db, eq, pool, publicRequestsTable } from "@workspace/db";
 import { sendPushToAdmins } from "../lib/push";
 import { CreatePublicRequestBody } from "@workspace/api-zod";
 import { requireAuth, requireRole } from "../middlewares/auth";
-import { sendAdminNewRequestEmail, sendApplicantConfirmationEmail } from "../lib/email";
+import { sendAdminNewRequestEmail, sendApplicantConfirmationEmail, sendApplicantUpdateEmail } from "../lib/email";
 
 const router = Router();
 
@@ -177,6 +177,93 @@ router.post("/public/requests/:id/convert", requireAuth, requireRole("admin"), a
   } catch { /* best-effort */ }
 
   res.status(201).json({ success: true, clientId: client.id, creditId: credit.id });
+});
+
+// ── Auto-applied review schema (status + comment thread) for public_requests ──
+let _reviewSchemaReady = false;
+async function ensureReviewSchema(): Promise<void> {
+  if (_reviewSchemaReady) return;
+  await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'pending'`);
+  await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS decided_by integer`);
+  await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS decided_at timestamptz`);
+  await pool.query(`CREATE TABLE IF NOT EXISTS public_request_comments (
+    id serial PRIMARY KEY,
+    request_id integer NOT NULL REFERENCES public_requests(id),
+    author_id integer,
+    author_name text,
+    comment text NOT NULL,
+    notified boolean NOT NULL DEFAULT false,
+    created_at timestamptz NOT NULL DEFAULT now()
+  )`);
+  _reviewSchemaReady = true;
+}
+
+async function authorName(userId?: number): Promise<string> {
+  if (!userId) return "Asesor";
+  const r = await pool.query<{ full_name: string }>(`SELECT full_name FROM users WHERE id=$1`, [userId]);
+  return r.rows[0]?.full_name ?? "Asesor";
+}
+
+// Detail + comment thread for one public request
+router.get("/public/requests/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const r = await pool.query(`SELECT id, name, phone, email, message, status, decided_at, created_at FROM public_requests WHERE id=$1`, [id]);
+  if (!r.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  const c = await pool.query(`SELECT id, author_name, comment, notified, created_at FROM public_request_comments WHERE request_id=$1 ORDER BY created_at ASC`, [id]);
+  res.json({ request: r.rows[0], comments: c.rows });
+});
+
+// Add an advisor comment, optionally emailed to the applicant
+router.post("/public/requests/:id/comment", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const { comment, notify } = (req.body ?? {}) as { comment?: string; notify?: boolean };
+  if (!comment || !comment.trim()) { res.status(400).json({ error: "El comentario esta vacio" }); return; }
+  const rec = await pool.query<{ name: string; email: string | null }>(`SELECT name, email FROM public_requests WHERE id=$1`, [id]);
+  if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  const applicant = rec.rows[0];
+  let notified = false;
+  if (notify && applicant.email) {
+    const ref = `HC-${String(id).padStart(5, "0")}`;
+    const out = await sendApplicantUpdateEmail({ to: applicant.email, name: applicant.name, ref, decision: "contacted", comment: comment.trim() });
+    notified = out.sent;
+  }
+  await pool.query(
+    `INSERT INTO public_request_comments (request_id, author_id, author_name, comment, notified) VALUES ($1,$2,$3,$4,$5)`,
+    [id, req.userId, await authorName(req.userId), comment.trim(), notified],
+  );
+  res.json({ ok: true, notified, hasEmail: !!applicant.email });
+});
+
+// Approve / reject a public request (+ optional comment + applicant email)
+router.post("/public/requests/:id/decision", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const { decision, comment } = (req.body ?? {}) as { decision?: string; comment?: string };
+  if (!decision || !["approved", "rejected", "contacted", "pending"].includes(decision)) {
+    res.status(400).json({ error: "Decision invalida" }); return;
+  }
+  const rec = await pool.query<{ name: string; email: string | null }>(`SELECT name, email FROM public_requests WHERE id=$1`, [id]);
+  if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  const applicant = rec.rows[0];
+  await pool.query(`UPDATE public_requests SET status=$1, decided_by=$2, decided_at=now() WHERE id=$3`, [decision, req.userId ?? null, id]);
+  let notified = false;
+  if (applicant.email) {
+    const ref = `HC-${String(id).padStart(5, "0")}`;
+    const out = await sendApplicantUpdateEmail({ to: applicant.email, name: applicant.name, ref, decision, comment: comment?.trim() || undefined });
+    notified = out.sent;
+  }
+  const label = decision === "approved" ? "Solicitud aprobada" : decision === "rejected" ? "Solicitud rechazada" : decision === "contacted" ? "Solicitante contactado" : "Estado actualizado";
+  const note = comment && comment.trim() ? `${label}: ${comment.trim()}` : label;
+  await pool.query(
+    `INSERT INTO public_request_comments (request_id, author_id, author_name, comment, notified) VALUES ($1,$2,$3,$4,$5)`,
+    [id, req.userId, await authorName(req.userId), note, notified],
+  );
+  res.json({ ok: true, status: decision, notified, hasEmail: !!applicant.email });
 });
 
 export default router;

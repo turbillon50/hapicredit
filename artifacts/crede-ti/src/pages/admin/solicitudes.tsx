@@ -419,8 +419,45 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
 }
 
 // ─── Public app detail ────────────────────────────────────────────────────────
+function reqStatusMeta(st: string): { label: string; bg: string; color: string; border: string } {
+  switch (st) {
+    case "approved":  return { label: "Aprobada",   bg: "#f0fdf4", color: "#059669", border: "#bbf7d0" };
+    case "rejected":  return { label: "Rechazada",  bg: "#fef2f2", color: "#dc2626", border: "#fecaca" };
+    case "contacted": return { label: "Contactado", bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" };
+    default:          return { label: "Pendiente",  bg: "#fffbeb", color: "#d97706", border: "#fde68a" };
+  }
+}
+
 function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void }) {
   const qc = useQueryClient();
+  const [confirm, setConfirm] = useState<"approved" | "rejected" | null>(null);
+  const [comment, setComment] = useState("");
+  const [note, setNote] = useState("");
+  const [notify, setNotify] = useState(true);
+  const { data: detail } = useQuery({
+    queryKey: ["public-request", app.id],
+    queryFn: async () => {
+      const r = await fetch(`${API}/public/requests/${app.id}`, { headers: auth() });
+      if (!r.ok) throw new Error("error");
+      return r.json() as Promise<{ request: { status: string }; comments: Array<{ id: number; author_name: string; comment: string; notified: boolean; created_at: string }> }>;
+    },
+  });
+  const comments = detail?.comments ?? [];
+  const reqStatus = detail?.request?.status ?? "pending";
+  const decisionM = useMutation({
+    mutationFn: async (v: { decision: string; comment?: string }) => {
+      const r = await fetch(`${API}/public/requests/${app.id}/decision`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(v) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error"); return d;
+    },
+    onSuccess: () => { setConfirm(null); setComment(""); qc.invalidateQueries({ queryKey: ["public-request", app.id] }); qc.invalidateQueries({ queryKey: ["public-requests"] }); },
+  });
+  const commentM = useMutation({
+    mutationFn: async (v: { comment: string; notify: boolean }) => {
+      const r = await fetch(`${API}/public/requests/${app.id}/comment`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(v) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error"); return d;
+    },
+    onSuccess: () => { setNote(""); qc.invalidateQueries({ queryKey: ["public-request", app.id] }); },
+  });
   const convertM = useMutation({
     mutationFn: async () => {
       const r = await fetch(`${API}/public/requests/${app.id}/convert`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: "{}" });
@@ -451,6 +488,64 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> · {fmtDateTime(app.createdAt)}</div>
         </div>
       </div>
+
+      {/* Revision: aprobar / rechazar / comentar */}
+      {(() => { const m = reqStatusMeta(reqStatus); return (
+      <div className="rounded-2xl p-3.5 flex flex-col gap-3" style={{ background: "#fff", border: "1.5px solid #e5e7eb" }}>
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold text-gray-500 uppercase tracking-wide">Revision</div>
+          <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "#d1fae5"}`, background: confirm === "approved" ? "#10b981" : "#f0fdf4", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>✓ Aprobar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "#fecaca"}`, background: confirm === "rejected" ? "#ef4444" : "#fef2f2", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>✕ Rechazar</button>
+        </div>
+
+        {confirm && (
+          <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "#f0fdf4" : "#fef2f2", border: `1.5px solid ${confirm === "approved" ? "#bbf7d0" : "#fecaca"}` }}>
+            <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#dc2626" }}>
+              {confirm === "approved" ? "¿Aprobar esta solicitud?" : "¿Rechazar esta solicitud?"}
+            </div>
+            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={app.email ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+            <div className="flex gap-2">
+              <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#ef4444", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-2" style={{ borderTop: "1px solid #f1f5f9", paddingTop: 10 }}>
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+          <label className="flex items-center gap-2 text-xs text-gray-600 select-none">
+            <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)} /> Avisar al solicitante por correo
+          </label>
+          {notify && !app.email && (
+            <div className="text-[11px]" style={{ color: "#d97706" }}>Sin correo registrado — el aviso no se enviara. Contactalo al {app.phone}.</div>
+          )}
+          <button disabled={!note.trim() || commentM.isPending} onClick={() => commentM.mutate({ comment: note.trim(), notify })} style={{ padding: "10px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (!note.trim() || commentM.isPending) ? 0.5 : 1 }}>{commentM.isPending ? "Enviando..." : "Agregar comentario"}</button>
+          {commentM.isSuccess && commentM.data?.hasEmail === false && (
+            <div className="text-[11px] text-center" style={{ color: "#6b7280" }}>Comentario guardado (sin correo para avisar).</div>
+          )}
+        </div>
+
+        {comments.length > 0 && (
+          <div className="flex flex-col gap-2 pt-1">
+            <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Historial</div>
+            {comments.map(c => (
+              <div key={c.id} className="rounded-xl p-2.5" style={{ background: "#f8fafc", border: "1px solid #f1f5f9" }}>
+                <div className="flex justify-between items-center mb-0.5">
+                  <span className="text-xs font-semibold text-gray-700">{c.author_name}</span>
+                  <span className="text-[10px] text-gray-400">{fmtDateTime(c.created_at)}</span>
+                </div>
+                <div className="text-sm text-gray-700" style={{ whiteSpace: "pre-wrap" }}>{c.comment}</div>
+                {c.notified && <div className="text-[10px] mt-1" style={{ color: "#059669" }}>✓ Avisado por correo</div>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      ); })()}
 
       {parsed?.creditId ? (
         <div className="rounded-2xl p-3 text-center text-sm font-semibold" style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid #bbf7d0" }}>
@@ -485,7 +580,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Datos personales</div>
         {[
           { icon: "📋", label: "CURP",      val: info.curp || "No proporcionado" },
-          { icon: "📍", label: "Domicilio", val: info.address },
+          { icon: "📍", label: "Domicilio", val: info.address || "—" },
           { icon: "📞", label: "Tel. alt.", val: info.altPhone || "—" },
           { icon: "🎯", label: "Destino",   val: credit.purpose },
         ].map(r => (
