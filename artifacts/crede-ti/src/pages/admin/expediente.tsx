@@ -47,6 +47,8 @@ export default function AdminExpediente() {
     },
   });
   const [newDate, setNewDate] = useState("");
+  const [showEditCond, setShowEditCond] = useState(false);
+  const [cond, setCond] = useState<{ amount: string; termWeeks: string; weeklyPayment: string; totalToRepay: string; remainingBalance: string; notes: string }>({ amount: "", termWeeks: "", weeklyPayment: "", totalToRepay: "", remainingBalance: "", notes: "" });
 
   const { data: client, isLoading } = useQuery<any>({
     queryKey: ["client", id],
@@ -79,7 +81,7 @@ export default function AdminExpediente() {
 
   const cambiarFechaMut = useMutation({
     mutationFn: async ({ creditId, date }: { creditId: number; date: string }) => {
-      const r = await fetch(`${API}/credits/${creditId}`, {
+      const r = await fetch(`${API}/credits/${creditId}/conditions`, {
         method: "PATCH",
         headers: { ...auth(), "Content-Type": "application/json" },
         body: JSON.stringify({ disbursementDate: date }),
@@ -91,6 +93,22 @@ export default function AdminExpediente() {
       queryClient.invalidateQueries({ queryKey: ["client", id] });
       setShowCambiarFecha(false);
       setNewDate("");
+    },
+  });
+
+  const editCondMut = useMutation({
+    mutationFn: async ({ creditId, body }: { creditId: number; body: Record<string, unknown> }) => {
+      const r = await fetch(`${API}/credits/${creditId}/conditions`, {
+        method: "PATCH",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) { const d = await r.json().catch(() => ({})); throw new Error(d.error ?? "Error al guardar"); }
+      return r.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["client", id] });
+      setShowEditCond(false);
     },
   });
 
@@ -520,6 +538,32 @@ export default function AdminExpediente() {
                 <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
               </button>
             )}
+
+            {activeCredit && (
+              <button
+                onClick={() => {
+                  setCond({
+                    amount: String(activeCredit.amount ?? ""),
+                    termWeeks: String(activeCredit.termWeeks ?? ""),
+                    weeklyPayment: String(activeCredit.weeklyPayment ?? ""),
+                    totalToRepay: String(activeCredit.totalToRepay ?? ""),
+                    remainingBalance: String(activeCredit.remainingBalance ?? ""),
+                    notes: String(activeCredit.notes ?? ""),
+                  });
+                  setShowEditCond(true);
+                }}
+                className="flex items-center gap-3 pressable w-full text-left border-t border-gray-100 pt-3"
+              >
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#eff6ff" }}>
+                  <IconMoneda size={16} color="#215DFF" />
+                </div>
+                <div>
+                  <div className="text-sm font-semibold text-gray-900">Editar condiciones</div>
+                  <div className="text-xs text-gray-500">Monto, plazo, pago y observaciones</div>
+                </div>
+                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </button>
+            )}
           </div>
         </div>
 
@@ -636,6 +680,73 @@ export default function AdminExpediente() {
             </button>
             <button
               onClick={() => { setShowCambiarFecha(false); setNewDate(""); }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
+      {/* Modal editar condiciones del credito */}
+      {showEditCond && activeCredit && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460, maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Editar condiciones</h3>
+            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>Ajusta los terminos del credito de {client?.fullName}. Cada cambio queda registrado en la bitacora.</p>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+              {([
+                ["amount", "Monto ($)"],
+                ["termWeeks", "Plazo (semanas)"],
+                ["weeklyPayment", "Pago semanal ($)"],
+                ["totalToRepay", "Total a pagar ($)"],
+                ["remainingBalance", "Saldo pendiente ($)"],
+              ] as const).map(([key, label]) => (
+                <div key={key}>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>{label}</label>
+                  <input
+                    type="number"
+                    inputMode="decimal"
+                    value={cond[key]}
+                    onChange={e => setCond(cc => ({ ...cc, [key]: e.target.value }))}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                  />
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                const wk = parseFloat(cond.weeklyPayment) || 0;
+                const tw = parseInt(cond.termWeeks) || 0;
+                const total = (wk * tw).toFixed(2);
+                setCond(cc => ({ ...cc, totalToRepay: total, remainingBalance: (activeCredit.currentPaymentNumber ?? 0) === 0 ? total : cc.remainingBalance }));
+              }}
+              style={{ width: "100%", padding: "9px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 12, fontWeight: 600, fontSize: 12, cursor: "pointer", marginBottom: 14, fontFamily: "inherit" }}
+            >
+              Recalcular total = pago semanal x plazo
+            </button>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Observaciones</label>
+              <textarea
+                value={cond.notes}
+                onChange={e => setCond(cc => ({ ...cc, notes: e.target.value }))}
+                rows={3}
+                placeholder="Notas internas del credito (motivo de ajuste, acuerdos, etc.)"
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }}
+              />
+            </div>
+            {editCondMut.isError && (
+              <div style={{ fontSize: 12, color: "#dc2626", marginBottom: 10, textAlign: "center" }}>{(editCondMut.error as Error).message}</div>
+            )}
+            <button
+              onClick={() => editCondMut.mutate({ creditId: activeCredit.id, body: { amount: cond.amount, termWeeks: cond.termWeeks, weeklyPayment: cond.weeklyPayment, totalToRepay: cond.totalToRepay, remainingBalance: cond.remainingBalance, notes: cond.notes } })}
+              disabled={editCondMut.isPending}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editCondMut.isPending ? "default" : "pointer", marginBottom: 10, opacity: editCondMut.isPending ? 0.5 : 1, fontFamily: "inherit" }}
+            >
+              {editCondMut.isPending ? "Guardando..." : "Guardar condiciones"}
+            </button>
+            <button
+              onClick={() => setShowEditCond(false)}
               style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar

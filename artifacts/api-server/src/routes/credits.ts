@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
+import { and, auditLogTable, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
 import { sendPushToAdmins, sendPushToClient } from "../lib/push";
@@ -526,6 +526,65 @@ router.patch("/credits/:id/client-response", requireAuth, requireRole("client"),
     console.error("client-response error:", error);
     res.status(500).json({ error: "Error interno" });
   }
+});
+
+
+// ─── PATCH /api/credits/:id/conditions ── edit loan terms + observations ──────
+// Admin/executive adjust amount, term, payment, totals, disbursement date and
+// notes on an existing credit. Every change is appended to the audit log.
+router.patch("/credits/:id/conditions", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const b = (req.body ?? {}) as Record<string, unknown>;
+
+  const updates: Record<string, unknown> = {};
+  const numericFields = ["amount", "weeklyPayment", "totalToRepay", "remainingBalance", "openingFee"] as const;
+  for (const f of numericFields) {
+    const raw = b[f];
+    if (raw === undefined || raw === null || raw === "") continue;
+    const n = Number(raw);
+    if (isNaN(n) || n < 0) { res.status(400).json({ error: `Valor invalido en ${f}` }); return; }
+    updates[f] = n.toFixed(2);
+  }
+  if (b.termWeeks !== undefined && b.termWeeks !== null && b.termWeeks !== "") {
+    const t = parseInt(String(b.termWeeks), 10);
+    if (isNaN(t) || t <= 0 || t > 520) { res.status(400).json({ error: "Plazo invalido" }); return; }
+    updates.termWeeks = t;
+  }
+  if (typeof b.disbursementDate === "string" && b.disbursementDate.trim()) {
+    updates.disbursementDate = b.disbursementDate.trim();
+  }
+  if (b.notes !== undefined) {
+    updates.notes = b.notes === null || b.notes === "" ? null : String(b.notes);
+  }
+  if (Object.keys(updates).length === 0) { res.status(400).json({ error: "No hay cambios que guardar" }); return; }
+
+  const [before] = await db.select().from(creditsTable).where(eq(creditsTable.id, id));
+  if (!before) { res.status(404).json({ error: "Credito no encontrado" }); return; }
+
+  const [credit] = await db
+    .update(creditsTable)
+    .set(updates as Partial<typeof creditsTable.$inferInsert>)
+    .where(eq(creditsTable.id, id))
+    .returning();
+
+  try {
+    const diff: Record<string, { from: unknown; to: unknown }> = {};
+    for (const k of Object.keys(updates)) {
+      diff[k] = { from: (before as Record<string, unknown>)[k], to: (credit as Record<string, unknown>)[k] };
+    }
+    await db.insert(auditLogTable).values({
+      userId: req.userId ?? null,
+      action: "credit.conditions_updated",
+      resourceType: "credit",
+      resourceId: String(id),
+      metadata: diff,
+    });
+  } catch (e) {
+    console.error("[audit:credit.conditions]", (e as Error)?.message || e);
+  }
+
+  res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
 });
 
 export default router;
