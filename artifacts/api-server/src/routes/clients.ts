@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { and, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
+import { resolveClientId } from "../lib/clientResolver";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendClientReassignmentEmail } from "../lib/email";
 import {
@@ -357,8 +358,12 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
 });
 
 // ─── GET /api/me/client — link logged-in client user to their client record ───
-router.get("/me/client", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  let [client] = await db
+router.get("/me/client", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+  // Robust link: FK -> normalized name -> phone, backfilling the FK on first match.
+  const clientId = await resolveClientId(req.userId!);
+  if (!clientId) { res.status(404).json({ error: "No client record linked to this user" }); return; }
+
+  const [client] = await db
     .select({
       id: clientsTable.id,
       fullName: clientsTable.fullName,
@@ -374,33 +379,7 @@ router.get("/me/client", requireAuth, requireRole("client"), async (req, res): P
     })
     .from(clientsTable)
     .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
-    .where(eq(clientsTable.userId, req.userId!));
-
-  // Fallback: match by fullName for admin-created clients
-  if (!client && req.userFullName) {
-    const [byName] = await db
-      .select({
-        id: clientsTable.id,
-        fullName: clientsTable.fullName,
-        phone: clientsTable.phone,
-        altPhone: clientsTable.altPhone,
-        address: clientsTable.address,
-        curp: clientsTable.curp,
-        status: clientsTable.status,
-        guarantorName: clientsTable.guarantorName,
-        guarantorPhone: clientsTable.guarantorPhone,
-        registeredAt: clientsTable.registeredAt,
-        executiveName: usersTable.fullName,
-      })
-      .from(clientsTable)
-      .leftJoin(usersTable, eq(clientsTable.executiveId, usersTable.id))
-      .where(eq(clientsTable.fullName, req.userFullName));
-    if (byName) {
-      client = byName;
-      // Backfill userId FK
-      await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
-    }
-  }
+    .where(eq(clientsTable.id, clientId));
 
   if (!client) { res.status(404).json({ error: "No client record linked to this user" }); return; }
 

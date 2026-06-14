@@ -6,40 +6,9 @@ import {
   ListNotesQueryParams,
 } from "@workspace/api-zod";
 import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
+import { resolveClientId, isClientRole } from "../lib/clientResolver";
 
 const router = Router();
-
-// Portal end-users can carry either the legacy "client" role or the
-// Phase-0 "customer" alias. Treat both identically everywhere.
-const CLIENT_ROLES = ["client", "customer"];
-const isClientRole = (role?: string | null) => CLIENT_ROLES.includes(role ?? "");
-
-// Resolve the clients.id for an authenticated portal user.
-// Canonical path: the clients.userId foreign key. Fallback: exact fullName
-// match, for legacy client rows an admin created without wiring the FK.
-// Returns null when the user has no client record at all.
-async function resolveClientId(userId: number): Promise<number | null> {
-  const [byFk] = await db
-    .select({ id: clientsTable.id })
-    .from(clientsTable)
-    .where(eq(clientsTable.userId, userId))
-    .limit(1);
-  if (byFk) return byFk.id;
-
-  const [user] = await db
-    .select({ fullName: usersTable.fullName })
-    .from(usersTable)
-    .where(eq(usersTable.id, userId))
-    .limit(1);
-  if (!user) return null;
-
-  const [byName] = await db
-    .select({ id: clientsTable.id })
-    .from(clientsTable)
-    .where(eq(clientsTable.fullName, user.fullName))
-    .limit(1);
-  return byName?.id ?? null;
-}
 
 // Fetch the message thread (noteType = mensaje_cliente) for a client,
 // tagging each row with isFromClient so the UI never has to guess the
