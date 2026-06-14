@@ -1,11 +1,11 @@
 import { Router } from "express";
-import { and, db, eq, notesTable, usersTable, clientsTable } from "@workspace/db";
+import { and, db, eq, notesTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import {
   CreateNoteBody,
   ListNotesQueryParams,
 } from "@workspace/api-zod";
-import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
+import { sendPushToAdmins, sendPushToClient } from "../lib/push";
 import { resolveClientId, isClientRole } from "../lib/clientResolver";
 
 const router = Router();
@@ -96,17 +96,11 @@ router.post("/notes", requireAuth, async (req, res): Promise<void> => {
 
   // Push notification to client when admin/executive sends a mensaje_cliente
   if ((parsed.data.noteType as string) === "mensaje_cliente" && parsed.data.clientId) {
-    const [clientRow] = await db
-      .select({ fullName: clientsTable.fullName })
-      .from(clientsTable)
-      .where(eq(clientsTable.id, parsed.data.clientId));
-    if (clientRow) {
-      sendPushToClientByName(clientRow.fullName, {
-        title: `Mensaje de ${author?.fullName ?? "tu asesor"}`,
-        body: parsed.data.content.slice(0, 100),
-        url: "/mi-credito",
-      }).catch(() => {});
-    }
+    sendPushToClient(parsed.data.clientId, {
+      title: `Mensaje de ${author?.fullName ?? "tu asesor"}`,
+      body: parsed.data.content.slice(0, 100),
+      url: "/mi-credito",
+    }).catch(() => {});
   }
 
   res.status(201).json({

@@ -2,7 +2,7 @@ import { Router } from "express";
 import { and, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
-import { sendPushToAdmins, sendPushToClientByName } from "../lib/push";
+import { sendPushToAdmins, sendPushToClient } from "../lib/push";
 import {
   CreateCreditBody,
   UpdateCreditBody,
@@ -232,16 +232,21 @@ router.patch("/credits/:id/review", requireAuth, requireRole("admin"), async (re
   try {
     const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, credit.clientId));
     if (client) {
-      const [user] = await db
-        .select({ email: usersTable.email, fullName: usersTable.fullName })
-        .from(usersTable)
-        .where(eq(usersTable.fullName, client.fullName));
+      const [user] = client.userId
+        ? await db
+            .select({ email: usersTable.email, fullName: usersTable.fullName })
+            .from(usersTable)
+            .where(eq(usersTable.id, client.userId))
+        : await db
+            .select({ email: usersTable.email, fullName: usersTable.fullName })
+            .from(usersTable)
+            .where(eq(usersTable.fullName, client.fullName));
       const pushMsg =
         action === "approve" ? `Tu crédito por $${parseFloat(credit.amount).toLocaleString("es-MX")} fue aprobado 🎉`
         : action === "reject" ? "Tu solicitud de crédito fue rechazada."
         : "Necesitamos más información para tu solicitud de crédito.";
       const _n = await Promise.allSettled([
-        sendPushToClientByName(client.fullName, { title: "credeti", body: pushMsg, url: "/mi-credito" }),
+        sendPushToClient(client.id, { title: "credeti", body: pushMsg, url: "/mi-credito" }),
         ...(user?.email ? [sendCreditDecisionEmail({ to: user.email, clientName: client.fullName, action: action as "approve" | "reject" | "needs_info", amount: parseFloat(credit.amount), notes: notes ? String(notes) : undefined })] : []),
       ]);
       _n.forEach((r, i) => { if (r.status === "rejected") console.error(`[notify:review#${i}]`, r.reason?.message || r.reason); });

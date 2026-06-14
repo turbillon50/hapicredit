@@ -352,6 +352,8 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
   );
 }
 
+type TimelineEvent = { id: string; type: string; title: string; detail?: string; amount?: number; date: string; tone: "positive" | "neutral" | "warning" };
+
 export default function MiCredito() {
   useRequireAuth(["client"]);
 
@@ -401,6 +403,18 @@ export default function MiCredito() {
     },
     enabled: !!client?.id,
     refetchInterval: 15_000,
+  });
+
+  const { data: timeline = [] } = useQuery<TimelineEvent[]>({
+    queryKey: ["client-timeline", client?.id],
+    queryFn: async () => {
+      const r = await fetch(`${API}/me/timeline`, { headers: auth() });
+      if (!r.ok) return [];
+      return r.json() as Promise<TimelineEvent[]>;
+    },
+    enabled: !!client?.id,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
 
   const paid  = payments.filter(p => ["on_time","completed","late","partial","approved","validated"].includes(p.paymentStatus ?? p.status ?? "")).length;
@@ -482,6 +496,36 @@ export default function MiCredito() {
                       {fmtDate(activeCredit.nextPaymentDate)} · {fmt(activeCredit.weeklyPayment)}
                     </div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {timeline.length > 0 && (
+              <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d2">
+                <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                  Cómo va tu crédito
+                </div>
+                <div style={{ borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)", padding: "16px 16px 8px" }}>
+                  {timeline.map((ev, i) => {
+                    const color = ev.tone === "positive" ? "#16a34a" : ev.tone === "warning" ? "#d97706" : "var(--accent)";
+                    const last = i === timeline.length - 1;
+                    return (
+                      <div key={ev.id} style={{ display: "flex", gap: 12 }}>
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                          <div style={{ width: 11, height: 11, borderRadius: "50%", background: color, marginTop: 4, flexShrink: 0, boxShadow: `0 0 0 3px ${color}22` }} />
+                          {!last && <div style={{ width: 2, flex: 1, background: "var(--border)", margin: "2px 0" }} />}
+                        </div>
+                        <div style={{ paddingBottom: last ? 4 : 16, flex: 1 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                            <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{ev.title}</span>
+                            {typeof ev.amount === "number" && <span style={{ fontSize: 14, fontWeight: 700, color }}>${ev.amount.toLocaleString("es-MX")}</span>}
+                          </div>
+                          {ev.detail && <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 2, lineHeight: 1.4 }}>{ev.detail}</div>}
+                          <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 3 }}>{new Date(ev.date).toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" })}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

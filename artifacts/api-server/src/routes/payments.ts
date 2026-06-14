@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { alertsTable, and, cajaMovementsTable, clientsTable, creditsTable, db, eq, getTableColumns, gte, lte, paymentsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
-import { sendPushToClientByName } from "../lib/push";
+import { sendPushToClient } from "../lib/push";
 import {
   CreatePaymentBody,
   GetPaymentParams,
@@ -186,7 +186,7 @@ router.patch("/payments/:id/validate", requireAuth, requireRole("admin"), async 
     const body = updatedBalance <= 0
       ? "¡Felicidades! Liquidaste tu crédito 🎉"
       : `Tu pago de $${amountPaid.toLocaleString("es-MX")} fue validado. Saldo restante: $${updatedBalance.toLocaleString("es-MX")}`;
-    sendPushToClientByName(updated[0].clientName, { title: "credeti", body, url: "/mi-credito" }).catch(() => {});
+    sendPushToClient(payment.clientId, { title: "credeti", body, url: "/mi-credito" }).catch(() => {});
   }
 
   res.json(formatPayment(updated[0]));

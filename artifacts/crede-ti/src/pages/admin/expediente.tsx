@@ -35,6 +35,17 @@ export default function AdminExpediente() {
   const [newExecId, setNewExecId] = useState<number | null>(null);
   const [msgText, setMsgText] = useState("");
   const [sendingMsg, setSendingMsg] = useState(false);
+  const [emailTemplate, setEmailTemplate] = useState("");
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [emailMsg, setEmailMsg] = useState<string | null>(null);
+  const { data: emailTemplates = [] } = useQuery<{ key: string; label: string; subject: string }[]>({
+    queryKey: ["email-templates"],
+    queryFn: async () => {
+      const r = await fetch(`${API}/email-templates`, { headers: auth() });
+      if (!r.ok) return [];
+      return r.json();
+    },
+  });
   const [newDate, setNewDate] = useState("");
 
   const { data: client, isLoading } = useQuery<any>({
@@ -124,6 +135,31 @@ export default function AdminExpediente() {
       }
     } finally {
       setSendingMsg(false);
+    }
+  }
+
+  async function sendEmail() {
+    if (!emailTemplate || sendingEmail) return;
+    setSendingEmail(true);
+    setEmailMsg(null);
+    try {
+      const r = await fetch(`${API}/clients/${client.id}/email`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ templateKey: emailTemplate, alsoInApp: true }),
+      });
+      const data = await r.json().catch(() => ({} as any));
+      if (r.ok) {
+        setEmailMsg(`Correo enviado a ${data.to ?? "el cliente"} y registrado en el chat`);
+        setEmailTemplate("");
+        queryClient.invalidateQueries({ queryKey: ["client", id] });
+      } else {
+        setEmailMsg(data.error ?? "No se pudo enviar el correo");
+      }
+    } catch {
+      setEmailMsg("Error de red al enviar");
+    } finally {
+      setSendingEmail(false);
     }
   }
 
@@ -308,6 +344,31 @@ export default function AdminExpediente() {
             </div>
           </div>
         )}
+
+        {/* -- Correo precargado al cliente (Resend) -- */}
+        <div className="px-4">
+          <div className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2 px-1">
+            Enviar correo al cliente
+          </div>
+          <div className="card" style={{ padding: 12 }}>
+            <select
+              value={emailTemplate}
+              onChange={e => { setEmailTemplate(e.target.value); setEmailMsg(null); }}
+              style={{ width: "100%", borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "9px 12px", outline: "none", marginBottom: 8 }}
+            >
+              <option value="">Elige un mensaje precargado...</option>
+              {emailTemplates.map(t => (<option key={t.key} value={t.key}>{t.label}</option>))}
+            </select>
+            <button
+              onClick={sendEmail}
+              disabled={!emailTemplate || sendingEmail}
+              style={{ width: "100%", borderRadius: 10, border: "none", cursor: emailTemplate && !sendingEmail ? "pointer" : "default", background: emailTemplate && !sendingEmail ? "var(--accent)" : "var(--border)", color: emailTemplate && !sendingEmail ? "#fff" : "var(--text-muted)", padding: "10px 14px", fontWeight: 700, fontSize: 14 }}
+            >
+              {sendingEmail ? "Enviando..." : "Enviar correo + registrar en chat"}
+            </button>
+            {emailMsg && <div style={{ fontSize: 12.5, color: "var(--text-secondary)", marginTop: 8, textAlign: "center" }}>{emailMsg}</div>}
+          </div>
+        </div>
 
         {/* ── Chat con cliente ──────────────────────────────────── */}
         <div className="px-4">

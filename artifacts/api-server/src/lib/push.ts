@@ -146,3 +146,31 @@ export async function sendPushToClientByName(fullName: string, payload: PushPayl
     logger.warn({ err }, "push: client send failed");
   }
 }
+
+// Robust client push: resolve the client's linked user via the userId FK
+// first, falling back to a case/space-insensitive full-name match for legacy
+// rows. Best-effort; never throws.
+export async function sendPushToClient(clientId: number, payload: PushPayload): Promise<void> {
+  try {
+    await ensure();
+    const fk = await pool.query<{ id: number }>(
+      `SELECT u.id FROM users u
+         JOIN clients c ON c.user_id = u.id
+        WHERE c.id = $1 AND u.deleted_at IS NULL`,
+      [clientId],
+    );
+    if (fk.rows.length > 0) {
+      await sendPushToUsers(fk.rows.map(x => x.id), payload);
+      return;
+    }
+    const byName = await pool.query<{ id: number }>(
+      `SELECT u.id FROM users u
+         JOIN clients c ON lower(btrim(c.full_name)) = lower(btrim(u.full_name))
+        WHERE c.id = $1 AND u.deleted_at IS NULL LIMIT 5`,
+      [clientId],
+    );
+    await sendPushToUsers(byName.rows.map(x => x.id), payload);
+  } catch (err) {
+    logger.warn({ err }, "push: client(byId) send failed");
+  }
+}

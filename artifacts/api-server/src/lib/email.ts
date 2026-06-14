@@ -509,3 +509,56 @@ export async function sendApplicantConfirmationEmail(opts: {
     html: baseTemplate(content),
   });
 }
+
+// ── Precargados: plantillas que el admin puede enviar al cliente bajo demanda ──
+export type Precargado = { key: string; label: string; subject: string; build: (name: string) => string };
+
+export const EMAIL_PRECARGADOS: Precargado[] = [
+  {
+    key: "recordatorio_pago",
+    label: "Recordatorio de pago",
+    subject: "Recordatorio de tu pago — Crede-Ti",
+    build: (name) => `<h2 style="color:#0E68CC;font-size:20px;margin:0 0 8px;">Recordatorio de pago</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0 0 16px;">Hola ${name}, te recordamos con cariño que tienes un pago próximo de tu crédito. Mantener tus pagos al día construye tu historial y te abre mejores montos.</p><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">Si ya realizaste tu pago, ignora este mensaje. ¡Gracias por tu confianza!</p>`,
+  },
+  {
+    key: "felicitacion_pago",
+    label: "Felicitación por pago al corriente",
+    subject: "¡Gracias por tu pago! — Crede-Ti",
+    build: (name) => `<h2 style="color:#16a34a;font-size:20px;margin:0 0 8px;">¡Excelente, ${name}! 🎉</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">Recibimos tu pago y tu crédito está al corriente. Sigue así: estás construyendo un gran historial con nosotros.</p>`,
+  },
+  {
+    key: "documentos_pendientes",
+    label: "Documentos pendientes",
+    subject: "Documentos pendientes de tu trámite — Crede-Ti",
+    build: (name) => `<h2 style="color:#0E68CC;font-size:20px;margin:0 0 8px;">Documentos pendientes</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0 0 16px;">Hola ${name}, para continuar con tu trámite necesitamos algunos documentos pendientes. Ingresa a tu portal o responde a tu asesor para completarlos.</p><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">Estamos para ayudarte.</p>`,
+  },
+  {
+    key: "aviso_atraso",
+    label: "Aviso de atraso (cordial)",
+    subject: "Sobre tu pago — Crede-Ti",
+    build: (name) => `<h2 style="color:#d97706;font-size:20px;margin:0 0 8px;">Queremos ayudarte</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0 0 16px;">Hola ${name}, notamos que tu pago presenta un atraso. Entendemos que surgen imprevistos: contáctanos para encontrar juntos una solución y mantener tu crédito sano.</p><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">Tu asesor está disponible para apoyarte.</p>`,
+  },
+  {
+    key: "oferta_renovacion",
+    label: "Oferta de renovación",
+    subject: "Tienes una renovación disponible — Crede-Ti",
+    build: (name) => `<h2 style="color:#0E68CC;font-size:20px;margin:0 0 8px;">¡Buenas noticias, ${name}!</h2><p style="color:#475569;font-size:15px;line-height:1.6;margin:0;">Por tu buen historial de pagos tienes disponible una renovación con mejores condiciones. Contáctanos para conocer los detalles.</p>`,
+  },
+];
+
+// Generic on-demand email from the admin module to a client.
+export async function sendCustomClientEmail(opts: {
+  to: string;
+  subject: string;
+  contentHtml: string;
+}): Promise<{ sent: boolean }> {
+  const ctx = await getResendClient();
+  if (!ctx) return { sent: false };
+  await ctx.client.emails.send({
+    from: ctx.from,
+    to: opts.to,
+    subject: opts.subject,
+    html: baseTemplate(opts.contentHtml),
+  });
+  return { sent: true };
+}

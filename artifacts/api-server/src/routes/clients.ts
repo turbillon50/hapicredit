@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { and, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
+import { and, auditLogTable, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
 import { resolveClientId } from "../lib/clientResolver";
 import { requireAuth, requireRole } from "../middlewares/auth";
-import { sendClientReassignmentEmail } from "../lib/email";
+import { sendClientReassignmentEmail, sendCustomClientEmail, EMAIL_PRECARGADOS } from "../lib/email";
+import { sendPushToClient } from "../lib/push";
 import {
   CreateClientBody,
   UpdateClientBody,
@@ -489,6 +490,99 @@ router.get("/clients/:id/risk-score", requireAuth, async (req, res): Promise<voi
     renewalCount: Math.max(0, renewals),
     calculatedAt: new Date().toISOString(),
   });
+});
+
+// ─── GET /api/me/timeline — trazabilidad cronologica del credito del cliente ───
+router.get("/me/timeline", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+  const clientId = await resolveClientId(req.userId!);
+  if (!clientId) { res.json([]); return; }
+
+  const [creditRows, paymentRows, commitmentRows] = await Promise.all([
+    db.select().from(creditsTable).where(eq(creditsTable.clientId, clientId)).orderBy(creditsTable.createdAt),
+    db.select().from(paymentsTable).where(eq(paymentsTable.clientId, clientId)).orderBy(paymentsTable.paymentDate),
+    db.select().from(commitmentsTable).where(eq(commitmentsTable.clientId, clientId)).orderBy(commitmentsTable.createdAt),
+  ]);
+
+  type Ev = { id: string; type: string; title: string; detail?: string; amount?: number; date: string; tone: "positive" | "neutral" | "warning" };
+  const events: Ev[] = [];
+
+  for (const c of creditRows) {
+    events.push({
+      id: `credit-${c.id}`, type: "credit_disbursed", title: "Credito otorgado",
+      detail: `Plazo ${c.termWeeks} semanas - pago semanal $${Number(c.weeklyPayment).toLocaleString("es-MX")}`,
+      amount: Number(c.amount), date: String(c.disbursementDate ?? c.createdAt), tone: "positive",
+    });
+    if (c.status === "completed") {
+      events.push({ id: `credit-done-${c.id}`, type: "credit_completed", title: "Credito liquidado", detail: "Felicidades, completaste tu credito.", date: String(c.updatedAt), tone: "positive" });
+    } else if (c.status === "defaulted") {
+      events.push({ id: `credit-def-${c.id}`, type: "credit_defaulted", title: "Credito en incumplimiento", detail: "Contacta a tu asesor para regularizarte.", date: String(c.updatedAt), tone: "warning" });
+    }
+  }
+  for (const p of paymentRows) {
+    const late = p.paymentStatus === "late" || p.paymentStatus === "missed" || p.paymentStatus === "partial";
+    events.push({
+      id: `pay-${p.id}`, type: "payment", title: `Pago semana ${p.paymentNumber}`,
+      detail: `Saldo restante $${Number(p.updatedBalance).toLocaleString("es-MX")}${late ? " - con atraso" : ""}`,
+      amount: Number(p.amountPaid), date: String(p.paymentDate), tone: late ? "warning" : "positive",
+    });
+  }
+  for (const cm of commitmentRows) {
+    events.push({
+      id: `commit-${cm.id}`, type: "commitment", title: "Compromiso de pago",
+      detail: `${cm.status === "fulfilled" ? "Cumplido" : cm.status === "broken" ? "No cumplido" : "Pendiente"} - prometido para ${String(cm.promisedDate)}`,
+      amount: Number(cm.promisedAmount), date: String(cm.createdAt),
+      tone: cm.status === "broken" ? "warning" : cm.status === "fulfilled" ? "positive" : "neutral",
+    });
+  }
+
+  events.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  res.json(events);
+});
+
+// ─── GET /api/email-templates — precargados disponibles para el admin ───
+router.get("/email-templates", requireAuth, requireRole("admin", "executive"), async (_req, res): Promise<void> => {
+  res.json(EMAIL_PRECARGADOS.map((t) => ({ key: t.key, label: t.label, subject: t.subject })));
+});
+
+// ─── POST /api/clients/:id/email — admin envia un correo precargado al cliente ───
+router.post("/clients/:id/email", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  const clientId = parseInt(String(req.params.id), 10);
+  if (isNaN(clientId)) { res.status(400).json({ error: "id invalido" }); return; }
+
+  const body = (req.body ?? {}) as { templateKey?: string; subject?: string; contentHtml?: string; alsoInApp?: boolean };
+
+  const [row] = await db
+    .select({ fullName: clientsTable.fullName, email: usersTable.email })
+    .from(clientsTable)
+    .leftJoin(usersTable, eq(clientsTable.userId, usersTable.id))
+    .where(eq(clientsTable.id, clientId));
+  if (!row) { res.status(404).json({ error: "Cliente no encontrado" }); return; }
+  if (!row.email) { res.status(400).json({ error: "El cliente no tiene un correo vinculado. Pidele que inicie sesion para enlazarlo." }); return; }
+
+  let subject = body.subject;
+  let contentHtml = body.contentHtml;
+  if (body.templateKey) {
+    const t = EMAIL_PRECARGADOS.find((x) => x.key === body.templateKey);
+    if (!t) { res.status(400).json({ error: "Plantilla desconocida" }); return; }
+    subject = t.subject;
+    contentHtml = t.build(row.fullName.split(" ")[0] || row.fullName);
+  }
+  if (!subject || !contentHtml) { res.status(400).json({ error: "Falta templateKey o subject/contentHtml" }); return; }
+
+  const result = await sendCustomClientEmail({ to: row.email, subject, contentHtml });
+
+  if (body.alsoInApp) {
+    const plain = contentHtml.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim().slice(0, 500);
+    await db.insert(notesTable).values({ clientId, authorId: req.userId!, noteType: "mensaje_cliente", content: plain });
+    sendPushToClient(clientId, { title: "Mensaje de tu asesor", body: subject, url: "/mi-credito" }).catch(() => {});
+  }
+
+  await db.insert(auditLogTable).values({
+    userId: req.userId!, action: "client.email.sent", resourceType: "client", resourceId: String(clientId),
+    metadata: { templateKey: body.templateKey ?? "custom", subject, sent: result.sent },
+  }).catch(() => {});
+
+  res.json({ ok: true, sent: result.sent, to: row.email });
 });
 
 export default router;
