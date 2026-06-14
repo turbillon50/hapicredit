@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { clientsTable, creditsTable, db, eq, pool, publicRequestsTable } from "@workspace/db";
+import { auditLogTable, clientsTable, creditsTable, db, eq, pool, publicRequestsTable } from "@workspace/db";
 import { sendPushToAdmins } from "../lib/push";
 import { CreatePublicRequestBody } from "@workspace/api-zod";
 import { requireAuth, requireRole } from "../middlewares/auth";
@@ -264,6 +264,63 @@ router.post("/public/requests/:id/decision", requireAuth, requireRole("admin"), 
     [id, req.userId, await authorName(req.userId), note, notified],
   );
   res.json({ ok: true, status: decision, notified, hasEmail: !!applicant.email });
+});
+
+
+// Edit the editable fields of a public request (control center).
+// Merges rich fields into the JSON `message` and updates name/phone/email.
+router.post("/public/requests/:id/details", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const b = (req.body ?? {}) as Record<string, unknown>;
+  const rec = await pool.query<{ name: string; phone: string; email: string | null; message: string }>(
+    `SELECT name, phone, email, message FROM public_requests WHERE id=$1`, [id]);
+  if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  const cur = rec.rows[0];
+
+  const str = (v: unknown): string | undefined => (v === undefined || v === null ? undefined : String(v).trim());
+  const name = str(b.name) ?? cur.name;
+  const phone = str(b.phone) ?? cur.phone;
+  const emailRaw = str(b.email);
+  const email = emailRaw === undefined ? cur.email : emailRaw === "" ? null : emailRaw;
+
+  let parsed: Record<string, any> = {};
+  try { parsed = cur.message ? JSON.parse(cur.message) : {}; } catch { parsed = {}; }
+  if (typeof parsed !== "object" || parsed === null) parsed = {};
+  parsed.type = parsed.type ?? "credit_application";
+  parsed.personalInfo = parsed.personalInfo ?? {};
+  parsed.creditRequest = parsed.creditRequest ?? {};
+  if (b.curp !== undefined) parsed.personalInfo.curp = str(b.curp) ?? "";
+  if (b.address !== undefined) parsed.personalInfo.address = str(b.address) ?? "";
+  if (b.altPhone !== undefined) parsed.personalInfo.altPhone = str(b.altPhone) ?? "";
+  if (b.purpose !== undefined) parsed.creditRequest.purpose = str(b.purpose) ?? "";
+  if (b.requestedAmount !== undefined && b.requestedAmount !== "") {
+    const n = Number(b.requestedAmount);
+    if (isNaN(n) || n < 0) { res.status(400).json({ error: "Monto invalido" }); return; }
+    parsed.creditRequest.requestedAmount = n;
+  }
+  if (b.termWeeks !== undefined && b.termWeeks !== "") {
+    const t = parseInt(String(b.termWeeks), 10);
+    if (isNaN(t) || t <= 0 || t > 520) { res.status(400).json({ error: "Plazo invalido" }); return; }
+    parsed.creditRequest.termWeeks = t;
+  }
+  const newMessage = JSON.stringify(parsed);
+
+  await pool.query(`UPDATE public_requests SET name=$1, phone=$2, email=$3, message=$4 WHERE id=$5`,
+    [name, phone, email, newMessage, id]);
+
+  try {
+    await db.insert(auditLogTable).values({
+      userId: req.userId ?? null,
+      action: "public_request.details_updated",
+      resourceType: "public_request",
+      resourceId: String(id),
+      metadata: { fields: Object.keys(b) },
+    });
+  } catch (e) { console.error("[audit:pr.details]", (e as Error)?.message || e); }
+
+  res.json({ ok: true });
 });
 
 export default router;

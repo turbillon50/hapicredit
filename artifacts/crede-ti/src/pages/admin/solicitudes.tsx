@@ -434,12 +434,14 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const [comment, setComment] = useState("");
   const [note, setNote] = useState("");
   const [notify, setNotify] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ name: "", phone: "", email: "", requestedAmount: "", termWeeks: "", purpose: "", curp: "", address: "", altPhone: "" });
   const { data: detail } = useQuery({
     queryKey: ["public-request", app.id],
     queryFn: async () => {
       const r = await fetch(`${API}/public/requests/${app.id}`, { headers: auth() });
       if (!r.ok) throw new Error("error");
-      return r.json() as Promise<{ request: { status: string }; comments: Array<{ id: number; author_name: string; comment: string; notified: boolean; created_at: string }> }>;
+      return r.json() as Promise<{ request: { status: string; name: string; phone: string; email: string | null; message: string }; comments: Array<{ id: number; author_name: string; comment: string; notified: boolean; created_at: string }> }>;
     },
   });
   const comments = detail?.comments ?? [];
@@ -471,22 +473,42 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       onDone?.();
     },
   });
-  const parsed = parseApp(app);
+  const detailsM = useMutation({
+    mutationFn: async (body: Record<string, unknown>) => {
+      const r = await fetch(`${API}/public/requests/${app.id}/details`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(body) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error al guardar"); return d;
+    },
+    onSuccess: () => { setEditing(false); qc.invalidateQueries({ queryKey: ["public-request", app.id] }); qc.invalidateQueries({ queryKey: ["public-requests"] }); },
+  });
+  const reqData = detail?.request;
+  const dName = reqData?.name ?? app.name;
+  const dPhone = reqData?.phone ?? app.phone;
+  const dEmail = reqData?.email ?? app.email;
+  const parsed = parseApp({ ...app, message: reqData?.message ?? app.message } as PublicApp);
   const info   = parsed?.personalInfo ?? {};
   const gtor   = parsed?.guarantor    ?? {};
   const credit = parsed?.creditRequest ?? {};
   const docsMeta = parsed?.documents   ?? {};
   const refNum = `HC-${String(app.id).padStart(5, "0")}`;
+  const startEdit = () => {
+    setForm({
+      name: dName ?? "", phone: dPhone ?? "", email: dEmail ?? "",
+      requestedAmount: String(credit.requestedAmount ?? ""), termWeeks: String(credit.termWeeks ?? ""),
+      purpose: credit.purpose ?? "", curp: info.curp ?? "", address: info.address ?? "", altPhone: info.altPhone ?? "",
+    });
+    setEditing(true);
+  };
 
   return (
     <div className="flex flex-col gap-4 pb-2">
       <div className="flex items-center gap-3">
-        <Avatar name={app.name} size="lg" />
-        <div>
-          <div className="text-base font-bold text-gray-900">{app.name}</div>
-          <div className="text-sm text-gray-500">{app.phone}</div>
+        <Avatar name={dName} size="lg" />
+        <div className="min-w-0 flex-1">
+          <div className="text-base font-bold text-gray-900">{dName}</div>
+          <div className="text-sm text-gray-500">{dPhone}</div>
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> · {fmtDateTime(app.createdAt)}</div>
         </div>
+        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid #dbeafe", background: editing ? "#eff6ff" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "✏️ Editar datos"}</button>
       </div>
 
       {/* Revision: aprobar / rechazar / comentar */}
@@ -568,29 +590,67 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-blue-50 rounded-2xl p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Monto solicitado</div>
-          <div className="text-xl font-extrabold text-blue-700">{fmt(credit.requestedAmount)}</div>
+          {editing ? (
+            <input type="number" inputMode="decimal" value={form.requestedAmount} onChange={e => setForm(f => ({ ...f, requestedAmount: e.target.value }))} className="w-full text-center text-xl font-extrabold text-blue-700 bg-white rounded-xl py-1" style={{ border: "1.5px solid #bfdbfe", outline: "none" }} />
+          ) : (
+            <div className="text-xl font-extrabold text-blue-700">{fmt(credit.requestedAmount)}</div>
+          )}
         </div>
         <div className="bg-gray-50 rounded-2xl p-3 text-center">
-          <div className="text-xs text-gray-500 mb-1">Plazo</div>
-          <div className="text-base font-bold text-gray-800">{credit.termWeeks ?? "—"} sem</div>
+          <div className="text-xs text-gray-500 mb-1">Plazo (sem)</div>
+          {editing ? (
+            <input type="number" inputMode="numeric" value={form.termWeeks} onChange={e => setForm(f => ({ ...f, termWeeks: e.target.value }))} className="w-full text-center text-base font-bold text-gray-800 bg-white rounded-xl py-1" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+          ) : (
+            <div className="text-base font-bold text-gray-800">{credit.termWeeks ?? "—"} sem</div>
+          )}
         </div>
       </div>
 
       <div className="flex flex-col gap-1.5 bg-gray-50 rounded-2xl p-3">
         <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Datos personales</div>
-        {[
-          { icon: "📋", label: "CURP",      val: info.curp || "No proporcionado" },
-          { icon: "📍", label: "Domicilio", val: info.address || "—" },
-          { icon: "📞", label: "Tel. alt.", val: info.altPhone || "—" },
-          { icon: "🎯", label: "Destino",   val: credit.purpose },
-        ].map(r => (
-          <div key={r.label} className="flex items-start gap-2 text-sm py-0.5">
-            <span>{r.icon}</span>
-            <span className="text-gray-500 shrink-0 w-20">{r.label}:</span>
-            <span className="font-medium text-gray-800">{r.val}</span>
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            {([
+              ["name", "👤", "Nombre"],
+              ["phone", "📱", "Teléfono"],
+              ["email", "✉️", "Correo"],
+              ["curp", "📋", "CURP"],
+              ["address", "📍", "Domicilio"],
+              ["altPhone", "📞", "Tel. alt."],
+              ["purpose", "🎯", "Destino"],
+            ] as const).map(([key, icon, label]) => (
+              <div key={key} className="flex items-center gap-2 text-sm">
+                <span>{icon}</span>
+                <span className="text-gray-500 shrink-0 w-20">{label}:</span>
+                <input value={form[key]} onChange={ev => setForm(f => ({ ...f, [key]: ev.target.value }))} className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-gray-800 font-medium" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+              </div>
+            ))}
           </div>
-        ))}
+        ) : (
+          [
+            { icon: "📋", label: "CURP",      val: info.curp || "No proporcionado" },
+            { icon: "📍", label: "Domicilio", val: info.address || "—" },
+            { icon: "📞", label: "Tel. alt.", val: info.altPhone || "—" },
+            { icon: "🎯", label: "Destino",   val: credit.purpose || "—" },
+          ].map(r => (
+            <div key={r.label} className="flex items-start gap-2 text-sm py-0.5">
+              <span>{r.icon}</span>
+              <span className="text-gray-500 shrink-0 w-20">{r.label}:</span>
+              <span className="font-medium text-gray-800">{r.val}</span>
+            </div>
+          ))
+        )}
       </div>
+
+      {editing && (
+        <div className="flex flex-col gap-2">
+          {detailsM.isError && <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(detailsM.error as Error).message}</div>}
+          <div className="flex gap-2">
+            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "11px", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+            <button disabled={detailsM.isPending} onClick={() => detailsM.mutate({ name: form.name, phone: form.phone, email: form.email, requestedAmount: form.requestedAmount, termWeeks: form.termWeeks, purpose: form.purpose, curp: form.curp, address: form.address, altPhone: form.altPhone })} className="flex-1" style={{ padding: "11px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar cambios"}</button>
+          </div>
+        </div>
+      )}
 
       {credit.bankInfo && (
         <div className="bg-blue-50 rounded-2xl p-3">
