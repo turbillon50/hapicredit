@@ -323,7 +323,7 @@ export default function AdminExpediente() {
                 </div>
               ) : (
                 chatNotes.map((n: any) => {
-                  const isAdmin = n.authorName && n.authorName !== client.fullName;
+                  const isAdmin = n.isFromClient != null ? !n.isFromClient : (n.authorName && n.authorName !== client.fullName);
                   return (
                     <div key={n.id} style={{ display: "flex", flexDirection: "column", alignItems: isAdmin ? "flex-end" : "flex-start" }}>
                       <div style={{

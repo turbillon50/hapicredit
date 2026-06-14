@@ -219,7 +219,7 @@ function MensajesSection({ messages, client, queryClient }: {
             </div>
           ) : (
             messages.map((msg) => {
-              const isMe = msg.authorName === myName;
+              const isMe = (msg as any).isFromClient === true || ((msg as any).isFromClient == null && msg.authorName === myName);
               return (
                 <div
                   key={msg.id}

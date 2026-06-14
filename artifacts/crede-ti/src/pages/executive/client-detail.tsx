@@ -1,5 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
 import { useParams, Link } from "wouter";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   getGetClientQueryKey,
   useGetClient,
@@ -32,6 +34,9 @@ const statusClass: Record<string, string> = {
 const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n);
 
+const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
+
 function Initials({ name }: { name: string }) {
   const parts = name.trim().split(" ");
   const text = parts.length >= 2 ? `${parts[0][0]}${parts[1][0]}` : name.slice(0, 2);
@@ -52,6 +57,29 @@ export default function ExecutiveClientDetail() {
   );
 
   const activeCredit = credits?.find((c: any) => c.status === "active");
+
+  const qc = useQueryClient();
+  const [msgText, setMsgText] = useState("");
+  const [sendingMsg, setSendingMsg] = useState(false);
+  const chatNotes: any[] = (((client as any)?.recentNotes ?? []) as any[]).filter((n) => n.noteType === "mensaje_cliente");
+
+  async function sendMsg() {
+    if (!msgText.trim() || sendingMsg) return;
+    setSendingMsg(true);
+    try {
+      const r = await fetch(`${API}/notes`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ clientId, noteType: "mensaje_cliente", content: msgText.trim() }),
+      });
+      if (r.ok) {
+        setMsgText("");
+        qc.invalidateQueries({ queryKey: getGetClientQueryKey(clientId) });
+      }
+    } finally {
+      setSendingMsg(false);
+    }
+  }
 
   if (isLoading || !client) {
     return (
@@ -145,6 +173,58 @@ export default function ExecutiveClientDetail() {
               <span className="text-[12px] font-semibold text-foreground">Compromiso</span>
             </div>
           </Link>
+        </div>
+
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">Mensajes con cliente</p>
+          <div className="bg-white rounded-2xl shadow-card overflow-hidden">
+            <div style={{ padding: "12px 12px 4px", display: "flex", flexDirection: "column", gap: 8, maxHeight: 300, overflowY: "auto" }}>
+              {chatNotes.length === 0 ? (
+                <div style={{ textAlign: "center", padding: "20px 0", fontSize: 13, color: "var(--text-muted)" }}>
+                  Sin mensajes — inicia la conversación
+                </div>
+              ) : (
+                chatNotes.map((n: any) => {
+                  const fromClient = n.isFromClient != null ? n.isFromClient : (n.authorName === client.fullName);
+                  const isAdvisor = !fromClient;
+                  return (
+                    <div key={n.id} style={{ display: "flex", flexDirection: "column", alignItems: isAdvisor ? "flex-end" : "flex-start" }}>
+                      <div style={{
+                        maxWidth: "78%", padding: "9px 13px",
+                        borderRadius: isAdvisor ? "16px 16px 4px 16px" : "16px 16px 16px 4px",
+                        background: isAdvisor ? "var(--accent)" : "var(--surface-2)",
+                        color: isAdvisor ? "#fff" : "var(--text-primary)",
+                        fontSize: 14, lineHeight: 1.5,
+                      }}>
+                        {n.content}
+                      </div>
+                      <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 2, paddingLeft: 4, paddingRight: 4 }}>
+                        {isAdvisor ? (n.authorName ?? "Asesor") : client.fullName} · {new Date(n.createdAt).toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+            <div style={{ borderTop: "1px solid var(--border)", display: "flex", gap: 8, padding: "10px 12px" }}>
+              <input
+                type="text"
+                value={msgText}
+                onChange={e => setMsgText(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
+                placeholder={`Mensaje a ${client.fullName.split(" ")[0]}...`}
+                style={{ flex: 1, borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "8px 12px", outline: "none" }}
+              />
+              <button
+                onClick={sendMsg}
+                disabled={!msgText.trim() || sendingMsg}
+                style={{ borderRadius: 10, border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default", background: msgText.trim() && !sendingMsg ? "var(--accent)" : "var(--border)", color: msgText.trim() && !sendingMsg ? "#fff" : "var(--text-muted)", padding: "0 14px", fontWeight: 700, fontSize: 14 }}
+              >
+                {sendingMsg ? "…" : "Enviar"}
+              </button>
+            </div>
+          </div>
         </div>
 
       </div>

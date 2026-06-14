@@ -193,12 +193,13 @@ router.get("/clients/:id", requireAuth, async (req, res): Promise<void> => {
     .orderBy(paymentsTable.paymentDate)
     .limit(20);
 
-  const recentNotes = await db
+  const recentNotesRaw = await db
     .select({
       id: notesTable.id,
       clientId: notesTable.clientId,
       authorId: notesTable.authorId,
       authorName: usersTable.fullName,
+      authorRole: usersTable.role,
       noteType: notesTable.noteType,
       content: notesTable.content,
       createdAt: notesTable.createdAt,
@@ -208,6 +209,11 @@ router.get("/clients/:id", requireAuth, async (req, res): Promise<void> => {
     .where(eq(notesTable.clientId, params.data.id))
     .orderBy(notesTable.createdAt)
     .limit(20);
+  // Tag each note with isFromClient so chat UIs style bubbles by role, not by name match.
+  const recentNotes = recentNotesRaw.map((n) => ({
+    ...n,
+    isFromClient: ["client", "customer"].includes(n.authorRole ?? ""),
+  }));
 
   const openCommitments = await db
     .select()
