@@ -268,18 +268,23 @@ router.post("/public/requests/:id/decision", requireAuth, requireRole("admin"), 
 
 
 // Edit the editable fields of a public request (control center).
-// Merges rich fields into the JSON `message` and updates name/phone/email.
+// Merges structured personal/credit/bank/reference/guarantor data into the
+// JSON `message` and updates name/phone/email columns. Audited.
 router.post("/public/requests/:id/details", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   await ensureReviewSchema();
   const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
-  const b = (req.body ?? {}) as Record<string, unknown>;
+  const b = (req.body ?? {}) as Record<string, any>;
   const rec = await pool.query<{ name: string; phone: string; email: string | null; message: string }>(
     `SELECT name, phone, email, message FROM public_requests WHERE id=$1`, [id]);
   if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
   const cur = rec.rows[0];
 
   const str = (v: unknown): string | undefined => (v === undefined || v === null ? undefined : String(v).trim());
+  const numOrUndef = (v: unknown): number | undefined => {
+    if (v === undefined || v === null || v === "") return undefined;
+    const n = Number(v); return isNaN(n) ? undefined : n;
+  };
   const name = str(b.name) ?? cur.name;
   const phone = str(b.phone) ?? cur.phone;
   const emailRaw = str(b.email);
@@ -291,22 +296,48 @@ router.post("/public/requests/:id/details", requireAuth, requireRole("admin"), a
   parsed.type = parsed.type ?? "credit_application";
   parsed.personalInfo = parsed.personalInfo ?? {};
   parsed.creditRequest = parsed.creditRequest ?? {};
-  if (b.curp !== undefined) parsed.personalInfo.curp = str(b.curp) ?? "";
-  if (b.address !== undefined) parsed.personalInfo.address = str(b.address) ?? "";
-  if (b.altPhone !== undefined) parsed.personalInfo.altPhone = str(b.altPhone) ?? "";
-  if (b.purpose !== undefined) parsed.creditRequest.purpose = str(b.purpose) ?? "";
-  if (b.requestedAmount !== undefined && b.requestedAmount !== "") {
-    const n = Number(b.requestedAmount);
-    if (isNaN(n) || n < 0) { res.status(400).json({ error: "Monto invalido" }); return; }
-    parsed.creditRequest.requestedAmount = n;
-  }
-  if (b.termWeeks !== undefined && b.termWeeks !== "") {
-    const t = parseInt(String(b.termWeeks), 10);
-    if (isNaN(t) || t <= 0 || t > 520) { res.status(400).json({ error: "Plazo invalido" }); return; }
-    parsed.creditRequest.termWeeks = t;
-  }
-  const newMessage = JSON.stringify(parsed);
 
+  const pi = (b.personalInfo ?? {}) as Record<string, any>;
+  for (const k of ["curp", "address", "altPhone", "occupation"]) {
+    if (pi[k] !== undefined) parsed.personalInfo[k] = str(pi[k]) ?? "";
+  }
+  if (pi.monthlyIncome !== undefined) {
+    const n = numOrUndef(pi.monthlyIncome);
+    parsed.personalInfo.monthlyIncome = n !== undefined ? n : "";
+  }
+
+  const cr = (b.creditRequest ?? {}) as Record<string, any>;
+  for (const k of ["purpose", "payDay", "paymentFrequency"]) {
+    if (cr[k] !== undefined) parsed.creditRequest[k] = str(cr[k]) ?? "";
+  }
+  for (const k of ["requestedAmount", "termWeeks", "interestRate", "commission", "disbursement", "weeklyPayment", "totalToRepay"]) {
+    if (cr[k] !== undefined && cr[k] !== "") {
+      const n = numOrUndef(cr[k]);
+      if (n === undefined || n < 0) { res.status(400).json({ error: `Valor invalido en ${k}` }); return; }
+      parsed.creditRequest[k] = n;
+    }
+  }
+  if (cr.bankInfo && typeof cr.bankInfo === "object") {
+    parsed.creditRequest.bankInfo = parsed.creditRequest.bankInfo ?? {};
+    for (const k of ["bankName", "clabe", "accountHolder"]) {
+      if (cr.bankInfo[k] !== undefined) parsed.creditRequest.bankInfo[k] = str(cr.bankInfo[k]) ?? "";
+    }
+  }
+
+  if (Array.isArray(b.references)) {
+    parsed.references = (b.references as any[])
+      .map(r => ({ name: str(r?.name) ?? "", phone: str(r?.phone) ?? "", relation: str(r?.relation) ?? "" }))
+      .filter(r => r.name || r.phone);
+  }
+
+  if (b.guarantor && typeof b.guarantor === "object") {
+    parsed.guarantor = parsed.guarantor ?? {};
+    for (const k of ["name", "phone", "relation", "address"]) {
+      if (b.guarantor[k] !== undefined) parsed.guarantor[k] = str(b.guarantor[k]) ?? "";
+    }
+  }
+
+  const newMessage = JSON.stringify(parsed);
   await pool.query(`UPDATE public_requests SET name=$1, phone=$2, email=$3, message=$4 WHERE id=$5`,
     [name, phone, email, newMessage, id]);
 
@@ -316,9 +347,9 @@ router.post("/public/requests/:id/details", requireAuth, requireRole("admin"), a
       action: "public_request.details_updated",
       resourceType: "public_request",
       resourceId: String(id),
-      metadata: { fields: Object.keys(b) },
+      metadata: { keys: Object.keys(b) },
     });
-  } catch (e) { console.error("[audit:pr.details]", (e as Error)?.message || e); }
+  } catch (err) { console.error("[audit:pr.details]", (err as Error)?.message || err); }
 
   res.json({ ok: true });
 });

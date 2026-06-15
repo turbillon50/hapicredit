@@ -435,7 +435,16 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const [note, setNote] = useState("");
   const [notify, setNotify] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [form, setForm] = useState({ name: "", phone: "", email: "", requestedAmount: "", termWeeks: "", purpose: "", curp: "", address: "", altPhone: "" });
+  const [form, setForm] = useState({
+    name: "", phone: "", email: "",
+    curp: "", address: "", altPhone: "", occupation: "", monthlyIncome: "",
+    requestedAmount: "", termWeeks: "", purpose: "", payDay: "", paymentFrequency: "",
+    interestRate: "", commission: "", disbursement: "", weeklyPayment: "", totalToRepay: "",
+    bankName: "", clabe: "", accountHolder: "",
+    references: [] as Array<{ name: string; phone: string; relation: string }>,
+    guarantorName: "", guarantorPhone: "", guarantorRelation: "", guarantorAddress: "",
+  });
+
   const { data: detail } = useQuery({
     queryKey: ["public-request", app.id],
     queryFn: async () => {
@@ -446,6 +455,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   });
   const comments = detail?.comments ?? [];
   const reqStatus = detail?.request?.status ?? "pending";
+
   const decisionM = useMutation({
     mutationFn: async (v: { decision: string; comment?: string }) => {
       const r = await fetch(`${API}/public/requests/${app.id}/decision`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(v) });
@@ -480,77 +490,130 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
     },
     onSuccess: () => { setEditing(false); qc.invalidateQueries({ queryKey: ["public-request", app.id] }); qc.invalidateQueries({ queryKey: ["public-requests"] }); },
   });
+
   const reqData = detail?.request;
   const dName = reqData?.name ?? app.name;
   const dPhone = reqData?.phone ?? app.phone;
   const dEmail = reqData?.email ?? app.email;
   const parsed = parseApp({ ...app, message: reqData?.message ?? app.message } as PublicApp);
-  const info   = parsed?.personalInfo ?? {};
-  const gtor   = parsed?.guarantor    ?? {};
-  const credit = parsed?.creditRequest ?? {};
-  const docsMeta = parsed?.documents   ?? {};
+  const info: any   = parsed?.personalInfo ?? {};
+  const gtor: any   = parsed?.guarantor    ?? {};
+  const credit: any = parsed?.creditRequest ?? {};
+  const bank: any   = credit?.bankInfo ?? {};
+  const refs: Array<any> = Array.isArray(parsed?.references) ? parsed.references : [];
+  const docsMeta: any = parsed?.documents ?? {};
   const refNum = `HC-${String(app.id).padStart(5, "0")}`;
+
+  // ── payment capacity ──
+  const income = Number(info.monthlyIncome) || 0;
+  const weekly = Number(credit.weeklyPayment ?? credit.perInstallment ?? 0) || 0;
+  const monthlyBurden = weekly * 4.33;
+  const pct = income > 0 && weekly > 0 ? Math.round((monthlyBurden / income) * 100) : null;
+  const capColor = pct == null ? "#9ca3af" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#dc2626";
+  const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "#f0fdf4" : pct <= 50 ? "#fffbeb" : "#fef2f2";
+  const capLabel = pct == null ? "Sin datos" : pct < 30 ? "Saludable" : pct <= 50 ? "Ajustado" : "Riesgo alto";
+
+  // ── inconsistency alerts ──
+  const docsOk = ["ine_front", "ine_back", "curp_doc", "domicilio", "ingresos"].filter(k => docsMeta[k]?.provided).length;
+  const alerts: string[] = [];
+  if (docsOk === 0) alerts.push("Sin documentos cargados");
+  if (!dEmail) alerts.push("Sin correo (no se le puede avisar por mail)");
+  if (!info.monthlyIncome) alerts.push("Falta ingreso mensual para evaluar capacidad");
+  if (bank.clabe && String(bank.clabe).replace(/\D/g, "").length !== 18) alerts.push("CLABE no tiene 18 digitos");
+  if (pct != null && pct > 50) alerts.push(`El pago compromete ${pct}% del ingreso (alto)`);
+  if (!refs.length) alerts.push("Sin referencias");
+
   const startEdit = () => {
     setForm({
       name: dName ?? "", phone: dPhone ?? "", email: dEmail ?? "",
+      curp: info.curp ?? "", address: info.address ?? "", altPhone: info.altPhone ?? "",
+      occupation: info.occupation ?? "", monthlyIncome: String(info.monthlyIncome ?? ""),
       requestedAmount: String(credit.requestedAmount ?? ""), termWeeks: String(credit.termWeeks ?? ""),
-      purpose: credit.purpose ?? "", curp: info.curp ?? "", address: info.address ?? "", altPhone: info.altPhone ?? "",
+      purpose: credit.purpose ?? "", payDay: credit.payDay ?? "", paymentFrequency: credit.paymentFrequency ?? "",
+      interestRate: String(credit.interestRate ?? ""), commission: String(credit.commission ?? ""),
+      disbursement: String(credit.disbursement ?? ""), weeklyPayment: String(credit.weeklyPayment ?? credit.perInstallment ?? ""),
+      totalToRepay: String(credit.totalToRepay ?? credit.totalPayment ?? ""),
+      bankName: bank.bankName ?? "", clabe: bank.clabe ?? "", accountHolder: bank.accountHolder ?? "",
+      references: refs.length ? refs.map(r => ({ name: r.name ?? "", phone: r.phone ?? "", relation: r.relation ?? "" })) : [{ name: "", phone: "", relation: "" }],
+      guarantorName: gtor.name ?? "", guarantorPhone: gtor.phone ?? "", guarantorRelation: gtor.relation ?? "", guarantorAddress: gtor.address ?? "",
     });
     setEditing(true);
   };
 
+  const setF = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
+  const inp = (label: string, key: string, num = false) => (
+    <div className="flex items-center gap-2 text-sm">
+      <span className="text-gray-500 shrink-0 w-24">{label}:</span>
+      <input value={String((form as any)[key] ?? "")} onChange={e => setF(key, e.target.value)} inputMode={num ? "decimal" : undefined} className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-gray-800 font-medium" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+    </div>
+  );
+  const kv = (label: string, val: any, mono = false) => (
+    <div className="flex justify-between gap-3 text-sm py-0.5">
+      <span className="text-gray-500 shrink-0">{label}</span>
+      <span className={"font-medium text-gray-800 text-right " + (mono ? "font-mono text-xs" : "")}>{(val === 0 || val) ? String(val) : "\u2014"}</span>
+    </div>
+  );
+  const cardHdr = (t: string) => <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{t}</div>;
+
+  const saveAll = () => detailsM.mutate({
+    name: form.name, phone: form.phone, email: form.email,
+    personalInfo: { curp: form.curp, address: form.address, altPhone: form.altPhone, occupation: form.occupation, monthlyIncome: form.monthlyIncome },
+    creditRequest: {
+      requestedAmount: form.requestedAmount, termWeeks: form.termWeeks, purpose: form.purpose,
+      payDay: form.payDay, paymentFrequency: form.paymentFrequency, interestRate: form.interestRate,
+      commission: form.commission, disbursement: form.disbursement, weeklyPayment: form.weeklyPayment, totalToRepay: form.totalToRepay,
+      bankInfo: { bankName: form.bankName, clabe: form.clabe, accountHolder: form.accountHolder },
+    },
+    references: form.references.filter(r => r.name || r.phone),
+    guarantor: { name: form.guarantorName, phone: form.guarantorPhone, relation: form.guarantorRelation, address: form.guarantorAddress },
+  });
+
   return (
     <div className="flex flex-col gap-4 pb-2">
+      {/* Header */}
       <div className="flex items-center gap-3">
         <Avatar name={dName} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="text-base font-bold text-gray-900">{dName}</div>
           <div className="text-sm text-gray-500">{dPhone}</div>
-          <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> · {fmtDateTime(app.createdAt)}</div>
+          <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> {"\u00b7"} {fmtDateTime(app.createdAt)}</div>
         </div>
-        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid #dbeafe", background: editing ? "#eff6ff" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "✏️ Editar datos"}</button>
+        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid #dbeafe", background: editing ? "#eff6ff" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
       </div>
 
-      {/* Revision: aprobar / rechazar / comentar */}
+      {/* Review: aprobar / rechazar / comentar */}
       {(() => { const m = reqStatusMeta(reqStatus); return (
       <div className="rounded-2xl p-3.5 flex flex-col gap-3" style={{ background: "#fff", border: "1.5px solid #e5e7eb" }}>
         <div className="flex items-center justify-between">
           <div className="text-xs font-bold text-gray-500 uppercase tracking-wide">Revision</div>
           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
         </div>
-
         <div className="grid grid-cols-2 gap-2">
-          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "#d1fae5"}`, background: confirm === "approved" ? "#10b981" : "#f0fdf4", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>✓ Aprobar</button>
-          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "#fecaca"}`, background: confirm === "rejected" ? "#ef4444" : "#fef2f2", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>✕ Rechazar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "#d1fae5"}`, background: confirm === "approved" ? "#10b981" : "#f0fdf4", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "#fecaca"}`, background: confirm === "rejected" ? "#ef4444" : "#fef2f2", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
         </div>
-
         {confirm && (
           <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "#f0fdf4" : "#fef2f2", border: `1.5px solid ${confirm === "approved" ? "#bbf7d0" : "#fecaca"}` }}>
             <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#dc2626" }}>
-              {confirm === "approved" ? "¿Aprobar esta solicitud?" : "¿Rechazar esta solicitud?"}
+              {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
-            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={app.email ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
             <div className="flex gap-2">
               <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
               <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#ef4444", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
             </div>
           </div>
         )}
-
         <div className="flex flex-col gap-2" style={{ borderTop: "1px solid #f1f5f9", paddingTop: 10 }}>
           <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
           <label className="flex items-center gap-2 text-xs text-gray-600 select-none">
             <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)} /> Avisar al solicitante por correo
           </label>
-          {notify && !app.email && (
-            <div className="text-[11px]" style={{ color: "#d97706" }}>Sin correo registrado — el aviso no se enviara. Contactalo al {app.phone}.</div>
+          {notify && !dEmail && (
+            <div className="text-[11px]" style={{ color: "#d97706" }}>Sin correo registrado {"\u2014"} el aviso no se enviara. Contactalo al {dPhone}.</div>
           )}
           <button disabled={!note.trim() || commentM.isPending} onClick={() => commentM.mutate({ comment: note.trim(), notify })} style={{ padding: "10px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (!note.trim() || commentM.isPending) ? 0.5 : 1 }}>{commentM.isPending ? "Enviando..." : "Agregar comentario"}</button>
-          {commentM.isSuccess && commentM.data?.hasEmail === false && (
-            <div className="text-[11px] text-center" style={{ color: "#6b7280" }}>Comentario guardado (sin correo para avisar).</div>
-          )}
         </div>
-
         {comments.length > 0 && (
           <div className="flex flex-col gap-2 pt-1">
             <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Historial</div>
@@ -561,7 +624,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
                   <span className="text-[10px] text-gray-400">{fmtDateTime(c.created_at)}</span>
                 </div>
                 <div className="text-sm text-gray-700" style={{ whiteSpace: "pre-wrap" }}>{c.comment}</div>
-                {c.notified && <div className="text-[10px] mt-1" style={{ color: "#059669" }}>✓ Avisado por correo</div>}
+                {c.notified && <div className="text-[10px] mt-1" style={{ color: "#059669" }}>{"\u2713"} Avisado por correo</div>}
               </div>
             ))}
           </div>
@@ -569,29 +632,45 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       </div>
       ); })()}
 
-      {parsed?.creditId ? (
-        <div className="rounded-2xl p-3 text-center text-sm font-semibold" style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid #bbf7d0" }}>
-          ✓ Convertida — crédito #{parsed.creditId} en revisión
+      {/* Alertas */}
+      {alerts.length > 0 && (
+        <div className="rounded-2xl p-3" style={{ background: "#fff7ed", border: "1.5px solid #fed7aa" }}>
+          <div className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#c2410c" }}>{"\u26a0\ufe0f"} Revisar antes de aprobar</div>
+          <ul className="flex flex-col gap-1">
+            {alerts.map((a, i) => <li key={i} className="text-sm" style={{ color: "#9a3412" }}>{"\u2022"} {a}</li>)}
+          </ul>
         </div>
-      ) : (
-        <button
-          className="pressable"
-          disabled={convertM.isPending}
-          onClick={() => convertM.mutate()}
-          style={{ width: "100%", padding: "13px 16px", borderRadius: 16, border: "none", cursor: "pointer", fontSize: 14, fontWeight: 700, color: "#fff", background: "#215DFF", opacity: convertM.isPending ? 0.6 : 1 }}
-        >
-          {convertM.isPending ? "Convirtiendo..." : "Convertir en cliente + crédito pendiente"}
-        </button>
-      )}
-      {convertM.isError && (
-        <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(convertM.error as Error).message}</div>
       )}
 
+      {/* Capacidad de pago */}
+      <div className="rounded-2xl p-3" style={{ background: capBg, border: `1.5px solid ${capColor}33` }}>
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold uppercase tracking-wide" style={{ color: capColor }}>Capacidad de pago</div>
+          <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: "#fff", color: capColor, border: `1px solid ${capColor}55` }}>{capLabel}</span>
+        </div>
+        <div className="flex items-end justify-between mt-1.5">
+          <div>
+            <div className="text-2xl font-extrabold" style={{ color: capColor }}>{pct == null ? "\u2014" : pct + "%"}</div>
+            <div className="text-[11px] text-gray-500">del ingreso mensual</div>
+          </div>
+          <div className="text-right text-xs text-gray-600">
+            <div>Ingreso: <strong>{income ? fmt(income) : "\u2014"}</strong></div>
+            <div>Pago/sem: <strong>{weekly ? fmt(weekly) : "\u2014"}</strong></div>
+          </div>
+        </div>
+        {pct != null && (
+          <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ background: "#e5e7eb" }}>
+            <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", background: capColor }} />
+          </div>
+        )}
+      </div>
+
+      {/* Monto / Plazo */}
       <div className="grid grid-cols-2 gap-3">
         <div className="bg-blue-50 rounded-2xl p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Monto solicitado</div>
           {editing ? (
-            <input type="number" inputMode="decimal" value={form.requestedAmount} onChange={e => setForm(f => ({ ...f, requestedAmount: e.target.value }))} className="w-full text-center text-xl font-extrabold text-blue-700 bg-white rounded-xl py-1" style={{ border: "1.5px solid #bfdbfe", outline: "none" }} />
+            <input type="number" inputMode="decimal" value={form.requestedAmount} onChange={e => setF("requestedAmount", e.target.value)} className="w-full text-center text-xl font-extrabold text-blue-700 bg-white rounded-xl py-1" style={{ border: "1.5px solid #bfdbfe", outline: "none" }} />
           ) : (
             <div className="text-xl font-extrabold text-blue-700">{fmt(credit.requestedAmount)}</div>
           )}
@@ -599,91 +678,166 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="bg-gray-50 rounded-2xl p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Plazo (sem)</div>
           {editing ? (
-            <input type="number" inputMode="numeric" value={form.termWeeks} onChange={e => setForm(f => ({ ...f, termWeeks: e.target.value }))} className="w-full text-center text-base font-bold text-gray-800 bg-white rounded-xl py-1" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+            <input type="number" inputMode="numeric" value={form.termWeeks} onChange={e => setF("termWeeks", e.target.value)} className="w-full text-center text-base font-bold text-gray-800 bg-white rounded-xl py-1" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
           ) : (
-            <div className="text-base font-bold text-gray-800">{credit.termWeeks ?? "—"} sem</div>
+            <div className="text-base font-bold text-gray-800">{credit.termWeeks ?? "\u2014"} sem</div>
           )}
         </div>
       </div>
 
+      {/* Datos personales */}
       <div className="flex flex-col gap-1.5 bg-gray-50 rounded-2xl p-3">
-        <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Datos personales</div>
+        {cardHdr("Datos personales")}
         {editing ? (
           <div className="flex flex-col gap-2">
-            {([
-              ["name", "👤", "Nombre"],
-              ["phone", "📱", "Teléfono"],
-              ["email", "✉️", "Correo"],
-              ["curp", "📋", "CURP"],
-              ["address", "📍", "Domicilio"],
-              ["altPhone", "📞", "Tel. alt."],
-              ["purpose", "🎯", "Destino"],
-            ] as const).map(([key, icon, label]) => (
-              <div key={key} className="flex items-center gap-2 text-sm">
-                <span>{icon}</span>
-                <span className="text-gray-500 shrink-0 w-20">{label}:</span>
-                <input value={form[key]} onChange={ev => setForm(f => ({ ...f, [key]: ev.target.value }))} className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-gray-800 font-medium" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
-              </div>
-            ))}
+            {inp("Nombre", "name")}
+            {inp("Telefono", "phone")}
+            {inp("Correo", "email")}
+            {inp("CURP", "curp")}
+            {inp("Domicilio", "address")}
+            {inp("Tel. alt.", "altPhone")}
+            {inp("Ocupacion", "occupation")}
+            {inp("Ingreso mensual", "monthlyIncome", true)}
+            {inp("Destino", "purpose")}
           </div>
         ) : (
-          [
-            { icon: "📋", label: "CURP",      val: info.curp || "No proporcionado" },
-            { icon: "📍", label: "Domicilio", val: info.address || "—" },
-            { icon: "📞", label: "Tel. alt.", val: info.altPhone || "—" },
-            { icon: "🎯", label: "Destino",   val: credit.purpose || "—" },
-          ].map(r => (
-            <div key={r.label} className="flex items-start gap-2 text-sm py-0.5">
-              <span>{r.icon}</span>
-              <span className="text-gray-500 shrink-0 w-20">{r.label}:</span>
-              <span className="font-medium text-gray-800">{r.val}</span>
-            </div>
-          ))
+          <>
+            {kv("CURP", info.curp || "No proporcionado")}
+            {kv("Domicilio", info.address)}
+            {kv("Tel. alt.", info.altPhone)}
+            {kv("Ocupacion", info.occupation)}
+            {kv("Ingreso mensual", info.monthlyIncome ? fmt(Number(info.monthlyIncome)) : null)}
+            {kv("Destino", credit.purpose)}
+          </>
         )}
       </div>
 
+      {/* Condiciones financieras */}
+      <div className="flex flex-col gap-1.5 bg-gray-50 rounded-2xl p-3">
+        {cardHdr("Condiciones financieras")}
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            {inp("Tasa", "interestRate", true)}
+            {inp("Comision", "commission", true)}
+            {inp("A entregar", "disbursement", true)}
+            {inp("Pago/sem", "weeklyPayment", true)}
+            {inp("Total a pagar", "totalToRepay", true)}
+            {inp("Dia de pago", "payDay")}
+            {inp("Frecuencia", "paymentFrequency")}
+          </div>
+        ) : (
+          <>
+            {kv("Tasa", credit.interestRate != null ? `${(Number(credit.interestRate) * 100).toFixed(1)}%` : null)}
+            {kv("Comision", credit.commission != null ? fmt(Number(credit.commission)) : null)}
+            {kv("A entregar", credit.disbursement != null ? fmt(Number(credit.disbursement)) : null)}
+            {kv("Pago/sem", weekly ? fmt(weekly) : null)}
+            {kv("Total a pagar", (credit.totalToRepay ?? credit.totalPayment) != null ? fmt(Number(credit.totalToRepay ?? credit.totalPayment)) : null)}
+            {kv("Dia de pago", credit.payDay)}
+            {kv("Frecuencia", credit.paymentFrequency)}
+          </>
+        )}
+      </div>
+
+      {/* Banco */}
+      <div className="flex flex-col gap-1.5 bg-blue-50 rounded-2xl p-3">
+        {cardHdr("Datos bancarios")}
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            {inp("Banco", "bankName")}
+            {inp("CLABE", "clabe")}
+            {inp("Titular", "accountHolder")}
+          </div>
+        ) : (
+          <>
+            {kv("Banco", bank.bankName)}
+            {kv("CLABE", bank.clabe, true)}
+            {kv("Titular", bank.accountHolder)}
+          </>
+        )}
+      </div>
+
+      {/* Referencias */}
+      <div className="flex flex-col gap-2 bg-gray-50 rounded-2xl p-3">
+        {cardHdr("Referencias")}
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            {form.references.map((r, idx) => (
+              <div key={idx} className="rounded-xl p-2 flex flex-col gap-1.5" style={{ background: "#fff", border: "1px solid #e5e7eb" }}>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-400">Referencia {idx + 1}</span>
+                  <button onClick={() => setForm(f => ({ ...f, references: f.references.filter((_, i) => i !== idx) }))} className="text-[11px] font-semibold" style={{ color: "#dc2626" }}>Quitar</button>
+                </div>
+                <input value={r.name} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, name: e.target.value } : x) }))} placeholder="Nombre" className="bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+                <div className="flex gap-1.5">
+                  <input value={r.phone} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, phone: e.target.value } : x) }))} placeholder="Telefono" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+                  <input value={r.relation} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, relation: e.target.value } : x) }))} placeholder="Relacion" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+                </div>
+              </div>
+            ))}
+            <button onClick={() => setForm(f => ({ ...f, references: [...f.references, { name: "", phone: "", relation: "" }] }))} className="text-sm font-semibold py-1.5 rounded-lg" style={{ color: "#215DFF", background: "#eff6ff", border: "1px dashed #bfdbfe" }}>+ Agregar referencia</button>
+          </div>
+        ) : (
+          refs.length ? refs.map((r, i) => (
+            <div key={i} className="flex items-start gap-2 text-sm">
+              <span>{"\ud83d\udc65"}</span>
+              <div>
+                <div className="font-medium text-gray-800">{r.name || "\u2014"} {r.relation ? <span className="text-gray-400 text-xs">{"\u00b7"} {r.relation}</span> : null}</div>
+                {r.phone && <div className="text-xs text-gray-500">{r.phone}</div>}
+              </div>
+            </div>
+          )) : <div className="text-sm text-gray-400">Sin referencias</div>
+        )}
+      </div>
+
+      {/* Aval */}
+      <div className="flex flex-col gap-1.5 bg-gray-50 rounded-2xl p-3">
+        {cardHdr("Aval / garante")}
+        {editing ? (
+          <div className="flex flex-col gap-2">
+            {inp("Nombre", "guarantorName")}
+            {inp("Telefono", "guarantorPhone")}
+            {inp("Relacion", "guarantorRelation")}
+            {inp("Domicilio", "guarantorAddress")}
+          </div>
+        ) : (
+          (gtor.name || gtor.phone) ? (
+            <>
+              {kv("Nombre", gtor.name)}
+              {kv("Telefono", gtor.phone)}
+              {kv("Relacion", gtor.relation)}
+              {kv("Domicilio", gtor.address)}
+            </>
+          ) : <div className="text-sm text-gray-400">Sin aval registrado</div>
+        )}
+      </div>
+
+      {/* Save bar */}
       {editing && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 sticky bottom-0 pb-1" style={{ background: "linear-gradient(to top, #fff 70%, transparent)" }}>
           {detailsM.isError && <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(detailsM.error as Error).message}</div>}
           <div className="flex gap-2">
-            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "11px", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
-            <button disabled={detailsM.isPending} onClick={() => detailsM.mutate({ name: form.name, phone: form.phone, email: form.email, requestedAmount: form.requestedAmount, termWeeks: form.termWeeks, purpose: form.purpose, curp: form.curp, address: form.address, altPhone: form.altPhone })} className="flex-1" style={{ padding: "11px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar cambios"}</button>
+            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+            <button disabled={detailsM.isPending} onClick={saveAll} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar todo"}</button>
           </div>
         </div>
       )}
 
-      {credit.bankInfo && (
-        <div className="bg-blue-50 rounded-2xl p-3">
-          <div className="text-xs font-bold text-blue-700 uppercase tracking-wide mb-2">Datos bancarios</div>
-          <div className="flex flex-col gap-1.5">
-            {[["Banco", credit.bankInfo.bankName], ["CLABE", credit.bankInfo.clabe], ["Titular", credit.bankInfo.accountHolder]]
-              .filter(([, v]) => v)
-              .map(([k, v]) => (
-                <div key={k} className="flex justify-between text-sm">
-                  <span className="text-gray-500">{k}</span>
-                  <span className="font-mono font-semibold text-gray-800 text-xs">{v}</span>
-                </div>
-              ))}
-          </div>
-        </div>
-      )}
-
+      {/* Documentos */}
       <div className="bg-gray-50 rounded-2xl p-3">
-        <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Documentos</div>
+        {cardHdr("Documentos")}
         <div className="flex flex-col gap-2">
           {[
-            { key: "ine_front",  label: "INE frente" },
-            { key: "ine_back",   label: "INE reverso" },
-            { key: "curp_doc",   label: "CURP" },
-            { key: "domicilio",  label: "Comprobante domicilio" },
-            { key: "ingresos",   label: "Comprobante ingresos" },
+            { key: "ine_front", label: "INE frente" },
+            { key: "ine_back", label: "INE reverso" },
+            { key: "curp_doc", label: "CURP" },
+            { key: "domicilio", label: "Comprobante domicilio" },
+            { key: "ingresos", label: "Comprobante ingresos" },
           ].map(d => (
             <div key={d.key} className="flex items-center justify-between text-sm">
               <span className="text-gray-600">{d.label}</span>
               {docsMeta[d.key]?.provided
-                ? <span className="text-green-600 font-semibold">✓ Cargado</span>
-                : <span className="text-gray-400 text-xs">No enviado</span>
-              }
+                ? <span className="text-green-600 font-semibold">{"\u2713"} Cargado</span>
+                : <span className="text-gray-400 text-xs">No enviado</span>}
             </div>
           ))}
         </div>
@@ -691,7 +845,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
 
       {docsMeta && Object.entries(docsMeta).some(([, v]: any) => v?.preview) && (
         <div>
-          <div className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2">Imágenes</div>
+          {cardHdr("Imagenes")}
           <div className="grid grid-cols-2 gap-2">
             {Object.entries(docsMeta).map(([key, val]: any) =>
               val?.preview ? (
@@ -715,10 +869,10 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <IconGrupo size={16} /> Dar de alta al cliente
         </a>
         <a
-          href={`tel:${app.phone}`}
+          href={`tel:${dPhone}`}
           className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-700 pressable"
         >
-          <IconTelefono size={14} /> Llamar a {info.fullName?.split(" ")[0] ?? app.name}
+          <IconTelefono size={14} /> Llamar a {info.fullName?.split(" ")[0] ?? dName}
         </a>
       </div>
     </div>
