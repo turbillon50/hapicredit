@@ -16,6 +16,7 @@ import Login            from "@/pages/login";
 import AdminCodigos     from "@/pages/admin/codigos";
 import Privacidad       from "@/pages/privacidad";
 import Terminos         from "@/pages/terminos";
+import Seguimiento      from "@/pages/seguimiento";
 
 import AdminDashboard    from "@/pages/admin/dashboard";
 import AdminCartera      from "@/pages/admin/cartera";
@@ -253,6 +254,7 @@ function Router() {
       <Route path="/terminos"   component={Terminos} />
       <Route path="/faq"          component={Faq} />
       <Route path="/calculadora"  component={Calculadora} />
+      <Route path="/seguimiento"  component={Seguimiento} />
 
       {/* Clerk auth routes */}
       <Route path="/sign-in" component={SignInPage} />

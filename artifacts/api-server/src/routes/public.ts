@@ -401,4 +401,34 @@ router.post("/public/requests/:id/request-docs", requireAuth, requireRole("admin
   res.json({ ok: true, notified, hasEmail: !!ap.email });
 });
 
+// PUBLIC status lookup for an applicant by folio (HC-XXXXX) + phone.
+// No auth; phone must match (last 10 digits) as a light verification.
+router.get("/public/status", async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const refRaw = String(req.query.ref ?? "").trim().toUpperCase();
+  const phone = String(req.query.phone ?? "").replace(/\D/g, "");
+  const m = refRaw.match(/(\d+)/);
+  const id = m ? parseInt(m[1], 10) : NaN;
+  if (isNaN(id) || phone.length < 10) { res.status(400).json({ error: "Datos incompletos." }); return; }
+  const rec = await pool.query<{ name: string; phone: string; status: string; message: string; created_at: Date }>(
+    `SELECT name, phone, status, message, created_at FROM public_requests WHERE id=$1`, [id]);
+  const row = rec.rows[0];
+  const norm = (x: string) => String(x ?? "").replace(/\D/g, "").slice(-10);
+  if (!row || norm(row.phone) !== phone.slice(-10)) {
+    res.status(404).json({ error: "No encontramos una solicitud con esos datos." }); return;
+  }
+  let parsed: any = {};
+  try { parsed = row.message ? JSON.parse(row.message) : {}; } catch { parsed = {}; }
+  const cm = await pool.query<{ comment: string; created_at: Date }>(
+    `SELECT comment, created_at FROM public_request_comments WHERE request_id=$1 AND notified=true ORDER BY created_at ASC`, [id]);
+  res.json({
+    ref: `HC-${String(id).padStart(5, "0")}`,
+    name: row.name,
+    status: row.status ?? "pending",
+    requestedAmount: parsed?.creditRequest?.requestedAmount ?? null,
+    createdAt: row.created_at,
+    updates: cm.rows.map(c => ({ comment: c.comment, date: c.created_at })),
+  });
+});
+
 export default router;
