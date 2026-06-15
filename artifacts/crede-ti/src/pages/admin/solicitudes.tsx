@@ -456,6 +456,10 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   });
   const comments = detail?.comments ?? [];
   const reqStatus = detail?.request?.status ?? "pending";
+  const assignedName = (detail?.request as any)?.assignedName ?? null;
+  const assignedTo = (detail?.request as any)?.assigned_to ?? null;
+  const { data: staff = [] } = useQuery<any[]>({ queryKey: ["staff"], queryFn: () => fetch(`${API}/users`, { headers: auth() }).then(r => r.ok ? r.json() : []), staleTime: 60000 });
+  const assignableStaff = (staff as any[]).filter(u => (u.role === "admin" || u.role === "executive") && u.isActive);
 
   const decisionM = useMutation({
     mutationFn: async (v: { decision: string; comment?: string }) => {
@@ -490,6 +494,13 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error al guardar"); return d;
     },
     onSuccess: () => { setEditing(false); qc.invalidateQueries({ queryKey: ["public-request", app.id] }); qc.invalidateQueries({ queryKey: ["public-requests"] }); },
+  });
+  const assignM = useMutation({
+    mutationFn: async (v: { userId?: number | null; mine?: boolean }) => {
+      const r = await fetch(`${API}/public/requests/${app.id}/assign`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(v) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error"); return d;
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["public-request", app.id] }); qc.invalidateQueries({ queryKey: ["public-requests"] }); },
   });
 
   const reqData = detail?.request;
@@ -603,6 +614,19 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> {"\u00b7"} {fmtDateTime(app.createdAt)}</div>
         </div>
         <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid #dbeafe", background: editing ? "#eff6ff" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
+      </div>
+
+      {/* Asignacion */}
+      <div className="rounded-2xl p-3 flex items-center gap-2 flex-wrap" style={{ background: "#fff", border: "1.5px solid #e5e7eb" }}>
+        <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Asignada a</span>
+        <span className="text-sm font-semibold" style={{ color: assignedName ? "#0f172a" : "#9ca3af" }}>{assignedName ?? "Sin asignar"}</span>
+        <div className="flex items-center gap-2 ml-auto">
+          <select value={assignedTo ?? ""} onChange={e => assignM.mutate({ userId: e.target.value === "" ? null : Number(e.target.value) })} disabled={assignM.isPending} className="text-xs rounded-lg px-2 py-1" style={{ border: "1.5px solid #e5e7eb", background: "#fff", outline: "none", maxWidth: 150 }}>
+            <option value="">Sin asignar</option>
+            {assignableStaff.map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
+          </select>
+          <button onClick={() => assignM.mutate({ mine: true })} disabled={assignM.isPending} className="text-[11px] font-bold px-2 py-1 rounded-full shrink-0" style={{ color: "#215DFF", background: "#eff6ff", border: "1px solid #bfdbfe", cursor: "pointer" }}>A mí</button>
+        </div>
       </div>
 
       {/* Review: aprobar / rechazar / comentar */}

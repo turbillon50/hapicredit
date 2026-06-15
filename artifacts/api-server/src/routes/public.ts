@@ -186,6 +186,7 @@ async function ensureReviewSchema(): Promise<void> {
   await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS status text NOT NULL DEFAULT 'pending'`);
   await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS decided_by integer`);
   await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS decided_at timestamptz`);
+  await pool.query(`ALTER TABLE public_requests ADD COLUMN IF NOT EXISTS assigned_to integer`);
   await pool.query(`CREATE TABLE IF NOT EXISTS public_request_comments (
     id serial PRIMARY KEY,
     request_id integer NOT NULL REFERENCES public_requests(id),
@@ -209,10 +210,11 @@ router.get("/public/requests/:id", requireAuth, requireRole("admin"), async (req
   await ensureReviewSchema();
   const id = parseInt(String(req.params.id), 10);
   if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
-  const r = await pool.query(`SELECT id, name, phone, email, message, status, decided_at, created_at FROM public_requests WHERE id=$1`, [id]);
+  const r = await pool.query(`SELECT id, name, phone, email, message, status, assigned_to, decided_at, created_at FROM public_requests WHERE id=$1`, [id]);
   if (!r.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
   const c = await pool.query(`SELECT id, author_name, comment, notified, created_at FROM public_request_comments WHERE request_id=$1 ORDER BY created_at ASC`, [id]);
-  res.json({ request: r.rows[0], comments: c.rows });
+  const assignedName = (r.rows[0] as any).assigned_to ? await authorName((r.rows[0] as any).assigned_to) : null;
+  res.json({ request: { ...r.rows[0], assignedName }, comments: c.rows });
 });
 
 // Add an advisor comment, optionally emailed to the applicant
@@ -429,6 +431,34 @@ router.get("/public/status", async (req, res): Promise<void> => {
     createdAt: row.created_at,
     updates: cm.rows.map(c => ({ comment: c.comment, date: c.created_at })),
   });
+});
+
+// Assign / unassign a public request to a staff member (admin or executive).
+router.post("/public/requests/:id/assign", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const body = (req.body ?? {}) as any;
+  let target: number | null;
+  if (body.mine) target = req.userId ?? null;
+  else if (body.userId === null || body.userId === undefined || body.userId === "") target = null;
+  else { target = Number(body.userId); if (isNaN(target)) { res.status(400).json({ error: "userId invalido" }); return; } }
+  const exists = await pool.query(`SELECT 1 FROM public_requests WHERE id=$1`, [id]);
+  if (!exists.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  if (target !== null) {
+    const u = await pool.query(`SELECT 1 FROM users WHERE id=$1`, [target]);
+    if (!u.rows[0]) { res.status(400).json({ error: "Usuario no encontrado" }); return; }
+  }
+  await pool.query(`UPDATE public_requests SET assigned_to=$1 WHERE id=$2`, [target, id]);
+  const assignedName = target ? await authorName(target) : null;
+  await pool.query(
+    `INSERT INTO public_request_comments (request_id, author_id, author_name, comment, notified) VALUES ($1,$2,$3,$4,false)`,
+    [id, req.userId, await authorName(req.userId), target ? `Asignada a ${assignedName}.` : "Solicitud sin asignar."],
+  );
+  try {
+    await db.insert(auditLogTable).values({ userId: req.userId ?? null, action: "public_request.assigned", resourceType: "public_request", resourceId: String(id), metadata: { assignedTo: target } });
+  } catch (err) { console.error("[audit:pr.assign]", (err as Error)?.message || err); }
+  res.json({ ok: true, assignedTo: target, assignedName });
 });
 
 export default router;
