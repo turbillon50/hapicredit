@@ -354,4 +354,51 @@ router.post("/public/requests/:id/details", requireAuth, requireRole("admin"), a
   res.json({ ok: true });
 });
 
+// Mark a document as validated (or not) on a public request.
+router.post("/public/requests/:id/doc-status", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const { doc, validated } = (req.body ?? {}) as { doc?: string; validated?: boolean };
+  if (!doc) { res.status(400).json({ error: "doc requerido" }); return; }
+  const rec = await pool.query<{ message: string }>(`SELECT message FROM public_requests WHERE id=$1`, [id]);
+  if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  let parsed: Record<string, any> = {};
+  try { parsed = rec.rows[0].message ? JSON.parse(rec.rows[0].message) : {}; } catch { parsed = {}; }
+  if (typeof parsed !== "object" || parsed === null) parsed = {};
+  parsed.documents = parsed.documents ?? {};
+  parsed.documents[doc] = {
+    ...(parsed.documents[doc] ?? {}),
+    validated: !!validated,
+    validatedAt: validated ? new Date().toISOString() : null,
+    validatedBy: validated ? (req.userId ?? null) : null,
+  };
+  await pool.query(`UPDATE public_requests SET message=$1 WHERE id=$2`, [JSON.stringify(parsed), id]);
+  res.json({ ok: true });
+});
+
+// Ask the applicant (by email) to send the missing documents; logs to history.
+router.post("/public/requests/:id/request-docs", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  await ensureReviewSchema();
+  const id = parseInt(String(req.params.id), 10);
+  if (isNaN(id)) { res.status(400).json({ error: "id invalido" }); return; }
+  const { missing } = (req.body ?? {}) as { missing?: string[] };
+  const rec = await pool.query<{ name: string; email: string | null }>(`SELECT name, email FROM public_requests WHERE id=$1`, [id]);
+  if (!rec.rows[0]) { res.status(404).json({ error: "Solicitud no encontrada" }); return; }
+  const ap = rec.rows[0];
+  const list = Array.isArray(missing) && missing.length ? missing.map(String) : ["INE frente", "INE reverso", "CURP", "Comprobante de domicilio", "Comprobante de ingresos"];
+  let notified = false;
+  if (ap.email) {
+    const ref = `HC-${String(id).padStart(5, "0")}`;
+    const body = `Para continuar con tu solicitud necesitamos estos documentos:<br>${list.map(x => "&bull; " + x).join("<br>")}`;
+    const out = await sendApplicantUpdateEmail({ to: ap.email, name: ap.name, ref, decision: "contacted", comment: body });
+    notified = out.sent;
+  }
+  await pool.query(
+    `INSERT INTO public_request_comments (request_id, author_id, author_name, comment, notified) VALUES ($1,$2,$3,$4,$5)`,
+    [id, req.userId, await authorName(req.userId), `Documentos solicitados: ${list.join(", ")}.`, notified],
+  );
+  res.json({ ok: true, notified, hasEmail: !!ap.email });
+});
+
 export default router;

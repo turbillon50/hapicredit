@@ -32,6 +32,7 @@ type PublicApp = {
   phone: string;
   email: string | null;
   message: string;
+  status?: string;
   createdAt: string;
 };
 
@@ -540,6 +541,29 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
     setEditing(true);
   };
 
+  const DOCS = [
+    { key: "ine_front", label: "INE frente" },
+    { key: "ine_back", label: "INE reverso" },
+    { key: "curp_doc", label: "CURP" },
+    { key: "domicilio", label: "Comprobante domicilio" },
+    { key: "ingresos", label: "Comprobante ingresos" },
+  ];
+  const missingDocs = DOCS.filter(d => !docsMeta[d.key]?.provided);
+  const docM = useMutation({
+    mutationFn: async (v: { doc: string; validated: boolean }) => {
+      const r = await fetch(`${API}/public/requests/${app.id}/doc-status`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify(v) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error"); return d;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["public-request", app.id] }),
+  });
+  const requestDocsM = useMutation({
+    mutationFn: async () => {
+      const r = await fetch(`${API}/public/requests/${app.id}/request-docs`, { method: "POST", headers: { "Content-Type": "application/json", ...auth() }, body: JSON.stringify({ missing: missingDocs.map(d => d.label) }) });
+      const d = await r.json(); if (!r.ok) throw new Error(d.error ?? "Error"); return d;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["public-request", app.id] }),
+  });
+
   const setF = (k: string, v: any) => setForm(f => ({ ...f, [k]: v }));
   const inp = (label: string, key: string, num = false) => (
     <div className="flex items-center gap-2 text-sm">
@@ -826,21 +850,26 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       <div className="bg-gray-50 rounded-2xl p-3">
         {cardHdr("Documentos")}
         <div className="flex flex-col gap-2">
-          {[
-            { key: "ine_front", label: "INE frente" },
-            { key: "ine_back", label: "INE reverso" },
-            { key: "curp_doc", label: "CURP" },
-            { key: "domicilio", label: "Comprobante domicilio" },
-            { key: "ingresos", label: "Comprobante ingresos" },
-          ].map(d => (
-            <div key={d.key} className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">{d.label}</span>
-              {docsMeta[d.key]?.provided
-                ? <span className="text-green-600 font-semibold">{"\u2713"} Cargado</span>
-                : <span className="text-gray-400 text-xs">No enviado</span>}
-            </div>
-          ))}
+          {DOCS.map(d => {
+            const meta = docsMeta[d.key] ?? {};
+            return (
+              <div key={d.key} className="flex items-center justify-between text-sm gap-2">
+                <span className="text-gray-600 flex-1 min-w-0 truncate">{d.label}</span>
+                {meta.provided ? (
+                  meta.validated
+                    ? <span className="text-green-600 font-semibold text-xs shrink-0">{"\u2713"} Validado</span>
+                    : <button onClick={() => docM.mutate({ doc: d.key, validated: true })} disabled={docM.isPending} className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: "#2563eb", background: "#eff6ff", border: "1px solid #bfdbfe", cursor: "pointer" }}>Validar</button>
+                ) : <span className="text-gray-400 text-xs shrink-0">No enviado</span>}
+              </div>
+            );
+          })}
         </div>
+        {missingDocs.length > 0 && (
+          <button onClick={() => requestDocsM.mutate()} disabled={requestDocsM.isPending || !dEmail} className="w-full mt-2.5 py-2 rounded-xl text-sm font-semibold" style={{ background: "#eff6ff", color: "#215DFF", border: "1px solid #bfdbfe", cursor: (!dEmail || requestDocsM.isPending) ? "default" : "pointer", opacity: (!dEmail || requestDocsM.isPending) ? 0.5 : 1 }}>
+            {requestDocsM.isPending ? "Enviando..." : dEmail ? `Solicitar ${missingDocs.length} documento(s) faltante(s)` : "Solicitar docs (sin correo)"}
+          </button>
+        )}
+        {requestDocsM.isSuccess && <div className="text-[11px] text-center mt-1.5" style={{ color: "#059669" }}>Solicitud de documentos enviada al cliente.</div>}
       </div>
 
       {docsMeta && Object.entries(docsMeta).some(([, v]: any) => v?.preview) && (
@@ -1077,7 +1106,7 @@ export default function AdminSolicitudes() {
                       </div>
                       <div className="flex flex-col items-end gap-1">
                         <div className="text-sm font-extrabold text-blue-700">{fmt(credit.requestedAmount)}</div>
-                        <Badge variant="warning" size="sm">Nueva</Badge>
+                        {(() => { const m = reqStatusMeta(app.status ?? "pending"); return <span className="text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>; })()}
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-2 text-center">
