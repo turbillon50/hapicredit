@@ -544,7 +544,8 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["public-requests"] });
       qc.invalidateQueries({ queryKey: ["credits"] });
-      onDone?.();
+      qc.invalidateQueries({ queryKey: ["credits-pending-dashboard"] });
+      qc.invalidateQueries(); // refrescar todo para que aparezca en pestaña Pendientes
     },
   });
   const detailsM = useMutation({
@@ -973,13 +974,29 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
 
       {/* Actions */}
       <div className="flex flex-col gap-2 pt-1">
-        <a
-          href={`${basePath}/dashboard/alta-cliente`}
-          className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white text-sm font-bold pressable"
-          style={{ background: "linear-gradient(135deg,#3A00C8,#215DFF)" }}
-        >
-          <IconGrupo size={16} /> Dar de alta al cliente
-        </a>
+        {parsed?.creditId ? (
+          <div className="rounded-2xl p-3 text-center text-sm font-semibold"
+            style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid #bbf7d0" }}>
+            ✓ Convertida — crédito #{parsed.creditId} en revisión
+          </div>
+        ) : (
+          <button
+            className="pressable"
+            disabled={convertM.isPending}
+            onClick={() => convertM.mutate()}
+            style={{ width: "100%", padding: "14px 16px", borderRadius: 16, border: "none", cursor: "pointer",
+              fontSize: 14, fontWeight: 700, color: "#fff",
+              background: convertM.isPending ? "#9ca3af" : "linear-gradient(135deg,#059669,#10b981)",
+              opacity: convertM.isPending ? 0.7 : 1 }}
+          >
+            {convertM.isPending ? "Creando expediente..." : "✓ Enviar a revisión — crear crédito pendiente"}
+          </button>
+        )}
+        {convertM.isError && (
+          <div className="text-xs text-center" style={{ color: "#dc2626" }}>
+            {(convertM.error as Error).message}
+          </div>
+        )}
         <a
           href={`tel:${dPhone}`}
           className="flex items-center justify-center gap-2 py-3 rounded-2xl border border-gray-200 text-sm font-semibold text-gray-700 pressable"

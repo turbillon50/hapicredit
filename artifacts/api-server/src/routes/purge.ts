@@ -7,13 +7,12 @@ const router = Router();
 router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
   const errors: string[] = [];
   const client = await pool.connect();
-
   try {
-    // Delete in dependency order — all tables that reference clients/users/credits
     const deleteOrder = [
       "push_subscriptions",
       "support_tickets",
       "audit_log",
+      "public_request_comments",
       "caja_movements",
       "payments",
       "commitments",
@@ -24,7 +23,6 @@ router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (
       "public_requests",
       "invite_codes",
     ];
-
     for (const table of deleteOrder) {
       try {
         await client.query(`DELETE FROM "${table}"`);
@@ -34,20 +32,9 @@ router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (
         }
       }
     }
-
-    // Sessions for non-admin users
-    try {
-      await client.query(`DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE role != 'admin')`);
-    } catch (e: any) { errors.push(`sessions: ${e?.message}`); }
-
-    // Non-admin users
-    try {
-      await client.query(`DELETE FROM users WHERE role != 'admin'`);
-    } catch (e: any) { errors.push(`users: ${e?.message}`); }
-
-  } finally {
-    client.release();
-  }
+    try { await client.query(`DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE role != 'admin')`); } catch (e: any) { errors.push(`sessions: ${e?.message}`); }
+    try { await client.query(`DELETE FROM users WHERE role != 'admin'`); } catch (e: any) { errors.push(`users: ${e?.message}`); }
+  } finally { client.release(); }
 
   res.json({
     ok: errors.length === 0,
