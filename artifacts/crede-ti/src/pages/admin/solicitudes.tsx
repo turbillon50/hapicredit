@@ -129,68 +129,83 @@ function CreditDetail({
   onDone: () => void;
 }) {
   const qc = useQueryClient();
-  const [notes, setNotes]     = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
-  const [confirm, setConfirm] = useState<"approve" | "reject" | null>(null);
+  const [notes, setNotes]             = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
+  const [confirm, setConfirm]         = useState<"approve" | "reject" | null>(null);
+  const [editMode, setEditMode]       = useState(false);
+  const [editAmount, setEditAmount]   = useState(String(credit.amount));
+  const [editTerm, setEditTerm]       = useState(String(credit.termWeeks));
+  const [editRate, setEditRate]       = useState(() => {
+    const i = credit.totalToRepay - credit.amount;
+    return String(credit.amount > 0 ? Math.round((i / credit.amount) * 1000) / 10 : 30);
+  });
+  const [editComm, setEditComm]       = useState(() => String((credit as any).openingFee ?? 0));
+  const [editDate, setEditDate]       = useState(credit.disbursementDate ?? new Date().toISOString().split("T")[0]);
+  const [savingEdit, setSavingEdit]   = useState(false);
+  const [editError, setEditError]     = useState("");
 
-  const interest = credit.totalToRepay - credit.amount;
+  const amt      = parseFloat(editAmount) || 0;
+  const weeks    = parseInt(editTerm)     || 1;
+  const rateVal  = parseFloat(editRate)   || 0;
+  const comm     = parseFloat(editComm)   || 0;
+  const calcInterest  = amt * (rateVal / 100);
+  const totalRepay    = amt + calcInterest;
+  const weekly        = weeks > 0 ? totalRepay / weeks : 0;
+  const delivers      = amt - comm;
+
+  async function saveConditions() {
+    setSavingEdit(true); setEditError("");
+    try {
+      const r = await fetch(`${API}/credits/${credit.id}/conditions`, {
+        method: "PATCH",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: amt, termWeeks: weeks,
+          weeklyPayment: parseFloat(weekly.toFixed(2)),
+          totalToRepay: parseFloat(totalRepay.toFixed(2)),
+          remainingBalance: parseFloat(totalRepay.toFixed(2)),
+          openingFee: comm, disbursementDate: editDate,
+        }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error ?? "Error al guardar");
+      qc.invalidateQueries(); setEditMode(false);
+    } catch (e: any) { setEditError(e.message ?? "Error"); }
+    finally { setSavingEdit(false); }
+  }
 
   const mut = useMutation({
     mutationFn: ({ action, n }: { action: "approve" | "reject" | "needs_info"; n?: string }) =>
       fetch(`${API}/credits/${credit.id}/review`, {
-        method: "PATCH",
-        headers: { ...auth(), "Content-Type": "application/json" },
+        method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" },
         body: JSON.stringify({ action, notes: n }),
       }).then(r => r.json()),
-    onSuccess: () => {
-      qc.invalidateQueries(); // invalida todo
-      onDone();
-    },
+    onSuccess: () => { qc.invalidateQueries(); onDone(); },
   });
-
-  const rows = [
-    { label: "Monto prestado", val: fmt(credit.amount), color: "#111" },
-    { label: "Intereses",      val: fmt(interest),      color: "#d97706" },
-    { label: "Total a pagar",  val: fmt(credit.totalToRepay), color: "#1e40af", bold: true },
-    { label: "Pago semanal",   val: fmt(credit.weeklyPayment), color: "#215DFF" },
-    { label: "Plazo",          val: `${credit.termWeeks} semanas`, color: "#111" },
-    ...(credit.executiveName ? [{ label: "Asesor", val: credit.executiveName, color: "#111" }] : []),
-    { label: "Solicitud",      val: fmtDateTime(credit.createdAt), color: "#6b7280" },
-  ];
 
   if (confirm) {
     return (
       <div className="flex flex-col gap-4 pb-2">
-        <div
-          className="rounded-2xl p-4 text-center"
-          style={{ background: confirm === "approve" ? "#f0fdf4" : "#fef2f2", border: `1.5px solid ${confirm === "approve" ? "#bbf7d0" : "#fecaca"}` }}
-        >
-          <div className="text-2xl mb-2">{confirm === "approve" ? "✓" : "✕"}</div>
+        <div className="rounded-2xl p-4 text-center"
+          style={{ background: confirm === "approve" ? "#f0fdf4" : "#fef2f2", border: `1.5px solid ${confirm === "approve" ? "#bbf7d0" : "#fecaca"}` }}>
+          <div className="text-2xl mb-2">{confirm === "approve" ? "✓" : "✗"}</div>
           <div className="font-bold text-gray-900 text-base mb-1">
             {confirm === "approve" ? "¿Aprobar este crédito?" : "¿Rechazar esta solicitud?"}
           </div>
           <div className="text-sm text-gray-500">
             {confirm === "approve"
-              ? `Se activará el crédito de ${fmt(credit.amount)} para ${credit.clientName ?? "el cliente"}.`
-              : `Se notificará al cliente que su solicitud fue rechazada.`}
+              ? `Se activará el crédito de ${fmt(editMode ? amt : credit.amount)} para ${credit.clientName ?? "el cliente"}.`
+              : "Se notificará al cliente que su solicitud fue rechazada."}
           </div>
         </div>
-        {notes && (
-          <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-700 italic">"{notes}"</div>
-        )}
-        <button
-          onClick={() => mut.mutate({ action: confirm, n: notes || undefined })}
-          disabled={mut.isPending}
+        {notes && <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-700 italic">"{notes}"</div>}
+        <button onClick={() => mut.mutate({ action: confirm, n: notes || undefined })} disabled={mut.isPending}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-          style={{ background: confirm === "approve" ? "#10b981" : "#ef4444" }}
-        >
-          {mut.isPending ? <IconLoader size={16} /> : (confirm === "approve" ? <IconCheck size={16} /> : <IconCerrar size={16} />)}
+          style={{ background: confirm === "approve" ? "#10b981" : "#ef4444" }}>
+          {mut.isPending ? <IconLoader size={16} /> : confirm === "approve" ? <IconCheck size={16} /> : <IconCerrar size={16} />}
           {confirm === "approve" ? "Sí, aprobar crédito" : "Sí, rechazar solicitud"}
         </button>
-        <button
-          onClick={() => setConfirm(null)}
-          disabled={mut.isPending}
-          className="py-3 rounded-2xl text-sm font-semibold text-gray-600 bg-gray-100 pressable"
-        >
+        <button onClick={() => setConfirm(null)} disabled={mut.isPending}
+          className="py-3 rounded-2xl text-sm font-semibold text-gray-600 bg-gray-100 pressable">
           Cancelar
         </button>
       </div>
@@ -199,95 +214,139 @@ function CreditDetail({
 
   return (
     <div className="flex flex-col gap-4 pb-2">
-      {/* Header */}
-      <div className="flex items-center gap-3">
-        <Avatar name={credit.clientName ?? "C"} size="lg" />
-        <div>
-          <div className="text-base font-bold text-gray-900">{credit.clientName ?? `Cliente #${credit.clientId}`}</div>
-          <div className="text-xs text-gray-400">Crédito #{credit.id}</div>
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <Avatar name={credit.clientName ?? "C"} size="lg" />
+          <div>
+            <div className="text-base font-bold text-gray-900">{credit.clientName ?? `Cliente #${credit.clientId}`}</div>
+            <div className="text-xs text-gray-400">Crédito #{credit.id}</div>
+          </div>
         </div>
+        <button onClick={() => setEditMode(e => !e)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold pressable"
+          style={{ background: editMode ? "#fee2e2" : "#eff6ff", color: editMode ? "#dc2626" : "#215DFF" }}>
+          {editMode ? "✕ Cancelar" : "✏️ Editar condiciones"}
+        </button>
       </div>
 
-      {/* Needs-info banner */}
       {credit.status === "needs_info" && credit.notes && (
         <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: 14, padding: "12px 16px" }}>
-          <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#92400e" }}>
-            Información solicitada anteriormente
-          </div>
+          <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#92400e" }}>Información solicitada anteriormente</div>
           <div className="text-sm" style={{ color: "#b45309" }}>{credit.notes}</div>
         </div>
       )}
 
-      {/* Financial summary */}
-      <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-0">
-        <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Resumen financiero</div>
-        {rows.map(r => (
-          <div key={r.label} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-            <span className="text-sm text-gray-500">{r.label}</span>
-            <span
-              className="text-sm"
-              style={{ fontWeight: (r as any).bold ? 900 : 700, color: r.color, fontSize: (r as any).bold ? 17 : 13 }}
-            >
-              {r.val}
-            </span>
+      {editMode ? (
+        <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: "#eff6ff", border: "1.5px solid #bfdbfe" }}>
+          <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#1d4ed8" }}>Ajustar condiciones</div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-1">Monto ($)</div>
+              <input type="number" value={editAmount} onChange={e => setEditAmount(e.target.value)}
+                className="input-field text-sm w-full" min="500" max="100000" step="100" />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-1">Plazo (semanas)</div>
+              <input type="number" value={editTerm} onChange={e => setEditTerm(e.target.value)}
+                className="input-field text-sm w-full" min="1" max="104" step="1" />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-1">Tasa interés (%)</div>
+              <input type="number" value={editRate} onChange={e => setEditRate(e.target.value)}
+                className="input-field text-sm w-full" min="0" max="300" step="0.5" />
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-1">Comisión ($)</div>
+              <input type="number" value={editComm} onChange={e => setEditComm(e.target.value)}
+                className="input-field text-sm w-full" min="0" step="50" />
+            </div>
+            <div className="col-span-2">
+              <div className="text-[11px] font-semibold text-gray-500 uppercase mb-1">Fecha inicio / desembolso</div>
+              <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)}
+                className="input-field text-sm w-full" />
+            </div>
           </div>
-        ))}
-      </div>
+          <div className="rounded-xl bg-white p-3 grid grid-cols-4 gap-2 text-center" style={{ border: "1px solid #dbeafe" }}>
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-semibold">Entrega</div>
+              <div className="text-sm font-extrabold text-green-600">{fmt(delivers)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-semibold">Pago/sem</div>
+              <div className="text-sm font-extrabold text-blue-700">{fmt(weekly)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-semibold">Intereses</div>
+              <div className="text-sm font-extrabold text-amber-600">{fmt(calcInterest)}</div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-400 uppercase font-semibold">Total</div>
+              <div className="text-sm font-extrabold text-gray-800">{fmt(totalRepay)}</div>
+            </div>
+          </div>
+          {editError && <div className="text-xs text-red-600 font-semibold">{editError}</div>}
+          <button onClick={saveConditions} disabled={savingEdit || amt <= 0 || weeks <= 0}
+            className="flex items-center justify-center gap-2 py-3 rounded-2xl text-white text-sm font-bold pressable"
+            style={{ background: savingEdit ? "#9ca3af" : "linear-gradient(135deg,#215DFF,#3b82f6)" }}>
+            <IconLoader size={16} style={{ display: savingEdit ? "block" : "none" }} />
+            {savingEdit ? "Guardando..." : "💾 Guardar cambios"}
+          </button>
+        </div>
+      ) : (
+        <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-0">
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Resumen financiero</div>
+          {[
+            { label: "Monto prestado", val: fmt(credit.amount), color: "#111" },
+            { label: "Intereses",      val: fmt(credit.totalToRepay - credit.amount), color: "#d97706" },
+            { label: "Total a pagar",  val: fmt(credit.totalToRepay), color: "#1e40af", bold: true },
+            { label: "Pago semanal",   val: fmt(credit.weeklyPayment), color: "#215DFF" },
+            { label: "Plazo",          val: `${credit.termWeeks} semanas`, color: "#111" },
+            ...((credit as any).openingFee > 0 ? [{ label: "Comisión", val: fmt((credit as any).openingFee), color: "#6b7280" }] : []),
+            ...(credit.executiveName ? [{ label: "Asesor", val: credit.executiveName, color: "#111" }] : []),
+            { label: "Solicitud", val: fmtDateTime(credit.createdAt), color: "#6b7280" },
+          ].map((r: any) => (
+            <div key={r.label} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+              <span className="text-sm text-gray-500">{r.label}</span>
+              <span className="text-sm" style={{ fontWeight: r.bold ? 900 : 700, color: r.color, fontSize: r.bold ? 17 : 13 }}>{r.val}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
-      {/* Mensajes con el cliente */}
       <AdminMensajesSection clientId={credit.clientId} />
 
-      {/* Notes */}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-semibold text-gray-600">
           Notas <span className="font-normal text-gray-400">(requerido para solicitar información)</span>
         </label>
-        <textarea
-          value={notes}
-          onChange={e => setNotes(e.target.value)}
+        <textarea value={notes} onChange={e => setNotes(e.target.value)}
           placeholder="Motivo de decisión o información que requieres del cliente…"
-          className="input-field text-sm"
-          rows={3}
-          style={{ resize: "none" }}
-        />
+          className="input-field text-sm" rows={3} style={{ resize: "none" }} />
       </div>
 
-      {/* Actions */}
-      <button
-        onClick={() => setConfirm("approve")}
+      <button onClick={() => setConfirm("approve")}
         className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-        style={{ background: "linear-gradient(135deg,#059669,#10b981)" }}
-      >
-        <IconCheck size={16} /> Aprobar crédito — {fmt(credit.amount)}
+        style={{ background: "linear-gradient(135deg,#059669,#10b981)" }}>
+        <IconCheck size={16} /> Aprobar crédito — {fmt(editMode ? amt : credit.amount)}
       </button>
 
-      <button
-        onClick={() => {
-          if (!notes.trim()) return;
-          mut.mutate({ action: "needs_info", n: notes });
-        }}
+      <button onClick={() => { if (!notes.trim()) return; mut.mutate({ action: "needs_info", n: notes }); }}
         disabled={mut.isPending || !notes.trim()}
         className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
-        style={{
-          background: notes.trim() ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "#e5e7eb",
-          color: notes.trim() ? "#451a03" : "#9ca3af",
-          border: "none",
-        }}
-      >
+        style={{ background: notes.trim() ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "#e5e7eb", color: notes.trim() ? "#451a03" : "#9ca3af", border: "none" }}>
         {mut.isPending ? <IconLoader size={16} /> : <IconDocumento size={16} />}
         Solicitar información al cliente
       </button>
 
-      <button
-        onClick={() => setConfirm("reject")}
+      <button onClick={() => setConfirm("reject")}
         className="py-3 text-sm font-semibold text-red-500 pressable rounded-2xl border border-red-100"
-        style={{ background: "var(--danger-bg)" }}
-      >
+        style={{ background: "var(--danger-bg)" }}>
         Rechazar solicitud
       </button>
     </div>
   );
 }
+
 
 
 // ─── Admin Mensajes Section ───────────────────────────────────────────────────
