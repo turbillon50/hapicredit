@@ -9,8 +9,9 @@ router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (
   const client = await pool.connect();
 
   try {
-    // Delete in dependency order using raw pg client (avoids drizzle SQL builder issues)
+    // Delete in dependency order — all tables that reference clients/users/credits
     const deleteOrder = [
+      "push_subscriptions",
       "support_tickets",
       "audit_log",
       "caja_movements",
@@ -34,11 +35,12 @@ router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (
       }
     }
 
-    // Sessions and users
+    // Sessions for non-admin users
     try {
       await client.query(`DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE role != 'admin')`);
     } catch (e: any) { errors.push(`sessions: ${e?.message}`); }
 
+    // Non-admin users
     try {
       await client.query(`DELETE FROM users WHERE role != 'admin'`);
     } catch (e: any) { errors.push(`users: ${e?.message}`); }
