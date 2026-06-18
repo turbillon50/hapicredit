@@ -70,6 +70,136 @@ function Section({ title, icon, children }: { title: string; icon: string; child
   );
 }
 
+
+// --- Invitar por WhatsApp ---------------------------------------------------
+const STAFF_TOKEN = import.meta.env.VITE_STAFF_ACCESS_TOKEN as string | undefined;
+const APP_BASE    = (import.meta.env.VITE_APP_URL as string | undefined) ?? "https://www.crede-ti.info";
+
+function InviteByWhatsApp() {
+  const [role, setRole]             = useState<"admin" | "executive">("executive");
+  const [copied, setCopied]         = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [inviteCode, setInviteCode] = useState<string | null>(null);
+  const [err, setErr]               = useState("");
+
+  const accessUrl = STAFF_TOKEN ? `${APP_BASE}/acceso/${STAFF_TOKEN}` : null;
+
+  async function generateCode() {
+    setGenerating(true); setErr("");
+    try {
+      const r = await fetch("/api/invite-codes/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
+        body: JSON.stringify({ role }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error ?? "Error");
+      setInviteCode(d.code);
+    } catch (e: any) { setErr(e.message ?? "Error"); }
+    finally { setGenerating(false); }
+  }
+
+  function buildMsg() {
+    if (!accessUrl || !inviteCode) return "";
+    const rl = role === "admin" ? "administrador" : "asesor";
+    const msg = [
+      "Hola, te invito a Crede-Ti como " + rl + ".",
+      "",
+      "1) Crea tu cuenta en:",
+      APP_BASE + "/registro",
+      "",
+      "Tu codigo de invitacion: " + inviteCode,
+      "",
+      "2) Accede al panel con este link:",
+      accessUrl,
+    ].join("\n");
+    return encodeURIComponent(msg);
+  }
+
+  return (
+    <div style={{ padding: "0 16px", marginBottom: 24 }}>
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, padding: "18px 16px" }}>
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
+          Invitar al equipo por WhatsApp
+        </div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 14 }}>
+          Genera un mensaje con el codigo y link de acceso listo para enviar.
+        </div>
+
+        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+          {(["executive", "admin"] as const).map(r => (
+            <button key={r} onClick={() => { setRole(r); setInviteCode(null); }}
+              style={{
+                flex: 1, padding: "9px", borderRadius: 12,
+                border: role === r ? "1.5px solid var(--brand-blue)" : "1.5px solid var(--border)",
+                background: role === r ? "#eff6ff" : "var(--surface-2)",
+                color: role === r ? "var(--brand-blue)" : "var(--text-muted)",
+                fontSize: 13, fontWeight: 700, cursor: "pointer",
+              }}>
+              {r === "executive" ? "Asesor" : "Admin"}
+            </button>
+          ))}
+        </div>
+
+        {!inviteCode ? (
+          <button onClick={generateCode} disabled={generating}
+            style={{
+              width: "100%", padding: "12px", borderRadius: 12, border: "none",
+              background: generating ? "var(--surface-2)" : "var(--brand-blue)",
+              color: generating ? "var(--text-muted)" : "#fff",
+              fontSize: 14, fontWeight: 700, cursor: generating ? "default" : "pointer",
+            }}>
+            {generating ? "Generando..." : "Generar codigo de invitacion"}
+          </button>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Codigo de registro</div>
+                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.12em", color: "var(--text-primary)" }}>{inviteCode}</div>
+              </div>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--surface)", padding: "4px 10px", borderRadius: 20, border: "1px solid var(--border)" }}>
+                {role === "executive" ? "Asesor" : "Admin"}
+              </span>
+            </div>
+
+            <a href={"https://wa.me/?text=" + buildMsg()} target="_blank" rel="noopener noreferrer"
+              style={{
+                display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                padding: "13px", borderRadius: 12, textDecoration: "none",
+                background: "#25d366", color: "#fff", fontSize: 14, fontWeight: 700,
+              }}>
+              Enviar por WhatsApp
+            </a>
+
+            {accessUrl && (
+              <button onClick={() => {
+                  navigator.clipboard.writeText(accessUrl);
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                }}
+                style={{
+                  padding: "10px", borderRadius: 12, border: "1.5px solid var(--border)",
+                  background: "var(--surface-2)", color: "var(--text-secondary)",
+                  fontSize: 13, fontWeight: 600, cursor: "pointer",
+                }}>
+                {copied ? "Copiado!" : "Copiar link de acceso al panel"}
+              </button>
+            )}
+
+            <button onClick={() => setInviteCode(null)}
+              style={{ padding: "8px", border: "none", background: "none", color: "var(--text-muted)", fontSize: 12, cursor: "pointer" }}>
+              Generar nueva invitacion
+            </button>
+          </div>
+        )}
+
+        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#dc2626", fontWeight: 600 }}>{err}</div>}
+      </div>
+    </div>
+  );
+}
+
 export default function Configuracion() {
   const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["admin-config"], queryFn: fetchConfig });

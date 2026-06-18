@@ -1,22 +1,38 @@
 import { useState, useEffect } from "react";
+import { useParams } from "wouter";
 
-const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
+const API      = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const VALID_TOKEN = import.meta.env.VITE_STAFF_ACCESS_TOKEN as string | undefined;
 
 export default function Acceso() {
-  const [pwd, setPwd] = useState("");
+  const params = useParams<{ token: string }>();
+  const [tokenOk, setTokenOk] = useState(false);
+  const [pwd, setPwd]   = useState("");
   const [show, setShow] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr]   = useState("");
 
+  // Validar que el token del URL coincide con el configurado
+  useEffect(() => {
+    const urlToken = params?.token ?? "";
+    if (!VALID_TOKEN || urlToken !== VALID_TOKEN) {
+      // Token inválido — redirigir a 404 silenciosamente
+      window.location.replace(`${basePath}/not-found`);
+      return;
+    }
+    setTokenOk(true);
+  }, [params]);
+
   // Si ya hay sesión admin activa, ir directo al panel
   useEffect(() => {
-    const role = localStorage.getItem("credeti_role");
+    if (!tokenOk) return;
+    const role  = localStorage.getItem("credeti_role");
     const token = localStorage.getItem("credeti_token");
     if (token && (role === "admin" || role === "executive")) {
       window.location.replace(`${basePath}/${role === "executive" ? "dashboard" : "admin"}`);
     }
-  }, []);
+  }, [tokenOk]);
 
   async function elevate() {
     if (!pwd) return;
@@ -39,14 +55,17 @@ export default function Acceso() {
         return;
       }
       localStorage.setItem("credeti_token", data.token);
-      localStorage.setItem("credeti_role", data.user.role);
-      localStorage.setItem("credeti_user", JSON.stringify(data.user));
+      localStorage.setItem("credeti_role",  data.user.role);
+      localStorage.setItem("credeti_user",  JSON.stringify(data.user));
       window.location.href = `${basePath}/admin`;
     } catch {
       setErr("Error de conexión. Intenta de nuevo.");
       setBusy(false);
     }
   }
+
+  // Mientras valida el token — pantalla en blanco
+  if (!tokenOk) return null;
 
   return (
     <div
@@ -77,6 +96,9 @@ export default function Acceso() {
         <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
           crede<span style={{ color: "#19D7D7" }}>ti</span>
         </div>
+        <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>
+          Acceso restringido
+        </div>
       </div>
 
       {/* Card */}
@@ -92,17 +114,11 @@ export default function Acceso() {
         }}
       >
         <div style={{ marginBottom: 20 }}>
-          <label
-            style={{
-              display: "block",
-              fontSize: 11,
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: "0.09em",
-              color: "rgba(255,255,255,0.5)",
-              marginBottom: 8,
-            }}
-          >
+          <label style={{
+            display: "block", fontSize: 11, fontWeight: 700,
+            textTransform: "uppercase", letterSpacing: "0.09em",
+            color: "rgba(255,255,255,0.5)", marginBottom: 8,
+          }}>
             Clave de acceso
           </label>
           <div style={{ position: "relative" }}>
@@ -115,97 +131,51 @@ export default function Acceso() {
               autoFocus
               autoComplete="current-password"
               style={{
-                width: "100%",
-                height: 52,
-                borderRadius: 14,
+                width: "100%", height: 52, borderRadius: 14,
                 border: `2px solid ${err ? "rgba(248,113,113,0.7)" : "rgba(255,255,255,0.2)"}`,
-                background: "rgba(255,255,255,0.08)",
-                color: "#fff",
-                fontSize: 16,
-                fontWeight: 500,
-                padding: "0 52px 0 18px",
-                outline: "none",
-                boxSizing: "border-box",
+                background: "rgba(255,255,255,0.08)", color: "#fff",
+                fontSize: 16, fontWeight: 500, padding: "0 52px 0 18px",
+                outline: "none", boxSizing: "border-box",
                 letterSpacing: show ? "0" : "0.2em",
               }}
             />
-            <button
-              type="button"
-              onClick={() => setShow(v => !v)}
+            <button type="button" onClick={() => setShow(v => !v)}
               style={{
-                position: "absolute",
-                right: 14,
-                top: "50%",
-                transform: "translateY(-50%)",
-                background: "none",
-                border: "none",
-                cursor: "pointer",
-                fontSize: 11,
-                fontWeight: 700,
-                color: "rgba(255,255,255,0.5)",
-                padding: 4,
-              }}
-            >
+                position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)",
+                background: "none", border: "none", cursor: "pointer",
+                fontSize: 11, fontWeight: 700, color: "rgba(255,255,255,0.5)", padding: 4,
+              }}>
               {show ? "Ocultar" : "Ver"}
             </button>
           </div>
-
           {err && (
-            <div
-              style={{
-                marginTop: 10,
-                padding: "8px 14px",
-                borderRadius: 10,
-                background: "rgba(248,113,113,0.15)",
-                border: "1px solid rgba(248,113,113,0.35)",
-                color: "#fca5a5",
-                fontSize: 12,
-                fontWeight: 600,
-              }}
-            >
+            <div style={{
+              marginTop: 10, padding: "8px 14px", borderRadius: 10,
+              background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)",
+              color: "#fca5a5", fontSize: 12, fontWeight: 600,
+            }}>
               {err}
             </div>
           )}
         </div>
 
-        <button
-          onClick={elevate}
-          disabled={busy || !pwd}
+        <button onClick={elevate} disabled={busy || !pwd}
           style={{
-            width: "100%",
-            height: 52,
-            borderRadius: 14,
-            border: "none",
+            width: "100%", height: 52, borderRadius: 14, border: "none",
             background: busy || !pwd
               ? "rgba(255,255,255,0.12)"
               : "linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",
             color: busy || !pwd ? "rgba(255,255,255,0.4)" : "#fff",
-            fontSize: 15,
-            fontWeight: 800,
+            fontSize: 15, fontWeight: 800,
             cursor: busy || !pwd ? "not-allowed" : "pointer",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 8,
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
             transition: "all 0.2s",
-          }}
-        >
-          {busy ? (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83">
-                  <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite" />
-                </path>
-              </svg>
-              Verificando…
-            </>
-          ) : (
-            "Entrar"
-          )}
+          }}>
+          {busy ? "Verificando…" : "Entrar"}
         </button>
       </div>
 
-      <div style={{ marginTop: 32, fontSize: 11, color: "rgba(255,255,255,0.2)", textAlign: "center" }}>
+      <div style={{ marginTop: 32, fontSize: 11, color: "rgba(255,255,255,0.15)", textAlign: "center" }}>
         crede-ti.info
       </div>
     </div>
