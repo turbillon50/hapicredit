@@ -1,44 +1,50 @@
 import { Router } from "express";
-import { db, sql } from "@workspace/db";
+import { pool } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 
 const router = Router();
 
 router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
   const errors: string[] = [];
+  const client = await pool.connect();
 
-  // Safe whitelist — never interpolate user input
-  const deleteOrder = [
-    "support_tickets",
-    "audit_log",
-    "caja_movements",
-    "payments",
-    "commitments",
-    "notes",
-    "alerts",
-    "credits",
-    "clients",
-    "public_requests",
-    "invite_codes",
-    "sessions",
-  ];
+  try {
+    // Delete in dependency order using raw pg client (avoids drizzle SQL builder issues)
+    const deleteOrder = [
+      "support_tickets",
+      "audit_log",
+      "caja_movements",
+      "payments",
+      "commitments",
+      "notes",
+      "alerts",
+      "credits",
+      "clients",
+      "public_requests",
+      "invite_codes",
+    ];
 
-  for (const table of deleteOrder) {
-    try {
-      // Drizzle raw SQL — table names are hardcoded above, not user input
-      await db.execute({ sql: `DELETE FROM "${table}"`, params: [] } as any);
-    } catch (e: any) {
-      if (e?.message && !e.message.includes("does not exist")) {
-        errors.push(`${table}: ${e.message}`);
+    for (const table of deleteOrder) {
+      try {
+        await client.query(`DELETE FROM "${table}"`);
+      } catch (e: any) {
+        if (e?.message && !e.message.includes("does not exist")) {
+          errors.push(`${table}: ${e.message}`);
+        }
       }
     }
-  }
 
-  // Delete non-admin users last (no FK deps at this point)
-  try {
-    await db.execute(sql`DELETE FROM users WHERE role != 'admin'`);
-  } catch (e: any) {
-    errors.push(`users: ${(e as any)?.message ?? "unknown"}`);
+    // Sessions and users
+    try {
+      await client.query(`DELETE FROM sessions WHERE user_id IN (SELECT id FROM users WHERE role != 'admin')`);
+    } catch (e: any) { errors.push(`sessions: ${e?.message}`); }
+
+    try {
+      await client.query(`DELETE FROM users WHERE role != 'admin'`);
+    } catch (e: any) { errors.push(`users: ${e?.message}`); }
+
+  } finally {
+    client.release();
   }
 
   res.json({
