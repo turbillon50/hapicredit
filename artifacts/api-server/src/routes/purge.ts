@@ -7,9 +7,11 @@ const router = Router();
 router.post("/admin/purge-demo-data", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   const adminId = req.userId!;
 
-  // Delete all financial / operational data
+  // Delete all financial / operational data (order matters for FK constraints)
   await db.execute(sql`
     TRUNCATE TABLE
+      support_tickets,
+      audit_log,
       caja_movements,
       payments,
       commitments,

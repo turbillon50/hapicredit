@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { and, auditLogTable, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
+import { resolveClientId, isClientRole } from "../lib/clientResolver";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
 import { sendPushToAdmins, sendPushToClient } from "../lib/push";
@@ -47,20 +48,10 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
   const conditions = [];
 
-  if (req.userRole === "client") {
-    // Client: find their client record via userId FK first, fallback to fullName match
-    let [clientRecord] = await db.select({ id: clientsTable.id, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
-    if (!clientRecord && req.userFullName) {
-      // Fallback: match by fullName (admin-created clients won't have userId yet)
-      const [byName] = await db.select({ id: clientsTable.id, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.fullName, req.userFullName));
-      if (byName) {
-        clientRecord = byName;
-        // Backfill userId FK so future queries are efficient
-        await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
-      }
-    }
-    if (!clientRecord) { res.json([]); return; }
-    conditions.push(eq(creditsTable.clientId, clientRecord.id));
+  if (isClientRole(req.userRole)) {
+    const clientId = await resolveClientId(req.userId!);
+    if (!clientId) { res.json([]); return; }
+    conditions.push(eq(creditsTable.clientId, clientId));
   } else if (req.userRole === "executive") {
     conditions.push(eq(creditsTable.executiveId, req.userId!));
   } else if (req.userRole === "admin" && req.userParentId !== null) {
@@ -101,15 +92,10 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
 // GET /credits/my-credit -- active credit for authenticated client
 // NOTE: must be before /credits/:id
-router.get("/credits/my-credit", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
-  let [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.userId, req.userId!));
-  if (!clientRecord && req.userFullName) {
-    const [byName] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName, userId: clientsTable.userId }).from(clientsTable).where(eq(clientsTable.fullName, req.userFullName));
-    if (byName) {
-      clientRecord = byName;
-      await db.update(clientsTable).set({ userId: req.userId! }).where(eq(clientsTable.id, byName.id));
-    }
-  }
+router.get("/credits/my-credit", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+  const resolvedClientId = await resolveClientId(req.userId!);
+  if (!resolvedClientId) { res.status(404).json({ error: "No client record found" }); return; }
+  const [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName }).from(clientsTable).where(eq(clientsTable.id, resolvedClientId)).limit(1);
   if (!clientRecord) { res.status(404).json({ error: "No client record found" }); return; }
 
   const rows = await db
@@ -368,7 +354,7 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
 // Creates (or reuses) the client record linked to this user and a pending
 // credit, so the application shows up in the admin "solicitudes" queue and in
 // the client's "mi crédito" page immediately.
-router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+router.post("/me/apply", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
   if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
 
@@ -381,10 +367,11 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
   }
 
   // Find or create the client record.
-  // Priority: userId FK > name match > phone match (userId is most reliable)
-  let [client] = await db.select().from(clientsTable).where(eq(clientsTable.userId, req.userId!));
-  if (!client) [client] = await db.select().from(clientsTable).where(eq(clientsTable.fullName, fullName));
-  if (!client) [client] = await db.select().from(clientsTable).where(eq(clientsTable.phone, phone));
+  // Resolve client record robustly (FK → name → phone, unique only, backfills FK)
+  const resolvedId = await resolveClientId(req.userId!);
+  let client = resolvedId
+    ? (await db.select().from(clientsTable).where(eq(clientsTable.id, resolvedId)).limit(1))[0] ?? null
+    : null;
   if (!client) {
     [client] = await db.insert(clientsTable).values({
       fullName,
@@ -485,7 +472,7 @@ router.post("/me/apply", requireAuth, requireRole("client"), async (req, res): P
 });
 
 // Cliente responde a needs_info → regresa el crédito a pending
-router.patch("/credits/:id/client-response", requireAuth, requireRole("client"), async (req, res): Promise<void> => {
+router.patch("/credits/:id/client-response", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const { message } = req.body;
