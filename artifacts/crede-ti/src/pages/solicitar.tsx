@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useAuth } from "@clerk/react";
+import { useAuth, useUser } from "@clerk/react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
 import {
@@ -79,6 +79,9 @@ function fileToDataUrl(file: File): Promise<string> {
 
 export default function Solicitar() {
   const { getToken, isSignedIn } = useAuth();
+  const { user: clerkUser } = useUser();
+  // Email del usuario: del campo del form, o del perfil Clerk, o del localStorage
+  const clerkEmail = clerkUser?.primaryEmailAddress?.emailAddress ?? null;
   useRequireAuth(["client"]);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
@@ -175,7 +178,7 @@ export default function Solicitar() {
       const payload = {
         fullName: fullName.trim(),
         phone: phone.trim(),
-        email: "",
+        email: clerkEmail ?? "",  // email del usuario autenticado en Clerk
         requestedAmount: clampedAmount,
         termWeeks: clampedTerm,
         purpose,
@@ -247,7 +250,7 @@ export default function Solicitar() {
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Solicitud enviada</h2>
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
-            Un asesor de credeti revisará tu expediente y te contactará pronto.
+            Un asesor revisará tu expediente y te contactará al número <strong>{phone}</strong> en breve.
           </p>
           <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#eff6ff", border: "1.5px solid #bfdbfe" }}>
             <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#215DFF" }}>Folio</div>
