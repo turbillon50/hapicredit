@@ -45,13 +45,14 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 app.use(clerkMiddleware({
-  // Accept both VITE_* (Vite-style) and NEXT_PUBLIC_* (Next-style) so the
-  // server picks up whichever convention ops happened to set in Vercel.
   publishableKey:
     process.env.VITE_CLERK_PUBLISHABLE_KEY
     ?? process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
     ?? process.env.CLERK_PUBLISHABLE_KEY,
   secretKey: process.env.CLERK_SECRET_KEY,
+  // Don't throw on invalid/missing tokens — let our own requireAuth handle it.
+  // Without this, a malformed JWT causes a 500 before reaching any route.
+  onError: () => undefined,
 }));
 
 app.use("/api", router);
