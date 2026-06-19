@@ -38,8 +38,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checked.current = true;
 
     if (meData) {
-      setUser(meData);
-      setInit(true);
+      // Sync role on every login — auto-corrects admin emails without manual intervention
+      fetch("/api/auth/sync-role", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
+      })
+        .then(r => r.json())
+        .then(d => {
+          if (d.updated && d.role) {
+            // Role was corrected — update local state and storage
+            const corrected = { ...meData, role: d.role };
+            localStorage.setItem("credeti_role", d.role);
+            setUser(corrected as any);
+            setInit(true);
+            // Redirect to the correct home for the new role
+            if (d.role === "admin" && !window.location.pathname.startsWith("/admin")) {
+              window.location.replace("/admin");
+            }
+          } else {
+            setUser(meData);
+            setInit(true);
+          }
+        })
+        .catch(() => {
+          setUser(meData);
+          setInit(true);
+        });
     } else {
       setUser(null);
       setInit(true);

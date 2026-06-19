@@ -88,7 +88,16 @@ export async function clerkWebhookHandler(req: Request, res: Response): Promise<
     const u = evt.data;
     const email = primaryEmail(u);
     const phone = u.phone_numbers?.[0]?.phone_number ?? null;
-    const role = u.public_metadata?.role ?? "client";
+    // Auto-assign admin role if email is in SUPERADMIN_EMAILS env var
+    // e.g. SUPERADMIN_EMAILS=owner@company.com,partner@company.com
+    const superadminEmails = (process.env.SUPERADMIN_EMAILS ?? "")
+      .split(",")
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean);
+    const isConfiguredSuperadmin = email && superadminEmails.includes(email.toLowerCase());
+    const role = isConfiguredSuperadmin
+      ? "admin"
+      : (u.public_metadata?.role ?? "client");
 
     switch (evt.type) {
       case "user.created": {
@@ -123,7 +132,11 @@ export async function clerkWebhookHandler(req: Request, res: Response): Promise<
           phone,
           updatedAt: new Date(),
         };
-        if (u.public_metadata?.role) updates.role = u.public_metadata.role;
+        if (isConfiguredSuperadmin) {
+          updates.role = "admin";
+        } else if (u.public_metadata?.role) {
+          updates.role = u.public_metadata.role;
+        }
         const [updated] = await db.update(usersTable)
           .set(updates)
           .where(eq(usersTable.clerkId, u.id))

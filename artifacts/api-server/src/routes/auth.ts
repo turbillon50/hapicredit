@@ -580,4 +580,30 @@ router.get("/auth/me", requireAuth, async (req, res): Promise<void> => {
   }
 });
 
+
+// ── POST /auth/sync-role ─────────────────────────────────────────────────────
+// Called by the frontend on login to fix the role if the user's email
+// matches SUPERADMIN_EMAILS or other configured role maps.
+// Safe to call every login — only updates if the role is wrong.
+router.post("/auth/sync-role", requireAuth, async (req, res): Promise<void> => {
+  const superadminEmails = (process.env.SUPERADMIN_EMAILS ?? "")
+    .split(",").map(e => e.trim().toLowerCase()).filter(Boolean);
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  const email = user.email?.toLowerCase() ?? "";
+  const shouldBeAdmin = superadminEmails.includes(email);
+
+  if (shouldBeAdmin && user.role !== "admin") {
+    await db.update(usersTable)
+      .set({ role: "admin", updatedAt: new Date() })
+      .where(eq(usersTable.id, user.id));
+    res.json({ ok: true, role: "admin", updated: true });
+    return;
+  }
+
+  res.json({ ok: true, role: user.role, updated: false });
+});
+
 export default router;
