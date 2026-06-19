@@ -238,9 +238,12 @@ function ClerkCacheInvalidator() {
 }
 
 function RootRedirect() {
-  const role = localStorage.getItem("credeti_role");
+  const role  = localStorage.getItem("credeti_role");
+  const token = localStorage.getItem("credeti_token");
   if (role === "admin")     return <Redirect to="/admin" />;
   if (role === "executive") return <Redirect to="/dashboard" />;
+  // Logged-in client lands on their credit dashboard, not the public home.
+  if (token && role === "client") return <Redirect to="/mi-credito" />;
   return <Home />;
 }
 

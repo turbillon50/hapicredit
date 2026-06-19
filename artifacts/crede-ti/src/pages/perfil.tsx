@@ -319,6 +319,111 @@ function NotificationsCard() {
   );
 }
 
+
+/* ─── Editable client profile form ─────────────────────────────────────────── */
+function ClientProfileEditor({ client, onSaved }: { client: any; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [fullName, setFullName] = useState(client?.fullName ?? "");
+  const [phone, setPhone]       = useState(client?.phone ?? "");
+  const [altPhone, setAltPhone] = useState(client?.altPhone ?? "");
+  const [address, setAddress]   = useState(client?.address ?? "");
+  const [curp, setCurp]         = useState(client?.curp ?? "");
+  const [busy, setBusy]         = useState(false);
+  const [msg, setMsg]           = useState("");
+
+  async function save() {
+    setBusy(true); setMsg("");
+    try {
+      const r = await fetch(`${API}/me/profile`, {
+        method: "PUT",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ fullName, phone, altPhone, address, curp }),
+      });
+      const d = await r.json();
+      if (!r.ok) throw new Error(d.error ?? "Error");
+      setMsg("Datos guardados");
+      setEditing(false);
+      onSaved();
+    } catch (e: any) {
+      setMsg(e.message ?? "Error al guardar");
+    } finally { setBusy(false); }
+  }
+
+  const fields = [
+    { label: "Nombre completo", val: fullName, set: setFullName, type: "text", ph: "Tu nombre completo" },
+    { label: "Teléfono", val: phone, set: setPhone, type: "tel", ph: "10 dígitos" },
+    { label: "Teléfono alterno", val: altPhone, set: setAltPhone, type: "tel", ph: "Opcional" },
+    { label: "Domicilio", val: address, set: setAddress, type: "text", ph: "Calle, número, colonia" },
+    { label: "CURP", val: curp, set: setCurp, type: "text", ph: "18 caracteres" },
+  ];
+
+  if (!editing) {
+    return (
+      <div className="card flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Información personal</div>
+          <button onClick={() => setEditing(true)}
+            className="text-xs font-bold pressable"
+            style={{ color: "#215DFF", background: "none", border: "none", cursor: "pointer" }}>
+            {client?.phone ? "Editar" : "Completar"}
+          </button>
+        </div>
+        {[
+          ["Nombre", client?.fullName],
+          ["Teléfono", client?.phone],
+          ["Tel. alterno", client?.altPhone],
+          ["Domicilio", client?.address],
+          ["CURP", client?.curp],
+        ].map(([label, val]) => (
+          <div key={String(label)} className="flex items-start gap-3 text-sm">
+            <div className="flex-1">
+              <div className="text-xs text-gray-400">{String(label)}</div>
+              <div className="font-medium text-gray-800">{val ? String(val) : "—"}</div>
+            </div>
+          </div>
+        ))}
+        {!client?.phone && (
+          <div className="text-xs rounded-lg px-3 py-2 mt-1" style={{ background: "#eff6ff", color: "#215DFF" }}>
+            Completa tu información para agilizar tu solicitud de crédito.
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="card flex flex-col gap-3">
+      <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Editar información</div>
+      {fields.map(f => (
+        <div key={f.label}>
+          <div className="text-xs font-semibold text-gray-500 mb-1">{f.label}</div>
+          <input
+            type={f.type}
+            value={f.val}
+            onChange={e => f.set(e.target.value)}
+            placeholder={f.ph}
+            className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white text-gray-800 focus:outline-none"
+            style={{ borderColor: "#e5e7eb" }}
+          />
+        </div>
+      ))}
+      {msg && <div className="text-xs font-medium" style={{ color: msg.includes("Error") ? "#dc2626" : "#16a34a" }}>{msg}</div>}
+      <div className="flex gap-2 mt-1">
+        <button onClick={() => setEditing(false)}
+          className="flex-1 py-2.5 rounded-xl text-sm font-bold pressable"
+          style={{ background: "var(--surface-2)", color: "#374151", border: "1.5px solid #e5e7eb" }}>
+          Cancelar
+        </button>
+        <button onClick={save} disabled={busy}
+          className="flex-1 py-2.5 rounded-xl text-sm font-bold text-white pressable"
+          style={{ background: "#215DFF", opacity: busy ? 0.6 : 1 }}>
+          {busy ? "Guardando…" : "Guardar"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function Perfil() {
   const [, navigate] = useLocation();
   const qc = useQueryClient();
@@ -353,13 +458,13 @@ export default function Perfil() {
   const userRole: string = localStorage.getItem("credeti_role") ?? "client";
   const badge    = roleBadge(userRole);
 
-  // For clients: load their client record
-  const { data: clients = [] } = useQuery<any[]>({
-    queryKey: ["all-clients"],
-    queryFn: async () => { const r = await fetch(`${API}/clients`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+  // For clients: load their own client record via /me/client (not /clients which is admin-only)
+  const { data: clientData } = useQuery<any>({
+    queryKey: ["my-client"],
+    queryFn: async () => { const r = await fetch(`${API}/me/client`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
     enabled: userRole === "client",
   });
-  const client = (clients as any[])[0];
+  const client = clientData;
 
   const { data: docs = [], isLoading: loadingDocs } = useQuery<any[]>({
     queryKey: ["client-docs", client?.id],
@@ -430,26 +535,20 @@ export default function Perfil() {
         {/* Client info + docs */}
         {userRole === "client" && (
           <>
-            {client && (
-              <div className="card flex flex-col gap-3">
-                <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">Información personal</div>
-                {[
-                  [<IconTelefono size={16} />, "Teléfono",   client.phone],
-                  [<IconTelefono size={16} />, "Tel. alterno", client.altPhone || "—"],
-                  [<IconUbicacion size={16} />, "Domicilio",  client.address || "—"],
-                  [<IconID size={16} />, "CURP",        client.curp || "—"],
-                ].map(([icon, label, val]) => (
-                  <div key={String(label)} className="flex items-start gap-3 text-sm">
-                    <span className="text-gray-400 mt-0.5">{icon}</span>
-                    <div className="flex-1">
-                      <div className="text-xs text-gray-400">{String(label)}</div>
-                      <div className="font-medium text-gray-800">{String(val)}</div>
-                    </div>
-                  </div>
-                ))}
+            <ClientProfileEditor
+              client={client}
+              onSaved={() => qc.invalidateQueries({ queryKey: ["my-client"] })}
+            />
+
+            {/* Documentos — solo cuando ya hay registro de cliente */}
+            {!client && (
+              <div className="card" style={{ background: "var(--surface-inset)" }}>
+                <div className="text-sm text-gray-500 text-center py-2">
+                  Completa tu información personal arriba para poder cargar documentos.
+                </div>
               </div>
             )}
-
+            {client && (<>
             {/* Document upload */}
             <div className="card" style={{ border: "2px dashed #e2e8f0", background: "var(--surface-inset)" }}>
               <div className="flex items-center gap-2 mb-3">
@@ -533,6 +632,7 @@ export default function Perfil() {
                 </div>
               )}
             </div>
+            </>)}
           </>
         )}
 

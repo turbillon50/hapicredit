@@ -387,6 +387,45 @@ router.get("/me/client", requireAuth, requireRole("client", "customer"), async (
   res.json({ ...client, riskLevel: calcRiskLevel({ status: client.status } as typeof clientsTable.$inferSelect) });
 });
 
+// ─── PUT /api/me/profile ─── client creates/updates their own basic profile ───
+// Works even before they file a credit application, so the perfil page always
+// has somewhere to save name/phone/address/CURP.
+router.put("/me/profile", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+  const { fullName, phone, altPhone, address, curp } = req.body ?? {};
+
+  // Try to find existing client record
+  let clientId = await resolveClientId(req.userId!);
+
+  if (clientId) {
+    // Update existing
+    const updates: Record<string, unknown> = { updatedAt: new Date() };
+    if (fullName !== undefined) updates.fullName = fullName;
+    if (phone    !== undefined) updates.phone    = phone;
+    if (altPhone !== undefined) updates.altPhone = altPhone;
+    if (address  !== undefined) updates.address  = address;
+    if (curp     !== undefined) updates.curp     = curp;
+
+    await db.update(clientsTable).set(updates as any).where(eq(clientsTable.id, clientId));
+  } else {
+    // Create a minimal client record linked to this user
+    const [user] = await db.select({ fullName: usersTable.fullName, phone: usersTable.phone })
+      .from(usersTable).where(eq(usersTable.id, req.userId!));
+    const [created] = await db.insert(clientsTable).values({
+      fullName: fullName ?? user?.fullName ?? "Cliente",
+      phone:    phone    ?? user?.phone ?? "",
+      altPhone: altPhone ?? null,
+      address:  address  ?? null,
+      curp:     curp     ?? null,
+      status:   "current",
+      userId:   req.userId!,
+    } as any).returning({ id: clientsTable.id });
+    clientId = created.id;
+  }
+
+  const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, clientId));
+  res.json({ ok: true, client });
+});
+
 // ─── GET /api/clients/:id/documents — list uploaded documents ─────────────
 router.get("/clients/:id/documents", requireAuth, async (req, res): Promise<void> => {
   const clientId = parseInt(req.params.id as string, 10);
