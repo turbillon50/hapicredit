@@ -56,4 +56,17 @@ app.use(clerkMiddleware({
 
 app.use("/api", router);
 
+// Global error handler — catches unhandled exceptions from any route/middleware
+// and returns JSON instead of Vercel's HTML 500 page.
+app.use((err: Error, _req: import("express").Request, res: import("express").Response, _next: import("express").NextFunction) => {
+  const status = (err as any).status ?? (err as any).statusCode ?? 500;
+  const isAuthErr = status === 401 || status === 403
+    || err.message?.toLowerCase().includes("unauthorized")
+    || err.message?.toLowerCase().includes("invalid token")
+    || err.message?.toLowerCase().includes("jwt");
+  res.status(isAuthErr ? 401 : status).json({
+    error: isAuthErr ? "Invalid or expired token" : "Internal server error",
+  });
+});
+
 export default app;
