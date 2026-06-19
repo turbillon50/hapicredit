@@ -147,8 +147,14 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
         return;
       }
     } catch {
-      // Fall through — could be a non-Clerk Bearer token (legacy DB session
-      // that happens to also start with "eyJ" if base64'd). Try DB next.
+      // Clerk verification failed. If it looks like a JWT (3 dot-separated base64 parts)
+      // it's definitely not a valid DB session token — reject immediately.
+      const parts = token.split(".");
+      if (parts.length === 3) {
+        res.status(401).json({ error: "Invalid or expired token" });
+        return;
+      }
+      // Otherwise fall through to DB session lookup.
     }
   }
 
