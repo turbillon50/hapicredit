@@ -234,10 +234,11 @@ router.get("/reports/cartera-riesgo", requireAuth, requireRole("admin"), async (
     FROM credits c
     JOIN clients cl ON cl.id = c.client_id
     LEFT JOIN users u ON u.id = c.executive_id
-    LEFT JOIN alerts a ON a.client_id = cl.id AND a.resolved = false
+    LEFT JOIN alerts a ON a.client_id = cl.id AND a.is_resolved = false
     WHERE c.status = 'active'
       AND (cl.status != 'current' OR a.id IS NOT NULL)
-    GROUP BY c.id, cl.id, u.full_name
+    GROUP BY c.id, cl.id, cl.full_name, cl.phone, cl.status, u.full_name,
+             c.amount, c.remaining_balance
     ORDER BY alert_count DESC, cl.status DESC
   `);
   res.json(rows.rows);
