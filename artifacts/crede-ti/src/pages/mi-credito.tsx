@@ -287,6 +287,29 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
   const [sent, setSent] = React.useState(false);
   const qc = useQueryClient();
 
+  // Auto-redeem VIP invite code if present from /invitacion/:code flow
+  const [vipRedeemed, setVipRedeemed] = useState(false);
+  useEffect(() => {
+    const vipCode = localStorage.getItem("credeti_vip_code");
+    if (!vipCode || vipRedeemed) return;
+    const token = localStorage.getItem("credeti_token");
+    if (!token) return;
+    setVipRedeemed(true);
+    fetch(`${API}/invite-codes/redeem-vip`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ code: vipCode }),
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          localStorage.removeItem("credeti_vip_code");
+          qc.invalidateQueries();
+        }
+      })
+      .catch(() => {});
+  }, [vipRedeemed]);
+
   const respond = async () => {
     if (!msg.trim()) return;
     setSending(true);

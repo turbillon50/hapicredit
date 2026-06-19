@@ -46,6 +46,8 @@ import Faq             from "@/pages/faq";
 import AdminFaq           from "@/pages/admin/faq";
 import AdminConfiguracion  from "@/pages/admin/configuracion";
 import Acceso          from "@/pages/acceso";
+import Invitacion      from "@/pages/invitacion";
+import AdminReportes   from "@/pages/admin/reportes";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -255,6 +257,7 @@ function Router() {
       <Route path="/faq"          component={Faq} />
       <Route path="/calculadora"  component={Calculadora} />
       <Route path="/seguimiento"  component={Seguimiento} />
+      <Route path="/invitacion/:code" component={Invitacion} />
 
       {/* Clerk auth routes */}
       <Route path="/sign-in" component={SignInPage} />
@@ -285,6 +288,7 @@ function Router() {
       <Route path="/admin/expediente/:id"   component={AdminExpediente} />
       <Route path="/admin/faq"              component={AdminFaq} />
       <Route path="/admin/configuracion"   component={AdminConfiguracion} />
+      <Route path="/admin/reportes"        component={AdminReportes} />
 
       {/* Executive */}
       <Route path="/executive"              component={ExecDashboard} />
