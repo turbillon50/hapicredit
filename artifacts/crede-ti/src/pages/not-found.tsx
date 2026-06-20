@@ -8,7 +8,7 @@ export default function NotFound() {
       <div className="text-center">
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6"
           style={{ background: "var(--surface-3)" }}>
-          <IconAlerta size={36} color="#ef4444" />
+          <IconAlerta size={36} color="#C81E1E" />
         </div>
         <h1 className="text-6xl font-bold text-gray-200 mb-2">404</h1>
         <h2 className="text-xl font-bold text-gray-800 mb-2">Página no encontrada</h2>

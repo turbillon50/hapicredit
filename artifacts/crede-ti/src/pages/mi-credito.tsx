@@ -73,7 +73,7 @@ const STATUS_MAP: Record<string, { label: string; color?: string; bg?: string; i
   pending:    { label: "En revision",        variant: "warning" },
   rejected:   { label: "Rechazado",          variant: "danger"  },
   closed:     { label: "Liquidado",          variant: "info"    },
-  needs_info: { label: "Falta información",  color: "#f59e0b", bg: "var(--surface-3)", icon: "⚠️", variant: "warning" },
+  needs_info: { label: "Falta información",  color: "#B26A00", bg: "var(--surface-3)", icon: "⚠️", variant: "warning" },
 };
 
 function CreditCard({ credit, paid, total, pct, clientName }: {
@@ -216,7 +216,7 @@ function MensajesSection({ messages, client, queryClient }: {
         <div style={{ padding: "12px 12px 4px", display: "flex", flexDirection: "column", gap: 8, maxHeight: 320, overflowY: "auto" }}>
           {messages.length === 0 ? (
             <div style={{ textAlign: "center", padding: "20px 0", fontSize: 13, color: "var(--text-muted)" }}>
-              Sin mensajes aún — escríbenos 👋
+              Sin mensajes aún — escríbenos
             </div>
           ) : (
             messages.map((msg) => {
@@ -360,7 +360,7 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
         onClick={respond}
         disabled={sending || !msg.trim()}
         style={{
-          background: sending ? "var(--text-muted)" : "#f59e0b",
+          background: sending ? "var(--text-muted)" : "#B26A00",
           color: "white",
           border: "none",
           borderRadius: "8px",
@@ -370,7 +370,7 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
           fontSize: "14px",
         }}
       >
-        {sending ? "Enviando..." : "📤 Ya envié la información — Reenviar a revisión"}
+        {sending ? "Enviando..." : "Ya envié la información — Reenviar a revisión"}
       </button>
     </div>
   );
@@ -505,10 +505,10 @@ export default function MiCredito() {
                 >
                   <span style={{ flexShrink: 0 }}>
                     {nextDays <= 1
-                      ? <IconAlerta size={22} color="#ef4444" />
+                      ? <IconAlerta size={22} color="#C81E1E" />
                       : nextDays <= 3
-                        ? <IconReloj size={22} color="#eab308" />
-                        : <IconCalendario size={22} color="#22c55e" />
+                        ? <IconReloj size={22} color="#B26A00" />
+                        : <IconCalendario size={22} color="#0E9F6E" />
                     }
                   </span>
                   <div>
@@ -534,7 +534,7 @@ export default function MiCredito() {
                 </div>
                 <div style={{ borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)", padding: "16px 16px 8px" }}>
                   {timeline.map((ev, i) => {
-                    const color = ev.tone === "positive" ? "#16a34a" : ev.tone === "warning" ? "#d97706" : "var(--accent)";
+                    const color = ev.tone === "positive" ? "#0B7A53" : ev.tone === "warning" ? "#d97706" : "var(--accent)";
                     const last = i === timeline.length - 1;
                     return (
                       <div key={ev.id} style={{ display: "flex", gap: 12 }}>
@@ -596,7 +596,7 @@ export default function MiCredito() {
                       {c.status === "needs_info" && (
                         <div style={{
                           background: "var(--surface-3)",
-                          border: "2px solid #f59e0b",
+                          border: "2px solid #B26A00",
                           borderRadius: "12px",
                           padding: "16px",
                           marginBottom: "12px",

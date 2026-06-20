@@ -239,7 +239,7 @@ function InviteVIP() {
           </div>
         )}
 
-        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#dc2626", fontWeight: 600 }}>{err}</div>}
+        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#B91C1C", fontWeight: 600 }}>{err}</div>}
       </div>
     </div>
   );
@@ -368,7 +368,7 @@ function InviteByWhatsApp() {
           </div>
         )}
 
-        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#dc2626", fontWeight: 600 }}>{err}</div>}
+        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#B91C1C", fontWeight: 600 }}>{err}</div>}
       </div>
     </div>
   );
@@ -489,7 +489,7 @@ export default function Configuracion() {
       </Section>
 
       {/* Crédito existente */}
-      <Section title="Crédito existente — renovación" icon="🔄">
+      <Section title="Crédito existente — renovación" icon="">
         <Field label="Monto mínimo" field="calc_exist_min" cfg={cfg} set={set} min={100} max={999999} suffix="$" />
         <Field label="Monto máximo" field="calc_exist_max" cfg={cfg} set={set} min={100} max={999999} suffix="$" />
         <Field label="Plazo mínimo" field="calc_exist_plazo_min" cfg={cfg} set={set} min={1} max={52} suffix="sem" />
@@ -500,7 +500,7 @@ export default function Configuracion() {
       {/* Empresa */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 18 }}>🏢</span>
+          <span style={{ fontSize: 18 }}></span>
           <span style={{ fontSize: 13, fontWeight: 800 }}>Información de la empresa</span>
         </div>
         <div style={{ padding: "18px 20px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 14 }}>
@@ -514,7 +514,7 @@ export default function Configuracion() {
       {/* Push Notifications */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{ padding: "14px 20px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 18 }}>🔔</span>
+          <span style={{ fontSize: 18 }}></span>
           <span style={{ fontSize: 13, fontWeight: 800 }}>Notificaciones push</span>
         </div>
         <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 14 }}>
@@ -537,7 +537,7 @@ export default function Configuracion() {
               {subStatus === "subscribing" ? "Activando…"
                 : subStatus === "subscribed" ? "✓ Activadas en este dispositivo"
                 : subStatus === "err" ? "Error — reintentar"
-                : "🔔 Activar notificaciones"}
+                : "Activar notificaciones"}
             </button>
             <button
               onClick={handleTestPush}

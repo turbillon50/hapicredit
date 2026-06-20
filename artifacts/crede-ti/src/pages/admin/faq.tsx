@@ -171,7 +171,7 @@ export default function AdminFaq() {
                     </div>
                     <div style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <span style={{ background: "var(--surface-2)", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>{catLabel(item.category)}</span>
-                      {!item.isActive && <span style={{ background: "var(--surface-3)", color: "#dc2626", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>Inactiva</span>}
+                      {!item.isActive && <span style={{ background: "var(--surface-3)", color: "#B91C1C", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>Inactiva</span>}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
@@ -193,7 +193,7 @@ export default function AdminFaq() {
                     <button
                       className="pressable"
                       onClick={() => setDeleteId(item.id)}
-                      style={{ width: 32, height: 32, borderRadius: 10, background: "#fff0f0", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444" }}
+                      style={{ width: 32, height: 32, borderRadius: 10, background: "#fff0f0", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#C81E1E" }}
                     >
                       <IconTrash />
                     </button>
@@ -308,7 +308,7 @@ export default function AdminFaq() {
                   onClick={() => deleteMut.mutate(deleteId)}
                   disabled={deleteMut.isPending}
                   className="pressable"
-                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", background: "#ef4444", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
                 >
                   Eliminar
                 </button>

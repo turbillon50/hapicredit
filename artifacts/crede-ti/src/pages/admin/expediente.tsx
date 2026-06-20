@@ -527,7 +527,7 @@ export default function AdminExpediente() {
                 className="flex items-center gap-3 pressable w-full text-left border-t border-gray-100 pt-3"
               >
                 <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--surface-3)" }}>
-                  <IconCalendario size={16} color="#16a34a" />
+                  <IconCalendario size={16} color="#0B7A53" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-900">Cambiar fecha de pago</div>
@@ -660,7 +660,7 @@ export default function AdminExpediente() {
             <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 4px" }}>Cambiar fecha de pago</h3>
             <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 16px" }}>
               Modifica la fecha de inicio del ciclo de {client?.fullName}.<br />
-              <span style={{ color: "#dc2626", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del crédito activo.</span>
+              <span style={{ color: "#B91C1C", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del crédito activo.</span>
             </p>
             <div style={{ marginBottom: 18 }}>
               <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", display: "block", marginBottom: 6 }}>Nueva fecha de inicio</label>
@@ -736,7 +736,7 @@ export default function AdminExpediente() {
               />
             </div>
             {editCondMut.isError && (
-              <div style={{ fontSize: 12, color: "#dc2626", marginBottom: 10, textAlign: "center" }}>{(editCondMut.error as Error).message}</div>
+              <div style={{ fontSize: 12, color: "#B91C1C", marginBottom: 10, textAlign: "center" }}>{(editCondMut.error as Error).message}</div>
             )}
             <button
               onClick={() => editCondMut.mutate({ creditId: activeCredit.id, body: { amount: cond.amount, termWeeks: cond.termWeeks, weeklyPayment: cond.weeklyPayment, totalToRepay: cond.totalToRepay, remainingBalance: cond.remainingBalance, notes: cond.notes } })}

@@ -14,7 +14,7 @@ const ROLE_CFG: Record<string, { label: string; bg: string; color: string; borde
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  current: "#16a34a", at_risk: "#d97706", overdue: "#dc2626", defaulted: "#7f1d1d", inactive: "var(--text-muted)",
+  current: "#0B7A53", at_risk: "#d97706", overdue: "#B91C1C", defaulted: "#7f1d1d", inactive: "var(--text-muted)",
 };
 const STATUS_LABEL: Record<string, string> = {
   current: "Al corriente", at_risk: "En riesgo", overdue: "Vencido", defaulted: "Incumplimiento", inactive: "Inactivo",
@@ -65,7 +65,7 @@ function DeleteModal({ name, onConfirm, onCancel, loading }: { name: string; onC
         <button
           onClick={onConfirm}
           disabled={loading}
-          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#ef4444", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
+          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#C81E1E", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
         >
           {loading ? "Eliminando..." : "Sí, eliminar"}
         </button>
@@ -147,7 +147,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
               {node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>@{node.username}</span>}
               {node.phone && !node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{node.phone}</span>}
               {statusColor && <span style={{ fontSize: 11, fontWeight: 600, color: statusColor }}>{STATUS_LABEL[node.status!] ?? node.status}</span>}
-              {node.isActive === false && <span style={{ fontSize: 10, color: "#ef4444", fontWeight: 600 }}>Inactivo</span>}
+              {node.isActive === false && <span style={{ fontSize: 10, color: "#C81E1E", fontWeight: 600 }}>Inactivo</span>}
             </div>
             {node.clientCount !== undefined && node.clientCount > 0 && (
               <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{node.clientCount} acreditado{node.clientCount !== 1 ? "s" : ""}</div>
@@ -174,7 +174,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
               </button>
               <button
                 onClick={() => onDelete?.(node)}
-                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--surface-3)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", cursor: "pointer" }}
+                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--surface-3)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "#C81E1E", cursor: "pointer" }}
               >
                 <TrashIcon />
               </button>
@@ -314,7 +314,7 @@ export default function AdminArbol() {
 
         {error && (
           <div style={{ textAlign: "center", marginTop: 40 }}>
-            <p style={{ color: "#ef4444" }}>Error al cargar el arbol</p>
+            <p style={{ color: "#C81E1E" }}>Error al cargar el arbol</p>
           </div>
         )}
 

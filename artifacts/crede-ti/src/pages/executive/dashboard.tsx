@@ -158,7 +158,7 @@ export default function ExecutiveDashboard() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px" }} className="anim-section anim-d2">
             {[
               { icon: <IconGrupo size={18} />,    iconBg: "rgba(33,93,255,0.10)", iconColor: "var(--brand-blue)", label: "Clientes asignados", value: d?.totalAssignedClients ?? 0, sub: "Total en cartera" },
-              { icon: <IconAlerta size={18} />,   iconBg: "var(--surface-3)", iconColor: "#dc2626", label: "En mora",            value: d?.clientsOverdue ?? 0,       sub: "Requieren visita" },
+              { icon: <IconAlerta size={18} />,   iconBg: "var(--surface-3)", iconColor: "#B91C1C", label: "En mora",            value: d?.clientsOverdue ?? 0,       sub: "Requieren visita" },
               { icon: <IconFinanzas size={18} />, iconBg: "var(--surface-3)", iconColor: "#059669", label: "Colocación mes",     value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado" },
               { icon: <IconCalendario size={18} />, iconBg: "var(--surface-3)", iconColor: "#d97706", label: "Cobros hoy",       value: d?.clientsDueToday ?? 0,       sub: "Clientes por cobrar" },
             ].map(s => (
@@ -221,7 +221,7 @@ export default function ExecutiveDashboard() {
               { href: "/dashboard/clientes",     icon: <IconPersona size={18} />, iconBg: "rgba(33,93,255,0.10)",  iconColor: "var(--brand-blue)", title: "Mis clientes",    sub: `${d?.totalAssignedClients ?? 0} clientes en cartera` },
               { href: "/dashboard/cobrar",        icon: <IconMoneda size={18} />,  iconBg: "var(--surface-3)",  iconColor: "var(--text-secondary)", title: "Registrar cobro", sub: "Registrar pago de un cliente" },
               { href: "/dashboard/alta-cliente",  icon: <IconMas size={18} />,     iconBg: "var(--surface-3)",  iconColor: "var(--text-secondary)", title: "Alta de cliente", sub: "Registrar nuevo cliente y crédito" },
-              { href: "/dashboard/comisiones",    icon: <IconMoneda size={18} />,  iconBg: "var(--surface-3)",  iconColor: "#16a34a", title: "Mis comisiones",  sub: `Este mes: ${fmt(d?.commissionThisMonth ?? 0)}` },
+              { href: "/dashboard/comisiones",    icon: <IconMoneda size={18} />,  iconBg: "var(--surface-3)",  iconColor: "#0B7A53", title: "Mis comisiones",  sub: `Este mes: ${fmt(d?.commissionThisMonth ?? 0)}` },
               { href: "/dashboard/codigos",       icon: <IconBandeja size={18} />, iconBg: "var(--surface-3)",  iconColor: "var(--text-secondary)", title: "Mis códigos",     sub: "Invitar nuevos clientes" },
             ].map(item => (
               <Link key={item.href} href={item.href}>

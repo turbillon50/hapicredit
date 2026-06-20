@@ -122,7 +122,7 @@ function DocCapture({
         <div className="relative rounded-xl overflow-hidden border-2 border-green-400">
           {isPdf ? (
             <div className="flex items-center gap-3 bg-green-50 p-3">
-              <IconDocumento size={28} color="#ef4444" />
+              <IconDocumento size={28} color="#C81E1E" />
               <div>
                 <div className="text-sm font-semibold text-gray-800">PDF cargado</div>
                 <div className="text-xs text-green-600 font-medium flex items-center gap-1">< IconCheck size={14} /> Listo</div>
@@ -265,7 +265,7 @@ export default function AltaCliente() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 py-10 text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-            <IconCheck size={48} color="#22c55e" />
+            <IconCheck size={48} color="#0E9F6E" />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">¡Cliente registrado!</h2>
           <p className="text-sm text-gray-500 mb-6 max-w-xs">
@@ -523,7 +523,7 @@ export default function AltaCliente() {
 
               {error && (
                 <div className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-2xl p-4">
-                  <span className="shrink-0"><IconAlerta size={20} color="#ef4444" /></span>
+                  <span className="shrink-0"><IconAlerta size={20} color="#C81E1E" /></span>
                   <p className="text-sm text-red-700">{error}</p>
                 </div>
               )}

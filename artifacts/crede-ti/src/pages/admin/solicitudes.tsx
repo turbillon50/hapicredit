@@ -84,7 +84,7 @@ function CreditCard({ credit, onClick }: { credit: PendingCredit; onClick: () =>
     <div
       className="card pressable"
       onClick={onClick}
-      style={needsInfo ? { borderLeft: "4px solid #f59e0b" } : {}}
+      style={needsInfo ? { borderLeft: "4px solid #B26A00" } : {}}
     >
       <div className="flex items-start gap-3 mb-3">
         <Avatar name={credit.clientName ?? "C"} size="md" />
@@ -200,7 +200,7 @@ function CreditDetail({
         {notes && <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-700 italic">"{notes}"</div>}
         <button onClick={() => mut.mutate({ action: confirm, n: notes || undefined })} disabled={mut.isPending}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-          style={{ background: confirm === "approve" ? "#10b981" : "#ef4444" }}>
+          style={{ background: confirm === "approve" ? "#10b981" : "#C81E1E" }}>
           {mut.isPending ? <IconLoader size={16} /> : confirm === "approve" ? <IconCheck size={16} /> : <IconCerrar size={16} />}
           {confirm === "approve" ? "Sí, aprobar crédito" : "Sí, rechazar solicitud"}
         </button>
@@ -224,7 +224,7 @@ function CreditDetail({
         </div>
         <button onClick={() => setEditMode(e => !e)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold pressable"
-          style={{ background: editMode ? "var(--surface-3)" : "var(--surface-3)", color: editMode ? "#dc2626" : "#215DFF" }}>
+          style={{ background: editMode ? "var(--surface-3)" : "var(--surface-3)", color: editMode ? "#B91C1C" : "#215DFF" }}>
           {editMode ? "✕ Cancelar" : "✏️ Editar condiciones"}
         </button>
       </div>
@@ -289,7 +289,7 @@ function CreditDetail({
             className="flex items-center justify-center gap-2 py-3 rounded-2xl text-white text-sm font-bold pressable"
             style={{ background: savingEdit ? "var(--text-muted)" : "linear-gradient(135deg,#215DFF,#3b82f6)" }}>
             <IconLoader size={16} style={{ display: savingEdit ? "block" : "none" }} />
-            {savingEdit ? "Guardando..." : "💾 Guardar cambios"}
+            {savingEdit ? "Guardando..." : "Guardar cambios"}
           </button>
         </div>
       ) : (
@@ -333,7 +333,7 @@ function CreditDetail({
       <button onClick={() => { if (!notes.trim()) return; mut.mutate({ action: "needs_info", n: notes }); }}
         disabled={mut.isPending || !notes.trim()}
         className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
-        style={{ background: notes.trim() ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "var(--border)", color: notes.trim() ? "#451a03" : "var(--text-muted)", border: "none" }}>
+        style={{ background: notes.trim() ? "linear-gradient(135deg,#B26A00,#fbbf24)" : "var(--border)", color: notes.trim() ? "#451a03" : "var(--text-muted)", border: "none" }}>
         {mut.isPending ? <IconLoader size={16} /> : <IconDocumento size={16} />}
         Solicitar información al cliente
       </button>
@@ -399,7 +399,7 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
   return (
     <div style={{ marginBottom: "24px" }}>
       <h4 style={{ fontWeight: "700", marginBottom: "12px", color: "var(--text-primary)" }}>
-        💬 Mensajes con el cliente
+        Mensajes con el cliente
       </h4>
       <div style={{
         border: "1px solid var(--border)",
@@ -482,7 +482,7 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
 function reqStatusMeta(st: string): { label: string; bg: string; color: string; border: string } {
   switch (st) {
     case "approved":  return { label: "Aprobada",   bg: "var(--surface-3)", color: "#059669", border: "var(--surface-3)" };
-    case "rejected":  return { label: "Rechazada",  bg: "var(--surface-3)", color: "#dc2626", border: "var(--surface-3)" };
+    case "rejected":  return { label: "Rechazada",  bg: "var(--surface-3)", color: "#B91C1C", border: "var(--surface-3)" };
     case "contacted": return { label: "Contactado", bg: "var(--surface-3)", color: "#2563eb", border: "var(--surface-3)" };
     default:          return { label: "Pendiente",  bg: "#fffbeb", color: "#d97706", border: "#fde68a" };
   }
@@ -581,7 +581,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const weekly = Number(credit.weeklyPayment ?? credit.perInstallment ?? 0) || 0;
   const monthlyBurden = weekly * 4.33;
   const pct = income > 0 && weekly > 0 ? Math.round((monthlyBurden / income) * 100) : null;
-  const capColor = pct == null ? "var(--text-muted)" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#dc2626";
+  const capColor = pct == null ? "var(--text-muted)" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#B91C1C";
   const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "var(--surface-3)" : pct <= 50 ? "#fffbeb" : "var(--surface-3)";
   const capLabel = pct == null ? "Sin datos" : pct < 30 ? "Saludable" : pct <= 50 ? "Ajustado" : "Riesgo alto";
 
@@ -698,17 +698,17 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         </div>
         <div className="grid grid-cols-2 gap-2">
           <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "var(--surface-3)"}`, background: confirm === "approved" ? "#10b981" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
-          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "var(--surface-3)"}`, background: confirm === "rejected" ? "#ef4444" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#C81E1E" : "var(--surface-3)"}`, background: confirm === "rejected" ? "#C81E1E" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "#B91C1C", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
         </div>
         {confirm && (
           <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)", border: `1.5px solid ${confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)"}` }}>
-            <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#dc2626" }}>
+            <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#B91C1C" }}>
               {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
             <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
             <div className="flex gap-2">
               <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
-              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#ef4444", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
+              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
             </div>
           </div>
         )}
@@ -873,7 +873,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
               <div key={idx} className="rounded-xl p-2 flex flex-col gap-1.5" style={{ background: "#fff", border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-gray-400">Referencia {idx + 1}</span>
-                  <button onClick={() => setForm(f => ({ ...f, references: f.references.filter((_, i) => i !== idx) }))} className="text-[11px] font-semibold" style={{ color: "#dc2626" }}>Quitar</button>
+                  <button onClick={() => setForm(f => ({ ...f, references: f.references.filter((_, i) => i !== idx) }))} className="text-[11px] font-semibold" style={{ color: "#B91C1C" }}>Quitar</button>
                 </div>
                 <input value={r.name} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, name: e.target.value } : x) }))} placeholder="Nombre" className="bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
                 <div className="flex gap-1.5">
@@ -922,7 +922,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       {/* Save bar */}
       {editing && (
         <div className="flex flex-col gap-2 sticky bottom-0 pb-1" style={{ background: "linear-gradient(to top, #fff 70%, transparent)" }}>
-          {detailsM.isError && <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(detailsM.error as Error).message}</div>}
+          {detailsM.isError && <div className="text-xs text-center" style={{ color: "#B91C1C" }}>{(detailsM.error as Error).message}</div>}
           <div className="flex gap-2">
             <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "1.5px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
             <button disabled={detailsM.isPending} onClick={saveAll} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar todo"}</button>
@@ -993,7 +993,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           </button>
         )}
         {convertM.isError && (
-          <div className="text-xs text-center" style={{ color: "#dc2626" }}>
+          <div className="text-xs text-center" style={{ color: "#B91C1C" }}>
             {(convertM.error as Error).message}
           </div>
         )}
@@ -1153,7 +1153,7 @@ export default function AdminSolicitudes() {
               {(historyCredits as any[]).map((credit: any) => {
                 const approved = credit.decision === "approved";
                 return (
-                  <div key={credit.id} className="card" style={{ borderLeft: `4px solid ${approved ? "#10b981" : "#ef4444"}` }}>
+                  <div key={credit.id} className="card" style={{ borderLeft: `4px solid ${approved ? "#10b981" : "#C81E1E"}` }}>
                     <div className="flex items-center gap-3">
                       <Avatar name={credit.clientName ?? "C"} size="sm" />
                       <div className="flex-1 min-w-0">
@@ -1161,7 +1161,7 @@ export default function AdminSolicitudes() {
                         <div className="text-xs text-gray-400">{new Date(credit.createdAt).toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})}</div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <div className="text-sm font-extrabold" style={{ color: approved ? "#059669" : "#dc2626" }}>
+                        <div className="text-sm font-extrabold" style={{ color: approved ? "#059669" : "#B91C1C" }}>
                           {new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(credit.amount)}
                         </div>
                         <Badge variant={approved ? "success" : "danger"} size="sm">

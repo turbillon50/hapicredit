@@ -54,9 +54,9 @@ function filterTab(items: MorosoItem[], tab: Tab) {
 
 function semaphoreColor(days: number) {
   if (days >= 31) return { bg: "#1a1a1a", text: "#fff",     label: "Cartera vencida" };
-  if (days >= 16) return { bg: "#ef4444", text: "#fff",     label: "Atraso crítico" };
-  if (days >= 8)  return { bg: "#f59e0b", text: "#78350f",  label: "Atraso leve" };
-  return               { bg: "#22c55e", text: "#fff",     label: "Al corriente" };
+  if (days >= 16) return { bg: "#C81E1E", text: "#fff",     label: "Atraso crítico" };
+  if (days >= 8)  return { bg: "#B26A00", text: "#78350f",  label: "Atraso leve" };
+  return               { bg: "#0E9F6E", text: "#fff",     label: "Al corriente" };
 }
 
 export default function AdminMorosos() {

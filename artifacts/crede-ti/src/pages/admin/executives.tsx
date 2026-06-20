@@ -12,7 +12,7 @@ const fmt = (n: number | null | undefined) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 type Period = "week" | "month";
-const MEDAL = ["#f59e0b", "var(--text-muted)", "#b45309"];
+const MEDAL = ["#B26A00", "var(--text-muted)", "#b45309"];
 
 export default function AdminAsesores() {
   const [period, setPeriod] = useState<Period>("month");
@@ -49,7 +49,7 @@ export default function AdminAsesores() {
             </div>
             <div className="card text-center">
               <div className="text-xs text-gray-500 uppercase tracking-wide font-semibold mb-1">Comisiones totales</div>
-              <div className="text-lg font-extrabold" style={{ color: "#16a34a" }}>{fmt(totalCommission)}</div>
+              <div className="text-lg font-extrabold" style={{ color: "#0B7A53" }}>{fmt(totalCommission)}</div>
               <div className="text-xs text-gray-400">A pagar en nómina</div>
             </div>
           </div>
@@ -136,11 +136,11 @@ export default function AdminAsesores() {
                       </div>
                       <div className="text-center border-x border-gray-100">
                         <div className="text-[10px] font-semibold uppercase text-gray-400 mb-0.5">Comisión</div>
-                        <div className="text-sm font-bold" style={{ color: "#16a34a" }}>{fmt(commission)}</div>
+                        <div className="text-sm font-bold" style={{ color: "#0B7A53" }}>{fmt(commission)}</div>
                       </div>
                       <div className="text-center">
                         <div className="text-[10px] font-semibold uppercase text-gray-400 mb-0.5">Cumplimiento</div>
-                        <div className="text-sm font-bold" style={{ color: pct >= 80 ? "#16a34a" : pct >= 50 ? "#d97706" : "#dc2626" }}>
+                        <div className="text-sm font-bold" style={{ color: pct >= 80 ? "#0B7A53" : pct >= 50 ? "#d97706" : "#B91C1C" }}>
                           {pct.toFixed(0)}%
                         </div>
                       </div>

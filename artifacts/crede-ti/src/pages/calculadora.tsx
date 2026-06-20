@@ -32,7 +32,7 @@ const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 const AZUL   = "#215DFF";
 const AZUL2  = "#0A2E8A";
 const AMARILLO = "#19D7D7";
-const VERDE  = "#16a34a";
+const VERDE  = "#0B7A53";
 
 // ─── Componentes pequeños ─────────────────────────────────────────────────────
 function SliderCampo({

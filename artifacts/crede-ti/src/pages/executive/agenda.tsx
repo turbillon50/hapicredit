@@ -164,7 +164,7 @@ export default function ExecAgenda() {
             <div className="rounded-2xl bg-gray-50 p-6 text-center text-sm text-gray-400">Cargando cartera...</div>
           ) : dayCredits.length === 0 ? (
             <div className="rounded-2xl bg-gray-50 p-8 text-center">
-              <div className="text-3xl mb-2">📅</div>
+              <div className="text-3xl mb-2"></div>
               <div className="text-sm font-semibold text-gray-700">Sin cobros los {DAYS[selectedDay].toLowerCase()}s</div>
               <div className="text-xs text-gray-400 mt-1">No hay créditos activos con día de pago en este día</div>
             </div>
@@ -188,9 +188,9 @@ export default function ExecAgenda() {
                       style={{ background: paid ? "var(--surface-3)" : isLastPayment ? "#fff3cd" : "var(--surface-2)" }}
                     >
                       {paid
-                        ? <IconCheck size={18} color="#22c55e" />
+                        ? <IconCheck size={18} color="#0E9F6E" />
                         : isLastPayment
-                          ? <IconMoneda size={18} color="#f59e0b" />
+                          ? <IconMoneda size={18} color="#B26A00" />
                           : <IconReloj size={18} color="var(--text-muted)" />
                       }
                     </div>
@@ -208,7 +208,7 @@ export default function ExecAgenda() {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-base font-extrabold" style={{ color: paid ? "#22c55e" : "var(--navy)" }}>
+                      <div className="text-base font-extrabold" style={{ color: paid ? "#0E9F6E" : "var(--navy)" }}>
                         {fmt(parseFloat(credit.weeklyPayment))}
                       </div>
                       {paid && (

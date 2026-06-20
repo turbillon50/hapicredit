@@ -51,7 +51,7 @@ export default function Invitacion() {
   if (error || !invite) {
     return (
       <div style={{ minHeight: "100dvh", background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "Montserrat, sans-serif" }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}></div>
         <div style={{ color: "#fff", fontSize: 20, fontWeight: 800, marginBottom: 8, textAlign: "center" }}>Invitación no disponible</div>
         <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, textAlign: "center", maxWidth: 280 }}>{error || "Esta invitación expiró o ya fue utilizada."}</div>
       </div>
@@ -87,12 +87,12 @@ export default function Invitacion() {
 
       {/* Badge */}
       <div style={{
-        background: isRenewal ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "linear-gradient(135deg,#10b981,#059669)",
+        background: isRenewal ? "linear-gradient(135deg,#B26A00,#fbbf24)" : "linear-gradient(135deg,#10b981,#059669)",
         color: isRenewal ? "#451a03" : "#fff",
         fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
         padding: "5px 14px", borderRadius: 100, marginBottom: 20,
       }}>
-        {isRenewal ? "🔄 Renovación especial" : "🎉 Crédito pre-aprobado"}
+        {isRenewal ? "Renovación especial" : "Crédito pre-aprobado"}
       </div>
 
       {/* Saludo */}

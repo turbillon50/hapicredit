@@ -179,7 +179,7 @@ export default function AdminCodigos() {
                   {generateMutation.isPending ? "Generando..." : "Generar"}
                 </button>
               </div>
-              {generateMutation.isError && <p style={{ color: "#ef4444", fontSize: 13, marginTop: 10 }}>{(generateMutation.error as Error).message}</p>}
+              {generateMutation.isError && <p style={{ color: "#C81E1E", fontSize: 13, marginTop: 10 }}>{(generateMutation.error as Error).message}</p>}
             </div>
           </div>
         )}
@@ -193,7 +193,7 @@ export default function AdminCodigos() {
                   <div style={{ fontSize: 40, marginBottom: 12 }}>
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="12" fill="var(--surface-3)"/>
-                      <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#0B7A53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 8 }}>Correo enviado</h3>
@@ -216,7 +216,7 @@ export default function AdminCodigos() {
                       <input value={emailName} onChange={e => setEmailName(e.target.value)} placeholder="Nombre del invitado" style={inputStyle} />
                     </div>
                   </div>
-                  {emailError && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
+                  {emailError && <p style={{ color: "#C81E1E", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
                     <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>

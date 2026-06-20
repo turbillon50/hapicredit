@@ -41,7 +41,7 @@ export function ReportButton() {
             <h3 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700, color: "var(--text, #0f172a)" }}>Reportar un problema</h3>
             <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--text-muted, var(--text-secondary))" }}>Cuentanos que pasa y nuestro equipo te ayudara.</p>
             {done ? (
-              <div style={{ padding: "24px 0", textAlign: "center", color: "#16a34a", fontWeight: 600 }}>Reporte enviado. Gracias \uD83D\uDC99</div>
+              <div style={{ padding: "24px 0", textAlign: "center", color: "#0B7A53", fontWeight: 600 }}>Reporte enviado. Gracias \uD83D\uDC99</div>
             ) : (<>
               <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: 10, border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }}>
                 <option value="general">General</option>

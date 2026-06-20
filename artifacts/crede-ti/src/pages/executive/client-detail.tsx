@@ -168,7 +168,7 @@ export default function ExecutiveClientDetail() {
           <Link href="/dashboard/compromisos">
             <div className="bg-white rounded-2xl shadow-card p-4 flex flex-col items-center gap-2 text-center active:bg-secondary transition-colors">
               <div className="w-10 h-10 rounded-xl bg-amber-50 flex items-center justify-center">
-                <IconCalendario size={20} color="#f59e0b" />
+                <IconCalendario size={20} color="#B26A00" />
               </div>
               <span className="text-[12px] font-semibold text-foreground">Compromiso</span>
             </div>

@@ -1,3 +1,5 @@
+import React from "react";
+import { IconCartera, IconMoneda, IconAlerta, IconBandeja, IconGrupo, IconGrafica } from "@/components/hapi/HapiIcons";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
@@ -17,14 +19,14 @@ function fmtDate(d: string | null) {
 
 type Report = "cartera-activa" | "cobranza" | "morosos" | "solicitudes" | "comisiones" | "flujo-caja" | "cartera-riesgo";
 
-const REPORTS: { id: Report; label: string; icon: string; desc: string }[] = [
-  { id: "cartera-activa",  label: "Cartera activa",      icon: "💼", desc: "Todos los créditos vigentes con saldos y próximos pagos" },
-  { id: "cobranza",        label: "Cobranza del período", icon: "💰", desc: "Pagos recibidos en el rango de fechas seleccionado" },
-  { id: "morosos",         label: "Morosos",              icon: "⚠️", desc: "Clientes con pagos vencidos o en riesgo" },
-  { id: "solicitudes",     label: "Solicitudes",          icon: "📋", desc: "Todas las solicitudes con su estado actual" },
-  { id: "comisiones",      label: "Comisiones por asesor",icon: "👤", desc: "Cartera y cobranza desglosada por asesor" },
-  { id: "flujo-caja",      label: "Flujo de caja",        icon: "📊", desc: "Entradas vs salidas y proyección semanal" },
-  { id: "cartera-riesgo",  label: "Cartera en riesgo",    icon: "🚨", desc: "Clientes con alertas activas o estatus crítico" },
+const REPORTS: { id: Report; label: string; icon: React.ReactNode; desc: string }[] = [
+  { id: "cartera-activa",  label: "Cartera activa",      icon: <IconCartera size={18} />,  desc: "Todos los créditos vigentes con saldos y próximos pagos" },
+  { id: "cobranza",        label: "Cobranza del período", icon: <IconMoneda size={18} />,   desc: "Pagos recibidos en el rango de fechas seleccionado" },
+  { id: "morosos",         label: "Morosos",              icon: <IconAlerta size={18} />,   desc: "Clientes con pagos vencidos o en riesgo" },
+  { id: "solicitudes",     label: "Solicitudes",          icon: <IconBandeja size={18} />,  desc: "Todas las solicitudes con su estado actual" },
+  { id: "comisiones",      label: "Comisiones por asesor",icon: <IconGrupo size={18} />,    desc: "Cartera y cobranza desglosada por asesor" },
+  { id: "flujo-caja",      label: "Flujo de caja",        icon: <IconGrafica size={18} />,  desc: "Entradas vs salidas y proyección semanal" },
+  { id: "cartera-riesgo",  label: "Cartera en riesgo",    icon: <IconAlerta size={18} />,   desc: "Clientes con alertas activas o estatus crítico" },
 ];
 
 function downloadExcel(data: any[], filename: string) {
@@ -111,7 +113,7 @@ function TableCobranza({ data }: { data: any[] }) {
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{r.executive_name ?? "—"}</td>
               <td style={{ padding: "10px", fontWeight: 700, color: "#059669" }}>{fmt(r.amount_paid)}</td>
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{fmt(r.amount_expected)}</td>
-              <td style={{ padding: "10px", color: "#dc2626" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
+              <td style={{ padding: "10px", color: "#B91C1C" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
               <td style={{ padding: "10px" }}>
                 <span style={{ padding: "3px 8px", borderRadius: 100, fontSize: 11, fontWeight: 700,
                   background: r.payment_status === "on_time" ? "var(--surface-3)" : r.payment_status === "late" ? "var(--surface-3)" : "#f3f4f6",
@@ -164,10 +166,10 @@ function FlujoCaja({ data }: { data: any }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
         {[
-          { label: "Desembolsado", val: data.disbursed, color: "#dc2626" },
+          { label: "Desembolsado", val: data.disbursed, color: "#B91C1C" },
           { label: "Cobrado", val: data.collected, color: "#059669" },
           { label: "Pend. validar", val: data.pendingValidation, color: "#d97706" },
-          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "#dc2626" },
+          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "#B91C1C" },
         ].map(item => (
           <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: 14, padding: "16px" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>{item.label}</div>
@@ -289,7 +291,7 @@ export default function AdminReportes() {
               {/* Contenido */}
               <div style={{ padding: 16, overflowX: "auto" }}>
                 {isLoading && <div style={{ padding: 32, textAlign: "center", color: "var(--text-muted)" }}>Cargando…</div>}
-                {error && <div style={{ padding: 16, color: "#dc2626", fontSize: 13 }}>Error al cargar el reporte</div>}
+                {error && <div style={{ padding: 16, color: "#B91C1C", fontSize: 13 }}>Error al cargar el reporte</div>}
                 {!isLoading && !error && data && (
                   selected === "cartera-activa"  ? <TableCartera data={tableData} /> :
                   selected === "cobranza"        ? <TableCobranza data={tableData} /> :

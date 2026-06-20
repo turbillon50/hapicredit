@@ -246,7 +246,7 @@ export default function Solicitar() {
       <Layout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] px-5 py-10 text-center">
           <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-5">
-            <IconDobleCheck size={36} color="#22c55e" />
+            <IconDobleCheck size={36} color="#0E9F6E" />
           </div>
           <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Solicitud enviada</h2>
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
@@ -617,7 +617,7 @@ export default function Solicitar() {
                     </div>
                     {uploaded ? (
                       <button onClick={() => removeDoc(d.key)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "#fff0f0" }}>
-                        <IconBorrar size={14} color="#ef4444" />
+                        <IconBorrar size={14} color="#C81E1E" />
                       </button>
                     ) : (
                       <button
@@ -702,7 +702,7 @@ export default function Solicitar() {
 
             {error && (
               <div className="rounded-xl px-4 py-3 flex items-start gap-2" style={{ background: "#fff0f0", border: "1px solid var(--surface-3)" }}>
-                <IconAlerta size={18} color="#dc2626" />
+                <IconAlerta size={18} color="#B91C1C" />
                 <div className="text-sm text-red-700">{error}</div>
               </div>
             )}
