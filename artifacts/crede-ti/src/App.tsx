@@ -251,9 +251,10 @@ function RootRedirect() {
   // Los admins NO aterrizan en /admin (ruta no obvia). Entran a la vista de
   // cliente como cualquier usuario — pueden solicitar crédito y vivir el flujo.
   // El panel admin se alcanza con el switch discreto desde el perfil.
-  // Asesor desactivado: cualquier usuario autenticado entra como cliente.
-  // (Para reactivar el rol asesor, restaurar: if (role === "executive") return <Redirect to="/dashboard" />;)
-  if (token && (role === "client" || role === "admin" || role === "executive")) return <Redirect to="/mi-credito" />;
+  // El admin aterriza DIRECTO en el panel de administracion (sin botones que buscar).
+  if (token && role === "admin") return <Redirect to="/admin" />;
+  // Asesor desactivado: el resto (cliente/executive) entra a la vista de cliente.
+  if (token && (role === "client" || role === "executive")) return <Redirect to="/mi-credito" />;
   return <Home />;
 }
 
