@@ -40,11 +40,15 @@ export function StatCard({ icon, iconBg, iconColor, label, value, prefix = '', s
   const positive = delta !== undefined && delta >= 0;
 
   return (
-    <div className={`card flex flex-col ${className}`}>
+    <div className={`card pressable flex flex-col ${className}`}>
       <div className="flex items-start justify-between mb-3">
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0"
-          style={{ background: iconBg ?? 'rgba(37,99,235,0.1)', color: iconColor ?? 'var(--accent)' }}
+          style={{
+            background: iconBg ?? 'linear-gradient(135deg, rgba(33,93,255,0.14), rgba(58,0,200,0.10))',
+            color: iconColor ?? 'var(--brand-blue)',
+            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
+          }}
         >
           {icon}
         </div>

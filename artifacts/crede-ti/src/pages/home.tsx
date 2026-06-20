@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import logoImg from "@assets/logo-credeti-square.jpeg";
+import { CountUp } from "@/components/hapi/CountUp";
 
 function HapiIcon({ size = 24, color = "#215DFF" }: { size?: number; color?: string }) {
   return (
@@ -136,21 +137,21 @@ export default function Home() {
             )}
           </div>
 
-          {/* Trust stats */}
+          {/* Trust stats — con números animados */}
           <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
-              { val:"$30K", label:"Monto máximo" },
-              { val:"48",   label:"Sem. máx"      },
-              { val:"0%",   label:"Comisión"     },
+              { node: <CountUp value={30} prefix="$" suffix="K" />, label:"Monto máximo" },
+              { node: <CountUp value={48} />,                       label:"Sem. máx" },
+              { node: <CountUp value={0} suffix="%" />,             label:"Comisión" },
             ].map((s,i) => (
-              <div key={s.val} style={{
+              <div key={i} style={{
                 flex:1,
                 textAlign: i===0?"left": i===1?"center":"right",
                 borderRight: i<2?"1px solid rgba(255,255,255,0.09)":"none",
                 paddingRight: i<2?20:0,
                 paddingLeft: i>0?20:0,
               }}>
-                <div style={{ fontSize:30,fontWeight:900,color:"#fff",letterSpacing:"-0.05em",lineHeight:1 }}>{s.val}</div>
+                <div style={{ fontSize:30,fontWeight:900,color:"#fff",letterSpacing:"-0.05em",lineHeight:1 }}>{s.node}</div>
                 <div style={{ fontSize:11,color:"rgba(255,255,255,0.4)",marginTop:4,fontWeight:500,textTransform:"uppercase",letterSpacing:"0.04em" }}>{s.label}</div>
               </div>
             ))}
