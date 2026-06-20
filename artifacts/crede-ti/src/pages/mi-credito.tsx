@@ -11,6 +11,7 @@ import {
   IconAlerta, IconFlecha, IconMas,
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
+import { DynamicBanners, DynamicNotifications } from "@/components/hapi/DynamicContent";
 
 interface Credit {
   id: number;
@@ -450,6 +451,9 @@ export default function MiCredito() {
   return (
     <Layout>
       <div style={{ display: "flex", flexDirection: "column", gap: 14, paddingBottom: 24 }}>
+
+        <DynamicBanners />
+        <DynamicNotifications />
 
         {isLoading ? (
           <div style={{ padding: "16px 16px 0" }}><SkeletonHero /></div>

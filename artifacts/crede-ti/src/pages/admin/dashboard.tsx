@@ -51,6 +51,7 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 const ACCESOS = [
+  { path: "/admin/centro",        icon: <IconEquipo size={20} />,   label: "Centro de contenido",  sub: "Usuarios, créditos, publicidad y avisos", iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
