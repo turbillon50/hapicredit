@@ -212,12 +212,12 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     const r = role;
     const isPublic = isPublicPath;
     if (!t) { if (!isPublic) navigate("/login"); return; }
+    // Panel admin sigue protegido: solo admins.
     if (location.startsWith("/admin"))     { if (r !== "admin")     { navigate(r === "executive" ? "/dashboard" : "/mi-credito"); return; } }
-    if (location.startsWith("/dashboard") || location === "/executive") { if (r !== "executive") { navigate(r === "admin" ? "/admin" : "/mi-credito"); return; } }
-    if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {
-      if (r === "admin")     { navigate("/admin");     return; }
-      if (r === "executive") { navigate("/dashboard"); return; }
-    }
+    // Dashboard de ejecutivo: executives (y admins pueden verlo).
+    if (location.startsWith("/dashboard") || location === "/executive") { if (r !== "executive" && r !== "admin") { navigate("/mi-credito"); return; } }
+    // La vista cliente (/solicitar, /mi-credito, /perfil) queda ABIERTA para
+    // admin y ejecutivo — ya NO se rebota; pueden vivir el flujo del acreditado.
   }, [location, clerkLoaded, token, role]);
 
   function handleLogout() {
