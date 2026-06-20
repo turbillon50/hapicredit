@@ -123,10 +123,12 @@ export default function Solicitar() {
   const [accountHolder, setAccountHolder] = useState("");
 
   // ── Derived ranges + computed schedule ────────────────────────────────────
-  const amountMin = isNewClient ? NEW_AMOUNT_MIN : EXISTING_AMOUNT_MIN;
-  const amountMax = isNewClient ? NEW_AMOUNT_MAX : EXISTING_AMOUNT_MAX;
-  const termMin   = isNewClient ? NEW_TERM_WEEKS : EXISTING_TERM_MIN;
-  const termMax   = isNewClient ? NEW_TERM_WEEKS : EXISTING_TERM_MAX;
+  // Rangos abiertos: el cliente solicita lo que quiera y administracion
+  // ajusta los parametros al revisar. No condicionamos el formulario.
+  const amountMin = 100;
+  const amountMax = 50000;
+  const termMin   = 1;
+  const termMax   = 48;
 
   // Clamp current values when switching client type
   const clampedAmount = Math.min(amountMax, Math.max(amountMin, amount));
@@ -437,7 +439,7 @@ export default function Solicitar() {
                 type="range"
                 min={amountMin}
                 max={amountMax}
-                step={isNewClient ? 100 : 1000}
+                step={100}
                 value={clampedAmount}
                 onChange={e => setAmount(Number(e.target.value))}
                 className="w-full"
@@ -452,28 +454,20 @@ export default function Solicitar() {
               <div className="text-3xl font-extrabold text-center py-2" style={{ color: "var(--accent)" }}>
                 {clampedTerm} <span className="text-base font-medium text-gray-500">{termLabel}</span>
               </div>
-              {!isNewClient ? (
-                <>
-                  <input
-                    type="range"
-                    min={termMin}
-                    max={termMax}
-                    step={1}
-                    value={clampedTerm}
-                    onChange={e => setTermWeeks(Number(e.target.value))}
-                    className="w-full"
-                    style={{ accentColor: "#215DFF" }}
-                  />
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>{termMin} {termLabel}</span>
-                    <span>{termMax} {termLabel}</span>
-                  </div>
-                </>
-              ) : (
-                <div className="text-[11px] text-center text-gray-400">
-                  Plazo fijo para clientes nuevos. Al recurrir podrás extenderlo hasta 48 semanas.
-                </div>
-              )}
+              <input
+                type="range"
+                min={termMin}
+                max={termMax}
+                step={1}
+                value={clampedTerm}
+                onChange={e => setTermWeeks(Number(e.target.value))}
+                className="w-full"
+                style={{ accentColor: "#215DFF" }}
+              />
+              <div className="flex justify-between text-xs text-gray-400">
+                <span>{termMin} {termLabel}</span>
+                <span>{termMax} {termLabel}</span>
+              </div>
 
               <div className="rounded-xl overflow-hidden" style={{ border: "2px solid var(--accent)" }}>
                 <div className="px-4 py-2 text-xs font-bold text-white" style={{ background: "var(--accent)" }}>
@@ -491,6 +485,9 @@ export default function Solicitar() {
                   <Row label={`Pago ${installmentLabel}`} value={fmt(perInstallment)} accent />
                   <Row label="Total a pagar" value={fmt(totalPayment)} />
                   <Row label="Plazo" value={`${clampedTerm} ${termLabel}`} />
+                  <div className="text-[11px] text-center text-gray-400 mt-1">
+                    Montos y plazos sujetos a revisión y aprobación.
+                  </div>
                 </div>
               </div>
             </div>

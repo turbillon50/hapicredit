@@ -130,25 +130,9 @@ router.post("/credits/apply", requireAuth, requireRole("admin", "executive"), as
 
   const isNewClient = Boolean(req.body.isNewClient);
 
-  if (isNewClient) {
-    if (amt < 500 || amt > 1000) {
-      res.status(400).json({ error: "Clientes nuevos: monto entre $500 y $1,000" });
-      return;
-    }
-    if (weeks !== 4) {
-      res.status(400).json({ error: "Clientes nuevos: plazo fijo de 4 semanas" });
-      return;
-    }
-  } else {
-    if (amt < 1000 || amt > 30000) {
-      res.status(400).json({ error: "Monto entre $1,000 y $30,000" });
-      return;
-    }
-    if (weeks < 4 || weeks > 48) {
-      res.status(400).json({ error: "Plazo entre 4 y 48 semanas" });
-      return;
-    }
-  }
+  // Sin limites fijos de monto/plazo: el cliente solicita libremente y
+  // administracion ajusta los parametros y aprueba desde el panel.
+  // Solo se conserva el guard basico de valores positivos (mas arriba).
 
   // Flat 30% for new clients, 5% monthly (weeks/4 months) for existing clients.
   const interest = isNewClient
@@ -409,13 +393,10 @@ router.post("/me/apply", requireAuth, requireRole("client", "customer", "admin",
     res.status(400).json({ error: "Monto y plazo son requeridos" });
     return;
   }
-  if (isNewClient) {
-    if (amt < 500 || amt > 1000) { res.status(400).json({ error: "Clientes nuevos: monto entre $500 y $1,000" }); return; }
-    if (weeks !== 4) { res.status(400).json({ error: "Clientes nuevos: plazo fijo de 4 semanas" }); return; }
-  } else {
-    if (amt < 1000 || amt > 30000) { res.status(400).json({ error: "Monto entre $1,000 y $30,000" }); return; }
-    if (weeks < 4 || weeks > 48) { res.status(400).json({ error: "Plazo entre 4 y 48 semanas" }); return; }
-  }
+  // Sin limites fijos: el cliente solicita el monto/plazo que quiera y
+  // administracion lo ajusta y aprueba desde el panel. Solo validamos
+  // que sean valores positivos (ya cubierto por isNaN arriba).
+  if (amt <= 0 || weeks <= 0) { res.status(400).json({ error: "Monto y plazo deben ser mayores a cero" }); return; }
 
   const interest = isNewClient ? amt * 0.30 : amt * 0.05 * (weeks / 4);
   const totalToRepay = amt + interest;
