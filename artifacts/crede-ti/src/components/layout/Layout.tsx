@@ -270,6 +270,9 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
               </svg>
             </a>
           </>)}
+          <Link href="/inicio" style={{ color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center" }} title="Ver inicio">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+          </Link>
           <ThemeToggle tone="light" />
           {token && (
             <button onClick={handleLogout} style={{ color: "rgba(255,255,255,0.5)", fontSize: 12, fontWeight: 600, background: "none", border: "none", cursor: "pointer", padding: 0 }}>
