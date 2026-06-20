@@ -214,24 +214,36 @@ export default function Solicitar() {
       // expires after ~60s and would 401, kicking us to the public fallback so
       // the application never reaches the admin solicitudes queue.
       let token = localStorage.getItem("credeti_token");
-      if (isSignedIn) {
-        try { const fresh = await getToken(); if (fresh) { token = fresh; localStorage.setItem("credeti_token", fresh); } } catch { /* keep stored token */ }
+      // getToken() de Clerk puede lanzar en iOS PWA ("The string did not match
+      // the expected pattern"). Lo aislamos por completo para no romper el envío.
+      if (isSignedIn && typeof getToken === "function") {
+        try {
+          const fresh = await getToken();
+          if (fresh) { token = fresh; try { localStorage.setItem("credeti_token", fresh); } catch {} }
+        } catch { /* usamos el token guardado */ }
       }
+      const bodyStr = JSON.stringify(payload);
       let res = await fetch(`${API}/me/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify(payload),
+        body: bodyStr,
       });
       if (res.status === 401 || res.status === 403) {
         // Session expired or not a client account — keep the public fallback.
         res = await fetch(`${API}/public/apply`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: bodyStr,
         });
       }
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Error al enviar");
+      // Parseo seguro: en iOS, res.json() sobre un cuerpo no-JSON lanza
+      // "The string did not match the expected pattern" y oculta el error real.
+      const raw = await res.text();
+      let data: any = {};
+      try { data = raw ? JSON.parse(raw) : {}; } catch { data = { error: raw || "Respuesta no válida del servidor" }; }
+      if (!res.ok) {
+        throw new Error(data.error || data.message || `Error ${res.status}: no se pudo enviar la solicitud`);
+      }
       setDone(data.referenceNumber ?? `CT-${Date.now()}`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Ocurrió un error";
