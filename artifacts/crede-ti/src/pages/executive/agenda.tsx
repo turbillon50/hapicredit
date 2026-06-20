@@ -151,7 +151,7 @@ export default function ExecAgenda() {
             </div>
             <div className="text-right">
               <div className="text-xs text-white/60 font-semibold">Cobrados</div>
-              <div className="text-base font-extrabold" style={{ color: paidSelected === dayCredits.length ? "#4ade80" : "#fb923c" }}>
+              <div className="text-base font-extrabold" style={{ color: paidSelected === dayCredits.length ? "#4ade80" : "var(--warning)" }}>
                 {paidSelected} / {dayCredits.length}
               </div>
             </div>

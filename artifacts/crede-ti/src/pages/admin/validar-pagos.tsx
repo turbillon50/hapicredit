@@ -230,7 +230,7 @@ export default function ValidarPagos() {
                   onClick={() => validateMut.mutate({ id: p.id, action: "approve" })}
                   disabled={validateMut.isPending}
                   className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-white text-sm font-bold pressable"
-                  style={{ background: "#10b981" }}
+                  style={{ background: "var(--success)" }}
                 >
                   {validateMut.isPending
                     ? <IconLoader size={16} />

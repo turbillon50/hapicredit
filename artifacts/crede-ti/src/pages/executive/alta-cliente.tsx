@@ -405,7 +405,7 @@ export default function AltaCliente() {
                 className="rounded-2xl p-3 flex items-center gap-3"
                 style={{ background: docsOk ? "var(--surface-3)" : "#f8fafc" }}
               >
-                <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "var(--text-muted)"} /></span>
+                <span className="shrink-0"><IconCheck size={24} color={docsOk ? "var(--success)" : "var(--text-muted)"} /></span>
                 <div className="text-sm">
                   <div className="font-semibold text-gray-800">
                     {docsOk ? "Documentos requeridos completos" : `Faltan ${requiredDocs.filter(f => !docs[f.key]).length} documentos obligatorios`}
@@ -559,7 +559,7 @@ export default function AltaCliente() {
                 disabled={!canContinue() || submitting}
                 className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all pressable"
                 style={{
-                  background: canContinue() && !submitting ? "#10b981" : "var(--border)",
+                  background: canContinue() && !submitting ? "var(--success)" : "var(--border)",
                   color: canContinue() && !submitting ? "white" : "var(--text-muted)",
                 }}
               >

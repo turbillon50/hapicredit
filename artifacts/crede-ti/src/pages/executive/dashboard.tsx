@@ -159,7 +159,7 @@ export default function ExecutiveDashboard() {
             {[
               { icon: <IconGrupo size={18} />,    iconBg: "rgba(33,93,255,0.10)", iconColor: "var(--brand-blue)", label: "Clientes asignados", value: d?.totalAssignedClients ?? 0, sub: "Total en cartera" },
               { icon: <IconAlerta size={18} />,   iconBg: "var(--surface-3)", iconColor: "var(--danger)", label: "En mora",            value: d?.clientsOverdue ?? 0,       sub: "Requieren visita" },
-              { icon: <IconFinanzas size={18} />, iconBg: "var(--surface-3)", iconColor: "#059669", label: "Colocación mes",     value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado" },
+              { icon: <IconFinanzas size={18} />, iconBg: "var(--surface-3)", iconColor: "var(--success)", label: "Colocación mes",     value: fmt(d?.placementThisMonth ?? 0), sub: "Monto colocado" },
               { icon: <IconCalendario size={18} />, iconBg: "var(--surface-3)", iconColor: "var(--warning)", label: "Cobros hoy",       value: d?.clientsDueToday ?? 0,       sub: "Clientes por cobrar" },
             ].map(s => (
               <div

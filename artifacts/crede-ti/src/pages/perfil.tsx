@@ -309,7 +309,7 @@ function NotificationsCard() {
           style={{
             minWidth: 96, padding: "9px 14px", borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
             fontSize: 13, fontWeight: 700, color: "#fff", opacity: busy || denied ? 0.6 : 1,
-            background: enabled ? "#10b981" : "#215DFF",
+            background: enabled ? "var(--success)" : "#215DFF",
           }}
         >
           {busy ? "..." : enabled ? "Activas ✓" : "Activar"}
@@ -755,7 +755,7 @@ export default function Perfil() {
                 <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                   Cancelar
                 </button>
-                <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "var(--warning)", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                   Continuar
                 </button>
               </div>
@@ -768,7 +768,7 @@ export default function Perfil() {
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "28px 24px", maxWidth: 340, width: "100%" }}>
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--warning-bg)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-                <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="var(--warning)" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
               <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", textAlign: "center", marginBottom: 10 }}>
                 Confirmar limpieza
@@ -786,7 +786,7 @@ export default function Perfil() {
                   onClick={() => purgeM.mutate()}
                   disabled={purgeM.isPending}
                   className="pressable"
-                  style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: purgeM.isPending ? 0.7 : 1 }}
+                  style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "var(--warning)", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: purgeM.isPending ? 0.7 : 1 }}
                 >
                   {purgeM.isPending ? "Limpiando..." : "Sí, eliminar todos los datos de prueba"}
                 </button>

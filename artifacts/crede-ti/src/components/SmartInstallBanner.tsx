@@ -134,7 +134,7 @@ export default function SmartInstallBanner() {
           {[
             { num: 1, color: "#4f46e5", bg: "var(--surface-3)", title: 'Toca el botón "Compartir"', sub: "El ícono de cuadro con flecha hacia arriba, en la barra inferior de Safari" },
             { num: 2, color: "var(--success)", bg: "var(--surface-3)", title: '"Agregar a pantalla de inicio"', sub: 'Desliza hacia abajo en el menú y selecciona esta opción' },
-            { num: 3, color: "#ea580c", bg: "#fff7ed", title: 'Toca "Agregar"', sub: "Confirma y el ícono aparecerá en tu pantalla de inicio" },
+            { num: 3, color: "var(--warning)", bg: "#fff7ed", title: 'Toca "Agregar"', sub: "Confirma y el ícono aparecerá en tu pantalla de inicio" },
           ].map(step => (
             <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: "var(--r-xl)", background: "#f8fafc", border: "1.5px solid var(--border)", marginBottom: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: "var(--r-md)", background: step.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>

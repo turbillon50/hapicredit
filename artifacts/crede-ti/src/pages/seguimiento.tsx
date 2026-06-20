@@ -7,7 +7,7 @@ const inStyle: React.CSSProperties = { width: "100%", marginTop: 6, padding: "11
 
 const STATUS_MAP: Record<string, { label: string; desc: string; color: string; bg: string }> = {
   pending:   { label: "En revisión",          desc: "Recibimos tu solicitud y nuestro equipo la está revisando.", color: "#b45309", bg: "#fffbeb" },
-  approved:  { label: "Aprobada",             desc: "¡Felicidades! Tu solicitud fue aprobada. Pronto te contactaremos.", color: "#059669", bg: "var(--surface-3)" },
+  approved:  { label: "Aprobada",             desc: "¡Felicidades! Tu solicitud fue aprobada. Pronto te contactaremos.", color: "var(--success)", bg: "var(--surface-3)" },
   rejected:  { label: "No aprobada",          desc: "Por ahora tu solicitud no procedió. Contáctanos para más información.", color: "var(--danger)", bg: "var(--surface-3)" },
   contacted: { label: "Requiere tu atención", desc: "Necesitamos más información o documentos. Revisa los mensajes abajo.", color: "#2563eb", bg: "var(--surface-3)" },
 };

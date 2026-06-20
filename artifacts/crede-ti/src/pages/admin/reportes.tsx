@@ -90,7 +90,7 @@ function TableCobranza({ data }: { data: any[] }) {
       <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
         <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Total cobrado</div>
-          <div style={{ fontSize: 22, fontWeight: 800, color: "#059669" }}>{fmt(total)}</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "var(--success)" }}>{fmt(total)}</div>
         </div>
         <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Pagos</div>
@@ -111,7 +111,7 @@ function TableCobranza({ data }: { data: any[] }) {
               <td style={{ padding: "10px", whiteSpace: "nowrap" }}>{fmtDate(r.payment_date)}</td>
               <td style={{ padding: "10px", fontWeight: 600 }}>{r.client_name}</td>
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{r.executive_name ?? "—"}</td>
-              <td style={{ padding: "10px", fontWeight: 700, color: "#059669" }}>{fmt(r.amount_paid)}</td>
+              <td style={{ padding: "10px", fontWeight: 700, color: "var(--success)" }}>{fmt(r.amount_paid)}</td>
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{fmt(r.amount_expected)}</td>
               <td style={{ padding: "10px", color: "var(--danger)" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
               <td style={{ padding: "10px" }}>
@@ -167,9 +167,9 @@ function FlujoCaja({ data }: { data: any }) {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
         {[
           { label: "Desembolsado", val: data.disbursed, color: "var(--danger)" },
-          { label: "Cobrado", val: data.collected, color: "#059669" },
+          { label: "Cobrado", val: data.collected, color: "var(--success)" },
           { label: "Pend. validar", val: data.pendingValidation, color: "var(--warning)" },
-          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "var(--danger)" },
+          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "var(--success)" : "var(--danger)" },
         ].map(item => (
           <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "16px" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>{item.label}</div>
@@ -183,7 +183,7 @@ function FlujoCaja({ data }: { data: any }) {
           {data.weeklyProjection.map((w: any, i: number) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-light)" }}>
               <span style={{ fontSize: 13, color: "var(--text-muted)" }}>Semana {i + 1} ({fmtDate(w.week_start)})</span>
-              <span style={{ fontSize: 13, fontWeight: 700, color: "#059669" }}>{fmt(w.expected)}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, color: "var(--success)" }}>{fmt(w.expected)}</span>
             </div>
           ))}
         </div>

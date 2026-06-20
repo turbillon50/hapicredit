@@ -47,7 +47,7 @@ export default function ExecutiveComisiones() {
             <div className="mx-4">
               <div
                 className="rounded-2xl p-5 text-white"
-                style={{ background: "linear-gradient(135deg, var(--text-secondary), #10b981)" }}
+                style={{ background: "linear-gradient(135deg, var(--text-secondary), var(--success))" }}
               >
                 <div className="text-xs uppercase font-semibold tracking-widest opacity-70 mb-1 capitalize">
                   {mesActual()}

@@ -87,7 +87,7 @@ export default function Invitacion() {
 
       {/* Badge */}
       <div style={{
-        background: isRenewal ? "linear-gradient(135deg,var(--warning),#fbbf24)" : "linear-gradient(135deg,#10b981,#059669)",
+        background: isRenewal ? "linear-gradient(135deg,var(--warning),#fbbf24)" : "linear-gradient(135deg,var(--success),var(--success))",
         color: isRenewal ? "#451a03" : "#fff",
         fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
         padding: "5px 14px", borderRadius: 100, marginBottom: 20,

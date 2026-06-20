@@ -195,7 +195,7 @@ function InviteVIP() {
           {/* Preview */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: 8, marginTop: 10 }}>
             {[
-              { l: "Entrega", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(delivers), c: "#059669" },
+              { l: "Entrega", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(delivers), c: "var(--success)" },
               { l: "Pago/sem", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(weekly), c: "#215DFF" },
               { l: "Total", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(total), c: "var(--text-primary)" },
             ].map(item => (

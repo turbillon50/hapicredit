@@ -704,7 +704,7 @@ export default function MiCredito() {
                             width: 36, height: 36, borderRadius: "var(--r-lg)", flexShrink: 0,
                             display: "flex", alignItems: "center", justifyContent: "center",
                             background: isPaid ? "var(--surface-3)" : isPending ? "var(--surface-3)" : "var(--surface-3)",
-                            color: isPaid ? "#059669" : isPending ? "#ca8a04" : "var(--text-muted)",
+                            color: isPaid ? "var(--success)" : isPending ? "#ca8a04" : "var(--text-muted)",
                           }}
                         >
                           {isPaid ? <IconCheck size={16} /> : <IconReloj size={16} />}

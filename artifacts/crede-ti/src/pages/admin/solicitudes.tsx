@@ -200,7 +200,7 @@ function CreditDetail({
         {notes && <div className="bg-gray-50 rounded-xl p-3 text-sm text-gray-700 italic">"{notes}"</div>}
         <button onClick={() => mut.mutate({ action: confirm, n: notes || undefined })} disabled={mut.isPending}
           className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-          style={{ background: confirm === "approve" ? "#10b981" : "var(--danger)" }}>
+          style={{ background: confirm === "approve" ? "var(--success)" : "var(--danger)" }}>
           {mut.isPending ? <IconLoader size={16} /> : confirm === "approve" ? <IconCheck size={16} /> : <IconCerrar size={16} />}
           {confirm === "approve" ? "Sí, aprobar crédito" : "Sí, rechazar solicitud"}
         </button>
@@ -326,7 +326,7 @@ function CreditDetail({
 
       <button onClick={() => setConfirm("approve")}
         className="flex items-center justify-center gap-2 py-4 rounded-2xl text-white text-sm font-bold pressable"
-        style={{ background: "linear-gradient(135deg,#059669,#10b981)" }}>
+        style={{ background: "linear-gradient(135deg,var(--success),var(--success))" }}>
         <IconCheck size={16} /> Aprobar crédito — {fmt(editMode ? amt : credit.amount)}
       </button>
 
@@ -481,7 +481,7 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
 // ─── Public app detail ────────────────────────────────────────────────────────
 function reqStatusMeta(st: string): { label: string; bg: string; color: string; border: string } {
   switch (st) {
-    case "approved":  return { label: "Aprobada",   bg: "var(--surface-3)", color: "#059669", border: "var(--surface-3)" };
+    case "approved":  return { label: "Aprobada",   bg: "var(--surface-3)", color: "var(--success)", border: "var(--surface-3)" };
     case "rejected":  return { label: "Rechazada",  bg: "var(--surface-3)", color: "var(--danger)", border: "var(--surface-3)" };
     case "contacted": return { label: "Contactado", bg: "var(--surface-3)", color: "#2563eb", border: "var(--surface-3)" };
     default:          return { label: "Pendiente",  bg: "#fffbeb", color: "var(--warning)", border: "#fde68a" };
@@ -581,7 +581,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const weekly = Number(credit.weeklyPayment ?? credit.perInstallment ?? 0) || 0;
   const monthlyBurden = weekly * 4.33;
   const pct = income > 0 && weekly > 0 ? Math.round((monthlyBurden / income) * 100) : null;
-  const capColor = pct == null ? "var(--text-muted)" : pct < 30 ? "#059669" : pct <= 50 ? "var(--warning)" : "var(--danger)";
+  const capColor = pct == null ? "var(--text-muted)" : pct < 30 ? "var(--success)" : pct <= 50 ? "var(--warning)" : "var(--danger)";
   const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "var(--surface-3)" : pct <= 50 ? "#fffbeb" : "var(--surface-3)";
   const capLabel = pct == null ? "Sin datos" : pct < 30 ? "Saludable" : pct <= 50 ? "Ajustado" : "Riesgo alto";
 
@@ -697,18 +697,18 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: "var(--r-lg)", border: `1.5px solid ${confirm === "approved" ? "#10b981" : "var(--surface-3)"}`, background: confirm === "approved" ? "#10b981" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: "var(--r-lg)", border: `1.5px solid ${confirm === "approved" ? "var(--success)" : "var(--surface-3)"}`, background: confirm === "approved" ? "var(--success)" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "var(--success)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
           <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: "var(--r-lg)", border: `1.5px solid ${confirm === "rejected" ? "var(--danger)" : "var(--surface-3)"}`, background: confirm === "rejected" ? "var(--danger)" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "var(--danger)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
         </div>
         {confirm && (
           <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)", border: `1.5px solid ${confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)"}` }}>
-            <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "var(--danger)" }}>
+            <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "var(--success)" : "var(--danger)" }}>
               {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
             <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
             <div className="flex gap-2">
               <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
-              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)", border: "none", background: confirm === "approved" ? "#10b981" : "var(--danger)", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
+              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)", border: "none", background: confirm === "approved" ? "var(--success)" : "var(--danger)", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
             </div>
           </div>
         )}
@@ -732,7 +732,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
                   <span className="text-[10px] text-gray-400">{fmtDateTime(c.created_at)}</span>
                 </div>
                 <div className="text-sm text-gray-700" style={{ whiteSpace: "pre-wrap" }}>{c.comment}</div>
-                {c.notified && <div className="text-[10px] mt-1" style={{ color: "#059669" }}>{"\u2713"} Avisado por correo</div>}
+                {c.notified && <div className="text-[10px] mt-1" style={{ color: "var(--success)" }}>{"\u2713"} Avisado por correo</div>}
               </div>
             ))}
           </div>
@@ -953,7 +953,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             {requestDocsM.isPending ? "Enviando..." : dEmail ? `Solicitar ${missingDocs.length} documento(s) faltante(s)` : "Solicitar docs (sin correo)"}
           </button>
         )}
-        {requestDocsM.isSuccess && <div className="text-[11px] text-center mt-1.5" style={{ color: "#059669" }}>Solicitud de documentos enviada al cliente.</div>}
+        {requestDocsM.isSuccess && <div className="text-[11px] text-center mt-1.5" style={{ color: "var(--success)" }}>Solicitud de documentos enviada al cliente.</div>}
       </div>
 
       {docsMeta && Object.entries(docsMeta).some(([, v]: any) => v?.preview) && (
@@ -976,7 +976,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       <div className="flex flex-col gap-2 pt-1">
         {parsed?.creditId ? (
           <div className="rounded-2xl p-3 text-center text-sm font-semibold"
-            style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid var(--surface-3)" }}>
+            style={{ background: "var(--success-bg)", color: "var(--success)", border: "1.5px solid var(--surface-3)" }}>
             ✓ Convertida — crédito #{parsed.creditId} en revisión
           </div>
         ) : (
@@ -986,7 +986,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             onClick={() => convertM.mutate()}
             style={{ width: "100%", padding: "14px 16px", borderRadius: "var(--r-xl)", border: "none", cursor: "pointer",
               fontSize: 14, fontWeight: 700, color: "#fff",
-              background: convertM.isPending ? "var(--text-muted)" : "linear-gradient(135deg,#059669,#10b981)",
+              background: convertM.isPending ? "var(--text-muted)" : "linear-gradient(135deg,var(--success),var(--success))",
               opacity: convertM.isPending ? 0.7 : 1 }}
           >
             {convertM.isPending ? "Creando expediente..." : "✓ Enviar a revisión — crear crédito pendiente"}
@@ -1153,7 +1153,7 @@ export default function AdminSolicitudes() {
               {(historyCredits as any[]).map((credit: any) => {
                 const approved = credit.decision === "approved";
                 return (
-                  <div key={credit.id} className="card" style={{ borderLeft: `4px solid ${approved ? "#10b981" : "var(--danger)"}` }}>
+                  <div key={credit.id} className="card" style={{ borderLeft: `4px solid ${approved ? "var(--success)" : "var(--danger)"}` }}>
                     <div className="flex items-center gap-3">
                       <Avatar name={credit.clientName ?? "C"} size="sm" />
                       <div className="flex-1 min-w-0">
@@ -1161,7 +1161,7 @@ export default function AdminSolicitudes() {
                         <div className="text-xs text-gray-400">{new Date(credit.createdAt).toLocaleDateString("es-MX",{day:"numeric",month:"short",year:"numeric"})}</div>
                       </div>
                       <div className="flex flex-col items-end gap-1">
-                        <div className="text-sm font-extrabold" style={{ color: approved ? "#059669" : "var(--danger)" }}>
+                        <div className="text-sm font-extrabold" style={{ color: approved ? "var(--success)" : "var(--danger)" }}>
                           {new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",maximumFractionDigits:0}).format(credit.amount)}
                         </div>
                         <Badge variant={approved ? "success" : "danger"} size="sm">

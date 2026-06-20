@@ -167,7 +167,7 @@ export default function AdminDashboard() {
                 {[
                   { label: "Al corriente", count: d?.clientsCurrent ?? d?.activeClients ?? 0, color: "#34d399" },
                   { label: "En riesgo",    count: d?.clientsAtRisk ?? 0,  color: "#fbbf24" },
-                  { label: "En mora",      count: d?.clientsOverdue ?? 0, color: "#f97316" },
+                  { label: "En mora",      count: d?.clientsOverdue ?? 0, color: "var(--warning)" },
                   { label: "Vencidos",     count: d?.clientsDefaulted ?? 0, color: "#f87171" },
                 ].map(s => (
                   <div
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
                   ].map(row => (
                     <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{row.label}</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: row.positive ? "#059669" : "var(--danger)" }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>
                         {row.positive ? "+" : "−"}{row.value}
                       </span>
                     </div>
@@ -387,13 +387,13 @@ export default function AdminDashboard() {
                   <div style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Flujo neto</span>
-                    <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.04em", color: (d?.netFlowWeek ?? 0) >= 0 ? "#059669" : "var(--danger)" }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.04em", color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>
                       {fmt(d?.netFlowWeek ?? 0)}
                     </span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 6, borderTop: "1px dashed var(--border)" }}>
                     <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Multas acumuladas</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "#f97316" }}>{fmt(d?.totalLateFees ?? 0)}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{fmt(d?.totalLateFees ?? 0)}</span>
                   </div>
                 </div>
               </div>
@@ -479,7 +479,7 @@ export default function AdminDashboard() {
                   const palette = [
                     { bar: "#34d399", bg: "var(--surface-3)", text: "var(--text-secondary)" },
                     { bar: "#fbbf24", bg: "var(--surface-3)", text: "var(--text-secondary)" },
-                    { bar: "#f97316", bg: "#ffedd5", text: "#7c2d12" },
+                    { bar: "var(--warning)", bg: "#ffedd5", text: "#7c2d12" },
                     { bar: "#f87171", bg: "var(--surface-3)", text: "var(--text-secondary)" },
                   ];
                   const c = palette[Math.min(i, palette.length - 1)];
