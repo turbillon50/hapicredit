@@ -66,15 +66,51 @@ const DAYS_OF_WEEK = [
   { key: "domingo",   label: "Dom" },
 ];
 
-type UploadedDoc = { key: string; filename: string; mimeType: string; preview: string };
+type UploadedDoc = { key: string; filename: string; mimeType: string; url: string; localPreview: string; uploading?: boolean };
 
-function fileToDataUrl(file: File): Promise<string> {
+function readAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
+}
+
+// Comprime imágenes para que el envío no exceda el límite de Vercel (4.5 MB).
+// Redimensiona a máx 1280px y exporta JPEG ~65%. Una foto de INE pasa de
+// varios MB a ~150-250 KB. Los PDFs se dejan tal cual (no van a canvas).
+async function fileToDataUrl(file: File): Promise<string> {
+  const isImage = file.type.startsWith("image/");
+  if (!isImage) {
+    // PDF u otro: usar tal cual, pero si pesa demasiado avisar al llamador.
+    return readAsDataUrl(file);
+  }
+  const rawUrl = await readAsDataUrl(file);
+  try {
+    const img = await new Promise<HTMLImageElement>((resolve, reject) => {
+      const im = new Image();
+      im.onload = () => resolve(im);
+      im.onerror = reject;
+      im.src = rawUrl;
+    });
+    const MAX = 1280;
+    let { width, height } = img;
+    if (width > MAX || height > MAX) {
+      if (width >= height) { height = Math.round((height * MAX) / width); width = MAX; }
+      else { width = Math.round((width * MAX) / height); height = MAX; }
+    }
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return rawUrl;
+    ctx.drawImage(img, 0, 0, width, height);
+    const compressed = canvas.toDataURL("image/jpeg", 0.65);
+    // Si por alguna razón la compresión salió más grande, usar la original.
+    return compressed.length < rawUrl.length ? compressed : rawUrl;
+  } catch {
+    return rawUrl; // si el canvas falla en algún dispositivo, no bloqueamos
+  }
 }
 
 export default function Solicitar() {
@@ -156,12 +192,31 @@ export default function Solicitar() {
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file || !activeDocKey) return;
-    const dataUrl = await fileToDataUrl(file);
+    const key = activeDocKey;
+    // Miniatura local comprimida (solo para mostrar; NO se envía).
+    const localPreview = await fileToDataUrl(file);
+    // Mostrar el doc en estado "subiendo" mientras va a Blob.
     setDocs(prev => [
-      ...prev.filter(d => d.key !== activeDocKey),
-      { key: activeDocKey, filename: file.name, mimeType: file.type, preview: dataUrl },
+      ...prev.filter(d => d.key !== key),
+      { key, filename: file.name, mimeType: file.type, url: "", localPreview, uploading: true },
     ]);
     if (fileRef.current) fileRef.current.value = "";
+    try {
+      // Subir el archivo a Vercel Blob (no viaja en el JSON → sin payload gigante).
+      const { upload } = await import("@vercel/blob/client");
+      const blob = await upload(`solicitud/${key}-${Date.now()}-${file.name}`, file, {
+        access: "public",
+        handleUploadUrl: `${API}/uploads/sign`,
+        clientPayload: JSON.stringify({ type: "documento" }),
+        headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
+      });
+      setDocs(prev => prev.map(d => d.key === key ? { ...d, url: blob.url, uploading: false } : d));
+    } catch (err) {
+      console.error("upload doc failed", err);
+      // Si falla la subida, quitamos el doc y avisamos.
+      setDocs(prev => prev.filter(d => d.key !== key));
+      setError("No se pudo subir el documento. Revisa tu conexión e intenta de nuevo.");
+    }
   }
 
   function removeDoc(key: string) {
@@ -170,12 +225,17 @@ export default function Solicitar() {
 
   async function handleSubmit() {
     if (!canSubmit) return;
+    // No enviar si alguna foto sigue subiéndose a Blob.
+    if (docs.some(d => d.uploading)) {
+      setError("Espera a que terminen de subir los documentos.");
+      return;
+    }
     setSubmitting(true);
     setError("");
     try {
-      const docsData: Record<string, { provided: boolean; filename: string; preview: string }> = {};
+      const docsData: Record<string, { provided: boolean; filename: string; url: string }> = {};
       for (const d of docs) {
-        docsData[d.key] = { provided: true, filename: d.filename, preview: d.preview };
+        docsData[d.key] = { provided: true, filename: d.filename, url: d.url };
       }
       const payload = {
         fullName: fullName.trim(),
@@ -225,6 +285,15 @@ export default function Solicitar() {
         } catch { /* usamos el token guardado */ }
       }
       const bodyStr = JSON.stringify(payload);
+      // Segundo seguro: si el payload aún excede ~4 MB, avisar claro en vez
+      // de mandar y que Vercel responda "Request Entity Too Large".
+      const sizeMB = new Blob([bodyStr]).size / (1024 * 1024);
+      if (sizeMB > 4) {
+        throw new Error(
+          `Los documentos pesan demasiado (${sizeMB.toFixed(1)} MB). ` +
+          `Vuelve a tomar las fotos con menos zoom o sube imágenes más ligeras (no PDFs grandes).`
+        );
+      }
       let res = await fetch(`${API}/me/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -602,7 +671,7 @@ export default function Solicitar() {
                     {uploaded ? (
                       <div className="w-12 h-12 rounded-xl overflow-hidden border border-gray-100 shrink-0">
                         {uploaded.mimeType.startsWith("image/") ? (
-                          <img src={uploaded.preview} alt={d.label} className="w-full h-full object-cover" />
+                          <img src={uploaded.localPreview} alt={d.label} className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gray-100 flex items-center justify-center"><IconDocumento size={16} color="var(--text-muted)" /></div>
                         )}
