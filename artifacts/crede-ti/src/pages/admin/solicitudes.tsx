@@ -129,18 +129,13 @@ function CreditDetail({
   onDone: () => void;
 }) {
   const qc = useQueryClient();
-  // Documentos que el cliente subió (INE, selfie, comprobante) para revisarlos antes de aprobar.
-  const { data: expediente } = useQuery<any>({
-    queryKey: ["review-expediente", credit.clientId],
-    queryFn: async () => { const r = await fetch(`${API}/clients/${credit.clientId}/expediente`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
-    enabled: !!credit.clientId,
+  // Documentos de ESTA solicitud (INE frente/reverso, selfie) tal cual los subió el cliente.
+  const { data: application } = useQuery<any>({
+    queryKey: ["review-application", credit.id],
+    queryFn: async () => { const r = await fetch(`${API}/credits/${credit.id}/application`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
+    enabled: !!credit.id,
   });
-  const reviewUserId = expediente?.user?.id ?? null;
-  const { data: reviewDocs = [] } = useQuery<any[]>({
-    queryKey: ["review-docs", reviewUserId],
-    queryFn: async () => { const r = await fetch(`${API}/uploads/user/${reviewUserId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
-    enabled: !!reviewUserId,
-  });
+  const reviewDocs: any[] = application?.documents ?? [];
   const [notes, setNotes]             = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
   const [confirm, setConfirm]         = useState<"approve" | "reject" | null>(null);
   const [editMode, setEditMode]       = useState(false);
@@ -336,7 +331,7 @@ function CreditDetail({
         ) : (
           <div className="grid grid-cols-3 gap-2">
             {reviewDocs.map((doc: any) => {
-              const url = doc.blobUrl ?? doc.url ?? "";
+              const url = doc.url ?? doc.blobUrl ?? "";
               const isImg = (doc.mimeType ?? "").startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(url);
               const label = ({
                 ine_front: "INE Frente", ine_back: "INE Reverso", selfie_ine: "Selfie + INE",

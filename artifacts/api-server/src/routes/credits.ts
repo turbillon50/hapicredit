@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, auditLogTable, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, usersTable } from "@workspace/db";
+import { and, auditLogTable, clientsTable, creditsTable, db, eq, getTableColumns, notesTable, publicRequestsTable, sql, usersTable } from "@workspace/db";
 import { resolveClientId, isClientRole } from "../lib/clientResolver";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendCreditDecisionEmail } from "../lib/email";
@@ -553,6 +553,41 @@ router.patch("/credits/:id/conditions", requireAuth, requireRole("admin", "execu
   }
 
   res.json(formatCredit({ ...credit, clientName: null, executiveName: null }));
+});
+
+// ─── GET /credits/:id/application — documentos e info archivada de la solicitud ───
+router.get("/credits/:id/application", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID invalido" }); return; }
+
+  // Buscar el archivo KYC de esta solicitud en public_requests (message contiene creditId).
+  const rows = await db.select().from(publicRequestsTable)
+    .where(sql`${publicRequestsTable.message} LIKE ${'%"creditId":' + id + '%'}`)
+    .orderBy(sql`${publicRequestsTable.id} DESC`)
+    .limit(1);
+
+  if (rows.length === 0) { res.json({ documents: {}, found: false }); return; }
+
+  let parsed: any = {};
+  try { parsed = JSON.parse(rows[0].message as string); } catch { parsed = {}; }
+
+  // Normalizar documentos a un arreglo para el front.
+  const docsObj = parsed.documents ?? {};
+  const documents = Object.entries(docsObj).map(([key, v]: [string, any]) => ({
+    type: key,
+    url: v?.url ?? null,
+    filename: v?.filename ?? null,
+    provided: v?.provided ?? !!(v?.url),
+  })).filter(d => d.url || d.provided);
+
+  res.json({
+    found: true,
+    documents,
+    personalInfo: parsed.personalInfo ?? null,
+    references: parsed.references ?? [],
+    creditRequest: parsed.creditRequest ?? null,
+    submittedAt: parsed.submittedAt ?? null,
+  });
 });
 
 export default router;
