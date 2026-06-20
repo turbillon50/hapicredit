@@ -42,7 +42,7 @@ const s: Record<string, React.CSSProperties> = {
 function Nota({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#fef2f2", border: "1px solid #fecaca",
+      background: "rgba(224,36,36,0.06)", border: "1px solid rgba(224,36,36,0.12)",
       borderRadius: 12, padding: "14px 18px", marginBottom: 14,
     }}>
       <p style={{ ...s.p, margin: 0, color: "#991b1b" }}>{children}</p>
@@ -53,7 +53,7 @@ function Nota({ children }: { children: React.ReactNode }) {
 function InfoBox({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "#eff6ff", border: "1px solid #bfdbfe",
+      background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)",
       borderRadius: 12, padding: "16px 20px", marginBottom: 14,
     }}>
       <p style={{ ...s.p, margin: 0 }}>{children}</p>
@@ -110,7 +110,7 @@ export default function Terminos() {
           <p style={s.p}>Los créditos otorgados a través de credeti se rigen bajo las siguientes reglas:</p>
 
           <div style={{
-            background: "#f0fdf4", border: "1px solid #bbf7d0",
+            background: "rgba(14,159,110,0.06)", border: "1px solid rgba(14,159,110,0.14)",
             borderRadius: 12, padding: "18px 20px", marginBottom: 16,
           }}>
             <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
@@ -122,7 +122,7 @@ export default function Terminos() {
           </div>
 
           <div style={{
-            background: "#eff6ff", border: "1px solid #bfdbfe",
+            background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)",
             borderRadius: 12, padding: "18px 20px", marginBottom: 16,
           }}>
             <p style={{ ...s.p, color: "#1e40af", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>

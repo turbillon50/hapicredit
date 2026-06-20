@@ -147,7 +147,7 @@ function InviteVIP() {
             <button key={t} onClick={() => setType(t)}
               style={{ flex: 1, padding: "9px", borderRadius: 12,
                 border: type === t ? "1.5px solid var(--brand-blue)" : "1.5px solid var(--border)",
-                background: type === t ? "#eff6ff" : "var(--surface-2)",
+                background: type === t ? "rgba(33,93,255,0.06)" : "var(--surface-2)",
                 color: type === t ? "var(--brand-blue)" : "var(--text-muted)",
                 fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
               {t === "vip_new" ? "Nuevo cliente" : "Renovacion"}
@@ -306,7 +306,7 @@ function InviteByWhatsApp() {
               style={{
                 flex: 1, padding: "9px", borderRadius: 12,
                 border: role === r ? "1.5px solid var(--brand-blue)" : "1.5px solid var(--border)",
-                background: role === r ? "#eff6ff" : "var(--surface-2)",
+                background: role === r ? "rgba(33,93,255,0.06)" : "var(--surface-2)",
                 color: role === r ? "var(--brand-blue)" : "var(--text-muted)",
                 fontSize: 13, fontWeight: 700, cursor: "pointer",
               }}>

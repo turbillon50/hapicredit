@@ -8,9 +8,9 @@ const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_tok
 
 const ROLE_LABEL: Record<string, string> = { admin: "Administrador", executive: "Asesor", client: "Acreditado" };
 const ROLE_COLOR: Record<string, { bg: string; color: string }> = {
-  admin:     { bg: "#ede9fe", color: "#7c3aed" },
-  executive: { bg: "#dbeafe", color: "#1e40af" },
-  client:    { bg: "#dcfce7", color: "#166534" },
+  admin:     { bg: "var(--surface-3)", color: "#7c3aed" },
+  executive: { bg: "rgba(33,93,255,0.10)", color: "#1e40af" },
+  client:    { bg: "rgba(14,159,110,0.10)", color: "#166534" },
 };
 
 type Code = {
@@ -168,7 +168,7 @@ export default function AdminCodigos() {
                   </button>
                 ))}
                 {newRole === "admin" && (
-                  <div style={{ fontSize: 12, color: "#7c3aed", background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: "#7c3aed", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
                     El administrador invitado tendrá su propio árbol independiente. Comparte la clave de acceso institucional por separado.
                   </div>
                 )}
@@ -192,7 +192,7 @@ export default function AdminCodigos() {
                 <div style={{ textAlign: "center", padding: "20px 0" }}>
                   <div style={{ fontSize: 40, marginBottom: 12 }}>
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="12" fill="#dcfce7"/>
+                      <circle cx="12" cy="12" r="12" fill="rgba(14,159,110,0.10)"/>
                       <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#16a34a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
@@ -244,12 +244,12 @@ export default function AdminCodigos() {
                   </div>
                   <p style={{ fontSize: 12, color: "#94a3b8", marginBottom: c.role === "admin" ? 8 : 12 }}>Expira: {formatDate(c.expiresAt)}</p>
                   {c.role === "admin" && (
-                    <p style={{ fontSize: 11, color: "#7c3aed", background: "#faf5ff", border: "1px solid #e9d5ff", borderRadius: 8, padding: "6px 10px", marginBottom: 12, lineHeight: 1.5 }}>
+                    <p style={{ fontSize: 11, color: "#7c3aed", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: 8, padding: "6px 10px", marginBottom: 12, lineHeight: 1.5 }}>
                       Recuerda compartir la clave institucional por separado
                     </p>
                   )}
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "#f0fdf4" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid #e2e8f0", borderRadius: 8, background: copied === c.code ? "rgba(14,159,110,0.06)" : "white", color: copied === c.code ? "#166534" : "#374151", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                       {copied === c.code ? "Copiado" : "Copiar"}
                     </button>
                     <button

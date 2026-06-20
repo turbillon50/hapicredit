@@ -567,3 +567,19 @@ html { scroll-behavior: smooth; }
     scroll-behavior: auto !important;
   }
 }
+
+/* ─── Fondo lateral en escritorio (app centrada tipo móvil) ─── */
+@media (min-width: 481px) {
+  body {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(33,93,255,0.06), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(25,215,215,0.05), transparent 45%),
+      var(--app-bg);
+  }
+  [data-theme="dark"] body {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(94,109,246,0.10), transparent 45%),
+      radial-gradient(circle at 80% 80%, rgba(25,215,215,0.06), transparent 45%),
+      #05070e;
+  }
+}

@@ -185,7 +185,7 @@ export default function ExecAgenda() {
                   >
                     <div
                       className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-                      style={{ background: paid ? "#d1fae5" : isLastPayment ? "#fff3cd" : "var(--surface-2)" }}
+                      style={{ background: paid ? "rgba(14,159,110,0.10)" : isLastPayment ? "#fff3cd" : "var(--surface-2)" }}
                     >
                       {paid
                         ? <IconCheck size={18} color="#22c55e" />

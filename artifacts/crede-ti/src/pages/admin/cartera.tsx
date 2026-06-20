@@ -62,9 +62,9 @@ function fetchPortfolio(): Promise<CarteraItem[]> {
 
 function semaphoreColor(status: string, daysOverdue: number) {
   if (status === "defaulted" || daysOverdue >= 31) return { bg: "#1a1a1a", text: "#fff", label: "Cartera vencida", dot: "#000" };
-  if (status === "overdue" || daysOverdue >= 16)   return { bg: "#fee2e2", text: "#991b1b", label: "Atraso critico", dot: "#ef4444" };
-  if (status === "at_risk" || daysOverdue >= 1)    return { bg: "#fef3c7", text: "#92400e", label: "Atraso leve", dot: "#f59e0b" };
-  return                                           { bg: "#d1fae5", text: "#065f46", label: "Al corriente", dot: "#22c55e" };
+  if (status === "overdue" || daysOverdue >= 16)   return { bg: "rgba(224,36,36,0.10)", text: "#991b1b", label: "Atraso critico", dot: "#ef4444" };
+  if (status === "at_risk" || daysOverdue >= 1)    return { bg: "rgba(217,142,30,0.10)", text: "#92400e", label: "Atraso leve", dot: "#f59e0b" };
+  return                                           { bg: "rgba(14,159,110,0.10)", text: "#065f46", label: "Al corriente", dot: "#22c55e" };
 }
 
 type StatusFilter = "todos" | "current" | "at_risk" | "overdue" | "defaulted";

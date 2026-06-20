@@ -131,9 +131,9 @@ function UserAvatar({ name, size = 32, dark = false }: { name: string; size?: nu
 function RoleBadge({ role }: { role: string | null }) {
   if (!role) return null;
   const map: Record<string, { label: string; bg: string; color: string }> = {
-    admin:     { label: "Admin",   bg: "#f3e8ff", color: "#7c3aed" },
-    executive: { label: "Asesor",  bg: "#dbeafe", color: "#1d4ed8" },
-    client:    { label: "Cliente", bg: "#d1fae5", color: "#065f46" },
+    admin:     { label: "Admin",   bg: "var(--surface-3)", color: "#7c3aed" },
+    executive: { label: "Asesor",  bg: "rgba(33,93,255,0.10)", color: "#1d4ed8" },
+    client:    { label: "Cliente", bg: "rgba(14,159,110,0.10)", color: "#065f46" },
   };
   const m = map[role];
   if (!m) return null;
@@ -321,7 +321,13 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   }, [isDemo]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
+    <div style={{
+      display: "flex", flexDirection: "column", minHeight: "100dvh",
+      background: "var(--bg-warm)",
+      maxWidth: 480, marginLeft: "auto", marginRight: "auto",
+      width: "100%", position: "relative",
+      boxShadow: "0 0 60px rgba(15,23,42,0.10)",
+    }}>
       {isDemo && (
         <div style={{
           background: "var(--brand-gold)", color: "var(--brand-blue-deep)",
@@ -358,7 +364,8 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
       {/* ── Bottom Navigation ── */}
       <nav style={{
-        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
+        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
+        width: "100%", maxWidth: 480, zIndex: 30,
         display: "flex",
         background: isStaff ? "var(--brand-blue-deep)" : "var(--surface)",
         borderTop: isStaff ? "1px solid rgba(255,255,255,0.08)" : "1px solid var(--border)",

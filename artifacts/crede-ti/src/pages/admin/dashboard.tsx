@@ -51,16 +51,16 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 const ACCESOS = [
-  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "#fef3c7", iconColor: "#92400e" },
-  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "#dbeafe", iconColor: "#1e40af" },
-  { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "#e0e7ff", iconColor: "#3730a3" },
-  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado", iconBg: "#fee2e2", iconColor: "#991b1b" },
-  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "#d1fae5", iconColor: "#065f46" },
-  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocación, cobranza y desempeño",       iconBg: "#f3e8ff", iconColor: "#6d28d9" },
-  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "#fef9c3", iconColor: "#854d0e" },
-  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "#e0f2fe", iconColor: "#0369a1" },
-  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Códigos de invitación",  sub: "Genera y comparte códigos de registro",  iconBg: "#fdf4ff", iconColor: "#7c3aed" },
-  { path: "/admin/configuracion",  icon: <IconConfig size={20} />,   label: "Configuración",          sub: "Tasas, montos y ajustes del negocio",    iconBg: "rgba(25,215,215,0.12)", iconColor: "#0A9090" },
+  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "rgba(217,142,30,0.10)", iconColor: "#B26A00" },
+  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "rgba(33,93,255,0.10)", iconColor: "#1A4FE0" },
+  { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado", iconBg: "rgba(224,36,36,0.10)", iconColor: "#C81E1E" },
+  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "rgba(14,159,110,0.10)", iconColor: "#0B7A53" },
+  { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocación, cobranza y desempeño",       iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "rgba(217,142,30,0.10)", iconColor: "#B26A00" },
+  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "rgba(33,93,255,0.10)", iconColor: "#1A4FE0" },
+  { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Códigos de invitación",  sub: "Genera y comparte códigos de registro",  iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/configuracion",  icon: <IconConfig size={20} />,   label: "Configuración",          sub: "Tasas, montos y ajustes del negocio",    iconBg: "rgba(10,144,144,0.10)", iconColor: "#0A8585" },
 ];
 
 function dot(color: string) {
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                 border: "1.5px solid #86efac",
               }}
             >
-              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "#dcfce7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "rgba(14,159,110,0.10)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <IconCheck size={18} color="#16a34a" />
               </div>
               <div>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
                   padding: "14px 16px", borderRadius: 16,
-                  background: "#eff6ff",
+                  background: "rgba(33,93,255,0.06)",
                   border: "1.5px solid #93c5fd",
                   boxShadow: "0 2px 12px rgba(37,99,235,0.12)",
                 }}
@@ -325,22 +325,22 @@ export default function AdminDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px" }} className="anim-section anim-d3">
               {[
                 {
-                  icon: <IconAlerta size={18} />, iconBg: "#fee2e2", iconColor: "#dc2626",
+                  icon: <IconAlerta size={18} />, iconBg: "rgba(224,36,36,0.10)", iconColor: "#C81E1E",
                   label: "Índice de mora", value: `${moraPct.toFixed(1)}%`,
                   sub: `${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`,
                 },
                 {
-                  icon: <IconMoneda size={18} />, iconBg: "#d1fae5", iconColor: "#059669",
+                  icon: <IconMoneda size={18} />, iconBg: "rgba(14,159,110,0.10)", iconColor: "#0B7A53",
                   label: "Utilidad semanal", value: fmt(d?.profitThisWeek ?? 0),
                   sub: "Esta semana",
                 },
                 {
-                  icon: <IconDesembolso size={18} />, iconBg: "#dbeafe", iconColor: "#2563eb",
+                  icon: <IconDesembolso size={18} />, iconBg: "rgba(33,93,255,0.10)", iconColor: "#1A4FE0",
                   label: "Colocación mes", value: fmt(d?.placementThisMonth ?? 0),
                   sub: `Semana: ${fmt(d?.placementThisWeek ?? 0)}`,
                 },
                 {
-                  icon: <IconGrupo size={18} />, iconBg: "#ede9fe", iconColor: "#7c3aed",
+                  icon: <IconGrupo size={18} />, iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)",
                   label: "Asesores activos", value: d?.totalActiveExecutives ?? 0,
                   sub: `${d?.executivesWithAlerts ?? 0} con alertas`,
                 },
@@ -476,10 +476,10 @@ export default function AdminDashboard() {
               <div style={{ padding: "16px 18px" }}>
                 {(agingData as { bucket: string; clientCount: number; totalAmount: number; percentage: number }[]).map((row, i) => {
                   const palette = [
-                    { bar: "#34d399", bg: "#d1fae5", text: "#065f46" },
-                    { bar: "#fbbf24", bg: "#fef3c7", text: "#92400e" },
+                    { bar: "#34d399", bg: "rgba(14,159,110,0.10)", text: "#065f46" },
+                    { bar: "#fbbf24", bg: "rgba(217,142,30,0.10)", text: "#92400e" },
                     { bar: "#f97316", bg: "#ffedd5", text: "#7c2d12" },
-                    { bar: "#f87171", bg: "#fee2e2", text: "#991b1b" },
+                    { bar: "#f87171", bg: "rgba(224,36,36,0.10)", text: "#991b1b" },
                   ];
                   const c = palette[Math.min(i, palette.length - 1)];
                   const total = (agingData as any[]).reduce((s: number, r: any) => s + r.clientCount, 0) || 1;

@@ -36,9 +36,9 @@ function roleLabel(role: string) {
 }
 
 function roleBadge(role: string) {
-  if (role === "admin")     return { bg: "#f5f3ff", color: "#7c3aed" };
-  if (role === "executive") return { bg: "#eff6ff", color: "#2563eb" };
-  return { bg: "#f0fdf4", color: "#16a34a" };
+  if (role === "admin")     return { bg: "var(--surface-3)", color: "#7c3aed" };
+  if (role === "executive") return { bg: "rgba(33,93,255,0.06)", color: "#2563eb" };
+  return { bg: "rgba(14,159,110,0.06)", color: "#16a34a" };
 }
 
 /* ── WhatsApp share icon ── */
@@ -157,8 +157,8 @@ function InviteCodes({ userRole }: { userRole: string }) {
   const canGenClient = userRole === "admin" || userRole === "executive";
 
   function roleBadgeStyle(role: string) {
-    if (role === "admin")     return { background: "#f5f3ff", color: "#7c3aed" };
-    if (role === "executive") return { background: "#eff6ff", color: "#2563eb" };
+    if (role === "admin")     return { background: "var(--surface-3)", color: "#7c3aed" };
+    if (role === "executive") return { background: "rgba(33,93,255,0.06)", color: "#2563eb" };
     return { background: "var(--success-bg)", color: "#16a34a" };
   }
   function roleLabel2(role: string) {
@@ -178,7 +178,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
             onClick={() => generate("admin")}
             disabled={generating === "admin"}
             className="w-full flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
-            style={{ background: "#f5f3ff", color: "#7c3aed" }}
+            style={{ background: "var(--surface-3)", color: "#7c3aed" }}
           >
             {generating === "admin" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
             Invitar Administrador
@@ -190,7 +190,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
               onClick={() => generate("executive")}
               disabled={generating === "executive"}
               className="flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold pressable"
-              style={{ background: "#eff6ff", color: "#2563eb" }}
+              style={{ background: "rgba(33,93,255,0.06)", color: "#2563eb" }}
             >
               {generating === "executive" ? <IconLoader size={14} className="animate-spin" /> : <IconMas size={14} />}
               Asesor
@@ -233,7 +233,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
                 Expira: {new Date(c.expiresAt).toLocaleDateString("es-MX", { day: "numeric", month: "short", year: "numeric" })}
               </div>
               {c.role === "admin" && (
-                <div className="text-xs rounded-lg px-2.5 py-1.5 mb-2 font-medium" style={{ background: "#faf5ff", color: "#7c3aed", border: "1px solid #e9d5ff" }}>
+                <div className="text-xs rounded-lg px-2.5 py-1.5 mb-2 font-medium" style={{ background: "var(--surface-3)", color: "#7c3aed", border: "1px solid var(--surface-3)" }}>
                   Recuerda compartir la clave de acceso institucional por separado
                 </div>
               )}
@@ -248,7 +248,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
                 <button
                   onClick={() => copyLink(c.code)}
                   className="w-9 h-9 rounded-xl flex items-center justify-center pressable"
-                  style={{ background: copied === c.code ? "#f0fdf4" : "#f1f5f9", color: copied === c.code ? "#16a34a" : "#64748b" }}
+                  style={{ background: copied === c.code ? "rgba(14,159,110,0.06)" : "#f1f5f9", color: copied === c.code ? "#16a34a" : "#64748b" }}
                 >
                   <IconCopiar size={15} />
                 </button>
@@ -383,7 +383,7 @@ function ClientProfileEditor({ client, onSaved }: { client: any; onSaved: () => 
           </div>
         ))}
         {!client?.phone && (
-          <div className="text-xs rounded-lg px-3 py-2 mt-1" style={{ background: "#eff6ff", color: "#215DFF" }}>
+          <div className="text-xs rounded-lg px-3 py-2 mt-1" style={{ background: "rgba(33,93,255,0.06)", color: "#215DFF" }}>
             Completa tu información para agilizar tu solicitud de crédito.
           </div>
         )}
@@ -618,7 +618,7 @@ export default function Perfil() {
                         </div>
                         <div className="flex gap-1.5 shrink-0">
                           {isImage && (
-                            <button onClick={() => setPreview(parsed)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "#f0f7ff" }}>
+                            <button onClick={() => setPreview(parsed)} className="w-8 h-8 rounded-lg flex items-center justify-center pressable" style={{ background: "rgba(33,93,255,0.06)" }}>
                               <IconOjo size={14} color="#2563eb" />
                             </button>
                           )}
@@ -703,7 +703,7 @@ export default function Perfil() {
           <button
             onClick={() => setPurgeStep(1)}
             className="w-full py-3 rounded-2xl text-sm font-semibold pressable"
-            style={{ background: "var(--warning-bg)", color: "#c2410c", border: "1px solid #fed7aa" }}
+            style={{ background: "var(--warning-bg)", color: "#c2410c", border: "1px solid rgba(217,142,30,0.14)" }}
           >
             Limpiar datos de prueba
           </button>
@@ -742,7 +742,7 @@ export default function Perfil() {
               <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
                 Esto eliminará permanentemente todos los clientes, créditos, pagos y asesores de prueba. Tu cuenta de administrador se conserva.
               </div>
-              <div style={{ borderRadius: 14, background: "var(--warning-bg)", border: "1px solid #fed7aa", padding: "12px 14px", marginBottom: 20 }}>
+              <div style={{ borderRadius: 14, background: "var(--warning-bg)", border: "1px solid rgba(217,142,30,0.14)", padding: "12px 14px", marginBottom: 20 }}>
                 <div style={{ fontSize: 13, color: "#c2410c", fontWeight: 600, marginBottom: 4 }}>Se eliminará:</div>
                 <ul style={{ fontSize: 13, color: "#c2410c", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
                   <li>Todos los clientes y sus documentos</li>
@@ -808,7 +808,7 @@ export default function Perfil() {
               <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
                 Al eliminar tu cuenta se eliminarán permanentemente tus datos personales. Esta acción no se puede deshacer.
               </div>
-              <div style={{ borderRadius: 14, background: "#fef2f2", border: "1px solid #fecaca", padding: "12px 14px", marginBottom: 20 }}>
+              <div style={{ borderRadius: 14, background: "rgba(224,36,36,0.06)", border: "1px solid rgba(224,36,36,0.12)", padding: "12px 14px", marginBottom: 20 }}>
                 <div style={{ fontSize: 13, color: "#dc2626", fontWeight: 600, marginBottom: 4 }}>Lo que se eliminará:</div>
                 <ul style={{ fontSize: 13, color: "#dc2626", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
                   <li>Nombre, correo y datos de perfil</li>
@@ -842,7 +842,7 @@ export default function Perfil() {
         {deleteStep === 2 && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <div style={{ background: "var(--surface)", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "100%" }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "#fef2f2", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(224,36,36,0.06)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
               <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", textAlign: "center", marginBottom: 10 }}>
@@ -931,8 +931,8 @@ function AdminModeCard() {
         onClick={() => { setOpen(true); setPwd(""); setErr(""); }}
         className="card flex items-center gap-3 text-left pressable w-full"
         style={{
-          background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
-          border: "1.5px solid #ddd6fe",
+          background: "linear-gradient(135deg, var(--surface-3) 0%, var(--surface-3) 100%)",
+          border: "1.5px solid var(--surface-3)",
         }}
       >
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#7c3aed" }}>
@@ -991,7 +991,7 @@ function AdminModeCard() {
             </div>
 
             {err && (
-              <div className="mt-2 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca" }}>
+              <div className="mt-2 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "rgba(224,36,36,0.06)", color: "#b91c1c", border: "1px solid rgba(224,36,36,0.12)" }}>
                 {err}
               </div>
             )}
@@ -1052,8 +1052,8 @@ function DemoteCard() {
   }
 
   const roleOptions = [
-    { value: "executive" as const, label: "Asesor", desc: "Gestiona clientes y cobranza", color: "#2563eb", bg: "#eff6ff", border: "#bfdbfe" },
-    { value: "client"   as const, label: "Cliente", desc: "Vista del acreditado",         color: "#16a34a", bg: "#f0fdf4", border: "#bbf7d0" },
+    { value: "executive" as const, label: "Asesor", desc: "Gestiona clientes y cobranza", color: "#2563eb", bg: "rgba(33,93,255,0.06)", border: "rgba(33,93,255,0.14)" },
+    { value: "client"   as const, label: "Cliente", desc: "Vista del acreditado",         color: "#16a34a", bg: "rgba(14,159,110,0.06)", border: "rgba(14,159,110,0.14)" },
   ];
 
   return (
@@ -1061,7 +1061,7 @@ function DemoteCard() {
       <button
         onClick={() => { setOpen(true); setErr(""); }}
         className="card flex items-center gap-3 text-left pressable w-full"
-        style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)", border: "1.5px solid #bbf7d0" }}
+        style={{ background: "linear-gradient(135deg, rgba(14,159,110,0.06) 0%, rgba(14,159,110,0.10) 100%)", border: "1.5px solid rgba(14,159,110,0.14)" }}
       >
         <div className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0" style={{ background: "#16a34a" }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -1110,7 +1110,7 @@ function DemoteCard() {
             </div>
 
             {err && (
-              <div className="mb-4 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "#fef2f2", color: "#b91c1c", border: "1px solid #fecaca" }}>
+              <div className="mb-4 px-3 py-2 rounded-lg text-xs font-medium" style={{ background: "rgba(224,36,36,0.06)", color: "#b91c1c", border: "1px solid rgba(224,36,36,0.12)" }}>
                 {err}
               </div>
             )}

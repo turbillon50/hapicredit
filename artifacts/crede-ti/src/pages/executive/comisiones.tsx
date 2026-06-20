@@ -111,7 +111,7 @@ export default function ExecutiveComisiones() {
                     <div key={c.creditId ?? i} className="card flex items-center gap-3 py-3">
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0"
-                        style={{ background: c.status === "active" ? "#dcfce7" : "#dbeafe", color: c.status === "active" ? "#16a34a" : "#1e40af" }}
+                        style={{ background: c.status === "active" ? "rgba(14,159,110,0.10)" : "rgba(33,93,255,0.10)", color: c.status === "active" ? "#16a34a" : "#1e40af" }}
                       >
                         {c.status === "active" ? <IconCheck size={18} /> : <IconReloj size={18} />}
                       </div>
@@ -136,7 +136,7 @@ export default function ExecutiveComisiones() {
 
                   <div
                     className="rounded-2xl p-4 flex items-center justify-between"
-                    style={{ background: "#dcfce7" }}
+                    style={{ background: "rgba(14,159,110,0.10)" }}
                   >
                     <div className="text-sm font-bold text-green-800">Total del mes</div>
                     <div className="text-xl font-extrabold text-green-700">{fmt(totalComision)}</div>

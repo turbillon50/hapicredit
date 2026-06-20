@@ -252,7 +252,7 @@ export default function Solicitar() {
           <p className="text-sm text-gray-500 mb-2 max-w-xs">
             Un asesor revisará tu expediente y te contactará al número <strong>{phone}</strong> en breve.
           </p>
-          <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "#eff6ff", border: "1.5px solid #bfdbfe" }}>
+          <div className="rounded-2xl p-4 mb-4 w-full max-w-xs" style={{ background: "rgba(33,93,255,0.06)", border: "1.5px solid rgba(33,93,255,0.14)" }}>
             <div className="text-xs font-semibold uppercase mb-1" style={{ color: "#215DFF" }}>Folio</div>
             <div className="text-2xl font-extrabold" style={{ color: "#215DFF" }}>{done}</div>
           </div>
@@ -623,7 +623,7 @@ export default function Solicitar() {
                       <button
                         onClick={() => { setActiveDocKey(d.key); fileRef.current?.click(); }}
                         className="px-3 py-1.5 rounded-lg text-xs font-semibold pressable"
-                        style={{ background: "#f0f7ff", color: "var(--accent)" }}
+                        style={{ background: "rgba(33,93,255,0.06)", color: "var(--accent)" }}
                       >
                         <IconSubir size={12} className="inline mr-1" />Subir
                       </button>
@@ -701,7 +701,7 @@ export default function Solicitar() {
             </div>
 
             {error && (
-              <div className="rounded-xl px-4 py-3 flex items-start gap-2" style={{ background: "#fff0f0", border: "1px solid #fecaca" }}>
+              <div className="rounded-xl px-4 py-3 flex items-start gap-2" style={{ background: "#fff0f0", border: "1px solid rgba(224,36,36,0.12)" }}>
                 <IconAlerta size={18} color="#dc2626" />
                 <div className="text-sm text-red-700">{error}</div>
               </div>

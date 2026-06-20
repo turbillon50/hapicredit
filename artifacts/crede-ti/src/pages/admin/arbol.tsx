@@ -8,9 +8,9 @@ const API  = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
 
 const ROLE_CFG: Record<string, { label: string; bg: string; color: string; border: string; icon: React.ReactNode }> = {
-  admin:     { label: "Admin",      bg: "#ede9fe", color: "#7c3aed", border: "#c4b5fd", icon: <IconAdmin size={14} /> },
-  executive: { label: "Asesor",     bg: "#dbeafe", color: "#1e40af", border: "#93c5fd", icon: <IconMaletin size={14} /> },
-  client:    { label: "Acreditado", bg: "#d1fae5", color: "#065f46", border: "#6ee7b7", icon: <IconPerfil size={14} /> },
+  admin:     { label: "Admin",      bg: "var(--surface-3)", color: "#7c3aed", border: "#c4b5fd", icon: <IconAdmin size={14} /> },
+  executive: { label: "Asesor",     bg: "rgba(33,93,255,0.10)", color: "#1e40af", border: "#93c5fd", icon: <IconMaletin size={14} /> },
+  client:    { label: "Acreditado", bg: "rgba(14,159,110,0.10)", color: "#065f46", border: "#6ee7b7", icon: <IconPerfil size={14} /> },
 };
 
 const STATUS_COLOR: Record<string, string> = {
@@ -174,7 +174,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
               </button>
               <button
                 onClick={() => onDelete?.(node)}
-                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid #fee2e2", background: "#fff1f1", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", cursor: "pointer" }}
+                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid rgba(224,36,36,0.10)", background: "#fff1f1", display: "flex", alignItems: "center", justifyContent: "center", color: "#ef4444", cursor: "pointer" }}
               >
                 <TrashIcon />
               </button>
@@ -411,11 +411,11 @@ export default function AdminArbol() {
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 14px", borderRadius: 12,
                     border: `1.5px solid ${newParentId === admin.id ? "#7c3aed" : "#e2e8f0"}`,
-                    background: newParentId === admin.id ? "#ede9fe" : "#fff",
+                    background: newParentId === admin.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
                 >
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "#ede9fe", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#7c3aed" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#7c3aed" }}>
                     {admin.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>

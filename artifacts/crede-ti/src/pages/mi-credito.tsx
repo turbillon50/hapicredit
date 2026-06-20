@@ -72,7 +72,7 @@ const STATUS_MAP: Record<string, { label: string; color?: string; bg?: string; i
   pending:    { label: "En revision",        variant: "warning" },
   rejected:   { label: "Rechazado",          variant: "danger"  },
   closed:     { label: "Liquidado",          variant: "info"    },
-  needs_info: { label: "Falta información",  color: "#f59e0b", bg: "#fef3c7", icon: "⚠️", variant: "warning" },
+  needs_info: { label: "Falta información",  color: "#f59e0b", bg: "rgba(217,142,30,0.10)", icon: "⚠️", variant: "warning" },
 };
 
 function CreditCard({ credit, paid, total, pct, clientName }: {
@@ -495,7 +495,7 @@ export default function MiCredito() {
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
                     padding: "14px 16px", borderRadius: 16,
-                    background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "#f0fdf4",
+                    background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "rgba(14,159,110,0.06)",
                     border: `1.5px solid ${nextDays <= 1 ? "#fca5a5" : nextDays <= 3 ? "#fcd34d" : "#86efac"}`,
                   }}
                 >
@@ -591,7 +591,7 @@ export default function MiCredito() {
                     <div key={c.id}>
                       {c.status === "needs_info" && (
                         <div style={{
-                          background: "#fef3c7",
+                          background: "rgba(217,142,30,0.10)",
                           border: "2px solid #f59e0b",
                           borderRadius: "12px",
                           padding: "16px",
@@ -620,7 +620,7 @@ export default function MiCredito() {
                           background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
-                        <div style={{ width: 40, height: 40, borderRadius: 12, background: c.status === "needs_info" ? "#fef3c7" : "#fef9c3", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: 12, background: c.status === "needs_info" ? "rgba(217,142,30,0.10)" : "rgba(217,142,30,0.10)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           {c.status === "needs_info" ? <span style={{ fontSize: "16px" }}>⚠️</span> : <IconReloj size={16} color="#ca8a04" />}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -699,7 +699,7 @@ export default function MiCredito() {
                           style={{
                             width: 36, height: 36, borderRadius: 12, flexShrink: 0,
                             display: "flex", alignItems: "center", justifyContent: "center",
-                            background: isPaid ? "#d1fae5" : isPending ? "#fef9c3" : "var(--surface-3)",
+                            background: isPaid ? "rgba(14,159,110,0.10)" : isPending ? "rgba(217,142,30,0.10)" : "var(--surface-3)",
                             color: isPaid ? "#059669" : isPending ? "#ca8a04" : "var(--text-muted)",
                           }}
                         >

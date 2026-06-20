@@ -7,9 +7,9 @@ const inStyle: React.CSSProperties = { width: "100%", marginTop: 6, padding: "11
 
 const STATUS_MAP: Record<string, { label: string; desc: string; color: string; bg: string }> = {
   pending:   { label: "En revisión",          desc: "Recibimos tu solicitud y nuestro equipo la está revisando.", color: "#b45309", bg: "#fffbeb" },
-  approved:  { label: "Aprobada",             desc: "¡Felicidades! Tu solicitud fue aprobada. Pronto te contactaremos.", color: "#059669", bg: "#f0fdf4" },
-  rejected:  { label: "No aprobada",          desc: "Por ahora tu solicitud no procedió. Contáctanos para más información.", color: "#dc2626", bg: "#fef2f2" },
-  contacted: { label: "Requiere tu atención", desc: "Necesitamos más información o documentos. Revisa los mensajes abajo.", color: "#2563eb", bg: "#eff6ff" },
+  approved:  { label: "Aprobada",             desc: "¡Felicidades! Tu solicitud fue aprobada. Pronto te contactaremos.", color: "#059669", bg: "rgba(14,159,110,0.06)" },
+  rejected:  { label: "No aprobada",          desc: "Por ahora tu solicitud no procedió. Contáctanos para más información.", color: "#dc2626", bg: "rgba(224,36,36,0.06)" },
+  contacted: { label: "Requiere tu atención", desc: "Necesitamos más información o documentos. Revisa los mensajes abajo.", color: "#2563eb", bg: "rgba(33,93,255,0.06)" },
 };
 
 const fmtMoney = (n: any) => n == null ? "" : new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(Number(n));

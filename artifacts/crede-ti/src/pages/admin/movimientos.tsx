@@ -369,13 +369,13 @@ export default function AdminMovimientos() {
                                     setEditAmount(String(Math.abs(entry.amount)));
                                     setEditDesc(entry.detail !== `Prestamos ${data.executiveName}` ? entry.detail : entry.description);
                                   }}
-                                  style={{ background: "#eff6ff", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#1d4ed8" }}
+                                  style={{ background: "rgba(33,93,255,0.06)", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#1d4ed8" }}
                                 >
                                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                 </button>
                                 <button
                                   onClick={() => setDeleteTarget({ id: cajaId, amount: Math.abs(entry.amount), description: entry.description })}
-                                  style={{ background: "#fef2f2", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#dc2626" }}
+                                  style={{ background: "rgba(224,36,36,0.06)", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#dc2626" }}
                                 >
                                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                                 </button>

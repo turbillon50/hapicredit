@@ -403,7 +403,7 @@ export default function AltaCliente() {
 
               <div
                 className="rounded-2xl p-3 flex items-center gap-3"
-                style={{ background: docsOk ? "#d1fae5" : "#f8fafc" }}
+                style={{ background: docsOk ? "rgba(14,159,110,0.10)" : "#f8fafc" }}
               >
                 <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "#cbd5e1"} /></span>
                 <div className="text-sm">

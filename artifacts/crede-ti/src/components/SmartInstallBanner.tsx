@@ -132,8 +132,8 @@ export default function SmartInstallBanner() {
             Agrega credeti a tu pantalla de inicio para usarla como app nativa, sin abrir el navegador.
           </div>
           {[
-            { num: 1, color: "#4f46e5", bg: "#e0e7ff", title: 'Toca el botón "Compartir"', sub: "El ícono de cuadro con flecha hacia arriba, en la barra inferior de Safari" },
-            { num: 2, color: "#16a34a", bg: "#dcfce7", title: '"Agregar a pantalla de inicio"', sub: 'Desliza hacia abajo en el menú y selecciona esta opción' },
+            { num: 1, color: "#4f46e5", bg: "var(--surface-3)", title: 'Toca el botón "Compartir"', sub: "El ícono de cuadro con flecha hacia arriba, en la barra inferior de Safari" },
+            { num: 2, color: "#16a34a", bg: "rgba(14,159,110,0.10)", title: '"Agregar a pantalla de inicio"', sub: 'Desliza hacia abajo en el menú y selecciona esta opción' },
             { num: 3, color: "#ea580c", bg: "#fff7ed", title: 'Toca "Agregar"', sub: "Confirma y el ícono aparecerá en tu pantalla de inicio" },
           ].map(step => (
             <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: 16, background: "#f8fafc", border: "1.5px solid #e2e8f0", marginBottom: 10 }}>
@@ -146,7 +146,7 @@ export default function SmartInstallBanner() {
               </div>
             </div>
           ))}
-          <div style={{ marginTop: 4, padding: "11px 14px", borderRadius: 12, background: "#fef9f0", border: "1px solid #fed7aa" }}>
+          <div style={{ marginTop: 4, padding: "11px 14px", borderRadius: 12, background: "#fef9f0", border: "1px solid rgba(217,142,30,0.14)" }}>
             <div style={{ fontSize: 12, color: "#92400e" }}>
               Asegúrate de abrir esta página en <strong>Safari</strong> — Chrome y otros navegadores no permiten instalación en iPhone.
             </div>

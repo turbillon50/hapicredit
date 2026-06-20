@@ -86,7 +86,7 @@ export default function ValidarPagos() {
         </div>
 
         {(payments as PendingPayment[]).length > 0 && (
-          <div className="mx-4 rounded-2xl p-4" style={{ background: "#fef3c7", border: "2px solid #fbbf24" }}>
+          <div className="mx-4 rounded-2xl p-4" style={{ background: "rgba(217,142,30,0.10)", border: "2px solid #fbbf24" }}>
             <div className="flex items-center gap-3">
               <IconAlerta size={24} color="#a16207" />
               <div>
