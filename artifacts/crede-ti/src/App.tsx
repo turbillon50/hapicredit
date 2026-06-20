@@ -49,6 +49,7 @@ import Acceso          from "@/pages/acceso";
 import Invitacion      from "@/pages/invitacion";
 import AdminReportes   from "@/pages/admin/reportes";
 import AdminCentro        from "@/pages/admin/centro";
+import AdminExpediente    from "@/pages/admin/expediente";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -286,6 +287,7 @@ function Router() {
       {/* Admin */}
       <Route path="/admin"                  component={AdminDashboard} />
       <Route path="/admin/solicitudes"      component={AdminSolicitudes} />
+      <Route path="/admin/expediente/:userId" component={AdminExpediente} />
       <Route path="/admin/cartera"          component={AdminCartera} />
       <Route path="/admin/morosos"          component={AdminMorosos} />
       <Route path="/admin/asesores"         component={AdminAsesores} />

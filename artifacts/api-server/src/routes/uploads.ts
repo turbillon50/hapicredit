@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { handleUpload, type HandleUploadBody } from "@vercel/blob/client";
 import { db, documentsTable } from "@workspace/db";
-import { requireAuth } from "../middlewares/auth";
+import { requireAuth, requireRole } from "../middlewares/auth";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -158,6 +158,40 @@ router.delete("/uploads/avatar", requireAuth, async (req, res): Promise<void> =>
     res.json({ ok: true });
   } catch {
     res.status(503).json({ error: "No se pudo quitar la foto" });
+  }
+});
+
+// ─── GET /uploads/user/:userId — documentos de un usuario (solo staff) ───
+router.get("/uploads/user/:userId", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  try {
+    const { eq, desc } = await import("drizzle-orm");
+    const uid = parseInt(req.params.userId as string, 10);
+    if (isNaN(uid)) { res.status(400).json({ error: "userId inválido" }); return; }
+    const rows = await db.select().from(documentsTable)
+      .where(eq(documentsTable.userId, uid))
+      .orderBy(desc(documentsTable.uploadedAt));
+    res.json(rows);
+  } catch {
+    res.status(503).json({ error: "Database not configured" });
+  }
+});
+
+// ─── PATCH /uploads/:id/status — validar/rechazar un documento (staff) ───
+router.patch("/uploads/:id/status", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  try {
+    const { eq } = await import("drizzle-orm");
+    const { status } = req.body ?? {};
+    if (!["pending", "approved", "rejected"].includes(status)) {
+      res.status(400).json({ error: "status inválido" }); return;
+    }
+    const id = parseInt(req.params.id as string, 10);
+    const [row] = await db.update(documentsTable)
+      .set({ status })
+      .where(eq(documentsTable.id, id))
+      .returning();
+    res.json(row ?? null);
+  } catch {
+    res.status(503).json({ error: "No se pudo actualizar" });
   }
 });
 

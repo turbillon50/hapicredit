@@ -442,6 +442,11 @@ export default function Perfil() {
     queryFn: async () => { const r = await fetch(`${API}/uploads/avatar`, { headers: auth() }); if (!r.ok) return { url: null }; return r.json(); },
   });
 
+  const { data: docRequests = [] } = useQuery<any[]>({
+    queryKey: ["my-doc-requests"],
+    queryFn: async () => { const r = await fetch(`${API}/document-requests/mine`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+  });
+
   async function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -544,6 +549,12 @@ export default function Perfil() {
         headers: { ...auth(), "Content-Type": "application/json" },
         body: JSON.stringify({ url: blob.url, type: labelKey, filename: file.name, mimeType: file.type }),
       });
+      // Si había una solicitud pendiente de este tipo, marcarla cumplida
+      const matchReq = docRequests.find((r: any) => r.doc_type === labelKey);
+      if (matchReq) {
+        await fetch(`${API}/document-requests/${matchReq.id}/fulfill`, { method: "PATCH", headers: auth() });
+        await qc.invalidateQueries({ queryKey: ["my-doc-requests"] });
+      }
       await qc.invalidateQueries({ queryKey: ["client-docs", client?.id] });
       await qc.invalidateQueries({ queryKey: ["uploads-mine"] });
       setUploadMsg("Documento cargado correctamente");
@@ -628,6 +639,25 @@ export default function Perfil() {
               </div>
             )}
             {client && (<>
+            {/* Documentos solicitados por el asesor */}
+            {docRequests.length > 0 && (
+              <div className="card" style={{ background: "var(--info-bg, var(--surface-2))", border: "1.5px solid var(--brand-blue)" }}>
+                <div style={{ fontSize: 13, fontWeight: 800, color: "var(--brand-blue)", marginBottom: 8 }}>Tu asesor te pide estos documentos</div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {docRequests.map((r: any) => (
+                    <div key={r.id} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--brand-blue)", flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-primary)" }}>{r.label}</span>
+                    </div>
+                  ))}
+                </div>
+                {docRequests[0]?.note && (
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 10, paddingTop: 10, borderTop: "1px solid var(--border)" }}>{docRequests[0].note}</div>
+                )}
+                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 8 }}>Súbelos en la sección de abajo.</div>
+              </div>
+            )}
+
             {/* Document upload */}
             <div className="card" style={{ border: "2px dashed var(--border)", background: "var(--surface-inset)" }}>
               <div className="flex items-center gap-2 mb-3">

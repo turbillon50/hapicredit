@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout/Layout";
+import { useLocation } from "wouter";
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
@@ -313,6 +314,12 @@ function UsuariosTab() {
             </div>
 
             <UserDetailPanel userId={editing.id} />
+
+            <button onClick={() => { window.location.href = `/admin/expediente/${editing.id}`; }} className="pressable"
+              style={{ width: "100%", padding: 13, marginBottom: 16, borderRadius: "var(--r-lg)", border: "1.5px solid var(--brand-blue)", background: "var(--info-bg, var(--surface-2))", color: "var(--brand-blue)", fontWeight: 700, fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              Ver expediente completo
+            </button>
 
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Rol</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
