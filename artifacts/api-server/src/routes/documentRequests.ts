@@ -52,23 +52,27 @@ router.post("/document-requests", requireAuth, requireRole("admin", "executive")
     );
     created.push(rows[0]);
   }
-  // Avisar al cliente por correo (no bloqueante)
+  // Avisar al cliente por correo — AWAIT para que no se corte en serverless
+  let emailSent = false;
   try {
     const { rows: urows } = await dbPool.query(
       "SELECT email, full_name FROM users WHERE id = $1 LIMIT 1", [userId]
     );
     const u = urows[0];
     if (u?.email) {
-      sendDocumentRequestEmail({
+      await sendDocumentRequestEmail({
         to: u.email,
         clientName: u.full_name ?? "Acreditado",
         docs: created.map(r => r.label),
         note: note ?? undefined,
-      }).catch(() => {});
+      });
+      emailSent = true;
     }
-  } catch { /* email no crítico */ }
+  } catch (err) {
+    console.error("[docRequest:email]", err);
+  }
 
-  res.json({ ok: true, requests: created });
+  res.json({ ok: true, requests: created, emailSent });
 });
 
 // ─── Cliente: ver mis documentos solicitados (pendientes) ───
