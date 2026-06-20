@@ -203,11 +203,17 @@ export default function Solicitar() {
     if (fileRef.current) fileRef.current.value = "";
     try {
       // Subir el archivo a Vercel Blob (no viaja en el JSON → sin payload gigante).
+      // Mapear la key del documento a un tipo válido del backend.
+      const TYPE_MAP: Record<string, string> = {
+        ine_front: "ine_front", ine_back: "ine_back", selfie_ine: "selfie_ine",
+        domicilio: "comprobante_domicilio", otro: "otro",
+      };
+      const docType = TYPE_MAP[key] ?? "otro";
       const { upload } = await import("@vercel/blob/client");
       const blob = await upload(`solicitud/${key}-${Date.now()}-${file.name}`, file, {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
-        clientPayload: JSON.stringify({ type: "documento" }),
+        clientPayload: JSON.stringify({ type: docType }),
         headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
       });
       setDocs(prev => prev.map(d => d.key === key ? { ...d, url: blob.url, uploading: false } : d));
