@@ -23,6 +23,7 @@ const ALLOWED_TYPES = new Set([
   "recibo_nomina",
   "selfie_ine",
   "curp",
+  "foto",
   "otro",
 ]);
 
