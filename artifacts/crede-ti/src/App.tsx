@@ -253,6 +253,7 @@ function Router() {
     <Switch>
       {/* Public */}
       <Route path="/"           component={RootRedirect} />
+      <Route path="/inicio"     component={Home} />
       <Route path="/acceso/:token" component={Acceso} />
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />

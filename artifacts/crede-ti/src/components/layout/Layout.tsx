@@ -150,7 +150,7 @@ function RoleBadge({ role }: { role: string | null }) {
 }
 
 function checkAccess(location: string, t: string | null, r: string | null): "ok" | "login" | string {
-  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
+  const publicPaths = ["/", "/inicio", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
   if (!t) return publicPaths.includes(location) ? "ok" : "login";
   if (location.startsWith("/admin") && r !== "admin") return r === "executive" ? "/dashboard" : "/mi-credito";
   if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive") return r === "admin" ? "/admin" : "/mi-credito";
@@ -341,7 +341,15 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
           );
         })}
       </div>
-      <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+      <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", flexDirection: "column", gap: 4 }}>
+        <Link href="/inicio" className="dsb-item" style={{ margin: 0 }}>
+          <span className="dsb-icon">
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          </span>
+          <span>Ver inicio</span>
+        </Link>
         <button
           onClick={() => { localStorage.clear(); window.location.href = "/"; }}
           className="dsb-item"
