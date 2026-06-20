@@ -748,6 +748,9 @@ export default function Perfil() {
         {/* Admin demote — only visible when already in admin mode */}
         {userRole === "admin" && <DemoteCard />}
 
+        {/* Acceso a modo administrador con clave maestra — para usuarios que NO son admin todavia */}
+        {userRole !== "admin" && <AdminModeCard />}
+
         {/* Invite codes for admin and executive */}
         {(userRole === "admin" || userRole === "executive") && (
           <div className="card flex flex-col gap-4">
