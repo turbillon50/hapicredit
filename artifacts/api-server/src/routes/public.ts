@@ -32,10 +32,21 @@ router.post("/public/requests", async (req, res): Promise<void> => {
   res.status(201).json({ success: true, id: record.id, referenceNumber: refNumber, message: "Solicitud recibida. Te contactaremos pronto." });
 });
 
-// Admin: list all public credit requests
+// Admin: list public credit requests — SOLO solicitudes publicas reales.
+// Los archivos de /me/apply (clientes autenticados) tienen creditId en su message
+// y NO deben aparecer aqui: ya viven como creditos en la cola de Pendientes/Cartera.
 router.get("/public/requests", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
   const rows = await db.select().from(publicRequestsTable).orderBy(publicRequestsTable.createdAt);
-  res.json(rows);
+  const onlyPublic = rows.filter((r) => {
+    try {
+      const m = JSON.parse((r.message as string) || "{}");
+      // Si tiene creditId, es un archivo de /me/apply (no una solicitud publica real).
+      return !m.creditId;
+    } catch {
+      return true; // mensajes simples/legados se consideran publicos
+    }
+  });
+  res.json(onlyPublic);
 });
 
 // Public: full credit application with KYC + documents

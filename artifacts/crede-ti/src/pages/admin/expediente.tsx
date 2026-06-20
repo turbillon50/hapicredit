@@ -58,11 +58,35 @@ export default function Expediente() {
   // userId real (si el cliente tiene usuario vinculado) para docs/avatar
   const linkedUserId = detail?.user?.id ?? null;
 
-  // Documentos subidos
-  const { data: docs = [] } = useQuery<any[]>({
+  // Documentos subidos (tabla documents — avatar, etc.)
+  const { data: tableDocs = [] } = useQuery<any[]>({
     queryKey: ["expediente-docs", linkedUserId],
     queryFn: async () => { const r = await fetch(`${API}/uploads/user/${linkedUserId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
     enabled: !!linkedUserId,
+  });
+
+  // Documentos de las solicitudes (INE/selfie, archivados en cada crédito).
+  const creditIds: number[] = (detail?.credits ?? []).map((cr: any) => cr.id);
+  const { data: appDocs = [] } = useQuery<any[]>({
+    queryKey: ["expediente-appdocs", clientId, creditIds.join(",")],
+    queryFn: async () => {
+      const all: any[] = [];
+      for (const cid of creditIds) {
+        try {
+          const r = await fetch(`${API}/credits/${cid}/application`, { headers: auth() });
+          if (r.ok) { const j = await r.json(); (j.documents ?? []).forEach((d: any) => all.push({ ...d, blobUrl: d.url, creditId: cid })); }
+        } catch {}
+      }
+      return all;
+    },
+    enabled: creditIds.length > 0,
+  });
+
+  // Combinar ambas fuentes, sin duplicar por URL.
+  const seen = new Set<string>();
+  const docs = [...appDocs, ...tableDocs].filter((d: any) => {
+    const u = d.url ?? d.blobUrl ?? d.id;
+    if (seen.has(u)) return false; seen.add(u); return true;
   });
 
   // Documentos solicitados
@@ -227,17 +251,19 @@ export default function Expediente() {
           ) : (
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {docs.map((d: any) => {
-                const isImg = (d.mimeType ?? "").startsWith("image/");
+                const imgUrl = d.blobUrl ?? d.url ?? "";
+                const isImg = (d.mimeType ?? "").startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(imgUrl) || (!!imgUrl && !d.mimeType);
+                const isFromTable = typeof d.id === "number"; // solo los de la tabla 'documents' tienen id y se pueden validar
                 return (
-                  <div key={d.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
-                    <button onClick={() => setPreview(d)} style={{ width: 44, height: 44, borderRadius: "var(--r-sm)", overflow: "hidden", flexShrink: 0, background: "var(--surface-3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
-                      {isImg && d.blobUrl ? <img src={d.blobUrl} alt={d.type} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <IcDoc />}
+                  <div key={d.id ?? imgUrl} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 12px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
+                    <button onClick={() => setPreview({ ...d, blobUrl: imgUrl })} style={{ width: 44, height: 44, borderRadius: "var(--r-sm)", overflow: "hidden", flexShrink: 0, background: "var(--surface-3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-muted)" }}>
+                      {isImg && imgUrl ? <img src={imgUrl} alt={d.type} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <IcDoc />}
                     </button>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>{DOC_CATALOG[d.type] ?? d.type}</div>
-                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{statusLabel[d.status] ?? d.status}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{d.status ? (statusLabel[d.status] ?? d.status) : "Subido en la solicitud"}</div>
                     </div>
-                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                    <div style={{ display: isFromTable ? "flex" : "none", gap: 6, flexShrink: 0 }}>
                       <button onClick={() => validateM.mutate({ id: d.id, status: "approved" })} title="Validar"
                         style={{ width: 30, height: 30, borderRadius: "50%", border: "1.5px solid var(--border)", background: d.status === "approved" ? "var(--success)" : "var(--surface)", color: d.status === "approved" ? "#fff" : "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
                         <IcCheck />
