@@ -488,6 +488,36 @@ export async function sendAdminNewRequestEmail(opts: {
 }
 
 // ── Email: Confirmación al solicitante ────────────────────────────────────────
+export async function sendDocumentRequestEmail(opts: {
+  to: string;
+  clientName: string;
+  docs: string[];
+  note?: string;
+}) {
+  const ctx = await getResendClient();
+  if (!ctx) return;
+
+  const list = opts.docs.map(d => `<li style="color:#334155;font-size:15px;margin:4px 0;">${d}</li>`).join("");
+  const content = `
+    <h2 style="color:#0E68CC;font-size:22px;margin:0 0 8px;">Hola, ${opts.clientName}</h2>
+    <p style="color:#64748b;font-size:15px;margin:0 0 20px;line-height:1.6;">Tu asesor necesita que subas los siguientes documentos para continuar con tu solicitud:</p>
+    <ul style="margin:0 0 20px;padding-left:20px;">${list}</ul>
+    ${opts.note ? `<p style="color:#64748b;font-size:14px;margin:0 0 20px;line-height:1.6;background:#f8fafc;padding:14px;border-radius:10px;">${opts.note}</p>` : ""}
+    <a href="https://crede-ti.info/perfil" style="display:inline-block;background:#0E68CC;color:#fff;text-decoration:none;padding:13px 28px;border-radius:10px;font-weight:700;font-size:15px;">Subir documentos</a>
+  `;
+
+  try {
+    await ctx.client.emails.send({
+      from: ctx.from,
+      to: opts.to,
+      subject: "Documentos pendientes — Crede-Ti",
+      html: baseTemplate(content),
+    });
+  } catch (err) {
+    console.error("[email:docRequest]", err);
+  }
+}
+
 export async function sendApplicantConfirmationEmail(opts: {
   to: string;
   name?: string;

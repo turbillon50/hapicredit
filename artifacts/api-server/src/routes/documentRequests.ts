@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { pool } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
+import { sendDocumentRequestEmail } from "../lib/email";
+import { pool as dbPool } from "@workspace/db";
 
 const router = Router();
 
@@ -50,6 +52,22 @@ router.post("/document-requests", requireAuth, requireRole("admin", "executive")
     );
     created.push(rows[0]);
   }
+  // Avisar al cliente por correo (no bloqueante)
+  try {
+    const { rows: urows } = await dbPool.query(
+      "SELECT email, full_name FROM users WHERE id = $1 LIMIT 1", [userId]
+    );
+    const u = urows[0];
+    if (u?.email) {
+      sendDocumentRequestEmail({
+        to: u.email,
+        clientName: u.full_name ?? "Acreditado",
+        docs: created.map(r => r.label),
+        note: note ?? undefined,
+      }).catch(() => {});
+    }
+  } catch { /* email no crítico */ }
+
   res.json({ ok: true, requests: created });
 });
 
