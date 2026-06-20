@@ -1,11 +1,27 @@
 import { Router } from "express";
-import { and, clientsTable, creditsTable, db, eq, inArray, paymentsTable, sessionsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, desc, documentsTable, eq, inArray, paymentsTable, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
 import crypto from "crypto";
 import { isValidStaffCode } from "../lib/staffCode";
 
 const router = Router();
+
+// Helper: dado un set de userIds, devuelve un Map userId -> avatarUrl (foto más reciente).
+// Una sola consulta para evitar N+1 al listar usuarios con sus fotos.
+async function avatarMapFor(userIds: number[]): Promise<Map<number, string>> {
+  const map = new Map<number, string>();
+  if (!userIds.length) return map;
+  try {
+    const rows = await db.select().from(documentsTable)
+      .where(and(inArray(documentsTable.userId, userIds), eq(documentsTable.type, "foto")))
+      .orderBy(desc(documentsTable.uploadedAt));
+    for (const r of rows) {
+      if (r.userId != null && !map.has(r.userId) && r.blobUrl) map.set(r.userId, r.blobUrl);
+    }
+  } catch { /* sin fotos, ok */ }
+  return map;
+}
 
 function hashPassword(password: string): string {
   return crypto.createHash("sha256").update(password + "credeti_salt").digest("hex");
@@ -32,7 +48,8 @@ router.get("/users", requireAuth, requireRole("admin"), async (req, res): Promis
   const users = treeId
     ? await db.select().from(usersTable).where(eq(usersTable.treeId, treeId)).orderBy(usersTable.fullName)
     : await db.select().from(usersTable).orderBy(usersTable.fullName);
-  res.json(users.map(formatUser));
+  const avatars = await avatarMapFor(users.map(u => u.id));
+  res.json(users.map(u => ({ ...formatUser(u), avatarUrl: avatars.get(u.id) ?? null })));
 });
 
 // ─── MUST be before /users/:id ────────────────────────────────────────────────
@@ -177,8 +194,9 @@ router.get("/users/:id/detail", requireAuth, requireRole("admin"), async (req, r
     stats.totalPaid = payments.filter((p: any) => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected").reduce((s: number, p: any) => s + parseFloat(p.amountPaid ?? "0"), 0);
   }
 
+  const detailAvatars = await avatarMapFor([user.id]);
   res.json({
-    user: formatUser(user),
+    user: { ...formatUser(user), avatarUrl: detailAvatars.get(user.id) ?? null },
     client: client ? {
       id: client.id, fullName: client.fullName, phone: client.phone,
       address: client.address, curp: client.curp, status: client.status,

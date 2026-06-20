@@ -12,6 +12,7 @@ import {
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
 import { DynamicBanners, DynamicNotifications } from "@/components/hapi/DynamicContent";
+import { useMyAvatar } from "@/hooks/use-my-avatar";
 
 interface Credit {
   id: number;
@@ -378,6 +379,26 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
 
 type TimelineEvent = { id: string; type: string; title: string; detail?: string; amount?: number; date: string; tone: "positive" | "neutral" | "warning" };
 
+function Greeting({ name }: { name: string }) {
+  const { data: av } = useMyAvatar();
+  const first = name.split(" ")[0] || "Bienvenido";
+  const initials = name.trim().split(/\s+/).slice(0,2).map(w => w[0]?.toUpperCase() ?? "").join("");
+  const saludo = (() => { const h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; })();
+  return (
+    <div style={{ marginBottom: 18, display: "flex", alignItems: "center", gap: 14 }}>
+      <div style={{ width: 52, height: 52, borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: av?.url ? "var(--surface-3)" : "var(--brand-blue-deep)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-sm)" }}>
+        {av?.url
+          ? <img src={av.url} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          : <span style={{ fontSize: 18, fontWeight: 800, color: "#fff" }}>{initials || "?"}</span>}
+      </div>
+      <div>
+        <div style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600 }}>{saludo}</div>
+        <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em", marginTop: 2 }}>{first}</div>
+      </div>
+    </div>
+  );
+}
+
 export default function MiCredito() {
   useRequireAuth(["client"]);
 
@@ -459,15 +480,8 @@ export default function MiCredito() {
           <div style={{ padding: "16px 16px 0" }}><SkeletonHero /></div>
         ) : isEmpty ? (
           <div style={{ padding: "16px 16px 0" }} className="anim-section anim-d1">
-            {/* Saludo cálido */}
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600 }}>
-                {(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; })()}
-              </div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em", marginTop: 2 }}>
-                {(client?.fullName ?? "").split(" ")[0] || "Bienvenido"}
-              </div>
-            </div>
+            {/* Saludo cálido con foto */}
+            <Greeting name={client?.fullName ?? ""} />
 
             {/* Tarjeta de bienvenida premium con mesh */}
             <div className="mesh-institutional" style={{

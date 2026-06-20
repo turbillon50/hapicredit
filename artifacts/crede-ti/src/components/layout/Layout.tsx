@@ -9,6 +9,7 @@ import {
   IconPersona, IconMoneda, IconMas, IconFinanzas, IconCalendario, IconEquipo,
 } from "@/components/hapi/HapiIcons";
 import { useTheme } from "@/hooks/use-theme";
+import { useMyAvatar } from "@/hooks/use-my-avatar";
 import logoImg from "@assets/logo-credeti-square.jpeg";
 
 /* Toggle claro/oscuro — sol/luna. `tone` adapta el color al header. */
@@ -281,13 +282,24 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   );
 
   /* ── Client/public header — superficie ── */
-  const ClientHeader = () => (
+  const ClientHeader = () => {
+    const { data: av } = useMyAvatar();
+    const myName = (() => { try { return JSON.parse(localStorage.getItem("credeti_user") ?? "{}").fullName ?? ""; } catch { return ""; } })();
+    const initials = myName.trim().split(/\s+/).slice(0,2).map((w:string)=>w[0]?.toUpperCase()??"").join("");
+    return (
     <div className="sticky top-0 z-30 shrink-0 mobile-header" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58 }}>
         <BrandMark />
 
         <div className="flex items-center gap-2">
+          {token && (
+            <button onClick={() => navigate("/perfil")} style={{ width: 30, height: 30, borderRadius: "50%", overflow: "hidden", border: "none", padding: 0, cursor: "pointer", background: av?.url ? "var(--surface-3)" : "var(--brand-blue-deep)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }} title="Mi perfil">
+              {av?.url
+                ? <img src={av.url} alt={myName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <span style={{ fontSize: 11, fontWeight: 800, color: "#fff" }}>{initials || "?"}</span>}
+            </button>
+          )}
           {role && <RoleBadge role={role} />}
           <ThemeToggle tone="dark" />
           {token ? (
@@ -302,7 +314,8 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
         </div>
       </header>
     </div>
-  );
+    );
+  };
 
   const isDemo = typeof token === "string" && token.startsWith("demo-token");
 

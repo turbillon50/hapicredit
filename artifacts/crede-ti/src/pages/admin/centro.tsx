@@ -263,12 +263,14 @@ function UsuariosTab() {
           {filtered.map(u => (
             <div key={u.id} onClick={() => setEditing(u)} className="card pressable" style={{ padding: 14, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
               <div style={{
-                width: 42, height: 42, borderRadius: 21, flexShrink: 0,
-                background: "var(--brand-blue-deep)", color: "#fff",
+                width: 42, height: 42, borderRadius: 21, flexShrink: 0, overflow: "hidden",
+                background: u.avatarUrl ? "var(--surface-3)" : "var(--brand-blue-deep)", color: "#fff",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontWeight: 700, fontSize: 15,
               }}>
-                {(u.fullName ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0].toUpperCase()).join("")}
+                {u.avatarUrl
+                  ? <img src={u.avatarUrl} alt={u.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : (u.fullName ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0].toUpperCase()).join("")}
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)" }}>{u.fullName}</div>
@@ -299,7 +301,11 @@ function UsuariosTab() {
           <div style={{ width: "100%", maxWidth: 460, background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", maxHeight: "88vh", overflowY: "auto" }}>
             <div style={{ width: 40, height: 4, borderRadius: 100, background: "var(--border-mid)", margin: "0 auto 18px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <ClientAvatar userId={editing.id} name={editing.fullName ?? "?"} size={46} />
+              <div style={{ width: 46, height: 46, borderRadius: 23, overflow: "hidden", flexShrink: 0, background: editing.avatarUrl ? "var(--surface-3)" : "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16 }}>
+                {editing.avatarUrl
+                  ? <img src={editing.avatarUrl} alt={editing.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  : (editing.fullName ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0].toUpperCase()).join("")}
+              </div>
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>{editing.fullName}</div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{editing.email ?? editing.username}</div>
