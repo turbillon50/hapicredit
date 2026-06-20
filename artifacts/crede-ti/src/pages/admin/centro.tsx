@@ -92,6 +92,78 @@ function ResumenTab() {
   );
 }
 
+/* ── Panel de detalle de usuario (créditos, pagos, stats) ── */
+function UserDetailPanel({ userId }: { userId: number }) {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["user-detail", userId],
+    queryFn: async () => { const r = await fetch(`${API}/users/${userId}/detail`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
+  });
+
+  if (isLoading) return <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "12px 0" }}>Cargando detalle…</div>;
+  if (!data || !data.client) return (
+    <div style={{ fontSize: 12, color: "var(--text-muted)", textAlign: "center", padding: "10px 0 16px" }}>
+      Este usuario no tiene expediente de crédito.
+    </div>
+  );
+
+  const money = (n: any) => "$" + Math.round(parseFloat(n ?? "0")).toLocaleString("es-MX");
+  const statusLabel: Record<string, string> = { active: "Activo", pending: "Pendiente", closed: "Liquidado", rejected: "Rechazado", defaulted: "Incumplido", needs_info: "Requiere info" };
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {/* Mini stats */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 14 }}>
+        {[
+          [money(data.stats.totalBorrowed), "Prestado total"],
+          [money(data.stats.totalPaid), "Pagado"],
+          [money(data.stats.remainingBalance), "Saldo activo"],
+          [String(data.stats.activeCredits), "Créditos activos"],
+        ].map(([val, lbl], i) => (
+          <div key={i} style={{ background: "var(--surface-2)", borderRadius: "var(--r-md)", padding: "10px 12px" }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>{val}</div>
+            <div style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600, marginTop: 1 }}>{lbl}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Créditos */}
+      {data.credits.length > 0 && (
+        <>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Créditos</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 14 }}>
+            {data.credits.map((cr: any) => (
+              <div key={cr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "9px 12px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{money(cr.amount)}</div>
+                  <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{cr.termWeeks} sem · {money(cr.weeklyPayment)}/sem</div>
+                </div>
+                <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 100, background: "var(--surface-3)", color: "var(--text-secondary)" }}>
+                  {statusLabel[cr.status] ?? cr.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+
+      {/* Pagos recientes */}
+      {data.payments.length > 0 && (
+        <>
+          <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 6 }}>Pagos recientes</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            {data.payments.slice(0, 5).map((p: any) => (
+              <div key={p.id} style={{ display: "flex", justifyContent: "space-between", fontSize: 12, padding: "4px 0" }}>
+                <span style={{ color: "var(--text-muted)" }}>{p.paymentDate}</span>
+                <span style={{ color: "var(--text-primary)", fontWeight: 700, fontVariantNumeric: "tabular-nums" }}>{money(p.amountPaid)}</span>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 /* ═══════════ TAB: USUARIOS ═══════════ */
 function UsuariosTab() {
   const qc = useQueryClient();
@@ -208,7 +280,7 @@ function UsuariosTab() {
       {editing && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(8,11,20,0.55)", backdropFilter: "blur(6px)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
              onClick={e => { if (e.target === e.currentTarget) setEditing(null); }}>
-          <div style={{ width: "100%", maxWidth: 460, background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px" }}>
+          <div style={{ width: "100%", maxWidth: 460, background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", maxHeight: "88vh", overflowY: "auto" }}>
             <div style={{ width: 40, height: 4, borderRadius: 100, background: "var(--border-mid)", margin: "0 auto 18px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
               <div style={{ width: 46, height: 46, borderRadius: 23, background: "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16 }}>
@@ -219,6 +291,8 @@ function UsuariosTab() {
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{editing.email ?? editing.username}</div>
               </div>
             </div>
+
+            <UserDetailPanel userId={editing.id} />
 
             <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Rol</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
@@ -434,15 +508,15 @@ function BannersTab() {
 function AvisosTab() {
   const qc = useQueryClient();
   const [editId, setEditId] = useState<number | "new" | null>(null);
-  const [form, setForm] = useState({ title: "", body: "", audience: "all" });
+  const [form, setForm] = useState({ title: "", body: "", audience: "all", startsAt: "", endsAt: "" });
 
   const { data: avisos = [], isLoading } = useQuery<any[]>({
     queryKey: ["notifications"],
     queryFn: async () => { const r = await fetch(`${API}/content/notifications`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
   });
 
-  const openNew = () => { setForm({ title: "", body: "", audience: "all" }); setEditId("new"); };
-  const openEdit = (n: any) => { setForm({ title: n.title ?? "", body: n.body ?? "", audience: n.audience ?? "all" }); setEditId(n.id); };
+  const openNew = () => { setForm({ title: "", body: "", audience: "all", startsAt: "", endsAt: "" }); setEditId("new"); };
+  const openEdit = (n: any) => { setForm({ title: n.title ?? "", body: n.body ?? "", audience: n.audience ?? "all", startsAt: n.starts_at ? n.starts_at.slice(0,10) : "", endsAt: n.ends_at ? n.ends_at.slice(0,10) : "" }); setEditId(n.id); };
   const close = () => setEditId(null);
 
   const saveM = useMutation({
@@ -490,6 +564,16 @@ function AvisosTab() {
             </select>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 5 }}>Desde (opcional)</div>
+              <input type="date" className="input-field" value={form.startsAt} onChange={e => setForm({ ...form, startsAt: e.target.value })} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginBottom: 5 }}>Hasta (opcional)</div>
+              <input type="date" className="input-field" value={form.endsAt} onChange={e => setForm({ ...form, endsAt: e.target.value })} />
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
             <button onClick={close} className="pressable"
               style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
               Cancelar
@@ -517,6 +601,11 @@ function AvisosTab() {
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 100, background: "var(--surface-3)", color: "var(--text-secondary)" }}>{audLabel(n.audience)}</span>
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 3 }}>{n.body}</div>
+                  {(n.starts_at || n.ends_at) && (
+                    <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4, fontWeight: 600 }}>
+                      {n.starts_at ? `Desde ${n.starts_at.slice(0,10)}` : ""}{n.starts_at && n.ends_at ? " · " : ""}{n.ends_at ? `Hasta ${n.ends_at.slice(0,10)}` : ""}
+                    </div>
+                  )}
                 </div>
                 <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
                   <button onClick={() => openEdit(n)} className="pressable"

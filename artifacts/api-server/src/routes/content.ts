@@ -29,6 +29,8 @@ async function ensureTables() {
       created_at  timestamptz DEFAULT now()
     )
   `);
+  await pool.query(`ALTER TABLE app_notifications ADD COLUMN IF NOT EXISTS starts_at timestamptz`);
+  await pool.query(`ALTER TABLE app_notifications ADD COLUMN IF NOT EXISTS ends_at timestamptz`);
 }
 
 /* ═══════════ BANNERS (publicidad / contenido dinámico) ═══════════ */
@@ -90,13 +92,19 @@ router.delete("/content/banners/:id", requireAuth, requireRole("admin"), async (
 /* ═══════════ NOTIFICACIONES GENERALES ═══════════ */
 
 // Público/cliente: notificaciones activas
-router.get("/content/notifications/active", async (_req, res): Promise<void> => {
+router.get("/content/notifications/active", async (req, res): Promise<void> => {
   try {
     await ensureTables();
+    const audience = (req.query.audience as string) || null;
     const { rows } = await pool.query(
-      `SELECT id, title, body, audience, created_at
-       FROM app_notifications WHERE is_active = true
-       ORDER BY created_at DESC LIMIT 20`
+      `SELECT id, title, body, audience, created_at, starts_at, ends_at
+       FROM app_notifications
+       WHERE is_active = true
+         AND (starts_at IS NULL OR starts_at <= now())
+         AND (ends_at IS NULL OR ends_at >= now())
+         AND ($1::text IS NULL OR audience = 'all' OR audience = $1)
+       ORDER BY created_at DESC LIMIT 20`,
+      [audience]
     );
     res.json(rows);
   } catch { res.json([]); }
@@ -112,11 +120,11 @@ router.get("/content/notifications", requireAuth, requireRole("admin"), async (_
 // Admin: crear
 router.post("/content/notifications", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   await ensureTables();
-  const { title, body, audience } = req.body ?? {};
+  const { title, body, audience, startsAt, endsAt } = req.body ?? {};
   if (!title || !body) { res.status(400).json({ error: "Título y mensaje son obligatorios" }); return; }
   const { rows } = await pool.query(
-    `INSERT INTO app_notifications (title, body, audience) VALUES ($1,$2,$3) RETURNING *`,
-    [title, body, audience ?? "all"]
+    `INSERT INTO app_notifications (title, body, audience, starts_at, ends_at) VALUES ($1,$2,$3,$4,$5) RETURNING *`,
+    [title, body, audience ?? "all", startsAt || null, endsAt || null]
   );
   res.json(rows[0]);
 });
@@ -124,15 +132,17 @@ router.post("/content/notifications", requireAuth, requireRole("admin"), async (
 // Admin: editar (texto, audiencia y/o activar/desactivar)
 router.put("/content/notifications/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   await ensureTables();
-  const { title, body, audience, isActive } = req.body ?? {};
+  const { title, body, audience, isActive, startsAt, endsAt } = req.body ?? {};
   const { rows } = await pool.query(
     `UPDATE app_notifications SET
        title = COALESCE($2,title),
        body = COALESCE($3,body),
        audience = COALESCE($4,audience),
-       is_active = COALESCE($5,is_active)
+       is_active = COALESCE($5,is_active),
+       starts_at = COALESCE($6,starts_at),
+       ends_at = COALESCE($7,ends_at)
      WHERE id = $1 RETURNING *`,
-    [req.params.id, title ?? null, body ?? null, audience ?? null, isActive ?? null]
+    [req.params.id, title ?? null, body ?? null, audience ?? null, isActive ?? null, startsAt || null, endsAt || null]
   );
   res.json(rows[0] ?? null);
 });

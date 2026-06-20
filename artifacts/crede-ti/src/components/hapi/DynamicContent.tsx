@@ -57,9 +57,15 @@ export function DynamicBanners() {
  * Lista de notificaciones generales activas. Para mi-credito o perfil.
  */
 export function DynamicNotifications() {
+  const role = (() => { try { return localStorage.getItem("credeti_role") || ""; } catch { return ""; } })();
   const { data: avisos = [] } = useQuery<any[]>({
-    queryKey: ["public-notifications"],
-    queryFn: async () => { const r = await fetch(`${API}/content/notifications/active`); if (!r.ok) return []; return r.json(); },
+    queryKey: ["public-notifications", role],
+    queryFn: async () => {
+      const q = role ? `?audience=${encodeURIComponent(role)}` : "";
+      const r = await fetch(`${API}/content/notifications/active${q}`);
+      if (!r.ok) return [];
+      return r.json();
+    },
     staleTime: 60_000,
   });
 

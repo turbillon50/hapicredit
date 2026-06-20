@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, clientsTable, creditsTable, db, eq, inArray, sessionsTable, usersTable } from "@workspace/db";
+import { and, clientsTable, creditsTable, db, eq, inArray, paymentsTable, sessionsTable, usersTable } from "@workspace/db";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { CreateUserBody, UpdateUserBody, GetUserParams, UpdateUserParams } from "@workspace/api-zod";
 import crypto from "crypto";
@@ -150,6 +150,50 @@ router.get("/users/:id", requireAuth, async (req, res): Promise<void> => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, params.data.id));
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
   res.json(formatUser(user));
+});
+
+// ─── GET /users/:id/detail — usuario + cliente vinculado + créditos + pagos ───
+router.get("/users/:id/detail", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID inválido" }); return; }
+
+  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, id));
+  if (!user) { res.status(404).json({ error: "User not found" }); return; }
+
+  // Buscar el cliente vinculado a este usuario (si es acreditado)
+  const [client] = await db.select().from(clientsTable).where(eq(clientsTable.userId, id));
+
+  let credits: any[] = [];
+  let payments: any[] = [];
+  let stats = { activeCredits: 0, totalBorrowed: 0, totalPaid: 0, remainingBalance: 0 };
+
+  if (client) {
+    credits = await db.select().from(creditsTable).where(eq(creditsTable.clientId, client.id)).orderBy(creditsTable.createdAt);
+    payments = await db.select().from(paymentsTable).where(eq(paymentsTable.clientId, client.id)).orderBy(paymentsTable.paymentDate).limit(10);
+
+    stats.activeCredits = credits.filter(c => c.status === "active").length;
+    stats.totalBorrowed = credits.reduce((s, c) => s + parseFloat(c.amount ?? "0"), 0);
+    stats.remainingBalance = credits.filter(c => c.status === "active").reduce((s, c) => s + parseFloat(c.remainingBalance ?? "0"), 0);
+    stats.totalPaid = payments.filter((p: any) => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected").reduce((s: number, p: any) => s + parseFloat(p.amountPaid ?? "0"), 0);
+  }
+
+  res.json({
+    user: formatUser(user),
+    client: client ? {
+      id: client.id, fullName: client.fullName, phone: client.phone,
+      address: client.address, curp: client.curp, status: client.status,
+      registeredAt: client.registeredAt,
+    } : null,
+    credits: credits.map(c => ({
+      id: c.id, amount: c.amount, status: c.status, termWeeks: c.termWeeks,
+      weeklyPayment: c.weeklyPayment, remainingBalance: c.remainingBalance,
+      disbursementDate: c.disbursementDate, currentPaymentNumber: c.currentPaymentNumber,
+    })),
+    payments: payments.map((p: any) => ({
+      id: p.id, amountPaid: p.amountPaid, paymentDate: p.paymentDate, paymentStatus: p.paymentStatus,
+    })),
+    stats,
+  });
 });
 
 router.patch("/users/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
