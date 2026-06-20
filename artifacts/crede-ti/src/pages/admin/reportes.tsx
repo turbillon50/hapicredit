@@ -69,8 +69,8 @@ function TableCartera({ data }: { data: any[] }) {
             <td style={{ padding: "10px", whiteSpace: "nowrap" }}>{fmtDate(r.disbursement_date)}</td>
             <td style={{ padding: "10px" }}>
               <span style={{ padding: "3px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700,
-                background: r.status === "active" ? "rgba(14,159,110,0.10)" : "rgba(224,36,36,0.10)",
-                color: r.status === "active" ? "#166534" : "#991b1b" }}>
+                background: r.status === "active" ? "var(--surface-3)" : "var(--surface-3)",
+                color: r.status === "active" ? "#166534" : "var(--text-secondary)" }}>
                 {r.status}
               </span>
             </td>
@@ -114,8 +114,8 @@ function TableCobranza({ data }: { data: any[] }) {
               <td style={{ padding: "10px", color: "#dc2626" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
               <td style={{ padding: "10px" }}>
                 <span style={{ padding: "3px 8px", borderRadius: 100, fontSize: 11, fontWeight: 700,
-                  background: r.payment_status === "on_time" ? "rgba(14,159,110,0.10)" : r.payment_status === "late" ? "rgba(217,142,30,0.10)" : "#f3f4f6",
-                  color: r.payment_status === "on_time" ? "#166534" : r.payment_status === "late" ? "#92400e" : "#374151" }}>
+                  background: r.payment_status === "on_time" ? "var(--surface-3)" : r.payment_status === "late" ? "var(--surface-3)" : "#f3f4f6",
+                  color: r.payment_status === "on_time" ? "#166534" : r.payment_status === "late" ? "var(--text-secondary)" : "#374151" }}>
                   {r.payment_status === "on_time" ? "Puntual" : r.payment_status === "late" ? "Con mora" : r.payment_status}
                 </span>
               </td>

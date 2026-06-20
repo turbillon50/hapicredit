@@ -42,10 +42,10 @@ const s: Record<string, React.CSSProperties> = {
 function Nota({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "rgba(224,36,36,0.06)", border: "1px solid rgba(224,36,36,0.12)",
+      background: "var(--surface-3)", border: "1px solid var(--surface-3)",
       borderRadius: 12, padding: "14px 18px", marginBottom: 14,
     }}>
-      <p style={{ ...s.p, margin: 0, color: "#991b1b" }}>{children}</p>
+      <p style={{ ...s.p, margin: 0, color: "var(--text-secondary)" }}>{children}</p>
     </div>
   );
 }
@@ -53,7 +53,7 @@ function Nota({ children }: { children: React.ReactNode }) {
 function InfoBox({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)",
+      background: "var(--surface-3)", border: "1px solid var(--surface-3)",
       borderRadius: 12, padding: "16px 20px", marginBottom: 14,
     }}>
       <p style={{ ...s.p, margin: 0 }}>{children}</p>
@@ -110,7 +110,7 @@ export default function Terminos() {
           <p style={s.p}>Los créditos otorgados a través de credeti se rigen bajo las siguientes reglas:</p>
 
           <div style={{
-            background: "rgba(14,159,110,0.06)", border: "1px solid rgba(14,159,110,0.14)",
+            background: "var(--surface-3)", border: "1px solid var(--surface-3)",
             borderRadius: 12, padding: "18px 20px", marginBottom: 16,
           }}>
             <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
@@ -122,15 +122,15 @@ export default function Terminos() {
           </div>
 
           <div style={{
-            background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)",
+            background: "var(--surface-3)", border: "1px solid var(--surface-3)",
             borderRadius: 12, padding: "18px 20px", marginBottom: 16,
           }}>
-            <p style={{ ...s.p, color: "#1e40af", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
+            <p style={{ ...s.p, color: "var(--brand-blue)", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
             <ul style={s.ul}>
-              <li style={{ ...s.li, color: "#1e40af" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Plazo: <strong>4 a 48 semanas</strong></li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Interés: <strong>5% mensual</strong> (calculado proporcional al plazo)</li>
-              <li style={{ ...s.li, color: "#1e40af" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con día de pago a elección (lunes a domingo)</li>
+              <li style={{ ...s.li, color: "var(--brand-blue)" }}>Monto: <strong>$1,000 a $30,000 MXN</strong></li>
+              <li style={{ ...s.li, color: "var(--brand-blue)" }}>Plazo: <strong>4 a 48 semanas</strong></li>
+              <li style={{ ...s.li, color: "var(--brand-blue)" }}>Interés: <strong>5% mensual</strong> (calculado proporcional al plazo)</li>
+              <li style={{ ...s.li, color: "var(--brand-blue)" }}>Frecuencia de pago: <strong>semanal o quincenal</strong>, con día de pago a elección (lunes a domingo)</li>
             </ul>
           </div>
 

@@ -1,4 +1,4 @@
-const PALETTE = ['#1e3a8a','#065f46','#7c3aed','#92400e','#9a3412','#0e7490','#0f766e','#1d4ed8','#6d28d9','#b45309'];
+const PALETTE = ['#1e3a8a','var(--text-secondary)','var(--text-secondary)','var(--text-secondary)','#9a3412','#0e7490','#0f766e','#1d4ed8','var(--text-secondary)','#b45309'];
 
 function hashColor(name: string): string {
   let h = 0;

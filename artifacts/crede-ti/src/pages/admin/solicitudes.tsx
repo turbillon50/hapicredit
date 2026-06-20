@@ -186,7 +186,7 @@ function CreditDetail({
     return (
       <div className="flex flex-col gap-4 pb-2">
         <div className="rounded-2xl p-4 text-center"
-          style={{ background: confirm === "approve" ? "rgba(14,159,110,0.06)" : "rgba(224,36,36,0.06)", border: `1.5px solid ${confirm === "approve" ? "rgba(14,159,110,0.14)" : "rgba(224,36,36,0.12)"}` }}>
+          style={{ background: confirm === "approve" ? "var(--surface-3)" : "var(--surface-3)", border: `1.5px solid ${confirm === "approve" ? "var(--surface-3)" : "var(--surface-3)"}` }}>
           <div className="text-2xl mb-2">{confirm === "approve" ? "✓" : "✗"}</div>
           <div className="font-bold text-gray-900 text-base mb-1">
             {confirm === "approve" ? "¿Aprobar este crédito?" : "¿Rechazar esta solicitud?"}
@@ -224,20 +224,20 @@ function CreditDetail({
         </div>
         <button onClick={() => setEditMode(e => !e)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold pressable"
-          style={{ background: editMode ? "rgba(224,36,36,0.10)" : "rgba(33,93,255,0.06)", color: editMode ? "#dc2626" : "#215DFF" }}>
+          style={{ background: editMode ? "var(--surface-3)" : "var(--surface-3)", color: editMode ? "#dc2626" : "#215DFF" }}>
           {editMode ? "✕ Cancelar" : "✏️ Editar condiciones"}
         </button>
       </div>
 
       {credit.status === "needs_info" && credit.notes && (
         <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: 14, padding: "12px 16px" }}>
-          <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#92400e" }}>Información solicitada anteriormente</div>
+          <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "var(--text-secondary)" }}>Información solicitada anteriormente</div>
           <div className="text-sm" style={{ color: "#b45309" }}>{credit.notes}</div>
         </div>
       )}
 
       {editMode ? (
-        <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: "rgba(33,93,255,0.06)", border: "1.5px solid rgba(33,93,255,0.14)" }}>
+        <div className="rounded-2xl p-4 flex flex-col gap-3" style={{ background: "var(--surface-3)", border: "1.5px solid var(--surface-3)" }}>
           <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "#1d4ed8" }}>Ajustar condiciones</div>
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -298,7 +298,7 @@ function CreditDetail({
           {[
             { label: "Monto prestado", val: fmt(credit.amount), color: "#111" },
             { label: "Intereses",      val: fmt(credit.totalToRepay - credit.amount), color: "#d97706" },
-            { label: "Total a pagar",  val: fmt(credit.totalToRepay), color: "#1e40af", bold: true },
+            { label: "Total a pagar",  val: fmt(credit.totalToRepay), color: "var(--brand-blue)", bold: true },
             { label: "Pago semanal",   val: fmt(credit.weeklyPayment), color: "#215DFF" },
             { label: "Plazo",          val: `${credit.termWeeks} semanas`, color: "#111" },
             ...((credit as any).openingFee > 0 ? [{ label: "Comisión", val: fmt((credit as any).openingFee), color: "#6b7280" }] : []),
@@ -481,9 +481,9 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
 // ─── Public app detail ────────────────────────────────────────────────────────
 function reqStatusMeta(st: string): { label: string; bg: string; color: string; border: string } {
   switch (st) {
-    case "approved":  return { label: "Aprobada",   bg: "rgba(14,159,110,0.06)", color: "#059669", border: "rgba(14,159,110,0.14)" };
-    case "rejected":  return { label: "Rechazada",  bg: "rgba(224,36,36,0.06)", color: "#dc2626", border: "rgba(224,36,36,0.12)" };
-    case "contacted": return { label: "Contactado", bg: "rgba(33,93,255,0.06)", color: "#2563eb", border: "rgba(33,93,255,0.14)" };
+    case "approved":  return { label: "Aprobada",   bg: "var(--surface-3)", color: "#059669", border: "var(--surface-3)" };
+    case "rejected":  return { label: "Rechazada",  bg: "var(--surface-3)", color: "#dc2626", border: "var(--surface-3)" };
+    case "contacted": return { label: "Contactado", bg: "var(--surface-3)", color: "#2563eb", border: "var(--surface-3)" };
     default:          return { label: "Pendiente",  bg: "#fffbeb", color: "#d97706", border: "#fde68a" };
   }
 }
@@ -582,7 +582,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const monthlyBurden = weekly * 4.33;
   const pct = income > 0 && weekly > 0 ? Math.round((monthlyBurden / income) * 100) : null;
   const capColor = pct == null ? "#9ca3af" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#dc2626";
-  const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "rgba(14,159,110,0.06)" : pct <= 50 ? "#fffbeb" : "rgba(224,36,36,0.06)";
+  const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "var(--surface-3)" : pct <= 50 ? "#fffbeb" : "var(--surface-3)";
   const capLabel = pct == null ? "Sin datos" : pct < 30 ? "Saludable" : pct <= 50 ? "Ajustado" : "Riesgo alto";
 
   // ── inconsistency alerts ──
@@ -673,7 +673,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <div className="text-sm text-gray-500">{dPhone}</div>
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> {"\u00b7"} {fmtDateTime(app.createdAt)}</div>
         </div>
-        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid rgba(33,93,255,0.10)", background: editing ? "rgba(33,93,255,0.06)" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
+        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid rgba(33,93,255,0.10)", background: editing ? "var(--surface-3)" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
       </div>
 
       {/* Asignacion */}
@@ -685,7 +685,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             <option value="">Sin asignar</option>
             {assignableStaff.map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
           </select>
-          <button onClick={() => assignM.mutate({ mine: true })} disabled={assignM.isPending} className="text-[11px] font-bold px-2 py-1 rounded-full shrink-0" style={{ color: "#215DFF", background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)", cursor: "pointer" }}>A mí</button>
+          <button onClick={() => assignM.mutate({ mine: true })} disabled={assignM.isPending} className="text-[11px] font-bold px-2 py-1 rounded-full shrink-0" style={{ color: "#215DFF", background: "var(--surface-3)", border: "1px solid var(--surface-3)", cursor: "pointer" }}>A mí</button>
         </div>
       </div>
 
@@ -697,11 +697,11 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "rgba(14,159,110,0.10)"}`, background: confirm === "approved" ? "#10b981" : "rgba(14,159,110,0.06)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
-          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "rgba(224,36,36,0.12)"}`, background: confirm === "rejected" ? "#ef4444" : "rgba(224,36,36,0.06)", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "var(--surface-3)"}`, background: confirm === "approved" ? "#10b981" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#ef4444" : "var(--surface-3)"}`, background: confirm === "rejected" ? "#ef4444" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "#dc2626", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
         </div>
         {confirm && (
-          <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "rgba(14,159,110,0.06)" : "rgba(224,36,36,0.06)", border: `1.5px solid ${confirm === "approved" ? "rgba(14,159,110,0.14)" : "rgba(224,36,36,0.12)"}` }}>
+          <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)", border: `1.5px solid ${confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)"}` }}>
             <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#dc2626" }}>
               {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
@@ -742,7 +742,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
 
       {/* Alertas */}
       {alerts.length > 0 && (
-        <div className="rounded-2xl p-3" style={{ background: "#fff7ed", border: "1.5px solid rgba(217,142,30,0.14)" }}>
+        <div className="rounded-2xl p-3" style={{ background: "#fff7ed", border: "1.5px solid var(--surface-3)" }}>
           <div className="text-xs font-bold uppercase tracking-wide mb-1.5" style={{ color: "#c2410c" }}>{"\u26a0\ufe0f"} Revisar antes de aprobar</div>
           <ul className="flex flex-col gap-1">
             {alerts.map((a, i) => <li key={i} className="text-sm" style={{ color: "#9a3412" }}>{"\u2022"} {a}</li>)}
@@ -778,7 +778,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="bg-blue-50 rounded-2xl p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Monto solicitado</div>
           {editing ? (
-            <input type="number" inputMode="decimal" value={form.requestedAmount} onChange={e => setF("requestedAmount", e.target.value)} className="w-full text-center text-xl font-extrabold text-blue-700 bg-white rounded-xl py-1" style={{ border: "1.5px solid rgba(33,93,255,0.14)", outline: "none" }} />
+            <input type="number" inputMode="decimal" value={form.requestedAmount} onChange={e => setF("requestedAmount", e.target.value)} className="w-full text-center text-xl font-extrabold text-blue-700 bg-white rounded-xl py-1" style={{ border: "1.5px solid var(--surface-3)", outline: "none" }} />
           ) : (
             <div className="text-xl font-extrabold text-blue-700">{fmt(credit.requestedAmount)}</div>
           )}
@@ -882,7 +882,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
                 </div>
               </div>
             ))}
-            <button onClick={() => setForm(f => ({ ...f, references: [...f.references, { name: "", phone: "", relation: "" }] }))} className="text-sm font-semibold py-1.5 rounded-lg" style={{ color: "#215DFF", background: "rgba(33,93,255,0.06)", border: "1px dashed rgba(33,93,255,0.14)" }}>+ Agregar referencia</button>
+            <button onClick={() => setForm(f => ({ ...f, references: [...f.references, { name: "", phone: "", relation: "" }] }))} className="text-sm font-semibold py-1.5 rounded-lg" style={{ color: "#215DFF", background: "var(--surface-3)", border: "1px dashed var(--surface-3)" }}>+ Agregar referencia</button>
           </div>
         ) : (
           refs.length ? refs.map((r, i) => (
@@ -942,14 +942,14 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
                 {meta.provided ? (
                   meta.validated
                     ? <span className="text-green-600 font-semibold text-xs shrink-0">{"\u2713"} Validado</span>
-                    : <button onClick={() => docM.mutate({ doc: d.key, validated: true })} disabled={docM.isPending} className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: "#2563eb", background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)", cursor: "pointer" }}>Validar</button>
+                    : <button onClick={() => docM.mutate({ doc: d.key, validated: true })} disabled={docM.isPending} className="shrink-0 text-[11px] font-bold px-2 py-0.5 rounded-full" style={{ color: "#2563eb", background: "var(--surface-3)", border: "1px solid var(--surface-3)", cursor: "pointer" }}>Validar</button>
                 ) : <span className="text-gray-400 text-xs shrink-0">No enviado</span>}
               </div>
             );
           })}
         </div>
         {missingDocs.length > 0 && (
-          <button onClick={() => requestDocsM.mutate()} disabled={requestDocsM.isPending || !dEmail} className="w-full mt-2.5 py-2 rounded-xl text-sm font-semibold" style={{ background: "rgba(33,93,255,0.06)", color: "#215DFF", border: "1px solid rgba(33,93,255,0.14)", cursor: (!dEmail || requestDocsM.isPending) ? "default" : "pointer", opacity: (!dEmail || requestDocsM.isPending) ? 0.5 : 1 }}>
+          <button onClick={() => requestDocsM.mutate()} disabled={requestDocsM.isPending || !dEmail} className="w-full mt-2.5 py-2 rounded-xl text-sm font-semibold" style={{ background: "var(--surface-3)", color: "#215DFF", border: "1px solid var(--surface-3)", cursor: (!dEmail || requestDocsM.isPending) ? "default" : "pointer", opacity: (!dEmail || requestDocsM.isPending) ? 0.5 : 1 }}>
             {requestDocsM.isPending ? "Enviando..." : dEmail ? `Solicitar ${missingDocs.length} documento(s) faltante(s)` : "Solicitar docs (sin correo)"}
           </button>
         )}
@@ -976,7 +976,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       <div className="flex flex-col gap-2 pt-1">
         {parsed?.creditId ? (
           <div className="rounded-2xl p-3 text-center text-sm font-semibold"
-            style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid rgba(14,159,110,0.14)" }}>
+            style={{ background: "var(--success-bg)", color: "#059669", border: "1.5px solid var(--surface-3)" }}>
             ✓ Convertida — crédito #{parsed.creditId} en revisión
           </div>
         ) : (

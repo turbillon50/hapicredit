@@ -132,8 +132,8 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       style={{
-        background: "linear-gradient(135deg,rgba(33,93,255,0.06),rgba(33,93,255,0.10))",
-        border: "1px solid rgba(33,93,255,0.14)", borderRadius: 16,
+        background: "linear-gradient(135deg,var(--surface-3),rgba(33,93,255,0.10))",
+        border: "1px solid var(--surface-3)", borderRadius: 16,
         padding: "18px 20px", marginBottom: 16,
       }}
     >
@@ -152,12 +152,12 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
 
         <div style={{
           background: "var(--surface)", borderRadius: 12, padding: "12px 14px",
-          border: "1px solid rgba(33,93,255,0.14)", fontFamily: "monospace",
-          fontSize: 12, color: "#1e40af", lineHeight: 2,
+          border: "1px solid var(--surface-3)", fontFamily: "monospace",
+          fontSize: 12, color: "var(--brand-blue)", lineHeight: 2,
         }}>
           <div>Meses equiv. = {semanas} sem ÷ 4 sem/mes = {mesesEquiv} meses</div>
           <div>Tasa = 5% × {mesesEquiv} = <NumAnimado valor={tasaEfectiva} fmt={fmtPct} /></div>
-          <div style={{ borderTop: "1px solid rgba(33,93,255,0.14)", marginTop: 6, paddingTop: 6 }}>
+          <div style={{ borderTop: "1px solid var(--surface-3)", marginTop: 6, paddingTop: 6 }}>
             Interés = {fmt(monto)} × {fmtPct(tasaEfectiva)} = <NumAnimado valor={interes} fmt={fmt} />
           </div>
         </div>
@@ -398,12 +398,12 @@ export default function Calculadora() {
               transition={{ duration: 0.2 }}
               style={{
                 display: "flex", justifyContent: "space-between", alignItems: "center",
-                background: tipo === "nuevo" ? "rgba(14,159,110,0.06)" : "rgba(33,93,255,0.06)",
-                border: `1px solid ${tipo === "nuevo" ? "rgba(14,159,110,0.14)" : "rgba(33,93,255,0.14)"}`,
+                background: tipo === "nuevo" ? "var(--surface-3)" : "var(--surface-3)",
+                border: `1px solid ${tipo === "nuevo" ? "var(--surface-3)" : "var(--surface-3)"}`,
                 borderRadius: 12, padding: "10px 14px",
               }}
             >
-              <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "#1e40af", fontWeight: 600 }}>
+              <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "var(--brand-blue)", fontWeight: 600 }}>
                 {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva (5% mensual)`}
               </span>
               <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "#166534" : AZUL }}>

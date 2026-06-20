@@ -83,11 +83,11 @@ export default function AdminMorosos() {
 
         {total > 0 && (
           <div className="mx-4 grid grid-cols-2 gap-3">
-            <div className="rounded-xl p-3" style={{ background: "rgba(224,36,36,0.10)" }}>
+            <div className="rounded-xl p-3" style={{ background: "var(--surface-3)" }}>
               <div className="text-[10px] font-semibold text-red-700 uppercase">Saldo vencido total</div>
               <div className="text-lg font-extrabold text-red-800">{fmt(totalOverdue)}</div>
             </div>
-            <div className="rounded-xl p-3" style={{ background: "rgba(217,142,30,0.10)" }}>
+            <div className="rounded-xl p-3" style={{ background: "var(--surface-3)" }}>
               <div className="text-[10px] font-semibold text-yellow-700 uppercase">Multas estimadas</div>
               <div className="text-lg font-extrabold text-yellow-800">{fmt(totalFines)}</div>
             </div>
@@ -154,15 +154,15 @@ export default function AdminMorosos() {
                     </div>
 
                     <div className="grid grid-cols-3 gap-2 mb-3">
-                      <div className="rounded-xl p-2.5 text-center" style={{ background: "rgba(217,142,30,0.10)" }}>
+                      <div className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-3)" }}>
                         <div className="text-[10px] font-semibold text-yellow-700 uppercase">Días atraso</div>
                         <div className="text-lg font-bold text-yellow-800">{item.daysOverdue}d</div>
                       </div>
-                      <div className="rounded-xl p-2.5 text-center" style={{ background: "rgba(224,36,36,0.10)" }}>
+                      <div className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-3)" }}>
                         <div className="text-[10px] font-semibold text-red-700 uppercase">Multas</div>
                         <div className="text-sm font-bold text-red-800">{fmt(fines)}</div>
                       </div>
-                      <div className="rounded-xl p-2.5 text-center" style={{ background: "rgba(14,159,110,0.06)" }}>
+                      <div className="rounded-xl p-2.5 text-center" style={{ background: "var(--surface-3)" }}>
                         <div className="text-[10px] font-semibold text-green-700 uppercase">Saldo</div>
                         <div className="text-sm font-bold text-green-800">{fmt(item.remainingBalance)}</div>
                       </div>
@@ -182,14 +182,14 @@ export default function AdminMorosos() {
                       <button
                         onClick={(e) => { e.stopPropagation(); if (item.clientPhone) window.open(`tel:${item.clientPhone}`); }}
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-semibold transition-all pressable"
-                        style={{ background: "rgba(33,93,255,0.10)", color: "#1e40af" }}
+                        style={{ background: "rgba(33,93,255,0.10)", color: "var(--brand-blue)" }}
                       >
                         <IconTelefono size={14} /> Llamar
                       </button>
                       <button
                         onClick={(e) => e.stopPropagation()}
                         className="flex-1 flex items-center justify-center gap-1.5 h-9 rounded-xl text-xs font-semibold transition-all pressable"
-                        style={{ background: "rgba(14,159,110,0.10)", color: "#065f46" }}
+                        style={{ background: "var(--surface-3)", color: "var(--text-secondary)" }}
                       >
                         <IconCalendario size={14} /> Promesa
                       </button>

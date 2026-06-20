@@ -45,7 +45,7 @@ export function StatCard({ icon, iconBg, iconColor, label, value, prefix = '', s
         <div
           className="w-10 h-10 rounded-xl flex items-center justify-center text-[18px] shrink-0"
           style={{
-            background: iconBg ?? 'linear-gradient(135deg, rgba(33,93,255,0.14), rgba(58,0,200,0.10))',
+            background: iconBg ?? 'linear-gradient(135deg, var(--surface-3), rgba(58,0,200,0.10))',
             color: iconColor ?? 'var(--brand-blue)',
             boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.5)',
           }}

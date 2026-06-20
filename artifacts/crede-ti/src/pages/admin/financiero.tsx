@@ -90,7 +90,7 @@ export default function AdminFinanciero() {
             <KPICard
               icon={<IconFinanzas size={18} />}
               iconBg="rgba(109,40,217,0.1)"
-              iconColor="#7c3aed"
+              iconColor="var(--text-secondary)"
               label="Utilidad total"
               week={d?.profitThisWeek ?? 0}
               month={d?.profitThisMonth ?? 0}

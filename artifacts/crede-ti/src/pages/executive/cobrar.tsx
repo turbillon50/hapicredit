@@ -120,7 +120,7 @@ export default function ExecutiveCobrar() {
         <p className="text-sm text-gray-500 mb-6">Registra el pago semanal de un cliente</p>
 
         {success && (
-          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 mb-5 text-sm font-semibold" style={{ background: "rgba(14,159,110,0.10)", color: "#065f46" }}>
+          <div className="flex items-center gap-3 rounded-2xl px-4 py-3.5 mb-5 text-sm font-semibold" style={{ background: "var(--surface-3)", color: "var(--text-secondary)" }}>
             <IconCheck size={20} />
             Pago registrado — pendiente de validación por el admin.
           </div>
@@ -134,7 +134,7 @@ export default function ExecutiveCobrar() {
             {selectedClient ? (
               <div
                 className="flex items-center gap-3 p-4 rounded-2xl border-2 pressable"
-                style={{ borderColor: "var(--accent)", background: "rgba(33,93,255,0.06)" }}
+                style={{ borderColor: "var(--accent)", background: "var(--surface-3)" }}
                 onClick={() => { setSelectedClient(null); setClientSearch(""); setAmount(""); }}
               >
                 <IconMoneda size={20} color="#2563eb" />
@@ -180,7 +180,7 @@ export default function ExecutiveCobrar() {
               {creditsLoading ? (
                 <div className="rounded-2xl p-4 bg-gray-50 text-sm text-gray-400 text-center">Cargando crédito...</div>
               ) : activeCredit ? (
-                <div className="rounded-2xl p-4 border-2" style={{ background: "rgba(14,159,110,0.06)", borderColor: "#86efac" }}>
+                <div className="rounded-2xl p-4 border-2" style={{ background: "var(--surface-3)", borderColor: "#86efac" }}>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold text-green-700 uppercase tracking-wide">Crédito activo</span>
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">

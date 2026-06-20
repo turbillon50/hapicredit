@@ -48,6 +48,7 @@ import AdminConfiguracion  from "@/pages/admin/configuracion";
 import Acceso          from "@/pages/acceso";
 import Invitacion      from "@/pages/invitacion";
 import AdminReportes   from "@/pages/admin/reportes";
+import AdminCentro        from "@/pages/admin/centro";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -292,6 +293,7 @@ function Router() {
       <Route path="/admin/faq"              component={AdminFaq} />
       <Route path="/admin/configuracion"   component={AdminConfiguracion} />
       <Route path="/admin/reportes"        component={AdminReportes} />
+      <Route path="/admin/centro"          component={AdminCentro} />
 
       {/* Executive */}
       <Route path="/executive"              component={ExecDashboard} />

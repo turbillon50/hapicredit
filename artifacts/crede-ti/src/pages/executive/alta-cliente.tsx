@@ -143,7 +143,7 @@ function DocCapture({
             type="button"
             onClick={() => { ref.current?.setAttribute("capture", "environment"); ref.current?.click(); }}
             className="flex-1 flex items-center justify-center gap-1.5 py-3 rounded-xl text-sm font-semibold text-white pressable"
-            style={{ background: "#1e40af" }}
+            style={{ background: "var(--brand-blue)" }}
           >
             {loading ? <IconLoader size={16} /> : <IconCamara size={16} />}
             Cámara
@@ -403,7 +403,7 @@ export default function AltaCliente() {
 
               <div
                 className="rounded-2xl p-3 flex items-center gap-3"
-                style={{ background: docsOk ? "rgba(14,159,110,0.10)" : "#f8fafc" }}
+                style={{ background: docsOk ? "var(--surface-3)" : "#f8fafc" }}
               >
                 <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "#cbd5e1"} /></span>
                 <div className="text-sm">

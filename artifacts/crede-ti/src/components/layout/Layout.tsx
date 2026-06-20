@@ -6,7 +6,7 @@ import { useClerk, useUser } from "@clerk/react";
 import {
   IconHome, IconSolicitar, IconMiCredito, IconPerfil,
   IconPanel, IconBandeja, IconCartera, IconAlerta, IconArbol,
-  IconPersona, IconMoneda, IconMas, IconFinanzas, IconCalendario,
+  IconPersona, IconMoneda, IconMas, IconFinanzas, IconCalendario, IconEquipo,
 } from "@/components/hapi/HapiIcons";
 import { useTheme } from "@/hooks/use-theme";
 import logoImg from "@assets/logo-credeti-square.jpeg";
@@ -84,6 +84,7 @@ const adminNav: NavItem[] = [
   { icon: <IconBandeja size={22} />, label: "Solicitudes", path: "/admin/solicitudes" },
   { icon: <IconCartera size={22} />, label: "Cartera",     path: "/admin/cartera"     },
   { icon: <IconAlerta size={22} />,  label: "Morosos",     path: "/admin/morosos"     },
+  { icon: <IconEquipo size={22} />,  label: "Contenido",   path: "/admin/centro"      },
   { icon: <IconArbol size={22} />,   label: "Red",         path: "/admin/arbol"       },
 ];
 
@@ -131,9 +132,9 @@ function UserAvatar({ name, size = 32, dark = false }: { name: string; size?: nu
 function RoleBadge({ role }: { role: string | null }) {
   if (!role) return null;
   const map: Record<string, { label: string; bg: string; color: string }> = {
-    admin:     { label: "Admin",   bg: "var(--surface-3)", color: "#7c3aed" },
+    admin:     { label: "Admin",   bg: "var(--surface-3)", color: "var(--text-secondary)" },
     executive: { label: "Asesor",  bg: "rgba(33,93,255,0.10)", color: "#1d4ed8" },
-    client:    { label: "Cliente", bg: "rgba(14,159,110,0.10)", color: "#065f46" },
+    client:    { label: "Cliente", bg: "var(--surface-3)", color: "var(--text-secondary)" },
   };
   const m = map[role];
   if (!m) return null;

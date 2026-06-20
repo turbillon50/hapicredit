@@ -240,7 +240,7 @@ export default function AdminDashboard() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: "#78350f" }}>
                     {pendingCount} pago{pendingCount !== 1 ? "s" : ""} por validar
                   </div>
-                  <div style={{ fontSize: 12, color: "#92400e", marginTop: 1 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 1 }}>
                     Requieren tu aprobación antes de aplicarse
                   </div>
                 </div>
@@ -256,7 +256,7 @@ export default function AdminDashboard() {
                 border: "1.5px solid #86efac",
               }}
             >
-              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "rgba(14,159,110,0.10)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <IconCheck size={18} color="#16a34a" />
               </div>
               <div>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
                   padding: "14px 16px", borderRadius: 16,
-                  background: "rgba(33,93,255,0.06)",
+                  background: "var(--surface-3)",
                   border: "1.5px solid #93c5fd",
                   boxShadow: "0 2px 12px rgba(37,99,235,0.12)",
                 }}
@@ -325,12 +325,12 @@ export default function AdminDashboard() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px" }} className="anim-section anim-d3">
               {[
                 {
-                  icon: <IconAlerta size={18} />, iconBg: "rgba(224,36,36,0.10)", iconColor: "#C81E1E",
+                  icon: <IconAlerta size={18} />, iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)",
                   label: "Índice de mora", value: `${moraPct.toFixed(1)}%`,
                   sub: `${(d?.clientsOverdue ?? 0) + (d?.clientsDefaulted ?? 0)} clientes`,
                 },
                 {
-                  icon: <IconMoneda size={18} />, iconBg: "rgba(14,159,110,0.10)", iconColor: "#0B7A53",
+                  icon: <IconMoneda size={18} />, iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)",
                   label: "Utilidad semanal", value: fmt(d?.profitThisWeek ?? 0),
                   sub: "Esta semana",
                 },
@@ -476,10 +476,10 @@ export default function AdminDashboard() {
               <div style={{ padding: "16px 18px" }}>
                 {(agingData as { bucket: string; clientCount: number; totalAmount: number; percentage: number }[]).map((row, i) => {
                   const palette = [
-                    { bar: "#34d399", bg: "rgba(14,159,110,0.10)", text: "#065f46" },
-                    { bar: "#fbbf24", bg: "rgba(217,142,30,0.10)", text: "#92400e" },
+                    { bar: "#34d399", bg: "var(--surface-3)", text: "var(--text-secondary)" },
+                    { bar: "#fbbf24", bg: "var(--surface-3)", text: "var(--text-secondary)" },
                     { bar: "#f97316", bg: "#ffedd5", text: "#7c2d12" },
-                    { bar: "#f87171", bg: "rgba(224,36,36,0.10)", text: "#991b1b" },
+                    { bar: "#f87171", bg: "var(--surface-3)", text: "var(--text-secondary)" },
                   ];
                   const c = palette[Math.min(i, palette.length - 1)];
                   const total = (agingData as any[]).reduce((s: number, r: any) => s + r.clientCount, 0) || 1;
@@ -613,7 +613,7 @@ export default function AdminDashboard() {
               { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#215DFF" },
               { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "#16a34a" },
               { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "#d97706" },
-              { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "#7c3aed" },
+              { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "var(--text-secondary)" },
               { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "#dc2626" },
               { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
             ].map(k => (

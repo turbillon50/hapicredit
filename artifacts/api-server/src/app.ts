@@ -7,6 +7,7 @@ import { logger } from "./lib/logger";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware } from "./middlewares/clerkProxyMiddleware";
 import { clerkWebhookHandler } from "./routes/clerkWebhook";
 import reportsRouter from "./routes/reports";
+import contentRouter from "./routes/content";
 
 const app: Express = express();
 
@@ -58,6 +59,7 @@ app.use(clerkMiddleware({
 
 app.use("/api", router);
 app.use("/api", reportsRouter);
+app.use("/api", contentRouter);
 
 // Global error handler — catches unhandled exceptions from any route/middleware
 // and returns JSON instead of Vercel's HTML 500 page.

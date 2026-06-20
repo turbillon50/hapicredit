@@ -296,7 +296,7 @@ export default function AdminExpediente() {
                   <div key={p.id} className="card flex items-center gap-3 py-3">
                     <div
                       className="w-8 h-8 rounded-lg flex items-center justify-center text-sm shrink-0"
-                      style={{ background: done ? "rgba(14,159,110,0.10)" : "rgba(217,142,30,0.10)", color: done ? "#065f46" : "#92400e" }}
+                      style={{ background: done ? "var(--surface-3)" : "var(--surface-3)", color: done ? "var(--text-secondary)" : "var(--text-secondary)" }}
                     >
                       {done ? <IconCheck size={16} /> : <IconReloj size={16} />}
                     </div>
@@ -509,7 +509,7 @@ export default function AdminExpediente() {
               onClick={() => setShowReasignar(true)}
               className="flex items-center gap-3 pressable w-full text-left"
             >
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(33,93,255,0.06)" }}>
+              <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--surface-3)" }}>
                 <IconGrupo size={16} color="#1d4ed8" />
               </div>
               <div>
@@ -526,7 +526,7 @@ export default function AdminExpediente() {
                 onClick={() => { setShowCambiarFecha(true); setNewDate(activeCredit.disbursementDate ?? ""); }}
                 className="flex items-center gap-3 pressable w-full text-left border-t border-gray-100 pt-3"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(14,159,110,0.06)" }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--surface-3)" }}>
                   <IconCalendario size={16} color="#16a34a" />
                 </div>
                 <div>
@@ -554,7 +554,7 @@ export default function AdminExpediente() {
                 }}
                 className="flex items-center gap-3 pressable w-full text-left border-t border-gray-100 pt-3"
               >
-                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(33,93,255,0.06)" }}>
+                <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0" style={{ background: "var(--surface-3)" }}>
                   <IconMoneda size={16} color="#215DFF" />
                 </div>
                 <div>
@@ -613,11 +613,11 @@ export default function AdminExpediente() {
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 14px", borderRadius: 12,
                     border: `1.5px solid ${newExecId === exec.id ? "#1d4ed8" : "#e2e8f0"}`,
-                    background: newExecId === exec.id ? "rgba(33,93,255,0.06)" : "#fff",
+                    background: newExecId === exec.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
                 >
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(33,93,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "#1e40af" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(33,93,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "var(--brand-blue)" }}>
                     {exec.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>

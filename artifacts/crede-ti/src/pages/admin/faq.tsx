@@ -160,7 +160,7 @@ export default function AdminFaq() {
                 style={{
                   borderRadius: 16,
                   background: "#fff",
-                  border: `1.5px solid ${item.isActive ? "#e2e8f0" : "rgba(224,36,36,0.12)"}`,
+                  border: `1.5px solid ${item.isActive ? "#e2e8f0" : "var(--surface-3)"}`,
                   padding: "14px 14px",
                 }}
               >
@@ -171,7 +171,7 @@ export default function AdminFaq() {
                     </div>
                     <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
                       <span style={{ background: "#f1f5f9", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>{catLabel(item.category)}</span>
-                      {!item.isActive && <span style={{ background: "rgba(224,36,36,0.06)", color: "#dc2626", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>Inactiva</span>}
+                      {!item.isActive && <span style={{ background: "var(--surface-3)", color: "#dc2626", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>Inactiva</span>}
                     </div>
                   </div>
                   <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
@@ -186,7 +186,7 @@ export default function AdminFaq() {
                     <button
                       className="pressable"
                       onClick={() => openEdit(item)}
-                      style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(33,93,255,0.06)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}
+                      style={{ width: 32, height: 32, borderRadius: 10, background: "var(--surface-3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}
                     >
                       <IconEdit />
                     </button>

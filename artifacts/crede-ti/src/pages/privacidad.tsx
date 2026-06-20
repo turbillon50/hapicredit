@@ -72,7 +72,7 @@ export default function Privacidad() {
             Protección de Datos Personales en Posesión de los Particulares (LFPDPPP).
           </p>
           <div style={{
-            background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)",
+            background: "var(--surface-3)", border: "1px solid var(--surface-3)",
             borderRadius: 12, padding: "16px 20px", marginBottom: 12,
           }}>
             <p style={{ ...s.p, margin: 0 }}>
@@ -134,7 +134,7 @@ export default function Privacidad() {
             Para ello, envíe su solicitud a:
           </p>
           <div style={{
-            background: "rgba(33,93,255,0.06)", border: "1px solid rgba(33,93,255,0.14)", borderRadius: 12,
+            background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: 12,
             padding: "16px 20px", marginBottom: 12,
           }}>
             <p style={{ ...s.p, margin: 0 }}>

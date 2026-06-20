@@ -47,7 +47,7 @@ export default function ExecutiveComisiones() {
             <div className="mx-4">
               <div
                 className="rounded-2xl p-5 text-white"
-                style={{ background: "linear-gradient(135deg, #065f46, #10b981)" }}
+                style={{ background: "linear-gradient(135deg, var(--text-secondary), #10b981)" }}
               >
                 <div className="text-xs uppercase font-semibold tracking-widest opacity-70 mb-1 capitalize">
                   {mesActual()}
@@ -111,7 +111,7 @@ export default function ExecutiveComisiones() {
                     <div key={c.creditId ?? i} className="card flex items-center gap-3 py-3">
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0"
-                        style={{ background: c.status === "active" ? "rgba(14,159,110,0.10)" : "rgba(33,93,255,0.10)", color: c.status === "active" ? "#16a34a" : "#1e40af" }}
+                        style={{ background: c.status === "active" ? "var(--surface-3)" : "rgba(33,93,255,0.10)", color: c.status === "active" ? "#16a34a" : "var(--brand-blue)" }}
                       >
                         {c.status === "active" ? <IconCheck size={18} /> : <IconReloj size={18} />}
                       </div>
@@ -136,7 +136,7 @@ export default function ExecutiveComisiones() {
 
                   <div
                     className="rounded-2xl p-4 flex items-center justify-between"
-                    style={{ background: "rgba(14,159,110,0.10)" }}
+                    style={{ background: "var(--surface-3)" }}
                   >
                     <div className="text-sm font-bold text-green-800">Total del mes</div>
                     <div className="text-xl font-extrabold text-green-700">{fmt(totalComision)}</div>

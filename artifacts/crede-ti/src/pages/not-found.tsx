@@ -7,7 +7,7 @@ export default function NotFound() {
       style={{ background: "var(--surface-2)" }}>
       <div className="text-center">
         <div className="w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-6"
-          style={{ background: "rgba(224,36,36,0.10)" }}>
+          style={{ background: "var(--surface-3)" }}>
           <IconAlerta size={36} color="#ef4444" />
         </div>
         <h1 className="text-6xl font-bold text-gray-200 mb-2">404</h1>
