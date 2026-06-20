@@ -3,6 +3,7 @@ import { useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
 import logoImg from "@assets/logo-credeti-square.jpeg";
 import { CountUp } from "@/components/hapi/CountUp";
+import heroTexture from "@assets/hero-texture.jpg";
 
 function HapiIcon({ size = 24, color = "#215DFF" }: { size?: number; color?: string }) {
   return (
@@ -81,17 +82,33 @@ export default function Home() {
           position: "relative",
           overflow: "hidden",
         }}>
+          {/* Textura Higgsfield de fondo — ondas de seda azul/turquesa */}
+          <div style={{
+            position:"absolute", inset:0,
+            backgroundImage:`url(${heroTexture})`,
+            backgroundSize:"cover",
+            backgroundPosition:"center bottom",
+            opacity:0.55,
+            mixBlendMode:"screen",
+            pointerEvents:"none",
+          }} />
+          {/* Overlay para legibilidad del texto */}
+          <div style={{
+            position:"absolute", inset:0,
+            background:"linear-gradient(165deg, rgba(6,20,59,0.62) 0%, rgba(33,93,255,0.30) 50%, rgba(25,215,215,0.12) 100%)",
+            pointerEvents:"none",
+          }} />
           {/* Glow blobs */}
           <div style={{ position:"absolute",top:-80,right:-80,width:280,height:280,borderRadius:"50%",background:"radial-gradient(circle,rgba(14,104,204,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
           <div style={{ position:"absolute",bottom:-60,left:-60,width:220,height:220,borderRadius:"50%",background:"radial-gradient(circle,rgba(14,104,204,0.10) 0%,transparent 70%)",pointerEvents:"none" }} />
 
           {/* Logo */}
-          <div className="anim-section anim-d1" style={{ width:84,height:84,borderRadius:22,overflow:"hidden",marginBottom:28,boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
+          <div className="anim-section anim-d1" style={{ position:"relative",zIndex:2,width:84,height:84,borderRadius:22,overflow:"hidden",marginBottom:28,boxShadow:"0 8px 32px rgba(0,0,0,0.28)" }}>
             <img src={logoImg} alt="credeti" style={{ width:"100%",height:"100%",objectFit:"cover" }} />
           </div>
 
           {/* Headline */}
-          <h1 className="anim-section anim-d2 font-display" style={{
+          <h1 className="anim-section anim-d2 font-display" style={{ position:"relative",zIndex:2,
             fontSize:"clamp(38px,10vw,54px)",
             fontWeight:700,lineHeight:1.05,
             letterSpacing:"-0.03em",
@@ -105,12 +122,12 @@ export default function Home() {
             </span>
           </h1>
 
-          <p className="anim-section anim-d3" style={{ fontSize:16,color:"rgba(255,255,255,0.58)",lineHeight:1.65,margin:"0 0 36px",maxWidth:340 }}>
+          <p className="anim-section anim-d3" style={{ position:"relative",zIndex:2,fontSize:16,color:"rgba(255,255,255,0.58)",lineHeight:1.65,margin:"0 0 36px",maxWidth:340 }}>
             Cliente nuevo desde <strong style={{ color:"#fff",fontWeight:700 }}>$500 MXN</strong>. Cliente recurrente hasta <strong style={{ color:"#fff",fontWeight:700 }}>$30,000 MXN</strong>. Sin comisión por apertura.
           </p>
 
           {/* CTA buttons */}
-          <div className="anim-section anim-d4" style={{ display:"flex",gap:12,flexWrap:"wrap" }}>
+          <div className="anim-section anim-d4" style={{ position:"relative",zIndex:2,display:"flex",gap:12,flexWrap:"wrap" }}>
             <button onClick={handleCTA} style={{
               padding:"15px 32px",
               background:"#215DFF",color:"#fff",
@@ -138,7 +155,7 @@ export default function Home() {
           </div>
 
           {/* Trust stats — con números animados */}
-          <div className="anim-section anim-d5" style={{ display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
+          <div className="anim-section anim-d5" style={{ position:"relative",zIndex:2,display:"flex",marginTop:44,borderTop:"1px solid rgba(255,255,255,0.09)",paddingTop:28 }}>
             {[
               { node: <CountUp value={30} prefix="$" suffix="K" />, label:"Monto máximo" },
               { node: <CountUp value={48} />,                       label:"Sem. máx" },
