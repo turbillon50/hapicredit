@@ -2,8 +2,13 @@ export function isValidStaffCode(submitted: unknown): boolean {
   if (typeof submitted !== "string" || submitted.length === 0) return false;
 
   const envCode = process.env.STAFF_MASTER_CODE;
-  if (envCode) return submitted === envCode || submitted === "credeti";
+  // SEGURIDAD: en produccion SOLO se acepta la clave maestra del entorno.
+  // El alias "credeti" (adivinable) queda BLOQUEADO en produccion para que
+  // nadie pueda auto-promoverse a admin escribiendo el nombre de la app.
+  if (envCode) return submitted === envCode;
 
+  // Sin env configurada: solo en desarrollo local se permite el alias legacy.
+  if (process.env.NODE_ENV === "production" || process.env.VERCEL) return false;
   return submitted === "credeti";
 }
 
