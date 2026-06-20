@@ -6,9 +6,10 @@ const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
 const HDR = () => ({ "Content-Type": "application/json", ...auth() });
 
-type Tab = "usuarios" | "creditos" | "banners" | "avisos";
+type Tab = "resumen" | "usuarios" | "creditos" | "banners" | "avisos";
 
 const TABS: { id: Tab; label: string }[] = [
+  { id: "resumen",  label: "Resumen" },
   { id: "usuarios", label: "Usuarios" },
   { id: "creditos", label: "Tipos de crédito" },
   { id: "banners",  label: "Publicidad" },
@@ -19,14 +20,99 @@ function roleLabel(r: string) {
   return r === "admin" ? "Administrador" : r === "executive" ? "Asesor" : "Acreditado";
 }
 
+/* ═══════════ TAB: RESUMEN (estadísticas de uso) ═══════════ */
+function ResumenTab() {
+  const { data, isLoading } = useQuery<any>({
+    queryKey: ["usage-stats"],
+    queryFn: async () => { const r = await fetch(`${API}/content/usage-stats`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
+  });
+
+  if (isLoading || !data) return <div className="text-sm text-center py-8" style={{ color: "var(--text-muted)" }}>Cargando estadísticas…</div>;
+
+  const maxTrend = Math.max(1, ...(data.trend ?? []).map((t: any) => t.count));
+
+  const StatBox = ({ value, label, sub }: { value: any; label: string; sub?: string }) => (
+    <div className="card" style={{ padding: 16 }}>
+      <div style={{ fontSize: 26, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em", lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: "var(--text-secondary)", marginTop: 6 }}>{label}</div>
+      {sub && <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{sub}</div>}
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col gap-4">
+      {/* Grid de métricas */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <StatBox value={data.newClients?.week ?? 0}  label="Clientes nuevos" sub="Últimos 7 días" />
+        <StatBox value={data.newClients?.month ?? 0} label="Clientes nuevos" sub="Últimos 30 días" />
+        <StatBox value={data.credits?.active ?? 0}   label="Créditos activos" sub={`${data.credits?.pending ?? 0} pendientes`} />
+        <StatBox value={data.newClients?.total ?? 0} label="Total acreditados" sub="Histórico" />
+      </div>
+
+      {/* Distribución de usuarios por rol */}
+      <div className="card flex flex-col gap-3">
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>Usuarios por rol</div>
+        {([["admin","Administradores"],["executive","Asesores"],["client","Acreditados"]] as [string,string][]).map(([k,lbl]) => {
+          const count = data.byRole?.[k] ?? 0;
+          const total = Object.values(data.byRole ?? {}).reduce((s: number, v: any) => s + v, 0) || 1;
+          const pct = Math.round((count / total) * 100);
+          return (
+            <div key={k}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 5 }}>
+                <span style={{ color: "var(--text-secondary)", fontWeight: 600 }}>{lbl}</span>
+                <span style={{ color: "var(--text-primary)", fontWeight: 700 }}>{count}</span>
+              </div>
+              <div style={{ height: 7, borderRadius: 100, background: "var(--surface-3)", overflow: "hidden" }}>
+                <div style={{ height: "100%", width: `${pct}%`, background: "var(--brand-blue)", borderRadius: 100, transition: "width 0.6s var(--ease-out-expo)" }} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Tendencia de registros — mini gráfica de barras */}
+      <div className="card flex flex-col gap-3">
+        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>Registros últimos 8 días</div>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 90, paddingTop: 8 }}>
+          {(data.trend ?? []).map((t: any, i: number) => (
+            <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 5, height: "100%", justifyContent: "flex-end" }}>
+              <div style={{ width: "100%", maxWidth: 28, height: `${Math.max(4, (t.count / maxTrend) * 70)}px`, background: t.count > 0 ? "var(--brand-blue)" : "var(--surface-3)", borderRadius: 6, transition: "height 0.5s var(--ease-out-expo)" }} />
+              <span style={{ fontSize: 9, color: "var(--text-muted)" }}>{t.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Contenido activo */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <StatBox value={data.content?.banners ?? 0} label="Banners activos" />
+        <StatBox value={data.content?.notifications ?? 0} label="Avisos activos" />
+      </div>
+    </div>
+  );
+}
+
 /* ═══════════ TAB: USUARIOS ═══════════ */
 function UsuariosTab() {
+  const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [roleFilter, setRoleFilter] = useState<"all" | "admin" | "executive" | "client">("all");
+  const [editing, setEditing] = useState<any | null>(null);
 
   const { data: users = [], isLoading } = useQuery<any[]>({
     queryKey: ["all-users"],
     queryFn: async () => { const r = await fetch(`${API}/users`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+  });
+
+  const saveM = useMutation({
+    mutationFn: async ({ id, role, isActive }: { id: number; role?: string; isActive?: boolean }) => {
+      const body: any = {};
+      if (role !== undefined) body.role = role;
+      if (isActive !== undefined) body.isActive = isActive;
+      const r = await fetch(`${API}/users/${id}`, { method: "PATCH", headers: HDR(), body: JSON.stringify(body) });
+      if (!r.ok) throw new Error();
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["all-users"] }); setEditing(null); },
   });
 
   const filtered = (users as any[]).filter(u => {
@@ -87,7 +173,7 @@ function UsuariosTab() {
       ) : (
         <div className="flex flex-col gap-2">
           {filtered.map(u => (
-            <div key={u.id} className="card" style={{ padding: 14, display: "flex", alignItems: "center", gap: 12 }}>
+            <div key={u.id} onClick={() => setEditing(u)} className="card pressable" style={{ padding: 14, display: "flex", alignItems: "center", gap: 12, cursor: "pointer" }}>
               <div style={{
                 width: 42, height: 42, borderRadius: 21, flexShrink: 0,
                 background: "var(--brand-blue-deep)", color: "#fff",
@@ -115,6 +201,49 @@ function UsuariosTab() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Modal de edición de usuario */}
+      {editing && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(8,11,20,0.55)", backdropFilter: "blur(6px)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+             onClick={e => { if (e.target === e.currentTarget) setEditing(null); }}>
+          <div style={{ width: "100%", maxWidth: 460, background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 100, background: "var(--border-mid)", margin: "0 auto 18px" }} />
+            <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+              <div style={{ width: 46, height: 46, borderRadius: 23, background: "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16 }}>
+                {(editing.fullName ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0].toUpperCase()).join("")}
+              </div>
+              <div>
+                <div style={{ fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>{editing.fullName}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{editing.email ?? editing.username}</div>
+              </div>
+            </div>
+
+            <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 8 }}>Rol</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
+              {([["client","Acreditado"],["executive","Asesor"],["admin","Administrador"]] as [string,string][]).map(([val,lbl]) => (
+                <button key={val} onClick={() => saveM.mutate({ id: editing.id, role: val })} disabled={saveM.isPending} className="pressable"
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 16px", borderRadius: 13, cursor: "pointer",
+                    border: `1.5px solid ${editing.role === val ? "var(--brand-blue)" : "var(--border)"}`,
+                    background: editing.role === val ? "rgba(33,93,255,0.06)" : "var(--surface)" }}>
+                  <span style={{ fontWeight: 700, fontSize: 14, color: editing.role === val ? "var(--brand-blue)" : "var(--text-secondary)" }}>{lbl}</span>
+                  {editing.role === val && <span style={{ fontSize: 12, color: "var(--brand-blue)", fontWeight: 700 }}>Actual</span>}
+                </button>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => saveM.mutate({ id: editing.id, isActive: !editing.isActive })} disabled={saveM.isPending} className="pressable"
+                style={{ flex: 1, padding: 13, borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+                {editing.isActive === false ? "Reactivar" : "Desactivar"}
+              </button>
+              <button onClick={() => setEditing(null)} className="pressable btn-brand"
+                style={{ flex: 1, padding: 13, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                Listo
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -393,7 +522,7 @@ function AvisosTab() {
 
 /* ═══════════ COMPONENTE PRINCIPAL ═══════════ */
 export default function AdminCentro() {
-  const [tab, setTab] = useState<Tab>("usuarios");
+  const [tab, setTab] = useState<Tab>("resumen");
 
   return (
     <Layout title="Centro de contenido">
@@ -427,6 +556,7 @@ export default function AdminCentro() {
           ))}
         </div>
 
+        {tab === "resumen"  && <ResumenTab />}
         {tab === "usuarios" && <UsuariosTab />}
         {tab === "creditos" && <CreditosTab />}
         {tab === "banners"  && <BannersTab />}

@@ -139,4 +139,61 @@ router.delete("/content/notifications/:id", requireAuth, requireRole("admin"), a
   res.json({ ok: true });
 });
 
+/* ═══════════ ESTADÍSTICAS DE USO ═══════════ */
+router.get("/content/usage-stats", requireAuth, requireRole("admin"), async (_req, res): Promise<void> => {
+  try {
+    // Distribución de usuarios por rol
+    const { rows: roleRows } = await pool.query(`
+      SELECT role, COUNT(*)::int AS count FROM users GROUP BY role
+    `);
+    const byRole: Record<string, number> = {};
+    for (const r of roleRows) byRole[r.role] = r.count;
+
+    // Nuevos clientes por periodo
+    const { rows: newClients } = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE registered_at >= now() - interval '7 days')::int  AS week,
+        COUNT(*) FILTER (WHERE registered_at >= now() - interval '30 days')::int AS month,
+        COUNT(*)::int AS total
+      FROM clients
+    `);
+
+    // Créditos activos vs total
+    const { rows: creditRows } = await pool.query(`
+      SELECT
+        COUNT(*) FILTER (WHERE status = 'active')::int  AS active,
+        COUNT(*) FILTER (WHERE status = 'pending')::int AS pending,
+        COUNT(*)::int AS total
+      FROM credits
+    `);
+
+    // Banners y notificaciones activos
+    await ensureTables();
+    const { rows: contentRows } = await pool.query(`
+      SELECT
+        (SELECT COUNT(*)::int FROM app_banners WHERE is_active = true)       AS banners,
+        (SELECT COUNT(*)::int FROM app_notifications WHERE is_active = true) AS notifications
+    `);
+
+    // Tendencia: clientes nuevos últimos 8 días
+    const { rows: trend } = await pool.query(`
+      SELECT to_char(d::date, 'DD/MM') AS label,
+             COUNT(c.id)::int AS count
+      FROM generate_series(now() - interval '7 days', now(), interval '1 day') d
+      LEFT JOIN clients c ON c.registered_at::date = d::date
+      GROUP BY d::date ORDER BY d::date
+    `);
+
+    res.json({
+      byRole,
+      newClients: newClients[0] ?? { week: 0, month: 0, total: 0 },
+      credits: creditRows[0] ?? { active: 0, pending: 0, total: 0 },
+      content: contentRows[0] ?? { banners: 0, notifications: 0 },
+      trend,
+    });
+  } catch (e) {
+    res.json({ byRole: {}, newClients: { week: 0, month: 0, total: 0 }, credits: { active: 0, pending: 0, total: 0 }, content: { banners: 0, notifications: 0 }, trend: [] });
+  }
+});
+
 export default router;
