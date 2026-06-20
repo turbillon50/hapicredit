@@ -145,7 +145,7 @@ export default function AdminCodigos() {
           </div>
           <button
             onClick={() => setGenerating(true)}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 600, fontSize: 14, cursor: "pointer" }}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "10px 16px", background: "var(--accent)", color: "white", border: "none", borderRadius: "var(--r-md)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}
           >
             <IconMas size={16} /> Nuevo
           </button>
@@ -154,7 +154,7 @@ export default function AdminCodigos() {
         {/* Generate modal */}
         {generating && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 50, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-            <div style={{ background: "white", borderRadius: 20, padding: 28, width: "100%", maxWidth: 360 }}>
+            <div style={{ background: "white", borderRadius: "var(--r-xl)", padding: 28, width: "100%", maxWidth: 360 }}>
               <h3 style={{ fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Generar código</h3>
               <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 20 }}>Selecciona el rol para el que generarás el código:</p>
               <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 24 }}>
@@ -162,20 +162,20 @@ export default function AdminCodigos() {
                   <button
                     key={r}
                     onClick={() => setNewRole(r as "executive" | "client" | "admin")}
-                    style={{ padding: "14px 16px", borderRadius: 12, border: `2px solid ${newRole === r ? ROLE_COLOR[r].color : "var(--border)"}`, background: newRole === r ? ROLE_COLOR[r].bg : "white", cursor: "pointer", textAlign: "left", fontWeight: 600, color: newRole === r ? ROLE_COLOR[r].color : "var(--text-primary)" }}
+                    style={{ padding: "14px 16px", borderRadius: "var(--r-lg)", border: `2px solid ${newRole === r ? ROLE_COLOR[r].color : "var(--border)"}`, background: newRole === r ? ROLE_COLOR[r].bg : "white", cursor: "pointer", textAlign: "left", fontWeight: 600, color: newRole === r ? ROLE_COLOR[r].color : "var(--text-primary)" }}
                   >
                     {ROLE_LABEL[r]}
                   </button>
                 ))}
                 {newRole === "admin" && (
-                  <div style={{ fontSize: 12, color: "var(--text-secondary)", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: 8, padding: "8px 12px", lineHeight: 1.5 }}>
+                  <div style={{ fontSize: 12, color: "var(--text-secondary)", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: "var(--r-sm)", padding: "8px 12px", lineHeight: 1.5 }}>
                     El administrador invitado tendrá su propio árbol independiente. Comparte la clave de acceso institucional por separado.
                   </div>
                 )}
               </div>
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setGenerating(false)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
-                <button onClick={() => generateMutation.mutate(newRole)} disabled={generateMutation.isPending} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: generateMutation.isPending ? 0.7 : 1 }}>
+                <button onClick={() => setGenerating(false)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: "var(--r-md)", background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                <button onClick={() => generateMutation.mutate(newRole)} disabled={generateMutation.isPending} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: "var(--r-md)", fontWeight: 700, cursor: "pointer", opacity: generateMutation.isPending ? 0.7 : 1 }}>
                   {generateMutation.isPending ? "Generando..." : "Generar"}
                 </button>
               </div>
@@ -198,7 +198,7 @@ export default function AdminCodigos() {
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 8 }}>Correo enviado</h3>
                   <p style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 24 }}>El código <strong>{emailModal.code}</strong> fue enviado a <strong>{emailTo}</strong></p>
-                  <button onClick={() => setEmailModal(null)} style={{ padding: "12px 32px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer" }}>Listo</button>
+                  <button onClick={() => setEmailModal(null)} style={{ padding: "12px 32px", background: "var(--accent)", color: "white", border: "none", borderRadius: "var(--r-md)", fontWeight: 700, cursor: "pointer" }}>Listo</button>
                 </div>
               ) : (
                 <>
@@ -218,8 +218,8 @@ export default function AdminCodigos() {
                   </div>
                   {emailError && <p style={{ color: "#C81E1E", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
                   <div style={{ display: "flex", gap: 10 }}>
-                    <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: 10, background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
-                    <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>
+                    <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: "var(--r-md)", background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                    <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: "var(--r-md)", fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>
                       {emailLoading ? "Enviando..." : "Enviar código"}
                     </button>
                   </div>
@@ -237,30 +237,30 @@ export default function AdminCodigos() {
             <h2 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Disponibles ({pendingCodes.length})</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {pendingCodes.map(c => (
-                <div key={c.id} style={{ background: "white", borderRadius: 14, padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", border: "1.5px solid var(--surface-2)" }}>
+                <div key={c.id} style={{ background: "white", borderRadius: "var(--r-lg)", padding: "16px", boxShadow: "0 1px 4px rgba(0,0,0,0.06)", border: "1.5px solid var(--surface-2)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
                     <span style={{ fontSize: 24, fontWeight: 800, letterSpacing: "0.12em", color: "var(--navy-800)", fontFamily: "monospace" }}>{c.code}</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: 20, background: ROLE_COLOR[c.role]?.bg, color: ROLE_COLOR[c.role]?.color }}>{ROLE_LABEL[c.role]}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--r-xl)", background: ROLE_COLOR[c.role]?.bg, color: ROLE_COLOR[c.role]?.color }}>{ROLE_LABEL[c.role]}</span>
                   </div>
                   <p style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: c.role === "admin" ? 8 : 12 }}>Expira: {formatDate(c.expiresAt)}</p>
                   {c.role === "admin" && (
-                    <p style={{ fontSize: 11, color: "var(--text-secondary)", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: 8, padding: "6px 10px", marginBottom: 12, lineHeight: 1.5 }}>
+                    <p style={{ fontSize: 11, color: "var(--text-secondary)", background: "var(--surface-3)", border: "1px solid var(--surface-3)", borderRadius: "var(--r-sm)", padding: "6px 10px", marginBottom: 12, lineHeight: 1.5 }}>
                       Recuerda compartir la clave institucional por separado
                     </p>
                   )}
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: 8, background: copied === c.code ? "var(--surface-3)" : "white", color: copied === c.code ? "#166534" : "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: "var(--r-sm)", background: copied === c.code ? "var(--surface-3)" : "white", color: copied === c.code ? "#166534" : "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                       {copied === c.code ? "Copiado" : "Copiar"}
                     </button>
                     <button
                       onClick={() => openEmailModal(c)}
-                      style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: 8, background: "white", color: "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
+                      style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: "var(--r-sm)", background: "white", color: "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}
                     >
                       Correo
                     </button>
                     <button
                       onClick={() => openWhatsApp(c.code, c.role)}
-                      style={{ flex: 1, padding: "9px", background: "#25D366", color: "white", border: "none", borderRadius: 8, fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
+                      style={{ flex: 1, padding: "9px", background: "#25D366", color: "white", border: "none", borderRadius: "var(--r-sm)", fontWeight: 700, fontSize: 12, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 5 }}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="white">
                         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
@@ -281,12 +281,12 @@ export default function AdminCodigos() {
             <h2 style={{ fontSize: 13, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 12 }}>Usados ({usedCodes.length})</h2>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {usedCodes.map(c => (
-                <div key={c.id} style={{ background: "white", borderRadius: 12, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid var(--surface-2)" }}>
+                <div key={c.id} style={{ background: "white", borderRadius: "var(--r-lg)", padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", border: "1px solid var(--surface-2)" }}>
                   <div>
                     <span style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 15, color: "var(--text-muted)", letterSpacing: "0.1em" }}>{c.code}</span>
                     <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{c.usedByName || "—"} · {c.usedAt ? formatDate(c.usedAt) : ""}</p>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20, background: "var(--surface-2)", color: "var(--text-secondary)" }}>{ROLE_LABEL[c.role]}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: "var(--r-xl)", background: "var(--surface-2)", color: "var(--text-secondary)" }}>{ROLE_LABEL[c.role]}</span>
                 </div>
               ))}
             </div>
@@ -309,7 +309,7 @@ const inputStyle: React.CSSProperties = {
   width: "100%",
   padding: "11px 14px",
   border: "1.5px solid var(--border)",
-  borderRadius: 10,
+  borderRadius: "var(--r-md)",
   fontSize: 15,
   marginTop: 6,
   boxSizing: "border-box",

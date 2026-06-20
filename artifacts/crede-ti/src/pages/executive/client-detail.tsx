@@ -214,12 +214,12 @@ export default function ExecutiveClientDetail() {
                 onChange={e => setMsgText(e.target.value)}
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                 placeholder={`Mensaje a ${client.fullName.split(" ")[0]}...`}
-                style={{ flex: 1, borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "8px 12px", outline: "none" }}
+                style={{ flex: 1, borderRadius: "var(--r-md)", border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "8px 12px", outline: "none" }}
               />
               <button
                 onClick={sendMsg}
                 disabled={!msgText.trim() || sendingMsg}
-                style={{ borderRadius: 10, border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default", background: msgText.trim() && !sendingMsg ? "var(--accent)" : "var(--border)", color: msgText.trim() && !sendingMsg ? "#fff" : "var(--text-muted)", padding: "0 14px", fontWeight: 700, fontSize: 14 }}
+                style={{ borderRadius: "var(--r-md)", border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default", background: msgText.trim() && !sendingMsg ? "var(--accent)" : "var(--border)", color: msgText.trim() && !sendingMsg ? "#fff" : "var(--text-muted)", padding: "0 14px", fontWeight: 700, fontSize: 14 }}
               >
                 {sendingMsg ? "…" : "Enviar"}
               </button>

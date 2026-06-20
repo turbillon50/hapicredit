@@ -86,7 +86,7 @@ function CreditCard({ credit, paid, total, pct, clientName }: {
   return (
     <div
       style={{
-        borderRadius: 24, padding: "24px 22px",
+        borderRadius: "var(--r-xl)", padding: "24px 22px",
         background: "linear-gradient(140deg,#15206E 0%,#2A3CD6 50%,#3F51E6 100%)",
         position: "relative", overflow: "hidden",
         boxShadow: "0 8px 40px rgba(8,15,31,0.35)",
@@ -208,7 +208,7 @@ function MensajesSection({ messages, client, queryClient }: {
       </div>
       <div
         style={{
-          borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)",
+          borderRadius: "var(--r-xl)", background: "var(--surface)", border: "1px solid var(--border)",
           boxShadow: "var(--shadow-xs)", overflow: "hidden",
         }}
       >
@@ -258,7 +258,7 @@ function MensajesSection({ messages, client, queryClient }: {
             onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } }}
             placeholder="Escribe un mensaje..."
             style={{
-              flex: 1, borderRadius: 10, border: "1.5px solid var(--border)",
+              flex: 1, borderRadius: "var(--r-md)", border: "1.5px solid var(--border)",
               background: "var(--surface-2)", color: "var(--text-primary)",
               fontSize: 14, padding: "8px 12px", outline: "none",
             }}
@@ -267,7 +267,7 @@ function MensajesSection({ messages, client, queryClient }: {
             onClick={send}
             disabled={!text.trim() || sending}
             style={{
-              borderRadius: 10, border: "none", cursor: text.trim() && !sending ? "pointer" : "default",
+              borderRadius: "var(--r-md)", border: "none", cursor: text.trim() && !sending ? "pointer" : "default",
               background: text.trim() && !sending ? "var(--accent)" : "var(--border)",
               color: text.trim() && !sending ? "#fff" : "var(--text-muted)",
               padding: "0 14px", fontWeight: 700, fontSize: 14, transition: "all .15s",
@@ -469,7 +469,7 @@ export default function MiCredito() {
                 className="pressable"
                 style={{
                   width: "100%", marginTop: 24, padding: "16px",
-                  borderRadius: 16, border: "none", cursor: "pointer",
+                  borderRadius: "var(--r-xl)", border: "none", cursor: "pointer",
                   background: "var(--accent)", color: "#fff",
                   fontWeight: 700, fontSize: 15,
                   display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
@@ -498,7 +498,7 @@ export default function MiCredito() {
                 <div
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
-                    padding: "14px 16px", borderRadius: 16,
+                    padding: "14px 16px", borderRadius: "var(--r-xl)",
                     background: nextDays <= 1 ? "#fff0f0" : nextDays <= 3 ? "#fffbeb" : "var(--surface-3)",
                     border: `1.5px solid ${nextDays <= 1 ? "#fca5a5" : nextDays <= 3 ? "#fcd34d" : "#86efac"}`,
                   }}
@@ -532,7 +532,7 @@ export default function MiCredito() {
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 10, textTransform: "uppercase", letterSpacing: "0.06em" }}>
                   Cómo va tu crédito
                 </div>
-                <div style={{ borderRadius: 16, background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)", padding: "16px 16px 8px" }}>
+                <div style={{ borderRadius: "var(--r-xl)", background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)", padding: "16px 16px 8px" }}>
                   {timeline.map((ev, i) => {
                     const color = ev.tone === "positive" ? "#0B7A53" : ev.tone === "warning" ? "#d97706" : "var(--accent)";
                     const last = i === timeline.length - 1;
@@ -566,13 +566,13 @@ export default function MiCredito() {
                     className="pressable"
                     style={{
                       display: "flex", alignItems: "center", gap: 12,
-                      padding: "14px 16px", borderRadius: 16,
+                      padding: "14px 16px", borderRadius: "var(--r-xl)",
                       background: "var(--surface)",
                       border: "1px solid var(--border)",
                       boxShadow: "var(--shadow-xs)",
                     }}
                   >
-                    <div style={{ width: 40, height: 40, borderRadius: 12, background: "var(--coral-bg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <div style={{ width: 40, height: 40, borderRadius: "var(--r-lg)", background: "var(--coral-bg)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <IconMas size={18} color="var(--coral)" />
                     </div>
                     <div style={{ flex: 1 }}>
@@ -620,11 +620,11 @@ export default function MiCredito() {
                       <div
                         style={{
                           display: "flex", alignItems: "center", gap: 12,
-                          padding: "14px 16px", borderRadius: 16,
+                          padding: "14px 16px", borderRadius: "var(--r-xl)",
                           background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
-                        <div style={{ width: 40, height: 40, borderRadius: 12, background: c.status === "needs_info" ? "var(--surface-3)" : "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <div style={{ width: 40, height: 40, borderRadius: "var(--r-lg)", background: c.status === "needs_info" ? "var(--surface-3)" : "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                           {c.status === "needs_info" ? <span style={{ fontSize: "16px" }}>⚠️</span> : <IconReloj size={16} color="#ca8a04" />}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -653,7 +653,7 @@ export default function MiCredito() {
                       <div
                         key={c.id}
                         style={{
-                          background: "var(--surface)", borderRadius: 16, padding: "16px",
+                          background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "16px",
                           border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
@@ -667,7 +667,7 @@ export default function MiCredito() {
                             { label: "Plazo",   value: `${c.termWeeks} sem` },
                             { label: "Semanal", value: fmt(c.weeklyPayment) },
                           ].map(cell => (
-                            <div key={cell.label} style={{ background: "var(--surface-2)", borderRadius: 10, padding: "8px 4px" }}>
+                            <div key={cell.label} style={{ background: "var(--surface-2)", borderRadius: "var(--r-md)", padding: "8px 4px" }}>
                               <div style={{ fontSize: 9, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 600 }}>{cell.label}</div>
                               <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-primary)", marginTop: 2 }}>{cell.value}</div>
                             </div>
@@ -695,13 +695,13 @@ export default function MiCredito() {
                         key={p.id}
                         style={{
                           display: "flex", alignItems: "center", gap: 12,
-                          padding: "12px 16px", borderRadius: 14,
+                          padding: "12px 16px", borderRadius: "var(--r-lg)",
                           background: "var(--surface)", border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
                         }}
                       >
                         <div
                           style={{
-                            width: 36, height: 36, borderRadius: 12, flexShrink: 0,
+                            width: 36, height: 36, borderRadius: "var(--r-lg)", flexShrink: 0,
                             display: "flex", alignItems: "center", justifyContent: "center",
                             background: isPaid ? "var(--surface-3)" : isPending ? "var(--surface-3)" : "var(--surface-3)",
                             color: isPaid ? "#059669" : isPending ? "#ca8a04" : "var(--text-muted)",

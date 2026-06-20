@@ -174,7 +174,7 @@ export default function AdminDashboard() {
                     key={s.label}
                     style={{
                       display: "flex", alignItems: "center",
-                      padding: "4px 10px", borderRadius: 20,
+                      padding: "4px 10px", borderRadius: "var(--r-xl)",
                       background: "rgba(255,255,255,0.08)",
                       border: "1px solid rgba(255,255,255,0.1)",
                     }}
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
                 className="pressable"
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
-                  padding: "14px 16px", borderRadius: 16,
+                  padding: "14px 16px", borderRadius: "var(--r-xl)",
                   background: "var(--warning-bg)",
                   border: "1.5px solid #fcd34d",
                   boxShadow: "0 2px 12px rgba(245,158,11,0.15)",
@@ -229,7 +229,7 @@ export default function AdminDashboard() {
               >
                 <div
                   style={{
-                    width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                    width: 44, height: 44, borderRadius: "var(--r-lg)", flexShrink: 0,
                     background: "#B26A00",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     boxShadow: "0 2px 8px rgba(245,158,11,0.35)",
@@ -252,12 +252,12 @@ export default function AdminDashboard() {
             <div
               style={{
                 display: "flex", alignItems: "center", gap: 12,
-                padding: "12px 16px", borderRadius: 16,
+                padding: "12px 16px", borderRadius: "var(--r-xl)",
                 background: "var(--success-bg)",
                 border: "1.5px solid #86efac",
               }}
             >
-              <div style={{ width: 36, height: 36, borderRadius: 12, flexShrink: 0, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ width: 36, height: 36, borderRadius: "var(--r-lg)", flexShrink: 0, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <IconCheck size={18} color="#0B7A53" />
               </div>
               <div>
@@ -276,7 +276,7 @@ export default function AdminDashboard() {
                 className="pressable"
                 style={{
                   display: "flex", alignItems: "center", gap: 14,
-                  padding: "14px 16px", borderRadius: 16,
+                  padding: "14px 16px", borderRadius: "var(--r-xl)",
                   background: "var(--surface-3)",
                   border: "1.5px solid #93c5fd",
                   boxShadow: "0 2px 12px rgba(37,99,235,0.12)",
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
               >
                 <div
                   style={{
-                    width: 44, height: 44, borderRadius: 14, flexShrink: 0,
+                    width: 44, height: 44, borderRadius: "var(--r-lg)", flexShrink: 0,
                     background: "#215DFF",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     boxShadow: "0 2px 8px rgba(33,93,255,0.35)",
@@ -349,11 +349,11 @@ export default function AdminDashboard() {
                 <div
                   key={s.label}
                   style={{
-                    background: "var(--surface)", borderRadius: 16, padding: "16px",
+                    background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "16px",
                     border: "1px solid var(--border)", boxShadow: "var(--shadow-card)",
                   }}
                 >
-                  <div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: s.iconBg, color: s.iconColor, marginBottom: 10 }}>
+                  <div style={{ width: 36, height: 36, borderRadius: "var(--r-md)", display: "flex", alignItems: "center", justifyContent: "center", background: s.iconBg, color: s.iconColor, marginBottom: 10 }}>
                     {s.icon}
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em" }}>{s.value}</div>
@@ -365,7 +365,7 @@ export default function AdminDashboard() {
 
             {/* Cash flow card */}
             <div style={{ margin: "0 16px" }} className="anim-section anim-d4">
-              <div style={{ background: "var(--surface)", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+              <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
                 <div style={{ padding: "12px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
                   <IconFinanzas size={16} color="var(--accent)" />
                   <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
@@ -404,7 +404,7 @@ export default function AdminDashboard() {
         {/* ── Collection Trend Chart ── */}
         {Array.isArray(collectionTrend) && collectionTrend.length > 0 && (
           <div style={{ margin: "0 16px" }} className="anim-section anim-d5">
-            <div style={{ background: "var(--surface)", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
               <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
                 <IconFinanzas size={16} color="var(--accent)" />
                 <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
@@ -438,7 +438,7 @@ export default function AdminDashboard() {
                       tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`}
                     />
                     <Tooltip
-                      contentStyle={{ fontSize: 11, borderRadius: 10, border: "1px solid var(--border)", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
+                      contentStyle={{ fontSize: 11, borderRadius: "var(--r-md)", border: "1px solid var(--border)", boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
                       formatter={(val: number, name: string) => [
                         new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(val),
                         name === "collected" ? "Cobrado" : "Meta",
@@ -467,7 +467,7 @@ export default function AdminDashboard() {
         {/* ── Portfolio Aging Chart ── */}
         {Array.isArray(agingData) && agingData.length > 0 && (
           <div style={{ margin: "0 16px" }} className="anim-section anim-d5">
-            <div style={{ background: "var(--surface)", borderRadius: 18, border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)", overflow: "hidden" }}>
               <div style={{ padding: "14px 18px 10px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: 8 }}>
                 <IconCartera size={16} color="var(--accent)" />
                 <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)" }}>
@@ -493,7 +493,7 @@ export default function AdminDashboard() {
                           <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{row.bucket}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: c.bg, color: c.text }}>
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: "var(--r-xl)", background: c.bg, color: c.text }}>
                             {row.clientCount} clientes
                           </span>
                           <span style={{ fontSize: 11, fontWeight: 700, color: "#111827", minWidth: 40, textAlign: "right" }}>
@@ -533,7 +533,7 @@ export default function AdminDashboard() {
                   className="pressable"
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
-                    padding: "14px 16px", borderRadius: 16,
+                    padding: "14px 16px", borderRadius: "var(--r-xl)",
                     background: "var(--surface)",
                     border: "1px solid var(--border)",
                     boxShadow: "var(--shadow-xs)",
@@ -562,7 +562,7 @@ export default function AdminDashboard() {
         {/* ── Network at a glance — total tree under this admin ── */}
         <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d6">
           <div style={{
-            borderRadius: 20,
+            borderRadius: "var(--r-xl)",
             background: "linear-gradient(135deg, #1A4FE0, #215DFF)",
             padding: "20px",
             position: "relative",
@@ -582,7 +582,7 @@ export default function AdminDashboard() {
                 <div key={s.label} style={{
                   background: "rgba(255,255,255,0.10)",
                   border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: 12, padding: "10px 8px", textAlign: "center",
+                  borderRadius: "var(--r-lg)", padding: "10px 8px", textAlign: "center",
                 }}>
                   <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
                   <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>{s.label}</div>
@@ -591,12 +591,12 @@ export default function AdminDashboard() {
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
               <Link href="/admin/arbol">
-                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "rgba(255,255,255,0.12)", color: "#fff", fontSize: 12, fontWeight: 700, textAlign: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
+                <div className="pressable" style={{ padding: "10px 12px", borderRadius: "var(--r-lg)", background: "rgba(255,255,255,0.12)", color: "#fff", fontSize: 12, fontWeight: 700, textAlign: "center", border: "1px solid rgba(255,255,255,0.15)" }}>
                   Ver árbol completo →
                 </div>
               </Link>
               <Link href="/admin/codigos">
-                <div className="pressable" style={{ padding: "10px 12px", borderRadius: 12, background: "#19D7D7", color: "#0A2E8A", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
+                <div className="pressable" style={{ padding: "10px 12px", borderRadius: "var(--r-lg)", background: "#19D7D7", color: "#0A2E8A", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
                   Invitar al equipo
                 </div>
               </Link>
@@ -619,7 +619,7 @@ export default function AdminDashboard() {
               { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
             ].map(k => (
               <div key={k.label} style={{
-                background: "var(--surface)", borderRadius: 14, padding: "12px 14px",
+                background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "12px 14px",
                 border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: 6 }}>{k.label}</div>

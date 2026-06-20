@@ -23,7 +23,7 @@ function ThemeToggle({ tone = "dark" }: { tone?: "dark" | "light" }) {
       aria-label={isDark ? "Modo claro" : "Modo oscuro"}
       className="pressable"
       style={{
-        width: 32, height: 32, borderRadius: 10, flexShrink: 0,
+        width: 32, height: 32, borderRadius: "var(--r-md)", flexShrink: 0,
         display: "flex", alignItems: "center", justifyContent: "center",
         background: bg, border: "none", cursor: "pointer", color,
       }}

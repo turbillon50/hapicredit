@@ -133,7 +133,7 @@ function InviteVIP() {
 
   return (
     <div style={{ padding: "0 16px", marginBottom: 24 }}>
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, padding: "18px 16px" }}>
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "18px 16px" }}>
         <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
           Invitacion VIP con credito pre-aprobado
         </div>
@@ -145,7 +145,7 @@ function InviteVIP() {
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           {(["vip_new","vip_renewal"] as const).map(t => (
             <button key={t} onClick={() => setType(t)}
-              style={{ flex: 1, padding: "9px", borderRadius: 12,
+              style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)",
                 border: type === t ? "1.5px solid var(--brand-blue)" : "1.5px solid var(--border)",
                 background: type === t ? "var(--surface-3)" : "var(--surface-2)",
                 color: type === t ? "var(--brand-blue)" : "var(--text-muted)",
@@ -172,7 +172,7 @@ function InviteVIP() {
         </div>
 
         {/* Condiciones */}
-        <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: "12px", marginBottom: 14 }}>
+        <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px", marginBottom: 14 }}>
           <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 10 }}>Condiciones del credito</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             <div>
@@ -199,7 +199,7 @@ function InviteVIP() {
               { l: "Pago/sem", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(weekly), c: "#215DFF" },
               { l: "Total", v: new Intl.NumberFormat("es-MX",{style:"currency",currency:"MXN",minimumFractionDigits:0}).format(total), c: "var(--text-primary)" },
             ].map(item => (
-              <div key={item.l} style={{ background: "var(--surface)", borderRadius: 10, padding: "8px", textAlign: "center" }}>
+              <div key={item.l} style={{ background: "var(--surface)", borderRadius: "var(--r-md)", padding: "8px", textAlign: "center" }}>
                 <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{item.l}</div>
                 <div style={{ fontSize: 14, fontWeight: 900, color: item.c }}>{item.v}</div>
               </div>
@@ -209,7 +209,7 @@ function InviteVIP() {
 
         {!result ? (
           <button onClick={generate} disabled={busy || !name.trim() || amt <= 0}
-            style={{ width: "100%", padding: "13px", borderRadius: 12, border: "none",
+            style={{ width: "100%", padding: "13px", borderRadius: "var(--r-lg)", border: "none",
               background: busy || !name.trim() || amt <= 0 ? "var(--surface-2)" : "linear-gradient(135deg,#19D7D7,#215DFF)",
               color: busy || !name.trim() || amt <= 0 ? "var(--text-muted)" : "#fff",
               fontSize: 14, fontWeight: 700, cursor: "pointer" }}>
@@ -217,18 +217,18 @@ function InviteVIP() {
           </button>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px", textAlign: "center" }}>
+            <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px", textAlign: "center" }}>
               <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Link de invitacion</div>
               <div style={{ fontSize: 12, fontFamily: "monospace", wordBreak: "break-all", color: "var(--text-primary)", marginTop: 4 }}>{result.link}</div>
             </div>
             <a href={`https://wa.me/${phone.replace(/\D/g,"")}?text=${buildWA()}`} target="_blank" rel="noopener noreferrer"
               style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                padding: "13px", borderRadius: 12, textDecoration: "none",
+                padding: "13px", borderRadius: "var(--r-lg)", textDecoration: "none",
                 background: "#25d366", color: "#fff", fontSize: 14, fontWeight: 700 }}>
               Enviar por WhatsApp a {name.split(" ")[0]}
             </a>
             <button onClick={() => { navigator.clipboard.writeText(result.link); setCopied(true); setTimeout(() => setCopied(false), 2000); }}
-              style={{ padding: "10px", borderRadius: 12, border: "1.5px solid var(--border)",
+              style={{ padding: "10px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)",
                 background: "var(--surface-2)", color: "var(--text-secondary)", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               {copied ? "Copiado!" : "Copiar link"}
             </button>
@@ -292,7 +292,7 @@ function InviteByWhatsApp() {
 
   return (
     <div style={{ padding: "0 16px", marginBottom: 24 }}>
-      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 18, padding: "18px 16px" }}>
+      <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "18px 16px" }}>
         <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>
           Invitar al equipo por WhatsApp
         </div>
@@ -304,7 +304,7 @@ function InviteByWhatsApp() {
           {(["executive", "admin"] as const).map(r => (
             <button key={r} onClick={() => { setRole(r); setInviteCode(null); }}
               style={{
-                flex: 1, padding: "9px", borderRadius: 12,
+                flex: 1, padding: "9px", borderRadius: "var(--r-lg)",
                 border: role === r ? "1.5px solid var(--brand-blue)" : "1.5px solid var(--border)",
                 background: role === r ? "var(--surface-3)" : "var(--surface-2)",
                 color: role === r ? "var(--brand-blue)" : "var(--text-muted)",
@@ -318,7 +318,7 @@ function InviteByWhatsApp() {
         {!inviteCode ? (
           <button onClick={generateCode} disabled={generating}
             style={{
-              width: "100%", padding: "12px", borderRadius: 12, border: "none",
+              width: "100%", padding: "12px", borderRadius: "var(--r-lg)", border: "none",
               background: generating ? "var(--surface-2)" : "var(--brand-blue)",
               color: generating ? "var(--text-muted)" : "#fff",
               fontSize: 14, fontWeight: 700, cursor: generating ? "default" : "pointer",
@@ -327,12 +327,12 @@ function InviteByWhatsApp() {
           </button>
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Codigo de registro</div>
                 <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.12em", color: "var(--text-primary)" }}>{inviteCode}</div>
               </div>
-              <span style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--surface)", padding: "4px 10px", borderRadius: 20, border: "1px solid var(--border)" }}>
+              <span style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--surface)", padding: "4px 10px", borderRadius: "var(--r-xl)", border: "1px solid var(--border)" }}>
                 {role === "executive" ? "Asesor" : "Admin"}
               </span>
             </div>
@@ -340,7 +340,7 @@ function InviteByWhatsApp() {
             <a href={"https://wa.me/?text=" + buildMsg()} target="_blank" rel="noopener noreferrer"
               style={{
                 display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                padding: "13px", borderRadius: 12, textDecoration: "none",
+                padding: "13px", borderRadius: "var(--r-lg)", textDecoration: "none",
                 background: "#25d366", color: "#fff", fontSize: 14, fontWeight: 700,
               }}>
               Enviar por WhatsApp
@@ -353,7 +353,7 @@ function InviteByWhatsApp() {
                   setTimeout(() => setCopied(false), 2000);
                 }}
                 style={{
-                  padding: "10px", borderRadius: 12, border: "1.5px solid var(--border)",
+                  padding: "10px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)",
                   background: "var(--surface-2)", color: "var(--text-secondary)",
                   fontSize: 13, fontWeight: 600, cursor: "pointer",
                 }}>
@@ -439,7 +439,7 @@ export default function Configuracion() {
 
   if (isLoading) return (
     <div style={{ padding: 20, display: "flex", flexDirection: "column", gap: 14 }}>
-      {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 140, borderRadius: 16 }} />)}
+      {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 140, borderRadius: "var(--r-xl)" }} />)}
     </div>
   );
 
@@ -473,7 +473,7 @@ export default function Configuracion() {
 
       {saveMsg && (
         <div style={{
-          padding: "10px 16px", borderRadius: 12,
+          padding: "10px 16px", borderRadius: "var(--r-lg)",
           background: saveMsg.startsWith("Error") ? "var(--danger-bg)" : "var(--success-bg)",
           color: saveMsg.startsWith("Error") ? "var(--danger)" : "var(--success)",
           fontSize: 13, fontWeight: 600,
@@ -552,7 +552,7 @@ export default function Configuracion() {
               {pushStatus === "ok" ? "✓ Recibida" : pushStatus === "err" ? "Error" : "Enviar prueba"}
             </button>
           </div>
-          <div style={{ fontSize: 12, color: "var(--text-muted)", padding: "10px 14px", background: "var(--surface-2)", borderRadius: 10 }}>
+          <div style={{ fontSize: 12, color: "var(--text-muted)", padding: "10px 14px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
             <strong style={{ color: "var(--text-secondary)" }}>¿Cuándo recibes notificaciones?</strong><br />
             • Nueva solicitud de crédito de un cliente<br />
             • Pago registrado pendiente de validación<br />

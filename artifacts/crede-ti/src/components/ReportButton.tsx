@@ -30,7 +30,7 @@ export function ReportButton() {
   return (
     <>
       <button onClick={() => setOpen(true)} aria-label="Reportar un problema" className="pressable"
-        style={{ position: "fixed", right: 16, bottom: 92, zIndex: 40, width: 52, height: 52, borderRadius: 16,
+        style={{ position: "fixed", right: 16, bottom: 92, zIndex: 40, width: 52, height: 52, borderRadius: "var(--r-xl)",
           background: "var(--brand-blue, #0E68CC)", color: "#fff", border: "none", cursor: "pointer",
           boxShadow: "0 6px 20px rgba(14,104,204,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -43,18 +43,18 @@ export function ReportButton() {
             {done ? (
               <div style={{ padding: "24px 0", textAlign: "center", color: "#0B7A53", fontWeight: 600 }}>Reporte enviado. Gracias \uD83D\uDC99</div>
             ) : (<>
-              <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: 10, border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }}>
+              <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: "var(--r-md)", border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }}>
                 <option value="general">General</option>
                 <option value="pago">Pago</option>
                 <option value="credito">Credito</option>
                 <option value="tecnico">Problema tecnico</option>
                 <option value="otro">Otro</option>
               </select>
-              <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Asunto" maxLength={200} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: 10, border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }} />
-              <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe el problema..." rows={4} maxLength={4000} style={{ width: "100%", padding: 12, marginBottom: 14, borderRadius: 10, border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)", resize: "vertical" }} />
+              <input value={subject} onChange={(e) => setSubject(e.target.value)} placeholder="Asunto" maxLength={200} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: "var(--r-md)", border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }} />
+              <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Describe el problema..." rows={4} maxLength={4000} style={{ width: "100%", padding: 12, marginBottom: 14, borderRadius: "var(--r-md)", border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)", resize: "vertical" }} />
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setOpen(false)} disabled={sending} style={{ flex: 1, padding: 13, borderRadius: 10, border: "1px solid var(--border,var(--border))", background: "transparent", color: "var(--text-muted,var(--text-secondary))", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
-                <button onClick={submit} disabled={sending || !subject.trim() || !message.trim()} style={{ flex: 2, padding: 13, borderRadius: 10, border: "none", background: "var(--brand-blue,#0E68CC)", color: "#fff", fontWeight: 700, cursor: "pointer", opacity: sending || !subject.trim() || !message.trim() ? 0.6 : 1 }}>{sending ? "Enviando..." : "Enviar reporte"}</button>
+                <button onClick={() => setOpen(false)} disabled={sending} style={{ flex: 1, padding: 13, borderRadius: "var(--r-md)", border: "1px solid var(--border,var(--border))", background: "transparent", color: "var(--text-muted,var(--text-secondary))", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
+                <button onClick={submit} disabled={sending || !subject.trim() || !message.trim()} style={{ flex: 2, padding: 13, borderRadius: "var(--r-md)", border: "none", background: "var(--brand-blue,#0E68CC)", color: "#fff", fontWeight: 700, cursor: "pointer", opacity: sending || !subject.trim() || !message.trim() ? 0.6 : 1 }}>{sending ? "Enviando..." : "Enviar reporte"}</button>
               </div>
             </>)}
           </div>

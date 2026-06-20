@@ -88,11 +88,11 @@ function TableCobranza({ data }: { data: any[] }) {
   return (
     <>
       <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
-        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 16px" }}>
+        <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Total cobrado</div>
           <div style={{ fontSize: 22, fontWeight: 900, color: "#059669" }}>{fmt(total)}</div>
         </div>
-        <div style={{ background: "var(--surface-2)", borderRadius: 12, padding: "12px 16px" }}>
+        <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Pagos</div>
           <div style={{ fontSize: 22, fontWeight: 900 }}>{data.length}</div>
         </div>
@@ -171,14 +171,14 @@ function FlujoCaja({ data }: { data: any }) {
           { label: "Pend. validar", val: data.pendingValidation, color: "#d97706" },
           { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "#B91C1C" },
         ].map(item => (
-          <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: 14, padding: "16px" }}>
+          <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "16px" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>{item.label}</div>
             <div style={{ fontSize: 22, fontWeight: 900, color: item.color }}>{fmt(item.val)}</div>
           </div>
         ))}
       </div>
       {data.weeklyProjection?.length > 0 && (
-        <div style={{ background: "var(--surface-2)", borderRadius: 14, padding: "16px" }}>
+        <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "16px" }}>
           <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 12 }}>Proyección próximas 4 semanas</div>
           {data.weeklyProjection.map((w: any, i: number) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid var(--border-light)" }}>
@@ -244,7 +244,7 @@ export default function AdminReportes() {
             <button key={r.id} onClick={() => setSelected(r.id)}
               style={{
                 display: "flex", alignItems: "center", gap: 12,
-                padding: "14px 16px", borderRadius: 16, border: "none",
+                padding: "14px 16px", borderRadius: "var(--r-xl)", border: "none",
                 background: selected === r.id ? "var(--brand-blue)" : "var(--surface)",
                 color: selected === r.id ? "#fff" : "var(--text-primary)",
                 textAlign: "left", cursor: "pointer",
@@ -262,7 +262,7 @@ export default function AdminReportes() {
         {/* Panel de reporte */}
         {selected && (
           <div style={{ padding: "16px" }}>
-            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: 20, overflow: "hidden" }}>
+            <div style={{ background: "var(--surface)", border: "1px solid var(--border)", borderRadius: "var(--r-xl)", overflow: "hidden" }}>
               {/* Filtros */}
               <div style={{ padding: "16px 16px 0", display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
                 <div style={{ fontSize: 15, fontWeight: 800, flex: 1 }}>{info?.icon} {info?.label}</div>
@@ -277,11 +277,11 @@ export default function AdminReportes() {
                 {!isLoading && tableData.length > 0 && (
                   <div style={{ display: "flex", gap: 8 }}>
                     <button onClick={() => downloadExcel(tableData, selected!)}
-                      style={{ padding: "6px 14px", borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                      style={{ padding: "6px 14px", borderRadius: "var(--r-md)", border: "1.5px solid var(--border)", background: "var(--surface-2)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                       Excel
                     </button>
                     <button onClick={() => window.print()}
-                      style={{ padding: "6px 14px", borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                      style={{ padding: "6px 14px", borderRadius: "var(--r-md)", border: "1.5px solid var(--border)", background: "var(--surface-2)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                       Imprimir
                     </button>
                   </div>

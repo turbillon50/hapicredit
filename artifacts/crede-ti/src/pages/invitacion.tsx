@@ -111,7 +111,7 @@ export default function Invitacion() {
         width: "100%", maxWidth: 380,
         background: "rgba(255,255,255,0.08)",
         border: "1px solid rgba(255,255,255,0.2)",
-        borderRadius: 24, padding: "24px 20px",
+        borderRadius: "var(--r-xl)", padding: "24px 20px",
         backdropFilter: "blur(20px)",
         marginBottom: 16,
       }}>
@@ -134,7 +134,7 @@ export default function Invitacion() {
             { label: "Total a pagar", val: fmt(totalToRepay) },
           ].map(item => (
             <div key={item.label} style={{
-              background: "rgba(255,255,255,0.06)", borderRadius: 14,
+              background: "rgba(255,255,255,0.06)", borderRadius: "var(--r-lg)",
               padding: "12px 14px", textAlign: "center",
               border: item.highlight ? "1.5px solid rgba(25,215,215,0.4)" : "1px solid rgba(255,255,255,0.08)",
             }}>
@@ -157,7 +157,7 @@ export default function Invitacion() {
             window.location.href = `${basePath}/sign-up`;
           }}
           style={{
-            width: "100%", height: 56, borderRadius: 16, border: "none",
+            width: "100%", height: 56, borderRadius: "var(--r-xl)", border: "none",
             background: "linear-gradient(135deg,#19D7D7,#215DFF)",
             color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer",
             boxShadow: "0 8px 32px rgba(33,93,255,0.4)",

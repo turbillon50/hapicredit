@@ -133,12 +133,12 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
       animate={{ opacity: 1, y: 0 }}
       style={{
         background: "linear-gradient(135deg,var(--surface-3),rgba(33,93,255,0.10))",
-        border: "1px solid var(--surface-3)", borderRadius: 16,
+        border: "1px solid var(--surface-3)", borderRadius: "var(--r-xl)",
         padding: "18px 20px", marginBottom: 16,
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 10, background: AZUL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <div style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: AZUL, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
           <span style={{ color: "#fff", fontSize: 16 }}>%</span>
         </div>
         <span style={{ fontWeight: 800, fontSize: 14, color: AZUL2 }}>¿Cómo se calcula tu interés?</span>
@@ -151,7 +151,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
         </p>
 
         <div style={{
-          background: "var(--surface)", borderRadius: 12, padding: "12px 14px",
+          background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "12px 14px",
           border: "1px solid var(--surface-3)", fontFamily: "monospace",
           fontSize: 12, color: "var(--brand-blue)", lineHeight: 2,
         }}>
@@ -328,15 +328,15 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          style={{ background: "var(--surface)", borderRadius: 20, padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
-          <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: 14, padding: 4, gap: 4 }}>
+          <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: 4, gap: 4 }}>
             {(["nuevo", "existente"] as ClienteType[]).map(t => (
               <button
                 key={t}
                 onClick={() => cambiarTipo(t)}
                 style={{
-                  flex: 1, padding: "11px 0", borderRadius: 12, border: "none",
+                  flex: 1, padding: "11px 0", borderRadius: "var(--r-lg)", border: "none",
                   cursor: "pointer", fontWeight: 700, fontSize: 14, position: "relative",
                   background: "transparent", color: tipo === t ? "#fff" : "var(--text-muted)",
                   transition: "color 0.2s",
@@ -345,7 +345,7 @@ export default function Calculadora() {
                 {tipo === t && (
                   <motion.div
                     layoutId="tab-bg"
-                    style={{ position: "absolute", inset: 0, borderRadius: 12, background: AZUL, zIndex: 0 }}
+                    style={{ position: "absolute", inset: 0, borderRadius: "var(--r-lg)", background: AZUL, zIndex: 0 }}
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
                 )}
@@ -362,7 +362,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
-          style={{ background: "var(--surface)", borderRadius: 20, padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <SliderCampo
             label="Monto del crédito"
@@ -400,7 +400,7 @@ export default function Calculadora() {
                 display: "flex", justifyContent: "space-between", alignItems: "center",
                 background: tipo === "nuevo" ? "var(--surface-3)" : "var(--surface-3)",
                 border: `1px solid ${tipo === "nuevo" ? "var(--surface-3)" : "var(--surface-3)"}`,
-                borderRadius: 12, padding: "10px 14px",
+                borderRadius: "var(--r-lg)", padding: "10px 14px",
               }}
             >
               <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "var(--brand-blue)", fontWeight: 600 }}>
@@ -433,7 +433,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.24 }}
-          style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Resumen
@@ -451,7 +451,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Calendario de pagos
@@ -474,7 +474,7 @@ export default function Calculadora() {
           style={{
             display: "block", width: "100%", padding: "17px 0",
             background: AMARILLO, color: AZUL2,
-            borderRadius: 18, border: "none", cursor: "pointer",
+            borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
             fontWeight: 900, fontSize: 17, textAlign: "center",
             textDecoration: "none", boxSizing: "border-box",
             boxShadow: "0 6px 24px rgba(240,169,58,0.5)",

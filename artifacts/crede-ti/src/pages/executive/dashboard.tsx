@@ -83,7 +83,7 @@ export default function ExecutiveDashboard() {
               </div>
 
               {/* Daily collection */}
-              <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: 16, padding: "16px", marginBottom: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
+              <div style={{ background: "rgba(255,255,255,0.07)", borderRadius: "var(--r-xl)", padding: "16px", marginBottom: 12, border: "1px solid rgba(255,255,255,0.06)" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 12 }}>
                   <div>
                     <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "rgba(255,255,255,0.4)", marginBottom: 3 }}>
@@ -120,12 +120,12 @@ export default function ExecutiveDashboard() {
               <div
                 style={{
                   display: "flex", alignItems: "center", gap: 12,
-                  borderRadius: 16, padding: "14px 16px",
+                  borderRadius: "var(--r-xl)", padding: "14px 16px",
                   background: "rgba(52,211,153,0.12)",
                   border: "1px solid rgba(52,211,153,0.15)",
                 }}
               >
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: "rgba(52,211,153,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <div style={{ width: 40, height: 40, borderRadius: "var(--r-lg)", background: "rgba(52,211,153,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <IconMoneda size={20} color="#a7f3d0" />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -165,11 +165,11 @@ export default function ExecutiveDashboard() {
               <div
                 key={s.label}
                 style={{
-                  background: "var(--surface)", borderRadius: 16, padding: "16px",
+                  background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "16px",
                   border: "1px solid var(--border)", boxShadow: "var(--shadow-card)",
                 }}
               >
-                <div style={{ width: 36, height: 36, borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", background: s.iconBg, color: s.iconColor, marginBottom: 10 }}>
+                <div style={{ width: 36, height: 36, borderRadius: "var(--r-md)", display: "flex", alignItems: "center", justifyContent: "center", background: s.iconBg, color: s.iconColor, marginBottom: 10 }}>
                   {s.icon}
                 </div>
                 <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.04em" }}>{s.value}</div>
@@ -183,7 +183,7 @@ export default function ExecutiveDashboard() {
         {/* ── Monthly target ── */}
         {!isLoading && (d?.targetMonth ?? 0) > 0 && (
           <div style={{ margin: "0 16px" }} className="anim-section anim-d3">
-            <div style={{ background: "var(--surface)", borderRadius: 18, padding: "16px 18px", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "16px 18px", border: "1px solid var(--border)", boxShadow: "var(--shadow-card)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
                 <div>
                   <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.07em", color: "var(--text-muted)", marginBottom: 3 }}>
@@ -229,7 +229,7 @@ export default function ExecutiveDashboard() {
                   className="pressable"
                   style={{
                     display: "flex", alignItems: "center", gap: 14,
-                    padding: "14px 16px", borderRadius: 16,
+                    padding: "14px 16px", borderRadius: "var(--r-xl)",
                     background: "var(--surface)",
                     border: "1px solid var(--border)",
                     boxShadow: "var(--shadow-xs)",

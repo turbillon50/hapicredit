@@ -235,11 +235,11 @@ function UsuariosTab() {
 
             <div style={{ display: "flex", gap: 10 }}>
               <button onClick={() => saveM.mutate({ id: editing.id, isActive: !editing.isActive })} disabled={saveM.isPending} className="pressable"
-                style={{ flex: 1, padding: 13, borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+                style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                 {editing.isActive === false ? "Reactivar" : "Desactivar"}
               </button>
               <button onClick={() => setEditing(null)} className="pressable btn-brand"
-                style={{ flex: 1, padding: 13, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                 Listo
               </button>
             </div>
@@ -315,11 +315,11 @@ function CreditosTab() {
       {draft && (
         <div style={{ display: "flex", gap: 10 }}>
           <button onClick={() => setDraft(null)} className="pressable"
-            style={{ flex: 1, padding: 13, borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+            style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
             Cancelar
           </button>
           <button onClick={() => saveM.mutate()} disabled={saveM.isPending} className="pressable btn-brand"
-            style={{ flex: 1, padding: 13, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+            style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
             {saveM.isPending ? "Guardando…" : "Guardar cambios"}
           </button>
         </div>
@@ -361,7 +361,7 @@ function BannersTab() {
     <div className="flex flex-col gap-3">
       {!creating && (
         <button onClick={() => setCreating(true)} className="pressable btn-brand"
-          style={{ padding: 13, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+          style={{ padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
           + Nuevo banner
         </button>
       )}
@@ -375,11 +375,11 @@ function BannersTab() {
           <input className="input-field" placeholder="Enlace del botón (opcional)" value={form.ctaUrl} onChange={e => setForm({ ...form, ctaUrl: e.target.value })} />
           <div style={{ display: "flex", gap: 10 }}>
             <button onClick={() => { setCreating(false); }} className="pressable"
-              style={{ flex: 1, padding: 12, borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+              style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
               Cancelar
             </button>
             <button onClick={() => createM.mutate()} disabled={!form.title || createM.isPending} className="pressable btn-brand"
-              style={{ flex: 1, padding: 12, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !form.title ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !form.title ? 0.5 : 1 }}>
               {createM.isPending ? "Creando…" : "Crear banner"}
             </button>
           </div>
@@ -454,7 +454,7 @@ function AvisosTab() {
     <div className="flex flex-col gap-3">
       {!creating && (
         <button onClick={() => setCreating(true)} className="pressable btn-brand"
-          style={{ padding: 13, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+          style={{ padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
           + Nueva notificación
         </button>
       )}
@@ -474,11 +474,11 @@ function AvisosTab() {
           </div>
           <div style={{ display: "flex", gap: 10 }}>
             <button onClick={() => setCreating(false)} className="pressable"
-              style={{ flex: 1, padding: 12, borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+              style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
               Cancelar
             </button>
             <button onClick={() => createM.mutate()} disabled={!form.title || !form.body || createM.isPending} className="pressable btn-brand"
-              style={{ flex: 1, padding: 12, borderRadius: 14, fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: (!form.title || !form.body) ? 0.5 : 1 }}>
+              style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: (!form.title || !form.body) ? 0.5 : 1 }}>
               {createM.isPending ? "Enviando…" : "Publicar"}
             </button>
           </div>

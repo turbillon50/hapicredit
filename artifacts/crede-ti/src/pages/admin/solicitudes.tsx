@@ -230,7 +230,7 @@ function CreditDetail({
       </div>
 
       {credit.status === "needs_info" && credit.notes && (
-        <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: 14, padding: "12px 16px" }}>
+        <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div className="text-xs font-bold uppercase tracking-wide mb-1" style={{ color: "var(--text-secondary)" }}>Información solicitada anteriormente</div>
           <div className="text-sm" style={{ color: "#b45309" }}>{credit.notes}</div>
         </div>
@@ -673,7 +673,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <div className="text-sm text-gray-500">{dPhone}</div>
           <div className="text-xs text-gray-400">Ref: <strong>{refNum}</strong> {"\u00b7"} {fmtDateTime(app.createdAt)}</div>
         </div>
-        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: 12, border: "1.5px solid rgba(33,93,255,0.10)", background: editing ? "var(--surface-3)" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
+        <button onClick={() => (editing ? setEditing(false) : startEdit())} className="pressable shrink-0" style={{ padding: "7px 12px", borderRadius: "var(--r-lg)", border: "1.5px solid rgba(33,93,255,0.10)", background: editing ? "var(--surface-3)" : "#fff", color: "#215DFF", fontWeight: 700, fontSize: 12, cursor: "pointer" }}>{editing ? "Cerrar" : "\u270f\ufe0f Editar datos"}</button>
       </div>
 
       {/* Asignacion */}
@@ -697,30 +697,30 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "approved" ? "#10b981" : "var(--surface-3)"}`, background: confirm === "approved" ? "#10b981" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
-          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: 14, border: `1.5px solid ${confirm === "rejected" ? "#C81E1E" : "var(--surface-3)"}`, background: confirm === "rejected" ? "#C81E1E" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "#B91C1C", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "approved" ? null : "approved")} style={{ padding: "11px", borderRadius: "var(--r-lg)", border: `1.5px solid ${confirm === "approved" ? "#10b981" : "var(--surface-3)"}`, background: confirm === "approved" ? "#10b981" : "var(--surface-3)", color: confirm === "approved" ? "#fff" : "#059669", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2713"} Aprobar</button>
+          <button className="pressable" onClick={() => setConfirm(confirm === "rejected" ? null : "rejected")} style={{ padding: "11px", borderRadius: "var(--r-lg)", border: `1.5px solid ${confirm === "rejected" ? "#C81E1E" : "var(--surface-3)"}`, background: confirm === "rejected" ? "#C81E1E" : "var(--surface-3)", color: confirm === "rejected" ? "#fff" : "#B91C1C", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>{"\u2715"} Rechazar</button>
         </div>
         {confirm && (
           <div className="rounded-xl p-2.5 flex flex-col gap-2" style={{ background: confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)", border: `1.5px solid ${confirm === "approved" ? "var(--surface-3)" : "var(--surface-3)"}` }}>
             <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#B91C1C" }}>
               {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
-            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
             <div className="flex gap-2">
-              <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
-              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
+              <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)", border: "1px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: "var(--r-lg)", border: "none", background: confirm === "approved" ? "#10b981" : "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
             </div>
           </div>
         )}
         <div className="flex flex-col gap-2" style={{ borderTop: "1px solid var(--surface-2)", paddingTop: 10 }}>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid var(--border)", borderRadius: "var(--r-md)", padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
           <label className="flex items-center gap-2 text-xs text-gray-600 select-none">
             <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)} /> Avisar al solicitante por correo
           </label>
           {notify && !dEmail && (
             <div className="text-[11px]" style={{ color: "#d97706" }}>Sin correo registrado {"\u2014"} el aviso no se enviara. Contactalo al {dPhone}.</div>
           )}
-          <button disabled={!note.trim() || commentM.isPending} onClick={() => commentM.mutate({ comment: note.trim(), notify })} style={{ padding: "10px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (!note.trim() || commentM.isPending) ? 0.5 : 1 }}>{commentM.isPending ? "Enviando..." : "Agregar comentario"}</button>
+          <button disabled={!note.trim() || commentM.isPending} onClick={() => commentM.mutate({ comment: note.trim(), notify })} style={{ padding: "10px", borderRadius: "var(--r-lg)", border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: (!note.trim() || commentM.isPending) ? 0.5 : 1 }}>{commentM.isPending ? "Enviando..." : "Agregar comentario"}</button>
         </div>
         {comments.length > 0 && (
           <div className="flex flex-col gap-2 pt-1">
@@ -924,8 +924,8 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="flex flex-col gap-2 sticky bottom-0 pb-1" style={{ background: "linear-gradient(to top, #fff 70%, transparent)" }}>
           {detailsM.isError && <div className="text-xs text-center" style={{ color: "#B91C1C" }}>{(detailsM.error as Error).message}</div>}
           <div className="flex gap-2">
-            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "1.5px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
-            <button disabled={detailsM.isPending} onClick={saveAll} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar todo"}</button>
+            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+            <button disabled={detailsM.isPending} onClick={saveAll} className="flex-1" style={{ padding: "12px", borderRadius: "var(--r-lg)", border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar todo"}</button>
           </div>
         </div>
       )}
@@ -984,7 +984,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             className="pressable"
             disabled={convertM.isPending}
             onClick={() => convertM.mutate()}
-            style={{ width: "100%", padding: "14px 16px", borderRadius: 16, border: "none", cursor: "pointer",
+            style={{ width: "100%", padding: "14px 16px", borderRadius: "var(--r-xl)", border: "none", cursor: "pointer",
               fontSize: 14, fontWeight: 700, color: "#fff",
               background: convertM.isPending ? "var(--text-muted)" : "linear-gradient(135deg,#059669,#10b981)",
               opacity: convertM.isPending ? 0.7 : 1 }}

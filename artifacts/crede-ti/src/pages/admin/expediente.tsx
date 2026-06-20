@@ -372,7 +372,7 @@ export default function AdminExpediente() {
             <select
               value={emailTemplate}
               onChange={e => { setEmailTemplate(e.target.value); setEmailMsg(null); }}
-              style={{ width: "100%", borderRadius: 10, border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "9px 12px", outline: "none", marginBottom: 8 }}
+              style={{ width: "100%", borderRadius: "var(--r-md)", border: "1.5px solid var(--border)", background: "var(--surface-2)", color: "var(--text-primary)", fontSize: 14, padding: "9px 12px", outline: "none", marginBottom: 8 }}
             >
               <option value="">Elige un mensaje precargado...</option>
               {emailTemplates.map(t => (<option key={t.key} value={t.key}>{t.label}</option>))}
@@ -380,7 +380,7 @@ export default function AdminExpediente() {
             <button
               onClick={sendEmail}
               disabled={!emailTemplate || sendingEmail}
-              style={{ width: "100%", borderRadius: 10, border: "none", cursor: emailTemplate && !sendingEmail ? "pointer" : "default", background: emailTemplate && !sendingEmail ? "var(--accent)" : "var(--border)", color: emailTemplate && !sendingEmail ? "#fff" : "var(--text-muted)", padding: "10px 14px", fontWeight: 700, fontSize: 14 }}
+              style={{ width: "100%", borderRadius: "var(--r-md)", border: "none", cursor: emailTemplate && !sendingEmail ? "pointer" : "default", background: emailTemplate && !sendingEmail ? "var(--accent)" : "var(--border)", color: emailTemplate && !sendingEmail ? "#fff" : "var(--text-muted)", padding: "10px 14px", fontWeight: 700, fontSize: 14 }}
             >
               {sendingEmail ? "Enviando..." : "Enviar correo + registrar en chat"}
             </button>
@@ -431,7 +431,7 @@ export default function AdminExpediente() {
                 onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMsg(); } }}
                 placeholder={`Mensaje a ${client.fullName.split(" ")[0]}...`}
                 style={{
-                  flex: 1, borderRadius: 10, border: "1.5px solid var(--border)",
+                  flex: 1, borderRadius: "var(--r-md)", border: "1.5px solid var(--border)",
                   background: "var(--surface-2)", color: "var(--text-primary)",
                   fontSize: 14, padding: "8px 12px", outline: "none",
                 }}
@@ -440,7 +440,7 @@ export default function AdminExpediente() {
                 onClick={sendMsg}
                 disabled={!msgText.trim() || sendingMsg}
                 style={{
-                  borderRadius: 10, border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default",
+                  borderRadius: "var(--r-md)", border: "none", cursor: msgText.trim() && !sendingMsg ? "pointer" : "default",
                   background: msgText.trim() && !sendingMsg ? "var(--accent)" : "var(--border)",
                   color: msgText.trim() && !sendingMsg ? "#fff" : "var(--text-muted)",
                   padding: "0 14px", fontWeight: 700, fontSize: 14, transition: "all .15s",
@@ -611,13 +611,13 @@ export default function AdminExpediente() {
                   onClick={() => setNewExecId(exec.id)}
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px", borderRadius: 12,
+                    padding: "12px 14px", borderRadius: "var(--r-lg)",
                     border: `1.5px solid ${newExecId === exec.id ? "#1d4ed8" : "var(--border)"}`,
                     background: newExecId === exec.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
                 >
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "rgba(33,93,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "var(--brand-blue)" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "rgba(33,93,255,0.10)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "var(--brand-blue)" }}>
                     {exec.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -638,13 +638,13 @@ export default function AdminExpediente() {
             <button
               onClick={() => newExecId && reasignarMut.mutate(newExecId)}
               disabled={!newExecId || reasignarMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newExecId || reasignarMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newExecId || reasignarMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: (!newExecId || reasignarMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newExecId || reasignarMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {reasignarMut.isPending ? "Guardando..." : "Reasignar"}
             </button>
             <button
               onClick={() => { setShowReasignar(false); setNewExecId(null); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -668,19 +668,19 @@ export default function AdminExpediente() {
                 type="date"
                 value={newDate}
                 onChange={e => setNewDate(e.target.value)}
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
               />
             </div>
             <button
               onClick={() => newDate && cambiarFechaMut.mutate({ creditId: activeCredit.id, date: newDate })}
               disabled={!newDate || cambiarFechaMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newDate || cambiarFechaMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newDate || cambiarFechaMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: (!newDate || cambiarFechaMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newDate || cambiarFechaMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {cambiarFechaMut.isPending ? "Guardando..." : "Cambiar fecha"}
             </button>
             <button
               onClick={() => { setShowCambiarFecha(false); setNewDate(""); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -709,7 +709,7 @@ export default function AdminExpediente() {
                     inputMode="decimal"
                     value={cond[key]}
                     onChange={e => setCond(cc => ({ ...cc, [key]: e.target.value }))}
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
               ))}
@@ -721,7 +721,7 @@ export default function AdminExpediente() {
                 const total = (wk * tw).toFixed(2);
                 setCond(cc => ({ ...cc, totalToRepay: total, remainingBalance: (activeCredit.currentPaymentNumber ?? 0) === 0 ? total : cc.remainingBalance }));
               }}
-              style={{ width: "100%", padding: "9px", background: "var(--surface-2)", color: "var(--text-secondary)", border: "none", borderRadius: 12, fontWeight: 600, fontSize: 12, cursor: "pointer", marginBottom: 14, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "9px", background: "var(--surface-2)", color: "var(--text-secondary)", border: "none", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 12, cursor: "pointer", marginBottom: 14, fontFamily: "inherit" }}
             >
               Recalcular total = pago semanal x plazo
             </button>
@@ -732,7 +732,7 @@ export default function AdminExpediente() {
                 onChange={e => setCond(cc => ({ ...cc, notes: e.target.value }))}
                 rows={3}
                 placeholder="Notas internas del credito (motivo de ajuste, acuerdos, etc.)"
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }}
               />
             </div>
             {editCondMut.isError && (
@@ -741,13 +741,13 @@ export default function AdminExpediente() {
             <button
               onClick={() => editCondMut.mutate({ creditId: activeCredit.id, body: { amount: cond.amount, termWeeks: cond.termWeeks, weeklyPayment: cond.weeklyPayment, totalToRepay: cond.totalToRepay, remainingBalance: cond.remainingBalance, notes: cond.notes } })}
               disabled={editCondMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editCondMut.isPending ? "default" : "pointer", marginBottom: 10, opacity: editCondMut.isPending ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: editCondMut.isPending ? "default" : "pointer", marginBottom: 10, opacity: editCondMut.isPending ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {editCondMut.isPending ? "Guardando..." : "Guardar condiciones"}
             </button>
             <button
               onClick={() => setShowEditCond(false)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>

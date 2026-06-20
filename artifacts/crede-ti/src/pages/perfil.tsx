@@ -307,7 +307,7 @@ function NotificationsCard() {
           disabled={busy || denied}
           onClick={() => (enabled ? disable() : enable())}
           style={{
-            minWidth: 96, padding: "9px 14px", borderRadius: 14, border: "none", cursor: "pointer",
+            minWidth: 96, padding: "9px 14px", borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
             fontSize: 13, fontWeight: 700, color: "#fff", opacity: busy || denied ? 0.6 : 1,
             background: enabled ? "#10b981" : "#215DFF",
           }}
@@ -742,7 +742,7 @@ export default function Perfil() {
               <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.6 }}>
                 Esto eliminará permanentemente todos los clientes, créditos, pagos y asesores de prueba. Tu cuenta de administrador se conserva.
               </div>
-              <div style={{ borderRadius: 14, background: "var(--warning-bg)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
+              <div style={{ borderRadius: "var(--r-lg)", background: "var(--warning-bg)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
                 <div style={{ fontSize: 13, color: "#c2410c", fontWeight: 600, marginBottom: 4 }}>Se eliminará:</div>
                 <ul style={{ fontSize: 13, color: "#c2410c", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
                   <li>Todos los clientes y sus documentos</li>
@@ -752,10 +752,10 @@ export default function Perfil() {
                 </ul>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                   Cancelar
                 </button>
-                <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
                   Continuar
                 </button>
               </div>
@@ -766,7 +766,7 @@ export default function Perfil() {
         {/* Purge step 2 — final confirm */}
         {purgeStep === 2 && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-            <div style={{ background: "var(--surface)", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "100%" }}>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "28px 24px", maxWidth: 340, width: "100%" }}>
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--warning-bg)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
@@ -786,11 +786,11 @@ export default function Perfil() {
                   onClick={() => purgeM.mutate()}
                   disabled={purgeM.isPending}
                   className="pressable"
-                  style={{ padding: "13px", borderRadius: 14, border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: purgeM.isPending ? 0.7 : 1 }}
+                  style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: purgeM.isPending ? 0.7 : 1 }}
                 >
                   {purgeM.isPending ? "Limpiando..." : "Sí, eliminar todos los datos de prueba"}
                 </button>
-                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                   Cancelar
                 </button>
               </div>
@@ -808,7 +808,7 @@ export default function Perfil() {
               <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.6 }}>
                 Al eliminar tu cuenta se eliminarán permanentemente tus datos personales. Esta acción no se puede deshacer.
               </div>
-              <div style={{ borderRadius: 14, background: "var(--surface-3)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
+              <div style={{ borderRadius: "var(--r-lg)", background: "var(--surface-3)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
                 <div style={{ fontSize: 13, color: "#B91C1C", fontWeight: 600, marginBottom: 4 }}>Lo que se eliminará:</div>
                 <ul style={{ fontSize: 13, color: "#B91C1C", paddingLeft: 16, margin: 0, lineHeight: 1.7 }}>
                   <li>Nombre, correo y datos de perfil</li>
@@ -822,14 +822,14 @@ export default function Perfil() {
                 <button
                   onClick={() => setDeleteStep(0)}
                   className="pressable"
-                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
+                  style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   Cancelar
                 </button>
                 <button
                   onClick={() => setDeleteStep(2)}
                   className="pressable"
-                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
                 >
                   Continuar
                 </button>
@@ -841,7 +841,7 @@ export default function Perfil() {
         {/* Delete confirm — step 2 final */}
         {deleteStep === 2 && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-            <div style={{ background: "var(--surface)", borderRadius: 24, padding: "28px 24px", maxWidth: 340, width: "100%" }}>
+            <div style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "28px 24px", maxWidth: 340, width: "100%" }}>
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#C81E1E" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
@@ -856,14 +856,14 @@ export default function Perfil() {
                   onClick={() => deleteMeM.mutate()}
                   disabled={deleteMeM.isPending}
                   className="pressable"
-                  style={{ padding: "13px", borderRadius: 14, border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: deleteMeM.isPending ? 0.7 : 1 }}
+                  style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: deleteMeM.isPending ? 0.7 : 1 }}
                 >
                   {deleteMeM.isPending ? "Eliminando..." : "Sí, eliminar mi cuenta"}
                 </button>
                 <button
                   onClick={() => setDeleteStep(0)}
                   className="pressable"
-                  style={{ padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
+                  style={{ padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   No, conservar mi cuenta
                 </button>

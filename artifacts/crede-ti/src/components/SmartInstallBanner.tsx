@@ -60,13 +60,13 @@ export default function SmartInstallBanner() {
     return (
       <div style={{
         position: "fixed", bottom: 88, left: 12, right: 12, zIndex: 200,
-        background: "#215DFF", borderRadius: 20,
+        background: "#215DFF", borderRadius: "var(--r-xl)",
         padding: "14px 16px",
         boxShadow: "0 8px 40px rgba(0,0,0,0.4)",
         display: "flex", alignItems: "center", gap: 12,
       }}>
         <div style={{
-          width: 42, height: 42, borderRadius: 12,
+          width: 42, height: 42, borderRadius: "var(--r-lg)",
           background: "rgba(255,255,255,0.08)",
           display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
         }}>
@@ -81,7 +81,7 @@ export default function SmartInstallBanner() {
         <button
           onClick={installAndroid}
           style={{
-            padding: "8px 14px", borderRadius: 10,
+            padding: "8px 14px", borderRadius: "var(--r-md)",
             background: "#215DFF", color: "#fff",
             border: "none", fontWeight: 700, fontSize: 12, cursor: "pointer", flexShrink: 0,
           }}
@@ -91,7 +91,7 @@ export default function SmartInstallBanner() {
         <button
           onClick={dismiss}
           style={{
-            width: 28, height: 28, borderRadius: 8,
+            width: 28, height: 28, borderRadius: "var(--r-sm)",
             background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)",
             border: "none", cursor: "pointer", flexShrink: 0,
             display: "flex", alignItems: "center", justifyContent: "center",
@@ -121,7 +121,7 @@ export default function SmartInstallBanner() {
             <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)" }}>Instala la app en tu iPhone</div>
             <button
               onClick={dismiss}
-              style={{ width: 32, height: 32, borderRadius: 8, background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
+              style={{ width: 32, height: 32, borderRadius: "var(--r-sm)", background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
             >
               <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -136,8 +136,8 @@ export default function SmartInstallBanner() {
             { num: 2, color: "#0B7A53", bg: "var(--surface-3)", title: '"Agregar a pantalla de inicio"', sub: 'Desliza hacia abajo en el menú y selecciona esta opción' },
             { num: 3, color: "#ea580c", bg: "#fff7ed", title: 'Toca "Agregar"', sub: "Confirma y el ícono aparecerá en tu pantalla de inicio" },
           ].map(step => (
-            <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: 16, background: "#f8fafc", border: "1.5px solid var(--border)", marginBottom: 10 }}>
-              <div style={{ width: 38, height: 38, borderRadius: 10, background: step.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: "var(--r-xl)", background: "#f8fafc", border: "1.5px solid var(--border)", marginBottom: 10 }}>
+              <div style={{ width: 38, height: 38, borderRadius: "var(--r-md)", background: step.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span style={{ fontWeight: 900, fontSize: 16, color: step.color }}>{step.num}</span>
               </div>
               <div>
@@ -146,7 +146,7 @@ export default function SmartInstallBanner() {
               </div>
             </div>
           ))}
-          <div style={{ marginTop: 4, padding: "11px 14px", borderRadius: 12, background: "#fef9f0", border: "1px solid var(--surface-3)" }}>
+          <div style={{ marginTop: 4, padding: "11px 14px", borderRadius: "var(--r-lg)", background: "#fef9f0", border: "1px solid var(--surface-3)" }}>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
               Asegúrate de abrir esta página en <strong>Safari</strong> — Chrome y otros navegadores no permiten instalación en iPhone.
             </div>

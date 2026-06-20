@@ -124,7 +124,7 @@ export default function AdminFaq() {
             <button
               className="pressable"
               onClick={() => window.history.back()}
-              style={{ width: 38, height: 38, borderRadius: 12, background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
+              style={{ width: 38, height: 38, borderRadius: "var(--r-lg)", background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
             >
               <IconBack />
             </button>
@@ -136,7 +136,7 @@ export default function AdminFaq() {
           <button
             className="pressable"
             onClick={() => { setEditItem(null); setForm(EMPTY_FORM); setShowForm(true); }}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 12, background: "#215DFF", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: "var(--r-lg)", background: "#215DFF", color: "#fff", border: "none", cursor: "pointer", fontWeight: 700, fontSize: 13 }}
           >
             <IconPlus size={15} /> Nueva
           </button>
@@ -145,7 +145,7 @@ export default function AdminFaq() {
         {/* FAQ list */}
         {isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 16, background: "var(--surface-2)" }} />)}
+            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: "var(--r-xl)", background: "var(--surface-2)" }} />)}
           </div>
         ) : (items as FaqItem[]).length === 0 ? (
           <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--text-muted)" }}>
@@ -158,7 +158,7 @@ export default function AdminFaq() {
               <div
                 key={item.id}
                 style={{
-                  borderRadius: 16,
+                  borderRadius: "var(--r-xl)",
                   background: "#fff",
                   border: `1.5px solid ${item.isActive ? "var(--border)" : "var(--surface-3)"}`,
                   padding: "14px 14px",
@@ -178,7 +178,7 @@ export default function AdminFaq() {
                     <button
                       className="pressable"
                       onClick={() => updateMut.mutate({ id: item.id, body: { isActive: !item.isActive } })}
-                      style={{ width: 32, height: 32, borderRadius: 10, background: "#f8fafc", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+                      style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "#f8fafc", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
                       title={item.isActive ? "Desactivar" : "Activar"}
                     >
                       <IconToggle active={item.isActive} />
@@ -186,14 +186,14 @@ export default function AdminFaq() {
                     <button
                       className="pressable"
                       onClick={() => openEdit(item)}
-                      style={{ width: 32, height: 32, borderRadius: 10, background: "var(--surface-3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}
+                      style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "var(--surface-3)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#2563eb" }}
                     >
                       <IconEdit />
                     </button>
                     <button
                       className="pressable"
                       onClick={() => setDeleteId(item.id)}
-                      style={{ width: 32, height: 32, borderRadius: 10, background: "#fff0f0", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#C81E1E" }}
+                      style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "#fff0f0", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#C81E1E" }}
                     >
                       <IconTrash />
                     </button>
@@ -226,7 +226,7 @@ export default function AdminFaq() {
                     rows={2}
                     placeholder="¿Cómo puedo...?"
                     required
-                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "11px 13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
@@ -237,7 +237,7 @@ export default function AdminFaq() {
                     rows={4}
                     placeholder="Explica detalladamente la respuesta..."
                     required
-                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "11px 13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
                   />
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
@@ -246,7 +246,7 @@ export default function AdminFaq() {
                     <select
                       value={form.category}
                       onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", background: "#fff" }}
+                      style={{ width: "100%", padding: "11px 13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", background: "#fff" }}
                     >
                       {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
@@ -257,11 +257,11 @@ export default function AdminFaq() {
                       type="number"
                       value={form.sortOrder}
                       onChange={e => setForm(f => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))}
-                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", padding: "11px 13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", boxSizing: "border-box" }}
                     />
                   </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: "#f8fafc" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: "var(--r-lg)", background: "#f8fafc" }}>
                   <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}>Visible para usuarios</span>
                   <button type="button" onClick={() => setForm(f => ({ ...f, isActive: !f.isActive }))}>
                     <IconToggle active={form.isActive} />
@@ -272,7 +272,7 @@ export default function AdminFaq() {
                     type="button"
                     onClick={resetForm}
                     className="pressable"
-                    style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
+                    style={{ flex: 1, padding: "13px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                   >
                     Cancelar
                   </button>
@@ -280,7 +280,7 @@ export default function AdminFaq() {
                     type="submit"
                     disabled={isSaving}
                     className="pressable"
-                    style={{ flex: 2, padding: "13px", borderRadius: 14, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: isSaving ? 0.7 : 1 }}
+                    style={{ flex: 2, padding: "13px", borderRadius: "var(--r-lg)", border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: isSaving ? 0.7 : 1 }}
                   >
                     {isSaving ? "Guardando..." : editItem ? "Guardar cambios" : "Crear pregunta"}
                   </button>
@@ -293,14 +293,14 @@ export default function AdminFaq() {
         {/* Delete confirm */}
         {deleteId !== null && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
-            <div style={{ background: "#fff", borderRadius: 24, padding: "28px 24px", maxWidth: 320, width: "100%" }}>
+            <div style={{ background: "#fff", borderRadius: "var(--r-xl)", padding: "28px 24px", maxWidth: 320, width: "100%" }}>
               <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", marginBottom: 10 }}>Eliminar pregunta</div>
               <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 24 }}>Esta acción no se puede deshacer. ¿Confirmas eliminar esta pregunta?</div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   onClick={() => setDeleteId(null)}
                   className="pressable"
-                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   Cancelar
                 </button>
@@ -308,7 +308,7 @@ export default function AdminFaq() {
                   onClick={() => deleteMut.mutate(deleteId)}
                   disabled={deleteMut.isPending}
                   className="pressable"
-                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: "var(--r-lg)", border: "none", background: "#C81E1E", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}
                 >
                   Eliminar
                 </button>

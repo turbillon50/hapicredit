@@ -415,26 +415,26 @@ export default function AdminMovimientos() {
                 placeholder="Monto ($)"
                 value={editAmount}
                 onChange={e => setEditAmount(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                style={{ padding: "12px 14px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
               />
               <input
                 type="text"
                 placeholder="Descripción"
                 value={editDesc}
                 onChange={e => setEditDesc(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                style={{ padding: "12px 14px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
               />
             </div>
             <button
               onClick={() => editExpense.mutate({ id: editTarget.id, amount: parseFloat(editAmount), description: editDesc })}
               disabled={editExpense.isPending || !editAmount}
-              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: editExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: editExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: editExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: editExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
             >
               {editExpense.isPending ? "Guardando..." : "Guardar cambios"}
             </button>
             <button
               onClick={() => setEditTarget(null)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -454,13 +454,13 @@ export default function AdminMovimientos() {
             <button
               onClick={() => deleteExpense.mutate(deleteTarget.id)}
               disabled={deleteExpense.isPending}
-              style={{ width: "100%", padding: 14, background: "#C81E1E", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: deleteExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: deleteExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#C81E1E", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: deleteExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: deleteExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
             >
               {deleteExpense.isPending ? "Eliminando..." : "Eliminar"}
             </button>
             <button
               onClick={() => setDeleteTarget(null)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>

@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
         <div style={{
           maxWidth: 360, width: "100%",
           background: "#fff",
-          borderRadius: 18,
+          borderRadius: "var(--r-lg)",
           padding: 22,
           boxShadow: "0 8px 28px rgba(0,0,0,0.06)",
           border: "1px solid #e8e4dc",
@@ -53,7 +53,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           {this.state.error.message && (
             <pre style={{
               background: "#f8fafc", border: "1px solid var(--border)",
-              borderRadius: 10, padding: "10px 12px",
+              borderRadius: "var(--r-md)", padding: "10px 12px",
               fontSize: 11, color: "var(--text-secondary)",
               maxHeight: 140, overflow: "auto", marginBottom: 16,
               whiteSpace: "pre-wrap", wordBreak: "break-word",
@@ -63,7 +63,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
             style={{
               width: "100%", padding: "12px 16px",
               background: "#215DFF", color: "#fff",
-              border: "none", borderRadius: 12,
+              border: "none", borderRadius: "var(--r-lg)",
               fontWeight: 800, fontSize: 14, cursor: "pointer",
             }}>
             Recargar

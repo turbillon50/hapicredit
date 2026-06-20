@@ -21,7 +21,7 @@ function Header() {
         onClick={() => navigate("/login")}
         style={{
           background: "rgba(255,255,255,0.12)", color: "white",
-          border: "1px solid rgba(255,255,255,0.2)", borderRadius: 8,
+          border: "1px solid rgba(255,255,255,0.2)", borderRadius: "var(--r-sm)",
           padding: "8px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer",
         }}
       >
@@ -43,7 +43,7 @@ function Nota({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       background: "var(--surface-3)", border: "1px solid var(--surface-3)",
-      borderRadius: 12, padding: "14px 18px", marginBottom: 14,
+      borderRadius: "var(--r-lg)", padding: "14px 18px", marginBottom: 14,
     }}>
       <p style={{ ...s.p, margin: 0, color: "var(--text-secondary)" }}>{children}</p>
     </div>
@@ -54,7 +54,7 @@ function InfoBox({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       background: "var(--surface-3)", border: "1px solid var(--surface-3)",
-      borderRadius: 12, padding: "16px 20px", marginBottom: 14,
+      borderRadius: "var(--r-lg)", padding: "16px 20px", marginBottom: 14,
     }}>
       <p style={{ ...s.p, margin: 0 }}>{children}</p>
     </div>
@@ -71,7 +71,7 @@ export default function Terminos() {
         {/* Hero */}
         <div style={{
           background: "linear-gradient(135deg, #1A4FE0, #215DFF)",
-          borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
+          borderRadius: "var(--r-xl)", padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
             Documento legal
@@ -111,7 +111,7 @@ export default function Terminos() {
 
           <div style={{
             background: "var(--surface-3)", border: "1px solid var(--surface-3)",
-            borderRadius: 12, padding: "18px 20px", marginBottom: 16,
+            borderRadius: "var(--r-lg)", padding: "18px 20px", marginBottom: 16,
           }}>
             <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
             <ul style={s.ul}>
@@ -123,7 +123,7 @@ export default function Terminos() {
 
           <div style={{
             background: "var(--surface-3)", border: "1px solid var(--surface-3)",
-            borderRadius: 12, padding: "18px 20px", marginBottom: 16,
+            borderRadius: "var(--r-lg)", padding: "18px 20px", marginBottom: 16,
           }}>
             <p style={{ ...s.p, color: "var(--brand-blue)", fontWeight: 700, marginBottom: 8 }}>Cliente recurrente</p>
             <ul style={s.ul}>

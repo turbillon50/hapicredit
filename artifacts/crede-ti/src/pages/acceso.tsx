@@ -108,7 +108,7 @@ export default function Acceso() {
           maxWidth: 360,
           background: "rgba(255,255,255,0.07)",
           border: "1px solid rgba(255,255,255,0.15)",
-          borderRadius: 24,
+          borderRadius: "var(--r-xl)",
           padding: "28px 24px",
           backdropFilter: "blur(16px)",
         }}
@@ -131,7 +131,7 @@ export default function Acceso() {
               autoFocus
               autoComplete="current-password"
               style={{
-                width: "100%", height: 52, borderRadius: 14,
+                width: "100%", height: 52, borderRadius: "var(--r-lg)",
                 border: `2px solid ${err ? "rgba(248,113,113,0.7)" : "rgba(255,255,255,0.2)"}`,
                 background: "rgba(255,255,255,0.08)", color: "#fff",
                 fontSize: 16, fontWeight: 500, padding: "0 52px 0 18px",
@@ -150,7 +150,7 @@ export default function Acceso() {
           </div>
           {err && (
             <div style={{
-              marginTop: 10, padding: "8px 14px", borderRadius: 10,
+              marginTop: 10, padding: "8px 14px", borderRadius: "var(--r-md)",
               background: "rgba(248,113,113,0.15)", border: "1px solid rgba(248,113,113,0.35)",
               color: "#fca5a5", fontSize: 12, fontWeight: 600,
             }}>
@@ -161,7 +161,7 @@ export default function Acceso() {
 
         <button onClick={elevate} disabled={busy || !pwd}
           style={{
-            width: "100%", height: 52, borderRadius: 14, border: "none",
+            width: "100%", height: 52, borderRadius: "var(--r-lg)", border: "none",
             background: busy || !pwd
               ? "rgba(255,255,255,0.12)"
               : "linear-gradient(135deg, #3A00C8, #215DFF, #19D7D7)",

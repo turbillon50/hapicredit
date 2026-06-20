@@ -45,7 +45,7 @@ function FaqItem({ item }: { item: any }) {
   return (
     <div
       style={{
-        borderRadius: 16,
+        borderRadius: "var(--r-xl)",
         background: open ? "var(--surface)" : "var(--surface-2)",
         border: `1.5px solid ${open ? "#215DFF" : "var(--border)"}`,
         overflow: "hidden",
@@ -129,7 +129,7 @@ export default function Faq() {
             className="pressable"
             onClick={() => window.history.back()}
             style={{
-              width: 40, height: 40, borderRadius: 12,
+              width: 40, height: 40, borderRadius: "var(--r-lg)",
               background: "var(--surface-2)", border: "none", cursor: "pointer",
               display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", flexShrink: 0,
             }}
@@ -159,7 +159,7 @@ export default function Faq() {
             style={{
               width: "100%",
               padding: "12px 14px 12px 38px",
-              borderRadius: 14,
+              borderRadius: "var(--r-lg)",
               border: "1.5px solid var(--border)",
               background: "var(--surface-inset)",
               fontSize: 14,
@@ -219,7 +219,7 @@ export default function Faq() {
         {isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ height: 52, borderRadius: 16, background: "var(--surface-2)", animation: "pulse 1.5s ease infinite" }} />
+              <div key={i} style={{ height: 52, borderRadius: "var(--r-xl)", background: "var(--surface-2)", animation: "pulse 1.5s ease infinite" }} />
             ))}
           </div>
         ) : filtered.length === 0 ? (
@@ -248,7 +248,7 @@ export default function Faq() {
 
         {/* Support footer */}
         <div style={{
-          borderRadius: 18,
+          borderRadius: "var(--r-lg)",
           background: "linear-gradient(135deg,#215DFF 0%,#215DFF 100%)",
           padding: "18px 20px",
           display: "flex",
@@ -263,7 +263,7 @@ export default function Faq() {
             <a
               href="mailto:hola@crede-ti.info"
               style={{
-                flex: 1, padding: "10px 0", borderRadius: 12,
+                flex: 1, padding: "10px 0", borderRadius: "var(--r-lg)",
                 background: "rgba(255,255,255,0.1)",
                 color: "#fff", fontSize: 12, fontWeight: 700,
                 textAlign: "center", textDecoration: "none",
@@ -276,7 +276,7 @@ export default function Faq() {
               target="_blank"
               rel="noopener noreferrer"
               style={{
-                flex: 1, padding: "10px 0", borderRadius: 12,
+                flex: 1, padding: "10px 0", borderRadius: "var(--r-lg)",
                 background: "#25d366",
                 color: "#fff", fontSize: 12, fontWeight: 700,
                 textAlign: "center", textDecoration: "none",

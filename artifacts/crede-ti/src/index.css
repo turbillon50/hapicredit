@@ -14,9 +14,9 @@
   --brand-blue-mid:    #3A00C8;   /* violeta-azul del gradiente */
   --brand-blue-light:  #6E8FFF;
 
-  --brand-gold:        #19D7D7;   /* Turquesa Digital (acento) */
-  --brand-gold-hover:  #12B8B8;
-  --brand-gold-deep:   #0A9090;
+  --brand-gold:        #1BA8B0;   /* Teal institucional (acento sobrio) */
+  --brand-gold-hover:  #168A91;
+  --brand-gold-deep:   #0C6E73;
   --brand-gold-light:  rgba(25,215,215,0.14);
   --brand-gold-xlight: rgba(25,215,215,0.07);
 
@@ -77,10 +77,11 @@
   --shadow-card: 0 1px 3px rgba(15,23,42,0.06), 0 6px 18px rgba(15,23,42,0.05);
 
   /* ── Radios ── */
-  --r-sm: 10px;
-  --r-md: 14px;
-  --r-lg: 18px;
-  --r-xl: 24px;
+  /* Radios — escala bancaria conservadora (definición única) */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 16px;
 
   --font-display: 'Montserrat', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -94,7 +95,7 @@
   --brand-blue-light:  #8E9AF8;
 
   --brand-gold:        #19D7D7;
-  --brand-gold-hover:  #12B8B8;
+  --brand-gold-hover:  #168A91;
   --brand-gold-light:  rgba(25,215,215,0.16);
   --brand-gold-xlight: rgba(25,215,215,0.08);
 
@@ -676,12 +677,6 @@ html { scroll-behavior: smooth; }
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* Radios bancarios — más conservadores y consistentes */
-  --r-sm: 8px;
-  --r-md: 10px;
-  --r-lg: 12px;
-  --r-xl: 16px;
-
   /* Gradiente institucional ÚNICO — sin turquesa estridente en superficies serias */
   --grad-institutional: linear-gradient(135deg, #0A2E8A 0%, #215DFF 100%);
   --grad-brand: linear-gradient(135deg, #1A4FE0 0%, #215DFF 100%);

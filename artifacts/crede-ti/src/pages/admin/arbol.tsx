@@ -65,13 +65,13 @@ function DeleteModal({ name, onConfirm, onCancel, loading }: { name: string; onC
         <button
           onClick={onConfirm}
           disabled={loading}
-          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#C81E1E", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
+          style={{ width: "100%", padding: "14px", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#C81E1E", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
         >
           {loading ? "Eliminando..." : "Sí, eliminar"}
         </button>
         <button
           onClick={onCancel}
-          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
+          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
         >
           Cancelar
         </button>
@@ -92,19 +92,19 @@ function EditModal({ node, onSave, onCancel, loading }: { node: TreeNode; onSave
         <input
           value={name}
           onChange={e => setName(e.target.value)}
-          style={{ width: "100%", border: "1.5px solid var(--border)", borderRadius: 12, padding: "13px 14px", fontSize: 15, fontFamily: "inherit", marginTop: 8, marginBottom: 20, boxSizing: "border-box", outline: "none" }}
+          style={{ width: "100%", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", padding: "13px 14px", fontSize: 15, fontFamily: "inherit", marginTop: 8, marginBottom: 20, boxSizing: "border-box", outline: "none" }}
           autoFocus
         />
         <button
           onClick={() => onSave(name)}
           disabled={loading || !name.trim()}
-          style={{ width: "100%", padding: "14px", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#215DFF", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
+          style={{ width: "100%", padding: "14px", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", background: "#215DFF", color: "#fff", fontFamily: "inherit", marginBottom: 10, opacity: loading ? 0.6 : 1 }}
         >
           {loading ? "Guardando..." : "Guardar cambios"}
         </button>
         <button
           onClick={onCancel}
-          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
+          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
         >
           Cancelar
         </button>
@@ -129,11 +129,11 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
 
   return (
     <div style={{ marginLeft: depth * 14, marginBottom: 8 }}>
-      <div style={{ background: "white", borderRadius: 14, padding: "13px 15px", border: `1.5px solid ${cfg.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
+      <div style={{ background: "white", borderRadius: "var(--r-lg)", padding: "13px 15px", border: `1.5px solid ${cfg.border}`, boxShadow: "0 1px 4px rgba(0,0,0,0.05)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           {/* Avatar */}
           <div
-            style={{ width: 36, height: 36, borderRadius: 10, background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", color: cfg.color, flexShrink: 0, cursor: hasChildren ? "pointer" : "default" }}
+            style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: cfg.bg, display: "flex", alignItems: "center", justifyContent: "center", color: cfg.color, flexShrink: 0, cursor: hasChildren ? "pointer" : "default" }}
             onClick={() => hasChildren && setOpen(o => !o)}
           >
             {cfg.icon}
@@ -143,7 +143,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
           <div style={{ flex: 1, minWidth: 0, cursor: hasChildren ? "pointer" : "default" }} onClick={() => hasChildren && setOpen(o => !o)}>
             <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)", marginBottom: 2 }}>{node.fullName}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: "var(--r-xl)", background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
               {node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>@{node.username}</span>}
               {node.phone && !node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{node.phone}</span>}
               {statusColor && <span style={{ fontSize: 11, fontWeight: 600, color: statusColor }}>{STATUS_LABEL[node.status!] ?? node.status}</span>}
@@ -292,17 +292,17 @@ export default function AdminArbol() {
 
         {/* Summary */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-          <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
+          <div style={{ background: "white", borderRadius: "var(--r-lg)", padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalAll}</div>
             <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Total</div>
           </div>
           {userRole === "admin" && (
             <>
-              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
+              <div style={{ background: "white", borderRadius: "var(--r-lg)", padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalExecs}</div>
                 <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Asesores</div>
               </div>
-              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
+              <div style={{ background: "white", borderRadius: "var(--r-lg)", padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalClientes}</div>
                 <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Acreditados</div>
               </div>
@@ -321,7 +321,7 @@ export default function AdminArbol() {
         {/* Tree is empty */}
         {!isLoading && !error && level1.length === 0 && (
           <div style={{ textAlign: "center", marginTop: 50, padding: "0 8px" }}>
-            <div style={{ width: 64, height: 64, borderRadius: 20, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+            <div style={{ width: 64, height: 64, borderRadius: "var(--r-xl)", background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
               <IconEquipo size={32} color="var(--text-muted)" />
             </div>
             <p style={{ color: "var(--text-secondary)", marginTop: 0, fontWeight: 700, fontSize: 17 }}>Tu red está vacía</p>
@@ -330,7 +330,7 @@ export default function AdminArbol() {
             </p>
             <a
               href="/perfil"
-              style={{ display: "inline-block", padding: "13px 28px", background: "#215DFF", color: "#fff", borderRadius: 14, fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+              style={{ display: "inline-block", padding: "13px 28px", background: "#215DFF", color: "#fff", borderRadius: "var(--r-lg)", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
             >
               Ir a mi perfil — Códigos de invitación
             </a>
@@ -341,8 +341,8 @@ export default function AdminArbol() {
         {!isLoading && !error && level1.length > 0 && (
           <>
             <div style={{ marginBottom: 12 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#215DFF", borderRadius: 14, padding: "14px 16px" }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#215DFF", borderRadius: "var(--r-lg)", padding: "14px 16px" }}>
+                <div style={{ width: 36, height: 36, borderRadius: "var(--r-md)", background: "rgba(255,255,255,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <IconAdmin size={16} color="white" />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -409,13 +409,13 @@ export default function AdminArbol() {
                   onClick={() => setNewParentId(admin.id)}
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
-                    padding: "12px 14px", borderRadius: 12,
+                    padding: "12px 14px", borderRadius: "var(--r-lg)",
                     border: `1.5px solid ${newParentId === admin.id ? "var(--text-secondary)" : "var(--border)"}`,
                     background: newParentId === admin.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
                 >
-                  <div style={{ width: 32, height: 32, borderRadius: 10, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "var(--text-secondary)" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "var(--r-md)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13, color: "var(--text-secondary)" }}>
                     {admin.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>
@@ -438,13 +438,13 @@ export default function AdminArbol() {
             <button
               onClick={() => newParentId && cambiarSucursalMut.mutate({ execId: cambiarSucursalTarget.id, parentId: newParentId })}
               disabled={!newParentId || cambiarSucursalMut.isPending}
-              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: 14, fontWeight: 700, fontSize: 15, cursor: (!newParentId || cambiarSucursalMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newParentId || cambiarSucursalMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "#215DFF", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: (!newParentId || cambiarSucursalMut.isPending) ? "default" : "pointer", marginBottom: 10, opacity: (!newParentId || cambiarSucursalMut.isPending) ? 0.5 : 1, fontFamily: "inherit" }}
             >
               {cambiarSucursalMut.isPending ? "Moviendo..." : "Cambiar sucursal"}
             </button>
             <button
               onClick={() => { setCambiarSucursalTarget(null); setNewParentId(null); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: "var(--r-lg)", fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
