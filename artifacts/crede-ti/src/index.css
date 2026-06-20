@@ -747,3 +747,39 @@ h1, h2 { font-weight: 700; letter-spacing: -0.025em; }
 /* Quitar el spring "juguetón" de los botones — banca es firme */
 .btn-brand { transition: filter 0.2s ease, box-shadow 0.2s ease; }
 .btn-brand:active { transform: scale(0.98); }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GRADIENT MESH INSTITUCIONAL — profundidad sofisticada para heros
+   ═══════════════════════════════════════════════════════════════════════════ */
+.mesh-institutional {
+  background-color: #0A2E8A;
+  background-image:
+    radial-gradient(at 18% 22%, rgba(33,93,255,0.55) 0px, transparent 55%),
+    radial-gradient(at 82% 12%, rgba(27,168,176,0.32) 0px, transparent 50%),
+    radial-gradient(at 90% 88%, rgba(10,46,138,0.85) 0px, transparent 55%),
+    radial-gradient(at 30% 95%, rgba(26,79,224,0.45) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(33,93,255,0.18) 0px, transparent 60%);
+  background-blend-mode: screen, screen, normal, screen, normal;
+}
+
+/* Variante más sutil para superficies secundarias */
+.mesh-soft {
+  background-color: #06143B;
+  background-image:
+    radial-gradient(at 20% 18%, rgba(33,93,255,0.38) 0px, transparent 50%),
+    radial-gradient(at 85% 80%, rgba(27,168,176,0.22) 0px, transparent 50%),
+    radial-gradient(at 60% 40%, rgba(10,46,138,0.6) 0px, transparent 55%);
+}
+
+/* Botón glass institucional (reemplaza turquesa sólido estridente) */
+.btn-glass-teal {
+  background: rgba(27,168,176,0.16);
+  border: 1px solid rgba(27,168,176,0.40);
+  color: #7FE9EE;
+  backdrop-filter: blur(8px);
+  transition: background 0.18s var(--ease-out-expo, ease), border-color 0.18s ease;
+}
+.btn-glass-teal:hover {
+  background: rgba(27,168,176,0.26);
+  border-color: rgba(27,168,176,0.6);
+}

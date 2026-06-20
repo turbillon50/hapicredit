@@ -141,11 +141,11 @@ export default function AdminDashboard() {
         ) : (
           <div style={{ margin: "12px 16px 0" }}>
             <div
-              className="anim-section anim-d1"
+              className="anim-section anim-d1 mesh-institutional"
               style={{
-                borderRadius: 22, padding: "20px",
-                background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
+                borderRadius: "var(--r-xl)", padding: "22px",
                 position: "relative", overflow: "hidden",
+                boxShadow: "var(--shadow-md)",
               }}
             >
               <div
@@ -420,8 +420,8 @@ export default function AdminDashboard() {
                         <stop offset="95%" stopColor="#215DFF" stopOpacity={0} />
                       </linearGradient>
                       <linearGradient id="gradExpected" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#19D7D7" stopOpacity={0.18} />
-                        <stop offset="95%" stopColor="#19D7D7" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#1BA8B0" stopOpacity={0.18} />
+                        <stop offset="95%" stopColor="#1BA8B0" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
@@ -444,14 +444,14 @@ export default function AdminDashboard() {
                         name === "collected" ? "Cobrado" : "Meta",
                       ]}
                     />
-                    <Area type="monotone" dataKey="expected" stroke="#19D7D7" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#gradExpected)" dot={false} />
+                    <Area type="monotone" dataKey="expected" stroke="#1BA8B0" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#gradExpected)" dot={false} />
                     <Area type="monotone" dataKey="collected" stroke="#215DFF" strokeWidth={2} fill="url(#gradCollected)" dot={{ r: 3, fill: "#215DFF", strokeWidth: 0 }} activeDot={{ r: 5 }} />
                   </AreaChart>
                 </ResponsiveContainer>
                 <div style={{ display: "flex", justifyContent: "center", gap: 20, paddingTop: 4 }}>
                   {[
                     { color: "#215DFF", label: "Cobrado" },
-                    { color: "#19D7D7", label: "Meta", dashed: true },
+                    { color: "#1BA8B0", label: "Meta", dashed: true },
                   ].map(l => (
                     <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <div style={{ width: 20, height: 2, background: l.color, borderRadius: 1, borderTop: l.dashed ? "2px dashed currentColor" : undefined }} />
@@ -561,15 +561,14 @@ export default function AdminDashboard() {
 
         {/* ── Network at a glance — total tree under this admin ── */}
         <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d6">
-          <div style={{
+          <div className="mesh-institutional" style={{
             borderRadius: "var(--r-xl)",
-            background: "linear-gradient(135deg, #1A4FE0, #215DFF)",
-            padding: "20px",
+            padding: "22px",
             position: "relative",
             overflow: "hidden",
+            boxShadow: "var(--shadow-md)",
           }}>
-            <div style={{ position:"absolute",top:-60,right:-60,width:160,height:160,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
-            <div style={{ fontSize: 11, fontWeight: 700, color: "#19D7D7", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>Mi red</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "#7FE9EE", textTransform: "uppercase", letterSpacing: "0.14em", marginBottom: 8 }}>Mi red</div>
             <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>
               Control completo de tu operación
             </div>
@@ -596,7 +595,7 @@ export default function AdminDashboard() {
                 </div>
               </Link>
               <Link href="/admin/codigos">
-                <div className="pressable" style={{ padding: "10px 12px", borderRadius: "var(--r-lg)", background: "#19D7D7", color: "#0A2E8A", fontSize: 12, fontWeight: 800, textAlign: "center" }}>
+                <div className="pressable btn-glass-teal" style={{ padding: "10px 12px", borderRadius: "var(--r-lg)", fontSize: 12, fontWeight: 700, textAlign: "center" }}>
                   Invitar al equipo
                 </div>
               </Link>
@@ -611,19 +610,19 @@ export default function AdminDashboard() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-              { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#215DFF" },
-              { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "var(--success)" },
-              { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "var(--warning)" },
-              { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "var(--text-secondary)" },
-              { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "var(--danger)" },
-              { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
+              { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total"   },
+              { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos"      },
+              { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos"       },
+              { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance"       },
+              { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota" },
+              { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida" },
             ].map(k => (
               <div key={k.label} style={{
                 background: "var(--surface)", borderRadius: "var(--r-lg)", padding: "12px 14px",
                 border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: 6 }}>{k.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: k.color, letterSpacing: "-0.02em" }}>{k.value}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em", fontVariantNumeric: "tabular-nums" }}>{k.value}</div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{k.sub}</div>
               </div>
             ))}
