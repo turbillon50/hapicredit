@@ -149,4 +149,16 @@ router.get("/uploads/avatar", requireAuth, async (req, res): Promise<void> => {
   }
 });
 
+// ─── DELETE /uploads/avatar — quitar foto de perfil propia ───
+router.delete("/uploads/avatar", requireAuth, async (req, res): Promise<void> => {
+  try {
+    const { eq, and } = await import("drizzle-orm");
+    await db.delete(documentsTable)
+      .where(and(eq(documentsTable.userId, req.userId!), eq(documentsTable.type, "foto")));
+    res.json({ ok: true });
+  } catch {
+    res.status(503).json({ error: "No se pudo quitar la foto" });
+  }
+});
+
 export default router;

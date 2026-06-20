@@ -469,6 +469,18 @@ export default function Perfil() {
     }
   }
 
+  async function removeAvatar() {
+    setAvatarUploading(true);
+    try {
+      await fetch(`${API}/uploads/avatar`, { method: "DELETE", headers: auth() });
+      await qc.invalidateQueries({ queryKey: ["my-avatar"] });
+    } catch (err) {
+      console.error("remove avatar failed", err);
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
   const purgeM = useMutation({
     mutationFn: () =>
       fetch(`${API}/admin/purge-demo-data`, { method: "POST", headers: auth() }).then(r => r.json()),
@@ -587,6 +599,15 @@ export default function Perfil() {
           </div>
           {displayEmail && (
             <div className="text-xs text-gray-400 mt-2">{displayEmail}</div>
+          )}
+          {avatarData?.url && (
+            <button
+              onClick={removeAvatar}
+              disabled={avatarUploading}
+              style={{ marginTop: 10, background: "transparent", border: "none", color: "var(--text-muted)", fontSize: 12, fontWeight: 600, cursor: "pointer", textDecoration: "underline" }}
+            >
+              Quitar foto
+            </button>
           )}
         </div>
 
