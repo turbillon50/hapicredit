@@ -197,9 +197,20 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     );
   }
 
+  // Routing se maneja SOLO en el useEffect de abajo (nunca navigate en render,
+  // que causa bucle/rebote durante el asentamiento de Clerk). Aquí solo decidimos
+  // si mostrar el loader mientras la ruta se resuelve.
   const access = checkAccess(location, token, role);
-  if (access === "login") { navigate("/login"); return null; }
-  if (access !== "ok") { navigate(access); return null; }
+  if (access !== "ok") {
+    // No navegamos en render — mostramos el loader; el effect hará el navigate.
+    return (
+      <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
+        color: "rgba(255,255,255,0.75)", fontFamily: "Montserrat, Inter, sans-serif", fontSize: 14 }}>
+        Cargando…
+      </div>
+    );
+  }
 
   const isAdmin = location.startsWith("/admin");
   const isExec  = location.startsWith("/dashboard") || location.startsWith("/executive");
@@ -212,13 +223,15 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     const r = role;
     const isPublic = isPublicPath;
     if (!t) { if (!isPublic) navigate("/login"); return; }
-    // Panel admin sigue protegido: solo admins.
-    if (location.startsWith("/admin"))     { if (r !== "admin")     { navigate(r === "executive" ? "/dashboard" : "/mi-credito"); return; } }
-    // Dashboard de ejecutivo: executives (y admins pueden verlo).
-    if (location.startsWith("/dashboard") || location === "/executive") { if (r !== "executive" && r !== "admin") { navigate("/mi-credito"); return; } }
-    // La vista cliente (/solicitar, /mi-credito, /perfil) queda ABIERTA para
-    // admin y ejecutivo — ya NO se rebota; pueden vivir el flujo del acreditado.
-  }, [location, clerkLoaded, token, role]);
+    // Si hay sesión pero el rol todavía no se resuelve (boot de Clerk), NO navegar:
+    // evita el rebote admin→cliente cuando role cae temporalmente a su fallback.
+    const roleResolving = isSignedIn && !localStorage.getItem("credeti_role");
+    if (roleResolving) return;
+    // Única fuente de routing: checkAccess centralizado.
+    const target = checkAccess(location, t, r);
+    if (target === "login") { navigate("/login"); return; }
+    if (target !== "ok") { navigate(target); return; }
+  }, [location, clerkLoaded, token, role, isSignedIn]);
 
   function handleLogout() {
     localStorage.removeItem("credeti_token");

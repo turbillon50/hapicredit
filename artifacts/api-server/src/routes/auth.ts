@@ -186,7 +186,7 @@ router.post("/auth/register", async (req, res): Promise<void> => {
   await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
 
   if (newUser.email) {
-    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+    try { await sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }); } catch (e) { console.error("[welcome-email]", e); }
   }
 
   res.json({
@@ -238,7 +238,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
       newUser.treeId = newUser.id;
     }
 
-    sendWelcomeEmail({ to: newUser.email!, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+    try { await sendWelcomeEmail({ to: newUser.email!, fullName: newUser.fullName, username: newUser.username, role: newUser.role }); } catch (e) { console.error("[welcome-email]", e); }
 
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
@@ -298,7 +298,7 @@ router.post("/auth/clerk-sync", async (req, res): Promise<void> => {
     .where(eq(inviteCodesTable.id, invCode.id));
 
   if (newUser.email) {
-    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+    try { await sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }); } catch (e) { console.error("[welcome-email]", e); }
   }
 
   const token = generateToken();
@@ -370,7 +370,7 @@ router.post("/auth/register-staff", async (req, res): Promise<void> => {
   await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
 
   if (newUser.email) {
-    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+    try { await sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }); } catch (e) { console.error("[welcome-email]", e); }
   }
 
   res.json({
@@ -435,7 +435,7 @@ router.post("/auth/register-client", async (req, res): Promise<void> => {
   await db.insert(sessionsTable).values({ userId: newUser.id, token, expiresAt });
 
   if (newUser.email) {
-    sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }).catch(() => {});
+    try { await sendWelcomeEmail({ to: newUser.email, fullName: newUser.fullName, username: newUser.username, role: newUser.role }); } catch (e) { console.error("[welcome-email]", e); }
   }
 
   res.json({

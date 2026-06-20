@@ -49,9 +49,6 @@ import Acceso          from "@/pages/acceso";
 import Invitacion      from "@/pages/invitacion";
 import AdminReportes   from "@/pages/admin/reportes";
 import AdminCentro        from "@/pages/admin/centro";
-import AdminExpediente    from "@/pages/admin/expediente";
-import AdminExpediente    from "@/pages/admin/expediente";
-import AdminExpediente    from "@/pages/admin/expediente";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -208,7 +205,7 @@ function ClerkCacheInvalidator() {
         localStorage.setItem("credeti_token", token);
         localStorage.setItem("credeti_role", role);
         localStorage.setItem("credeti_user", JSON.stringify(userObj));
-        qc.invalidateQueries();
+        qc.invalidateQueries(); // refetch tras mirror de sesión Clerk
       } catch {
         // Silent — backend still has the demo + DB fallbacks. The ErrorBoundary
         // upstairs will surface any actual crash.
@@ -291,8 +288,6 @@ function Router() {
       <Route path="/admin"                  component={AdminDashboard} />
       <Route path="/admin/solicitudes"      component={AdminSolicitudes} />
       <Route path="/admin/expediente/:userId" component={AdminExpediente} />
-      <Route path="/admin/expediente/:userId" component={AdminExpediente} />
-      <Route path="/admin/expediente/:userId" component={AdminExpediente} />
       <Route path="/admin/cartera"          component={AdminCartera} />
       <Route path="/admin/morosos"          component={AdminMorosos} />
       <Route path="/admin/asesores"         component={AdminAsesores} />
@@ -302,7 +297,6 @@ function Router() {
       <Route path="/admin/movimientos/:id"  component={AdminMovimientos} />
       <Route path="/admin/arbol"            component={AdminArbol} />
       <Route path="/admin/codigos"          component={AdminCodigos} />
-      <Route path="/admin/expediente/:id"   component={AdminExpediente} />
       <Route path="/admin/faq"              component={AdminFaq} />
       <Route path="/admin/configuracion"   component={AdminConfiguracion} />
       <Route path="/admin/reportes"        component={AdminReportes} />
