@@ -41,6 +41,11 @@ export default function Expediente() {
   const [requesting, setRequesting] = useState(false);
   const [selectedDocs, setSelectedDocs] = useState<string[]>([]);
   const [reqNote, setReqNote] = useState("");
+  // Control del crédito: editar condiciones y registrar pagos
+  const [editCredit, setEditCredit] = useState<any | null>(null);
+  const [payCredit, setPayCredit] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState({ amount: "", termWeeks: "", remainingBalance: "", weeklyPayment: "" });
+  const [payForm, setPayForm] = useState({ amountPaid: "", paymentDate: "", notes: "" });
 
   // Detalle del usuario (datos, créditos, pagos, stats)
   const { data: detail, isLoading } = useQuery<any>({
@@ -86,6 +91,41 @@ export default function Expediente() {
     mutationFn: (id: number) => fetch(`${API}/document-requests/${id}`, { method: "DELETE", headers: auth() }).then(r => r.json()),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-requests", userId] }),
   });
+
+  // Editar condiciones del crédito (monto, plazo, tasa, pago semanal)
+  const editCreditM = useMutation({
+    mutationFn: (body: any) =>
+      fetch(`${API}/credits/${editCredit.id}`, { method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }); setEditCredit(null); },
+  });
+
+  // Registrar un pago
+  const payM = useMutation({
+    mutationFn: (body: any) =>
+      fetch(`${API}/payments`, { method: "POST", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }); setPayCredit(null); },
+  });
+
+  // Cambiar estado del crédito (activar, liquidar, marcar incumplido)
+  const creditStatusM = useMutation({
+    mutationFn: ({ id, status }: { id: number; status: string }) =>
+      fetch(`${API}/credits/${id}`, { method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify({ status }) }).then(r => r.json()),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }),
+  });
+
+  function openEdit(cr: any) {
+    setEditForm({
+      amount: String(Math.round(parseFloat(cr.amount ?? "0"))),
+      termWeeks: String(cr.termWeeks ?? ""),
+      remainingBalance: String(Math.round(parseFloat(cr.remainingBalance ?? "0"))),
+      weeklyPayment: String(Math.round(parseFloat(cr.weeklyPayment ?? "0"))),
+    });
+    setEditCredit(cr);
+  }
+  function openPay(cr: any) {
+    setPayForm({ amountPaid: String(Math.round(parseFloat(cr.weeklyPayment ?? "0"))), paymentDate: new Date().toISOString().slice(0,10), notes: "" });
+    setPayCredit(cr);
+  }
 
   if (isLoading) return <Layout title="Expediente"><div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>Cargando expediente…</div></Layout>;
   if (!detail) return <Layout title="Expediente"><div style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>No se encontró el expediente.</div></Layout>;
@@ -216,12 +256,24 @@ export default function Expediente() {
             <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Créditos</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {detail.credits.map((cr: any) => (
-                <div key={cr.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "11px 14px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
-                  <div>
-                    <div style={{ fontSize: 15, fontWeight: 800, color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{money(cr.amount)}</div>
-                    <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{cr.termWeeks} sem · {money(cr.weeklyPayment)}/sem · saldo {money(cr.remainingBalance)}</div>
+                <div key={cr.id} style={{ padding: "12px 14px", background: "var(--surface-2)", borderRadius: "var(--r-md)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: "var(--text-primary)", fontVariantNumeric: "tabular-nums" }}>{money(cr.amount)}</div>
+                      <div style={{ fontSize: 11, color: "var(--text-muted)" }}>{cr.termWeeks} sem · {money(cr.weeklyPayment)}/sem · saldo {money(cr.remainingBalance)}</div>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: "var(--surface-3)", color: "var(--text-secondary)" }}>{statusLabel[cr.status] ?? cr.status}</span>
                   </div>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 100, background: "var(--surface-3)", color: "var(--text-secondary)" }}>{statusLabel[cr.status] ?? cr.status}</span>
+                  {/* Controles de admin: editar, registrar pago, estado */}
+                  <div style={{ display: "flex", gap: 8, marginTop: 10, flexWrap: "wrap" }}>
+                    <button onClick={() => openEdit(cr)} className="pressable" style={{ flex: "1 1 auto", minWidth: 90, padding: "8px 10px", borderRadius: "var(--r-sm)", border: "1.5px solid var(--border)", background: "var(--surface)", fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", cursor: "pointer" }}>Editar</button>
+                    {(cr.status === "active" || cr.status === "approved") && (
+                      <button onClick={() => openPay(cr)} className="pressable btn-brand" style={{ flex: "1 1 auto", minWidth: 110, padding: "8px 10px", borderRadius: "var(--r-sm)", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>Registrar pago</button>
+                    )}
+                    {cr.status === "active" && (
+                      <button onClick={() => { if (confirm("¿Marcar este crédito como liquidado?")) creditStatusM.mutate({ id: cr.id, status: "closed" }); }} className="pressable" style={{ flex: "1 1 auto", minWidth: 90, padding: "8px 10px", borderRadius: "var(--r-sm)", border: "1.5px solid var(--border)", background: "var(--surface)", fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", cursor: "pointer" }}>Liquidar</button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -284,6 +336,75 @@ export default function Expediente() {
               ? <img src={preview.blobUrl} alt={preview.type} style={{ maxWidth: "100%", maxHeight: "78vh", borderRadius: 12, objectFit: "contain" }} />
               : <a href={preview.blobUrl} target="_blank" rel="noopener noreferrer" className="btn-brand" style={{ padding: "14px 28px", borderRadius: 100, fontWeight: 700, textDecoration: "none" }}>Abrir documento</a>}
             <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 13 }}>{DOC_CATALOG[preview.type] ?? preview.type}</div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ MODAL: editar condiciones del crédito ═══ */}
+      {editCredit && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 70, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={e => { if (e.target === e.currentTarget) setEditCredit(null); }}>
+          <div className="card" style={{ width: "100%", maxWidth: 460, borderRadius: "20px 20px 0 0", padding: 22, maxHeight: "90vh", overflowY: "auto" }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>Editar crédito</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 18 }}>Ajusta las condiciones del crédito</div>
+            {[
+              ["Monto del crédito", "amount", "$"],
+              ["Plazo (semanas)", "termWeeks", ""],
+              ["Saldo restante", "remainingBalance", "$"],
+              ["Pago semanal", "weeklyPayment", "$"],
+            ].map(([label, key, sym]) => (
+              <div key={key} style={{ marginBottom: 14 }}>
+                <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>{label}</label>
+                <input type="number" inputMode="decimal" value={(editForm as any)[key]} onChange={e => setEditForm(f => ({ ...f, [key as string]: e.target.value }))}
+                  className="input-field" style={{ width: "100%" }} placeholder={sym} />
+              </div>
+            ))}
+            <div style={{ display: "flex", gap: 10, marginTop: 8 }}>
+              <button onClick={() => setEditCredit(null)} className="pressable" style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>Cancelar</button>
+              <button onClick={() => editCreditM.mutate({
+                  amount: parseFloat(editForm.amount) || undefined,
+                  termWeeks: parseInt(editForm.termWeeks) || undefined,
+                  remainingBalance: parseFloat(editForm.remainingBalance) || undefined,
+                  weeklyPayment: parseFloat(editForm.weeklyPayment) || undefined,
+                })} disabled={editCreditM.isPending} className="pressable btn-brand" style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
+                {editCreditM.isPending ? "Guardando…" : "Guardar cambios"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ MODAL: registrar pago ═══ */}
+      {payCredit && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 70, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
+          onClick={e => { if (e.target === e.currentTarget) setPayCredit(null); }}>
+          <div className="card" style={{ width: "100%", maxWidth: 460, borderRadius: "20px 20px 0 0", padding: 22 }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>Registrar pago</div>
+            <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 18 }}>Saldo actual: {money(payCredit.remainingBalance)} · Pago semanal: {money(payCredit.weeklyPayment)}</div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Monto pagado</label>
+              <input type="number" inputMode="decimal" value={payForm.amountPaid} onChange={e => setPayForm(f => ({ ...f, amountPaid: e.target.value }))} className="input-field" style={{ width: "100%" }} />
+            </div>
+            <div style={{ marginBottom: 14 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Fecha del pago</label>
+              <input type="date" value={payForm.paymentDate} onChange={e => setPayForm(f => ({ ...f, paymentDate: e.target.value }))} className="input-field" style={{ width: "100%" }} />
+            </div>
+            <div style={{ marginBottom: 18 }}>
+              <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Nota (opcional)</label>
+              <input type="text" value={payForm.notes} onChange={e => setPayForm(f => ({ ...f, notes: e.target.value }))} className="input-field" style={{ width: "100%" }} placeholder="Ej. pago en efectivo" />
+            </div>
+            <div style={{ display: "flex", gap: 10 }}>
+              <button onClick={() => setPayCredit(null)} className="pressable" style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>Cancelar</button>
+              <button onClick={() => payM.mutate({
+                  clientId: payCredit.clientId,
+                  creditId: payCredit.id,
+                  amountPaid: parseFloat(payForm.amountPaid) || 0,
+                  paymentDate: payForm.paymentDate,
+                  notes: payForm.notes || undefined,
+                })} disabled={payM.isPending || !payForm.amountPaid} className="pressable btn-brand" style={{ flex: 1, padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !payForm.amountPaid ? 0.5 : 1 }}>
+                {payM.isPending ? "Registrando…" : "Registrar pago"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -203,7 +203,7 @@ router.get("/users/:id/detail", requireAuth, requireRole("admin"), async (req, r
       registeredAt: client.registeredAt,
     } : null,
     credits: credits.map(c => ({
-      id: c.id, amount: c.amount, status: c.status, termWeeks: c.termWeeks,
+      id: c.id, clientId: c.clientId, amount: c.amount, status: c.status, termWeeks: c.termWeeks,
       weeklyPayment: c.weeklyPayment, remainingBalance: c.remainingBalance,
       disbursementDate: c.disbursementDate, currentPaymentNumber: c.currentPaymentNumber,
     })),
