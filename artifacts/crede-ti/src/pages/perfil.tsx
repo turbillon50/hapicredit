@@ -153,7 +153,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
   const usedCodes   = (codes as any[]).filter((c: any) => c.usedAt);
 
   const canGenAdmin  = userRole === "admin";
-  const canGenExec   = userRole === "admin";
+  const canGenExec   = false; // Asesor desactivado por ahora — solo Admin y Cliente. Cambiar a (userRole === "admin") para reactivar.
   const canGenClient = userRole === "admin" || userRole === "executive";
 
   function roleBadgeStyle(role: string) {
@@ -1173,7 +1173,8 @@ function DemoteCard() {
   }
 
   const roleOptions = [
-    { value: "executive" as const, label: "Asesor", desc: "Gestiona clientes y cobranza", color: "#2563eb", bg: "var(--surface-3)", border: "var(--surface-3)" },
+    // Asesor desactivado por ahora — solo Cliente. Para reactivar, descomentar la línea de executive.
+    // { value: "executive" as const, label: "Asesor", desc: "Gestiona clientes y cobranza", color: "#2563eb", bg: "var(--surface-3)", border: "var(--surface-3)" },
     { value: "client"   as const, label: "Cliente", desc: "Vista del acreditado",         color: "var(--success)", bg: "var(--surface-3)", border: "var(--surface-3)" },
   ];
 
@@ -1191,7 +1192,7 @@ function DemoteCard() {
         </div>
         <div className="flex-1 min-w-0">
           <div className="text-sm font-bold text-gray-900">Cambiar modo de usuario</div>
-          <div className="text-xs text-gray-500">Entrar como asesor o cliente</div>
+          <div className="text-xs text-gray-500">Ver la app como cliente</div>
         </div>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M9 18l6-6-6-6"/>
