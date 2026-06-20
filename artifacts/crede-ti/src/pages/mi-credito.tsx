@@ -8,7 +8,7 @@ import { SkeletonHero } from "@/components/hapi/Skeleton";
 import { EmptyState } from "@/components/hapi/EmptyState";
 import {
   IconTarjeta, IconCalendario, IconCheck, IconReloj,
-  IconAlerta, IconFlecha, IconMas,
+  IconAlerta, IconFlecha, IconMas, IconEscudo, IconCrecimiento,
 } from "@/components/hapi/HapiIcons";
 import { Link } from "wouter";
 import { DynamicBanners, DynamicNotifications } from "@/components/hapi/DynamicContent";
@@ -458,26 +458,62 @@ export default function MiCredito() {
         {isLoading ? (
           <div style={{ padding: "16px 16px 0" }}><SkeletonHero /></div>
         ) : isEmpty ? (
-          <div style={{ padding: "48px 16px 0" }}>
-            <EmptyState
-              icon={<IconTarjeta size={24} />}
-              title="Sin créditos registrados"
-              description="Aún no tienes un crédito con nosotros. Solicita uno para empezar."
-            />
-            <Link href="/solicitar">
-              <button
-                className="pressable"
-                style={{
-                  width: "100%", marginTop: 24, padding: "16px",
-                  borderRadius: "var(--r-xl)", border: "none", cursor: "pointer",
-                  background: "var(--accent)", color: "#fff",
-                  fontWeight: 700, fontSize: 15,
-                  display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                }}
-              >
-                Solicitar crédito <IconFlecha size={16} color="#fff" />
-              </button>
-            </Link>
+          <div style={{ padding: "16px 16px 0" }} className="anim-section anim-d1">
+            {/* Saludo cálido */}
+            <div style={{ marginBottom: 18 }}>
+              <div style={{ fontSize: 14, color: "var(--text-muted)", fontWeight: 600 }}>
+                {(() => { const h = new Date().getHours(); return h < 12 ? "Buenos días" : h < 19 ? "Buenas tardes" : "Buenas noches"; })()}
+              </div>
+              <div style={{ fontSize: 24, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.03em", marginTop: 2 }}>
+                {(client?.fullName ?? "").split(" ")[0] || "Bienvenido"}
+              </div>
+            </div>
+
+            {/* Tarjeta de bienvenida premium con mesh */}
+            <div className="mesh-institutional" style={{
+              borderRadius: "var(--r-xl)", padding: "26px 22px", position: "relative", overflow: "hidden",
+              boxShadow: "var(--shadow-lg)", marginBottom: 18,
+            }}>
+              <div style={{ position: "relative", zIndex: 2 }}>
+                <div style={{ display: "inline-flex", alignItems: "center", justifyContent: "center", width: 52, height: 52, borderRadius: "var(--r-lg)", background: "rgba(255,255,255,0.12)", border: "1px solid rgba(255,255,255,0.18)", marginBottom: 16 }}>
+                  <IconTarjeta size={26} color="#fff" />
+                </div>
+                <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1.2 }}>
+                  Tu primer crédito<br/>te está esperando
+                </div>
+                <div style={{ fontSize: 14, color: "rgba(255,255,255,0.78)", marginTop: 10, lineHeight: 1.5, maxWidth: 290 }}>
+                  Crédito desde $500. Aprobación ágil, sin complicaciones, pensado para ti.
+                </div>
+                <Link href="/solicitar">
+                  <button className="pressable" style={{
+                    marginTop: 20, padding: "13px 22px", borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
+                    background: "#fff", color: "var(--brand-blue-deep)", fontWeight: 800, fontSize: 14,
+                    display: "inline-flex", alignItems: "center", gap: 8,
+                  }}>
+                    Solicitar ahora <IconFlecha size={15} color="var(--brand-blue-deep)" />
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            {/* Beneficios elegantes */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                { icon: <IconReloj size={20} color="var(--brand-blue)" />, title: "Aprobación rápida", desc: "Respuesta en poco tiempo" },
+                { icon: <IconEscudo size={20} color="var(--brand-blue)" />, title: "Transparente", desc: "Sin letras chiquitas ni sorpresas" },
+                { icon: <IconCrecimiento size={20} color="var(--brand-blue)" />, title: "Crece con nosotros", desc: "Mejores condiciones al renovar" },
+              ].map((b, i) => (
+                <div key={i} className="card" style={{ padding: 14, display: "flex", alignItems: "center", gap: 14 }}>
+                  <div style={{ width: 42, height: 42, borderRadius: "var(--r-md)", flexShrink: 0, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    {b.icon}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{b.title}</div>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{b.desc}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : (
           <>
