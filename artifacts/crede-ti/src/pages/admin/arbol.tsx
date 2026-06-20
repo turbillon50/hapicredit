@@ -161,20 +161,20 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
                 <button
                   onClick={() => onCambiarSucursal(node)}
                   title="Cambiar sucursal"
-                  style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--border)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-blue)", cursor: "pointer" }}
+                  style={{ width: 32, height: 32, borderRadius: "var(--r-sm)", border: "1.5px solid var(--border)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--brand-blue)", cursor: "pointer" }}
                 >
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round"><path d="M17 16l4-4-4-4"/><path d="M3 12h18"/></svg>
                 </button>
               )}
               <button
                 onClick={() => onEdit?.(node)}
-                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--border)", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", cursor: "pointer" }}
+                style={{ width: 32, height: 32, borderRadius: "var(--r-sm)", border: "1.5px solid var(--border)", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", cursor: "pointer" }}
               >
                 <EditIcon />
               </button>
               <button
                 onClick={() => onDelete?.(node)}
-                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--surface-3)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--danger)", cursor: "pointer" }}
+                style={{ width: 32, height: 32, borderRadius: "var(--r-sm)", border: "1.5px solid var(--surface-3)", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--danger)", cursor: "pointer" }}
               >
                 <TrashIcon />
               </button>

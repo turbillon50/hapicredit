@@ -80,7 +80,7 @@ export default function Invitacion() {
           <circle cx="80" cy="18" r="9" fill="#19D7D7"/>
           <rect x="62" y="46" width="26" height="11" rx="5.5" fill="#19D7D7"/>
         </svg>
-        <div style={{ fontSize: 20, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
+        <div style={{ fontSize: 20, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
           crede<span style={{ color: "#19D7D7" }}>ti</span>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function Invitacion() {
       </div>
 
       {/* Saludo */}
-      <div style={{ color: "#fff", fontSize: 26, fontWeight: 900, textAlign: "center", marginBottom: 8, lineHeight: 1.2 }}>
+      <div style={{ color: "#fff", fontSize: 26, fontWeight: 800, textAlign: "center", marginBottom: 8, lineHeight: 1.2 }}>
         Hola, {firstName}
       </div>
       <div style={{ color: "rgba(255,255,255,0.65)", fontSize: 14, textAlign: "center", marginBottom: 24, maxWidth: 300 }}>
@@ -120,7 +120,7 @@ export default function Invitacion() {
           <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>
             Monto pre-aprobado
           </div>
-          <div style={{ fontSize: 52, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>
+          <div style={{ fontSize: 52, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", lineHeight: 1 }}>
             {fmt(invite.preApprovedAmount)}
           </div>
         </div>

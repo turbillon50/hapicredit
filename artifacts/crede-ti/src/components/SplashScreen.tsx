@@ -74,7 +74,7 @@ export function SplashScreen({ onDone }: Props) {
           opacity: 0,
         }}>
           <div style={{
-            width: 96, height: 96, borderRadius: 28,
+            width: 96, height: 96, borderRadius: "var(--r-xl)",
             overflow: "hidden",
             boxShadow: "0 20px 60px rgba(0,0,0,0.5), 0 0 0 1.5px rgba(255,255,255,0.15), 0 0 40px rgba(25,215,215,0.3)",
             background: "rgba(255,255,255,0.06)",
@@ -93,7 +93,7 @@ export function SplashScreen({ onDone }: Props) {
           opacity: 0, marginTop: 28, textAlign: "center",
         }}>
           <div style={{
-            fontSize: 40, fontWeight: 900, color: "#fff",
+            fontSize: 40, fontWeight: 800, color: "#fff",
             letterSpacing: "-0.07em",
             fontFamily: "Montserrat, sans-serif",
             lineHeight: 1,

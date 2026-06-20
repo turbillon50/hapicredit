@@ -90,11 +90,11 @@ function TableCobranza({ data }: { data: any[] }) {
       <div style={{ display: "flex", gap: 16, marginBottom: 16, flexWrap: "wrap" }}>
         <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Total cobrado</div>
-          <div style={{ fontSize: 22, fontWeight: 900, color: "#059669" }}>{fmt(total)}</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: "#059669" }}>{fmt(total)}</div>
         </div>
         <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
           <div style={{ fontSize: 11, color: "var(--text-muted)" }}>Pagos</div>
-          <div style={{ fontSize: 22, fontWeight: 900 }}>{data.length}</div>
+          <div style={{ fontSize: 22, fontWeight: 800 }}>{data.length}</div>
         </div>
       </div>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -173,7 +173,7 @@ function FlujoCaja({ data }: { data: any }) {
         ].map(item => (
           <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "16px" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>{item.label}</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: item.color }}>{fmt(item.val)}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: item.color }}>{fmt(item.val)}</div>
           </div>
         ))}
       </div>
@@ -234,7 +234,7 @@ export default function AdminReportes() {
       <div style={{ padding: "0 0 100px" }}>
         {/* Header */}
         <div style={{ padding: "20px 16px 0" }}>
-          <div style={{ fontSize: 20, fontWeight: 900, color: "var(--text-primary)", marginBottom: 4 }}>Reportes</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)", marginBottom: 4 }}>Reportes</div>
           <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Genera y exporta reportes en tiempo real</div>
         </div>
 

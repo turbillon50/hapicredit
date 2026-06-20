@@ -138,7 +138,7 @@ export default function SmartInstallBanner() {
           ].map(step => (
             <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: "var(--r-xl)", background: "#f8fafc", border: "1.5px solid var(--border)", marginBottom: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: "var(--r-md)", background: step.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <span style={{ fontWeight: 900, fontSize: 16, color: step.color }}>{step.num}</span>
+                <span style={{ fontWeight: 800, fontSize: 16, color: step.color }}>{step.num}</span>
               </div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text-primary)" }}>{step.title}</div>

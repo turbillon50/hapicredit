@@ -44,7 +44,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#19D7D7", textTransform: "uppercase", marginBottom: 8 }}>
             ● credeti
           </div>
-          <div style={{ fontSize: 17, fontWeight: 900, color: "#215DFF", marginBottom: 8 }}>
+          <div style={{ fontSize: 17, fontWeight: 800, color: "#215DFF", marginBottom: 8 }}>
             Algo se atoró
           </div>
           <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55, marginBottom: 16 }}>

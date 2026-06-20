@@ -51,7 +51,7 @@ function SliderCampo({
           initial={{ scale: 1.15, color: AZUL }}
           animate={{ scale: 1, color: AZUL2 }}
           transition={{ duration: 0.2 }}
-          style={{ fontSize: 20, fontWeight: 900, display: "inline-block" }}
+          style={{ fontSize: 20, fontWeight: 800, display: "inline-block" }}
         >
           {prefijo}{typeof valor === "number" && paso < 1
             ? valor.toFixed(1)
@@ -307,7 +307,7 @@ export default function Calculadora() {
         <motion.h1
           initial={{ opacity: 0, y: -12 }}
           animate={{ opacity: 1, y: 0 }}
-          style={{ margin: 0, fontSize: 26, fontWeight: 900, color: "#fff", letterSpacing: "-0.04em" }}
+          style={{ margin: 0, fontSize: 26, fontWeight: 800, color: "#fff", letterSpacing: "-0.04em" }}
         >
           Calculadora de crédito
         </motion.h1>
@@ -381,7 +381,7 @@ export default function Calculadora() {
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                 <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)" }}>Plazo</span>
-                <span style={{ fontSize: 20, fontWeight: 900, color: AZUL2 }}>{nuevoPlazo} semanas</span>
+                <span style={{ fontSize: 20, fontWeight: 800, color: AZUL2 }}>{nuevoPlazo} semanas</span>
               </div>
               <div style={{ height: 6, borderRadius: 99, background: `linear-gradient(90deg, ${AZUL}, ${AMARILLO})` }} />
               <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Plazo fijo para primer crédito</div>
@@ -406,7 +406,7 @@ export default function Calculadora() {
               <span style={{ fontSize: 13, color: tipo === "nuevo" ? "var(--success)" : "var(--brand-blue)", fontWeight: 600 }}>
                 {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva (5% mensual)`}
               </span>
-              <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "var(--success)" : AZUL }}>
+              <span style={{ fontSize: 17, fontWeight: 800, color: tipo === "nuevo" ? "var(--success)" : AZUL }}>
                 <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
               </span>
             </motion.div>
@@ -475,7 +475,7 @@ export default function Calculadora() {
             display: "block", width: "100%", padding: "17px 0",
             background: AMARILLO, color: AZUL2,
             borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
-            fontWeight: 900, fontSize: 17, textAlign: "center",
+            fontWeight: 800, fontSize: 17, textAlign: "center",
             textDecoration: "none", boxSizing: "border-box",
             boxShadow: "var(--shadow-md)",
           }}

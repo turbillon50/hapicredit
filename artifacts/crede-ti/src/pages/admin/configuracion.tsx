@@ -201,7 +201,7 @@ function InviteVIP() {
             ].map(item => (
               <div key={item.l} style={{ background: "var(--surface)", borderRadius: "var(--r-md)", padding: "8px", textAlign: "center" }}>
                 <div style={{ fontSize: 10, color: "var(--text-muted)" }}>{item.l}</div>
-                <div style={{ fontSize: 14, fontWeight: 900, color: item.c }}>{item.v}</div>
+                <div style={{ fontSize: 14, fontWeight: 800, color: item.c }}>{item.v}</div>
               </div>
             ))}
           </div>
@@ -330,7 +330,7 @@ function InviteByWhatsApp() {
             <div style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Codigo de registro</div>
-                <div style={{ fontSize: 22, fontWeight: 900, letterSpacing: "0.12em", color: "var(--text-primary)" }}>{inviteCode}</div>
+                <div style={{ fontSize: 22, fontWeight: 800, letterSpacing: "0.12em", color: "var(--text-primary)" }}>{inviteCode}</div>
               </div>
               <span style={{ fontSize: 12, color: "var(--text-muted)", background: "var(--surface)", padding: "4px 10px", borderRadius: "var(--r-xl)", border: "1px solid var(--border)" }}>
                 {role === "executive" ? "Asesor" : "Admin"}
@@ -449,7 +449,7 @@ export default function Configuracion() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <h2 style={{ fontSize: 22, fontWeight: 900, letterSpacing: "-0.04em" }}>Configuración</h2>
+          <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.04em" }}>Configuración</h2>
           <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>
             Ajusta montos, tasas y parámetros del negocio
           </p>

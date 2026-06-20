@@ -224,7 +224,7 @@ function UsuariosTab() {
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 20 }}>
               {([["client","Acreditado"],["executive","Asesor"],["admin","Administrador"]] as [string,string][]).map(([val,lbl]) => (
                 <button key={val} onClick={() => saveM.mutate({ id: editing.id, role: val })} disabled={saveM.isPending} className="pressable"
-                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 16px", borderRadius: 13, cursor: "pointer",
+                  style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 16px", borderRadius: "var(--r-lg)", cursor: "pointer",
                     border: `1.5px solid ${editing.role === val ? "var(--brand-blue)" : "var(--border)"}`,
                     background: editing.role === val ? "rgba(33,93,255,0.06)" : "var(--surface)" }}>
                   <span style={{ fontWeight: 700, fontSize: 14, color: editing.role === val ? "var(--brand-blue)" : "var(--text-secondary)" }}>{lbl}</span>

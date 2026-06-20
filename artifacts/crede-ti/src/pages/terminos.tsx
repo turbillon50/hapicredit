@@ -76,7 +76,7 @@ export default function Terminos() {
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
             Documento legal
           </div>
-          <h1 style={{ fontSize: 26, fontWeight: 900, marginBottom: 10 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 800, marginBottom: 10 }}>
             Términos y Condiciones
           </h1>
           <p style={{ fontSize: 14, opacity: 0.75, lineHeight: 1.65 }}>

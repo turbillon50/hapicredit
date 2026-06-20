@@ -93,7 +93,7 @@ export default function Acceso() {
           <circle cx="80" cy="18" r="9" fill="#19D7D7"/>
           <rect x="62" y="46" width="26" height="11" rx="5.5" fill="#19D7D7"/>
         </svg>
-        <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.02em" }}>
+        <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>
           crede<span style={{ color: "#19D7D7" }}>ti</span>
         </div>
         <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", marginTop: 4 }}>

@@ -541,7 +541,7 @@ export default function AdminDashboard() {
                 >
                   <div
                     style={{
-                      width: 42, height: 42, borderRadius: 13, flexShrink: 0,
+                      width: 42, height: 42, borderRadius: "var(--r-lg)", flexShrink: 0,
                       display: "flex", alignItems: "center", justifyContent: "center",
                       background: a.iconBg, color: a.iconColor,
                     }}
@@ -570,7 +570,7 @@ export default function AdminDashboard() {
           }}>
             <div style={{ position:"absolute",top:-60,right:-60,width:160,height:160,borderRadius:"50%",background:"radial-gradient(circle,rgba(232,168,47,0.20) 0%,transparent 70%)",pointerEvents:"none" }} />
             <div style={{ fontSize: 11, fontWeight: 700, color: "#19D7D7", textTransform: "uppercase", letterSpacing: "0.12em", marginBottom: 8 }}>Mi red</div>
-            <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>
+            <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", letterSpacing: "-0.03em", marginBottom: 16 }}>
               Control completo de tu operación
             </div>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 18 }}>
@@ -584,7 +584,7 @@ export default function AdminDashboard() {
                   border: "1px solid rgba(255,255,255,0.15)",
                   borderRadius: "var(--r-lg)", padding: "10px 8px", textAlign: "center",
                 }}>
-                  <div style={{ fontSize: 22, fontWeight: 900, color: "#fff", lineHeight: 1 }}>{s.value}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: "#fff", lineHeight: 1 }}>{s.value}</div>
                   <div style={{ fontSize: 10, color: "rgba(255,255,255,0.65)", marginTop: 4, fontWeight: 600, letterSpacing: "0.04em", textTransform: "uppercase" }}>{s.label}</div>
                 </div>
               ))}
@@ -623,7 +623,7 @@ export default function AdminDashboard() {
                 border: "1px solid var(--border)", boxShadow: "var(--shadow-xs)",
               }}>
                 <div style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.06em", color: "var(--text-muted)", marginBottom: 6 }}>{k.label}</div>
-                <div style={{ fontSize: 18, fontWeight: 900, color: k.color, letterSpacing: "-0.02em" }}>{k.value}</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: k.color, letterSpacing: "-0.02em" }}>{k.value}</div>
                 <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 2 }}>{k.sub}</div>
               </div>
             ))}
