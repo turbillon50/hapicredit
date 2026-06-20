@@ -82,6 +82,36 @@ router.post("/uploads/sign", requireAuth, async (req, res): Promise<void> => {
   }
 });
 
+// ─── POST /uploads/register — registra un blob ya subido (respaldo del callback) ───
+// El cliente llama esto tras upload() con la URL devuelta, garantizando persistencia
+// aunque onUploadCompleted no dispare (callback de Blob es frágil en algunos entornos).
+router.post("/uploads/register", requireAuth, async (req, res): Promise<void> => {
+  const { url, type, filename, mimeType } = req.body ?? {};
+  if (!url || !type) { res.status(400).json({ error: "url y type requeridos" }); return; }
+  if (!ALLOWED_TYPES.has(type)) { res.status(400).json({ error: `Tipo no permitido: ${type}` }); return; }
+  try {
+    // Evitar duplicar si el callback ya lo registró
+    const { eq, and } = await import("drizzle-orm");
+    const existing = await db.select().from(documentsTable)
+      .where(and(eq(documentsTable.userId, req.userId!), eq(documentsTable.blobUrl, url)))
+      .limit(1);
+    if (existing.length) { res.json(existing[0]); return; }
+
+    const [row] = await db.insert(documentsTable).values({
+      userId: req.userId!,
+      type,
+      blobUrl: url,
+      filename: filename ?? (url.split("/").pop() ?? "archivo"),
+      mimeType: mimeType ?? "application/octet-stream",
+      sizeBytes: 0,
+      status: "pending",
+    }).returning();
+    res.json(row);
+  } catch (err) {
+    res.status(503).json({ error: "No se pudo registrar el documento" });
+  }
+});
+
 // List the current user's documents (for /perfil).
 router.get("/uploads/mine", requireAuth, async (req, res): Promise<void> => {
   try {

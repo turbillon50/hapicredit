@@ -448,11 +448,17 @@ export default function Perfil() {
     setAvatarUploading(true);
     try {
       const { upload } = await import("@vercel/blob/client");
-      await upload(file.name, file, {
+      const blob = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
         clientPayload: JSON.stringify({ type: "foto" }),
         headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
+      });
+      // Respaldo: registrar explícitamente por si el callback no disparó
+      await fetch(`${API}/uploads/register`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ url: blob.url, type: "foto", filename: file.name, mimeType: file.type }),
       });
       await qc.invalidateQueries({ queryKey: ["my-avatar"] });
     } catch (err) {
@@ -515,11 +521,16 @@ export default function Perfil() {
       // Lazy-import so this chunk is fetched only at upload time, never at
       // first render of the page (which keeps the cold boot resilient).
       const { upload } = await import("@vercel/blob/client");
-      await upload(file.name, file, {
+      const blob = await upload(file.name, file, {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
         clientPayload: JSON.stringify({ type: labelKey }),
         headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
+      });
+      await fetch(`${API}/uploads/register`, {
+        method: "POST",
+        headers: { ...auth(), "Content-Type": "application/json" },
+        body: JSON.stringify({ url: blob.url, type: labelKey, filename: file.name, mimeType: file.type }),
       });
       await qc.invalidateQueries({ queryKey: ["client-docs", client?.id] });
       await qc.invalidateQueries({ queryKey: ["uploads-mine"] });
