@@ -188,6 +188,8 @@ function ClerkCacheInvalidator() {
           const meRes = await fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
           if (meRes.ok) { const me = await meRes.json(); if (me?.role) role = me.role; }
         } catch { /* keep Clerk role as fallback */ }
+        // Asesor desactivado: cualquier rol executive se trata como cliente en la app.
+        if (role === "executive") role = "client";
 
         const fullName =
           `${clerkUser.firstName || ""} ${clerkUser.lastName || ""}`.trim()
@@ -249,8 +251,9 @@ function RootRedirect() {
   // Los admins NO aterrizan en /admin (ruta no obvia). Entran a la vista de
   // cliente como cualquier usuario — pueden solicitar crédito y vivir el flujo.
   // El panel admin se alcanza con el switch discreto desde el perfil.
-  if (role === "executive") return <Redirect to="/dashboard" />;
-  if (token && (role === "client" || role === "admin")) return <Redirect to="/mi-credito" />;
+  // Asesor desactivado: cualquier usuario autenticado entra como cliente.
+  // (Para reactivar el rol asesor, restaurar: if (role === "executive") return <Redirect to="/dashboard" />;)
+  if (token && (role === "client" || role === "admin" || role === "executive")) return <Redirect to="/mi-credito" />;
   return <Home />;
 }
 
@@ -302,17 +305,18 @@ function Router() {
       <Route path="/admin/reportes"        component={AdminReportes} />
       <Route path="/admin/centro"          component={AdminCentro} />
 
-      {/* Executive */}
-      <Route path="/executive"              component={ExecDashboard} />
-      <Route path="/dashboard"              component={ExecDashboard} />
-      <Route path="/dashboard/cobrar"       component={ExecCobrar} />
-      <Route path="/dashboard/alta-cliente" component={ExecAltaCliente} />
-      <Route path="/dashboard/clientes"     component={ExecClients} />
-      <Route path="/dashboard/expediente/:id" component={ExecClientDetail} />
-      <Route path="/dashboard/pagos/nuevo"  component={ExecPaymentsNew} />
-      <Route path="/dashboard/comisiones"   component={ExecComisiones} />
-      <Route path="/dashboard/alertas"      component={ExecAlerts} />
-      <Route path="/dashboard/compromisos"  component={ExecCommitments} />
+      {/* Executive / Asesor — DESACTIVADO: redirige a vista de cliente.
+          Para reactivar, restaurar los componentes Exec* en cada ruta. */}
+      <Route path="/executive"              component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard"              component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/cobrar"       component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/alta-cliente" component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/clientes"     component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/expediente/:id" component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/pagos/nuevo"  component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/comisiones"   component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/alertas"      component={() => <Redirect to="/mi-credito" />} />
+      <Route path="/dashboard/compromisos"  component={() => <Redirect to="/mi-credito" />} />
       <Route path="/dashboard/agenda"       component={ExecAgenda} />
       <Route path="/dashboard/codigos"      component={AdminCodigos} />
 
