@@ -624,4 +624,52 @@ router.post("/clients/:id/email", requireAuth, requireRole("admin", "executive")
   res.json({ ok: true, sent: result.sent, to: row.email });
 });
 
+// ─── GET /clients/:id/expediente — detalle por clientId (funciona para clientes directos sin userId) ───
+router.get("/clients/:id/expediente", requireAuth, requireRole("admin", "executive"), async (req, res): Promise<void> => {
+  const id = parseInt(req.params.id as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "ID invalido" }); return; }
+
+  const [client] = await db.select().from(clientsTable).where(eq(clientsTable.id, id));
+  if (!client) { res.status(404).json({ error: "Cliente no encontrado" }); return; }
+
+  // Usuario vinculado (puede no existir para clientes directos)
+  const [user] = client.userId
+    ? await db.select().from(usersTable).where(eq(usersTable.id, client.userId))
+    : [undefined as any];
+
+  const credits = await db.select().from(creditsTable).where(eq(creditsTable.clientId, client.id)).orderBy(creditsTable.createdAt);
+  const payments = await db.select().from(paymentsTable).where(eq(paymentsTable.clientId, client.id)).orderBy(paymentsTable.paymentDate).limit(10);
+
+  const stats = {
+    activeCredits: credits.filter(c => c.status === "active").length,
+    totalBorrowed: credits.reduce((s, c) => s + parseFloat(c.amount ?? "0"), 0),
+    remainingBalance: credits.filter(c => c.status === "active").reduce((s, c) => s + parseFloat(c.remainingBalance ?? "0"), 0),
+    totalPaid: payments.filter((p: any) => p.paymentStatus !== "pending_validation" && p.paymentStatus !== "rejected").reduce((s: number, p: any) => s + parseFloat(p.amountPaid ?? "0"), 0),
+  };
+
+  res.json({
+    user: user ? {
+      id: user.id, fullName: user.fullName, email: user.email, phone: user.phone,
+      role: user.role, avatarUrl: null,
+    } : {
+      id: null, fullName: client.fullName, email: null, phone: client.phone,
+      role: "client", avatarUrl: null,
+    },
+    client: {
+      id: client.id, fullName: client.fullName, phone: client.phone,
+      address: client.address, curp: client.curp, status: client.status,
+      registeredAt: client.registeredAt,
+    },
+    credits: credits.map(c => ({
+      id: c.id, clientId: c.clientId, amount: c.amount, status: c.status, termWeeks: c.termWeeks,
+      weeklyPayment: c.weeklyPayment, remainingBalance: c.remainingBalance,
+      disbursementDate: c.disbursementDate, currentPaymentNumber: c.currentPaymentNumber,
+    })),
+    payments: payments.map((p: any) => ({
+      id: p.id, amountPaid: p.amountPaid, paymentDate: p.paymentDate, paymentStatus: p.paymentStatus,
+    })),
+    stats,
+  });
+});
+
 export default router;

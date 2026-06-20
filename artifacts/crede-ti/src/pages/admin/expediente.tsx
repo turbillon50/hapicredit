@@ -47,70 +47,74 @@ export default function Expediente() {
   const [editForm, setEditForm] = useState({ amount: "", termWeeks: "", remainingBalance: "", weeklyPayment: "" });
   const [payForm, setPayForm] = useState({ amountPaid: "", paymentDate: "", notes: "" });
 
-  // Detalle del usuario (datos, créditos, pagos, stats)
+  // El parámetro de la ruta es el clientId (lo que la cartera siempre tiene).
+  // Cargamos el expediente por clientId — funciona para clientes directos y los registrados por la app.
+  const clientId = userId;
   const { data: detail, isLoading } = useQuery<any>({
-    queryKey: ["expediente-detail", userId],
-    queryFn: async () => { const r = await fetch(`${API}/users/${userId}/detail`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
-    enabled: userId > 0,
+    queryKey: ["expediente-detail", clientId],
+    queryFn: async () => { const r = await fetch(`${API}/clients/${clientId}/expediente`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
+    enabled: clientId > 0,
   });
+  // userId real (si el cliente tiene usuario vinculado) para docs/avatar
+  const linkedUserId = detail?.user?.id ?? null;
 
   // Documentos subidos
   const { data: docs = [] } = useQuery<any[]>({
-    queryKey: ["expediente-docs", userId],
-    queryFn: async () => { const r = await fetch(`${API}/uploads/user/${userId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
-    enabled: userId > 0,
+    queryKey: ["expediente-docs", linkedUserId],
+    queryFn: async () => { const r = await fetch(`${API}/uploads/user/${linkedUserId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+    enabled: !!linkedUserId,
   });
 
   // Documentos solicitados
   const { data: requests = [] } = useQuery<any[]>({
-    queryKey: ["expediente-requests", userId],
-    queryFn: async () => { const r = await fetch(`${API}/document-requests/user/${userId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
-    enabled: userId > 0,
+    queryKey: ["expediente-requests", linkedUserId],
+    queryFn: async () => { const r = await fetch(`${API}/document-requests/user/${linkedUserId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+    enabled: !!linkedUserId,
   });
 
   // Avatar
   const { data: avatar } = useQuery<{ url: string | null }>({
-    queryKey: ["expediente-avatar", userId],
-    queryFn: async () => { const r = await fetch(`${API}/uploads/avatar?userId=${userId}`, { headers: auth() }); if (!r.ok) return { url: null }; return r.json(); },
-    enabled: userId > 0,
+    queryKey: ["expediente-avatar", linkedUserId],
+    queryFn: async () => { const r = await fetch(`${API}/uploads/avatar?userId=${linkedUserId}`, { headers: auth() }); if (!r.ok) return { url: null }; return r.json(); },
+    enabled: !!linkedUserId,
   });
 
   const validateM = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       fetch(`${API}/uploads/${id}/status`, { method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify({ status }) }).then(r => r.json()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-docs", userId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-docs", linkedUserId] }),
   });
 
   const requestM = useMutation({
     mutationFn: () =>
-      fetch(`${API}/document-requests`, { method: "POST", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify({ userId, docTypes: selectedDocs, note: reqNote }) }).then(r => r.json()),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-requests", userId] }); setRequesting(false); setSelectedDocs([]); setReqNote(""); },
+      fetch(`${API}/document-requests`, { method: "POST", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify({ userId: linkedUserId, docTypes: selectedDocs, note: reqNote }) }).then(r => r.json()),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-requests", linkedUserId] }); setRequesting(false); setSelectedDocs([]); setReqNote(""); },
   });
 
   const cancelReqM = useMutation({
     mutationFn: (id: number) => fetch(`${API}/document-requests/${id}`, { method: "DELETE", headers: auth() }).then(r => r.json()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-requests", userId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-requests", linkedUserId] }),
   });
 
   // Editar condiciones del crédito (monto, plazo, tasa, pago semanal)
   const editCreditM = useMutation({
     mutationFn: (body: any) =>
       fetch(`${API}/credits/${editCredit.id}`, { method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }); setEditCredit(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", clientId] }); setEditCredit(null); },
   });
 
   // Registrar un pago
   const payM = useMutation({
     mutationFn: (body: any) =>
       fetch(`${API}/payments`, { method: "POST", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify(body) }).then(r => r.json()),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }); setPayCredit(null); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["expediente-detail", clientId] }); setPayCredit(null); },
   });
 
   // Cambiar estado del crédito (activar, liquidar, marcar incumplido)
   const creditStatusM = useMutation({
     mutationFn: ({ id, status }: { id: number; status: string }) =>
       fetch(`${API}/credits/${id}`, { method: "PATCH", headers: { ...auth(), "Content-Type": "application/json" }, body: JSON.stringify({ status }) }).then(r => r.json()),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-detail", userId] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-detail", clientId] }),
   });
 
   function openEdit(cr: any) {
