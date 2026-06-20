@@ -189,7 +189,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   if (!token && !isPublicPath && (!clerkLoaded || isSignedIn)) {
     return (
       <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(150deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
+        background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
         color: "rgba(255,255,255,0.75)", fontFamily: "Montserrat, Inter, sans-serif", fontSize: 14 }}>
         Cargando tu cuenta…
       </div>

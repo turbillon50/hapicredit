@@ -65,7 +65,7 @@ function getEntryIcon(type: string) {
     case "expense":
       return <IconAlerta size={16} color="#dc2626" />;
     default:
-      return <IconMoneda size={16} color="#6b7280" />;
+      return <IconMoneda size={16} color="var(--text-muted)" />;
   }
 }
 
@@ -222,7 +222,7 @@ export default function AdminMovimientos() {
             <div className="px-4">
               <div
                 className="rounded-2xl p-5 shadow-card-md"
-                style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}
+                style={{ background: "linear-gradient(135deg, #1A4FE0, #215DFF)" }}
               >
                 <div className="flex items-center gap-3 mb-3">
                   <Avatar name={data.executiveName} size="sm" />
@@ -406,8 +406,8 @@ export default function AdminMovimientos() {
       {editTarget && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 16px" }}>Editar movimiento</h3>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 16px" }}>Editar movimiento</h3>
             <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 18 }}>
               <input
                 type="number"
@@ -415,14 +415,14 @@ export default function AdminMovimientos() {
                 placeholder="Monto ($)"
                 value={editAmount}
                 onChange={e => setEditAmount(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
               />
               <input
                 type="text"
                 placeholder="Descripción"
                 value={editDesc}
                 onChange={e => setEditDesc(e.target.value)}
-                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none" }}
+                style={{ padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none" }}
               />
             </div>
             <button
@@ -434,7 +434,7 @@ export default function AdminMovimientos() {
             </button>
             <button
               onClick={() => setEditTarget(null)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -446,9 +446,9 @@ export default function AdminMovimientos() {
       {deleteTarget && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 8px" }}>Eliminar movimiento</h3>
-            <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 20px", lineHeight: 1.5 }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 8px" }}>Eliminar movimiento</h3>
+            <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: "0 0 20px", lineHeight: 1.5 }}>
               Vas a eliminar <strong>{deleteTarget.description}</strong> por <strong>{fmt(deleteTarget.amount)}</strong>. Esta acción no se puede deshacer.
             </p>
             <button
@@ -460,7 +460,7 @@ export default function AdminMovimientos() {
             </button>
             <button
               onClick={() => setDeleteTarget(null)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>

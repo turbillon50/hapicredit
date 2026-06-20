@@ -35,7 +35,7 @@ function IconToggle({ active }: { active: boolean }) {
   return (
     <div style={{
       width: 38, height: 22, borderRadius: 11,
-      background: active ? "#215DFF" : "#cbd5e1",
+      background: active ? "#215DFF" : "var(--text-muted)",
       position: "relative", transition: "background 0.2s", flexShrink: 0,
     }}>
       <div style={{
@@ -124,13 +124,13 @@ export default function AdminFaq() {
             <button
               className="pressable"
               onClick={() => window.history.back()}
-              style={{ width: 38, height: 38, borderRadius: 12, background: "#f1f5f9", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#475569" }}
+              style={{ width: 38, height: 38, borderRadius: 12, background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
             >
               <IconBack />
             </button>
             <div>
-              <div style={{ fontWeight: 800, fontSize: 18, color: "#1e293b", letterSpacing: "-0.03em" }}>FAQ — Administrar</div>
-              <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 1 }}>{(items as FaqItem[]).length} preguntas</div>
+              <div style={{ fontWeight: 800, fontSize: 18, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>FAQ — Administrar</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 1 }}>{(items as FaqItem[]).length} preguntas</div>
             </div>
           </div>
           <button
@@ -145,11 +145,11 @@ export default function AdminFaq() {
         {/* FAQ list */}
         {isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 16, background: "#f1f5f9" }} />)}
+            {[1,2,3].map(i => <div key={i} style={{ height: 72, borderRadius: 16, background: "var(--surface-2)" }} />)}
           </div>
         ) : (items as FaqItem[]).length === 0 ? (
-          <div style={{ textAlign: "center", padding: "48px 24px", color: "#94a3b8" }}>
-            <div style={{ fontWeight: 700, fontSize: 15, color: "#475569", marginBottom: 6 }}>Sin preguntas aún</div>
+          <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--text-muted)" }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-secondary)", marginBottom: 6 }}>Sin preguntas aún</div>
             <div style={{ fontSize: 13 }}>Toca "Nueva" para agregar la primera pregunta frecuente.</div>
           </div>
         ) : (
@@ -160,17 +160,17 @@ export default function AdminFaq() {
                 style={{
                   borderRadius: 16,
                   background: "#fff",
-                  border: `1.5px solid ${item.isActive ? "#e2e8f0" : "var(--surface-3)"}`,
+                  border: `1.5px solid ${item.isActive ? "var(--border)" : "var(--surface-3)"}`,
                   padding: "14px 14px",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 14, color: item.isActive ? "#1e293b" : "#94a3b8", lineHeight: 1.4, marginBottom: 4 }}>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: item.isActive ? "var(--text-primary)" : "var(--text-muted)", lineHeight: 1.4, marginBottom: 4 }}>
                       {item.question}
                     </div>
-                    <div style={{ fontSize: 12, color: "#94a3b8", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
-                      <span style={{ background: "#f1f5f9", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>{catLabel(item.category)}</span>
+                    <div style={{ fontSize: 12, color: "var(--text-muted)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                      <span style={{ background: "var(--surface-2)", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>{catLabel(item.category)}</span>
                       {!item.isActive && <span style={{ background: "var(--surface-3)", color: "#dc2626", borderRadius: 6, padding: "2px 7px", fontWeight: 600 }}>Inactiva</span>}
                     </div>
                   </div>
@@ -199,7 +199,7 @@ export default function AdminFaq() {
                     </button>
                   </div>
                 </div>
-                <div style={{ marginTop: 8, fontSize: 13, color: "#64748b", lineHeight: 1.5, borderTop: "1px solid #f1f5f9", paddingTop: 8 }}>
+                <div style={{ marginTop: 8, fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.5, borderTop: "1px solid var(--surface-2)", paddingTop: 8 }}>
                   {item.answer.length > 120 ? item.answer.slice(0, 120) + "..." : item.answer}
                 </div>
               </div>
@@ -214,55 +214,55 @@ export default function AdminFaq() {
             onClick={e => { if (e.target === e.currentTarget) resetForm(); }}
           >
             <div style={{ width: "100%", background: "#fff", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", maxHeight: "90vh", overflowY: "auto" }}>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 20 }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", marginBottom: 20 }}>
                 {editItem ? "Editar pregunta" : "Nueva pregunta"}
               </div>
               <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", display: "block", marginBottom: 6 }}>Pregunta *</label>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Pregunta *</label>
                   <textarea
                     value={form.question}
                     onChange={e => setForm(f => ({ ...f, question: e.target.value }))}
                     rows={2}
                     placeholder="¿Cómo puedo...?"
                     required
-                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#1e293b", outline: "none", resize: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
                   />
                 </div>
                 <div>
-                  <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", display: "block", marginBottom: 6 }}>Respuesta *</label>
+                  <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Respuesta *</label>
                   <textarea
                     value={form.answer}
                     onChange={e => setForm(f => ({ ...f, answer: e.target.value }))}
                     rows={4}
                     placeholder="Explica detalladamente la respuesta..."
                     required
-                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#1e293b", outline: "none", resize: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", resize: "none", boxSizing: "border-box" }}
                   />
                 </div>
                 <div style={{ display: "flex", gap: 10 }}>
                   <div style={{ flex: 1 }}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", display: "block", marginBottom: 6 }}>Categoría</label>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Categoría</label>
                     <select
                       value={form.category}
                       onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
-                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#1e293b", outline: "none", background: "#fff" }}
+                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", background: "#fff" }}
                     >
                       {CATEGORIES.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                     </select>
                   </div>
                   <div style={{ width: 80 }}>
-                    <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", display: "block", marginBottom: 6 }}>Orden</label>
+                    <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", display: "block", marginBottom: 6 }}>Orden</label>
                     <input
                       type="number"
                       value={form.sortOrder}
                       onChange={e => setForm(f => ({ ...f, sortOrder: parseInt(e.target.value) || 0 }))}
-                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, color: "#1e293b", outline: "none", boxSizing: "border-box" }}
+                      style={{ width: "100%", padding: "11px 13px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, color: "var(--text-primary)", outline: "none", boxSizing: "border-box" }}
                     />
                   </div>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "12px 14px", borderRadius: 12, background: "#f8fafc" }}>
-                  <span style={{ fontSize: 14, fontWeight: 600, color: "#475569" }}>Visible para usuarios</span>
+                  <span style={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}>Visible para usuarios</span>
                   <button type="button" onClick={() => setForm(f => ({ ...f, isActive: !f.isActive }))}>
                     <IconToggle active={form.isActive} />
                   </button>
@@ -272,7 +272,7 @@ export default function AdminFaq() {
                     type="button"
                     onClick={resetForm}
                     className="pressable"
-                    style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                    style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                   >
                     Cancelar
                   </button>
@@ -294,13 +294,13 @@ export default function AdminFaq() {
         {deleteId !== null && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: 24 }}>
             <div style={{ background: "#fff", borderRadius: 24, padding: "28px 24px", maxWidth: 320, width: "100%" }}>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 10 }}>Eliminar pregunta</div>
-              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 24 }}>Esta acción no se puede deshacer. ¿Confirmas eliminar esta pregunta?</div>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", marginBottom: 10 }}>Eliminar pregunta</div>
+              <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 24 }}>Esta acción no se puede deshacer. ¿Confirmas eliminar esta pregunta?</div>
               <div style={{ display: "flex", gap: 10 }}>
                 <button
                   onClick={() => setDeleteId(null)}
                   className="pressable"
-                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "1.5px solid #e2e8f0", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                  style={{ flex: 1, padding: "12px", borderRadius: 12, border: "1.5px solid var(--border)", background: "#f8fafc", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   Cancelar
                 </button>

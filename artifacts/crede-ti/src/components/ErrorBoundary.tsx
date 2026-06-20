@@ -47,14 +47,14 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           <div style={{ fontSize: 17, fontWeight: 900, color: "#215DFF", marginBottom: 8 }}>
             Algo se atoró
           </div>
-          <div style={{ fontSize: 13, color: "#475569", lineHeight: 1.55, marginBottom: 16 }}>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.55, marginBottom: 16 }}>
             La app tuvo un error al cargar. Casi siempre se arregla recargando.
           </div>
           {this.state.error.message && (
             <pre style={{
-              background: "#f8fafc", border: "1px solid #e2e8f0",
+              background: "#f8fafc", border: "1px solid var(--border)",
               borderRadius: 10, padding: "10px 12px",
-              fontSize: 11, color: "#475569",
+              fontSize: 11, color: "var(--text-secondary)",
               maxHeight: 140, overflow: "auto", marginBottom: 16,
               whiteSpace: "pre-wrap", wordBreak: "break-word",
             }}>{this.state.error.message}</pre>

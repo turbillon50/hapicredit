@@ -59,7 +59,7 @@ export default function ExecutiveDashboard() {
             <div
               style={{
                 borderRadius: 22, padding: "20px",
-                background: "linear-gradient(140deg,#06143B 0%,#215DFF 50%,#19D7D7 100%)",
+                background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
                 position: "relative", overflow: "hidden",
               }}
             >

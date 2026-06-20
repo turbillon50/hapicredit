@@ -56,7 +56,7 @@ export default function ExecutiveClients() {
 
         <div className="px-4 flex flex-col gap-2.5">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="#9ca3af" /></span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="var(--text-muted)" /></span>
             <input
               type="search"
               placeholder="Buscar por nombre o teléfono..."
@@ -112,7 +112,7 @@ export default function ExecutiveClients() {
                           )}
                         </div>
                       </div>
-                      <IconFlecha size={20} color="#9ca3af" />
+                      <IconFlecha size={20} color="var(--text-muted)" />
                     </div>
                   </div>
                 );

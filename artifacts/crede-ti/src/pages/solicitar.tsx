@@ -308,9 +308,9 @@ export default function Solicitar() {
             <div key={s} className="flex-1 flex flex-col items-center gap-1">
               <div
                 className="w-full h-1.5 rounded-full transition-all"
-                style={{ background: i <= step ? "var(--accent)" : "#e5e7eb" }}
+                style={{ background: i <= step ? "var(--accent)" : "var(--border)" }}
               />
-              <span className="text-[9px] font-semibold" style={{ color: i <= step ? "var(--accent)" : "#9ca3af" }}>
+              <span className="text-[9px] font-semibold" style={{ color: i <= step ? "var(--accent)" : "var(--text-muted)" }}>
                 {s}
               </span>
             </div>
@@ -374,7 +374,7 @@ export default function Solicitar() {
                     key={s.key}
                     onClick={() => setSource(s.key)}
                     className="px-3 py-2 rounded-xl text-xs font-medium border-2 pressable"
-                    style={source === s.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb" }}
+                    style={source === s.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "var(--border)" }}
                   >
                     {s.label}
                   </button>
@@ -401,7 +401,7 @@ export default function Solicitar() {
                 <button
                   onClick={() => setIsNewClient(true)}
                   className="py-3 rounded-xl text-sm font-bold border-2 pressable text-center"
-                  style={isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                  style={isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "var(--border)", color: "var(--text-muted)" }}
                 >
                   Cliente nuevo
                   <div className="text-[10px] font-normal opacity-75 mt-0.5">$500 – $1,000 · 4 sem · 30%</div>
@@ -409,7 +409,7 @@ export default function Solicitar() {
                 <button
                   onClick={() => setIsNewClient(false)}
                   className="py-3 rounded-xl text-sm font-bold border-2 pressable text-center"
-                  style={!isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                  style={!isNewClient ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "var(--border)", color: "var(--text-muted)" }}
                 >
                   Cliente recurrente
                   <div className="text-[10px] font-normal opacity-75 mt-0.5">$1k – $30k · 4–48 sem · 5% mensual</div>
@@ -495,7 +495,7 @@ export default function Solicitar() {
                     key={f.key}
                     onClick={() => setPaymentFrequency(f.key as "weekly" | "biweekly")}
                     className="py-3 rounded-xl text-sm font-medium border-2 pressable"
-                    style={paymentFrequency === f.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb" }}
+                    style={paymentFrequency === f.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "var(--border)" }}
                   >
                     {f.label}
                   </button>
@@ -509,7 +509,7 @@ export default function Solicitar() {
                     key={d.key}
                     onClick={() => setPayDay(d.key)}
                     className="py-2 rounded-lg text-xs font-medium border-2 pressable"
-                    style={payDay === d.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "#e5e7eb", color: "#6b7280" }}
+                    style={payDay === d.key ? { background: "var(--accent)", borderColor: "var(--accent)", color: "#fff" } : { borderColor: "var(--border)", color: "var(--text-muted)" }}
                   >
                     {d.label}
                   </button>
@@ -595,7 +595,7 @@ export default function Solicitar() {
                         {uploaded.mimeType.startsWith("image/") ? (
                           <img src={uploaded.preview} alt={d.label} className="w-full h-full object-cover" />
                         ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center"><IconDocumento size={16} color="#9ca3af" /></div>
+                          <div className="w-full h-full bg-gray-100 flex items-center justify-center"><IconDocumento size={16} color="var(--text-muted)" /></div>
                         )}
                       </div>
                     ) : (
@@ -763,7 +763,7 @@ function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext?: ()
         <button
           onClick={onBack}
           className="flex-1 py-3.5 rounded-2xl text-sm font-bold pressable"
-          style={{ background: "#f3f4f6", color: "#374151" }}
+          style={{ background: "#f3f4f6", color: "var(--text-primary)" }}
         >
           Atrás
         </button>
@@ -773,7 +773,7 @@ function NavButtons({ canNext, onNext, onBack }: { canNext: boolean; onNext?: ()
           onClick={onNext}
           disabled={!canNext}
           className="flex-1 py-3.5 rounded-2xl text-white font-bold text-sm pressable disabled:opacity-60"
-          style={{ background: canNext ? "var(--accent)" : "#e5e7eb", color: canNext ? "#fff" : "#9ca3af" }}
+          style={{ background: canNext ? "var(--accent)" : "var(--border)", color: canNext ? "#fff" : "var(--text-muted)" }}
         >
           Continuar
         </button>

@@ -77,7 +77,7 @@ export default function Home() {
             HERO
         ═══════════════════════════════════════════ */}
         <section style={{
-          background: "linear-gradient(160deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
+          background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
           padding: "44px 24px 60px",
           position: "relative",
           overflow: "hidden",
@@ -222,7 +222,7 @@ export default function Home() {
                 }}
               >
                 <span style={{ fontSize:13,fontWeight:800,color:d.color,letterSpacing:"-0.01em" }}>{d.label}</span>
-                <span style={{ fontSize:10,color:"#94a3b8",fontWeight:500 }}>{d.sub}</span>
+                <span style={{ fontSize:10,color:"var(--text-muted)",fontWeight:500 }}>{d.sub}</span>
               </button>
             ))}
           </div>
@@ -235,7 +235,7 @@ export default function Home() {
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:36 }}>
             <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>¿Cómo funciona?</div>
-            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"var(--text-primary)",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Tres pasos,<br />y listo.
             </h2>
           </div>
@@ -255,7 +255,7 @@ export default function Home() {
                   <span style={{ fontSize:13,fontWeight:800,color:s.active?"#fff":"var(--text-secondary)",letterSpacing:"-0.02em" }}>{s.n}</span>
                 </div>
                 <div style={{ paddingTop:2 }}>
-                  <div style={{ fontSize:16,fontWeight:700,color:"#111",marginBottom:5,letterSpacing:"-0.025em" }}>{s.title}</div>
+                  <div style={{ fontSize:16,fontWeight:700,color:"var(--text-primary)",marginBottom:5,letterSpacing:"-0.025em" }}>{s.title}</div>
                   <div style={{ fontSize:14,color:"var(--text-secondary)",lineHeight:1.65 }}>{s.body}</div>
                 </div>
               </div>
@@ -269,7 +269,7 @@ export default function Home() {
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
             <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>¿Por qué nosotros?</div>
-            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"var(--text-primary)",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Financiamiento<br />hecho para ti.
             </h2>
           </div>
@@ -309,7 +309,7 @@ export default function Home() {
                 }}>
                   {f.icon}
                 </div>
-                <div style={{ fontSize:14,fontWeight:700,color:"#111",marginBottom:4,letterSpacing:"-0.02em" }}>{f.title}</div>
+                <div style={{ fontSize:14,fontWeight:700,color:"var(--text-primary)",marginBottom:4,letterSpacing:"-0.02em" }}>{f.title}</div>
                 <div style={{ fontSize:12,color:"var(--text-secondary)",lineHeight:1.6 }}>{f.body}</div>
               </div>
             ))}
@@ -322,7 +322,7 @@ export default function Home() {
         <section style={{ background:"#fff",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
             <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Condiciones</div>
-            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"var(--text-primary)",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Claro y<br />sin sorpresas.
             </h2>
           </div>
@@ -344,7 +344,7 @@ export default function Home() {
                 border:"1px solid var(--border)",
               }}>
                 <span style={{ fontSize:14,color:"var(--text-secondary)",fontWeight:500 }}>{c.label}</span>
-                <span style={{ fontSize:14,fontWeight:700,color:"#111",letterSpacing:"-0.01em" }}>{c.value}</span>
+                <span style={{ fontSize:14,fontWeight:700,color:"var(--text-primary)",letterSpacing:"-0.01em" }}>{c.value}</span>
               </div>
             ))}
           </div>
@@ -356,7 +356,7 @@ export default function Home() {
         <section style={{ background:"var(--bg-warm)",padding:"60px 24px" }}>
           <div style={{ marginBottom:32 }}>
             <div style={{ fontSize:11,fontWeight:700,color:"#19D7D7",letterSpacing:"0.12em",textTransform:"uppercase",marginBottom:8 }}>Preguntas frecuentes</div>
-            <h2 style={{ fontSize:30,fontWeight:900,color:"#111",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
+            <h2 style={{ fontSize:30,fontWeight:900,color:"var(--text-primary)",letterSpacing:"-0.04em",margin:0,lineHeight:1.12 }}>
               Resolvemos<br />tus dudas.
             </h2>
           </div>
@@ -377,7 +377,7 @@ export default function Home() {
                     fontFamily:"inherit",textAlign:"left",
                   }}
                 >
-                  <span style={{ fontSize:15,fontWeight:700,color:"#111",letterSpacing:"-0.02em",paddingRight:12 }}>{f.q}</span>
+                  <span style={{ fontSize:15,fontWeight:700,color:"var(--text-primary)",letterSpacing:"-0.02em",paddingRight:12 }}>{f.q}</span>
                   <span style={{
                     width:28,height:28,borderRadius:8,flexShrink:0,
                     background: openFaq===i?"#215DFF":"var(--bg-warm)",

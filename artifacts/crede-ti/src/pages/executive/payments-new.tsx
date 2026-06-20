@@ -166,7 +166,7 @@ export default function ExecutivePaymentsNew() {
                 type="submit"
                 disabled={createPayment.isPending}
                 className="w-full h-12 rounded-xl font-semibold text-[15px] text-white transition-all active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
-                style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}
+                style={{ background: "linear-gradient(135deg, #1A4FE0, #215DFF)" }}
               >
                 <IconMoneda size={20} color="#fff" />
                 {createPayment.isPending ? "Procesando..." : "Confirmar pago"}

@@ -668,3 +668,87 @@ html { scroll-behavior: smooth; }
     color: var(--text-primary);
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   NORMALIZACIÓN BANCARIA — coherencia institucional
+   Unifica las tendencias dispersas hacia una estética bancaria seria.
+   Solo presentación. Cero cambios de lógica.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Radios bancarios — más conservadores y consistentes */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 16px;
+
+  /* Gradiente institucional ÚNICO — sin turquesa estridente en superficies serias */
+  --grad-institutional: linear-gradient(135deg, #0A2E8A 0%, #215DFF 100%);
+  --grad-brand: linear-gradient(135deg, #1A4FE0 0%, #215DFF 100%);
+}
+
+/* ─── Tipografía bancaria: pesos contenidos, nada de 900 ─── */
+/* El 900 se ve "startup". Banca usa 700 máximo en titulares. */
+[style*="font-weight: 900"],
+[style*="fontWeight: 900"],
+[style*="fontWeight:900"] {
+  font-weight: 800 !important;
+}
+
+/* Display headings: peso 700, kerning cerrado, serio */
+h1, h2 { font-weight: 700; letter-spacing: -0.025em; }
+
+/* ─── Cards bancarias: borde definido, sombra mínima, sin "flotar" excesivo ─── */
+.card {
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(15,23,42,0.04), 0 1px 3px rgba(15,23,42,0.03);
+}
+.card:hover { box-shadow: 0 2px 6px rgba(15,23,42,0.06), 0 4px 12px rgba(15,23,42,0.05); }
+.card.pressable:hover { transform: translateY(-1px); }
+
+/* ─── Inputs bancarios: definidos, sobrios ─── */
+.input-field, .input-base {
+  border-radius: var(--r-md);
+  border-width: 1px;
+}
+
+/* ─── Botones: radio bancario, sin gradientes estridentes por defecto ─── */
+.btn-brand {
+  background: var(--grad-brand);
+  border-radius: var(--r-md);
+}
+
+/* ─── Badges/pills: el único lugar con radio 100 (cápsula) ─── */
+.badge { border-radius: 100px; font-weight: 600; }
+
+/* ─── Tabular numbers en TODOS los montos (alineación bancaria) ─── */
+.tnum, [class*="text-"], .card div { font-variant-numeric: tabular-nums; }
+
+/* ─── Scrollbar institucional sobria ─── */
+@media (pointer: fine) {
+  ::-webkit-scrollbar-thumb {
+    background: color-mix(in srgb, var(--text-muted) 28%, transparent);
+  }
+}
+
+/* ─── Sidebar de escritorio: tono institucional profundo, no azul brillante ─── */
+.desktop-sidebar {
+  background: #0A1A3F;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+.dsb-item.active { background: rgba(33,93,255,0.18); }
+.dsb-item.active .dsb-icon { color: #fff; }
+
+/* ─── Header móvil staff: gradiente institucional unificado ─── */
+.mobile-header[style*="brand-blue-deep"] {
+  background: var(--grad-institutional) !important;
+}
+
+/* ─── Animaciones más sobrias (banca no "rebota") ─── */
+.pressable:active { transform: scale(0.98); }
+.card.pressable:active { transform: scale(0.99); }
+
+/* Quitar el spring "juguetón" de los botones — banca es firme */
+.btn-brand { transition: filter 0.2s ease, box-shadow 0.2s ease; }
+.btn-brand:active { transform: scale(0.98); }

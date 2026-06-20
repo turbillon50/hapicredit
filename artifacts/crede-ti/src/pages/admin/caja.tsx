@@ -37,7 +37,7 @@ export default function AdminCaja() {
       <div className="space-y-4">
 
         {executives && (
-          <div className="rounded-2xl p-5 shadow-card-md" style={{ background: "linear-gradient(135deg, #3A00C8, #215DFF)" }}>
+          <div className="rounded-2xl p-5 shadow-card-md" style={{ background: "linear-gradient(135deg, #1A4FE0, #215DFF)" }}>
             <p className="text-[10px] font-semibold uppercase tracking-widest mb-2" style={{ color: "rgba(255,255,255,0.5)" }}>Total en caja</p>
             <p className="text-[32px] font-bold text-white">{fmt(totalCash)}</p>
             <div className="mt-3 flex gap-5">

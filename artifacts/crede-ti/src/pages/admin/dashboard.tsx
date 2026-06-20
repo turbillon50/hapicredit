@@ -144,7 +144,7 @@ export default function AdminDashboard() {
               className="anim-section anim-d1"
               style={{
                 borderRadius: 22, padding: "20px",
-                background: "linear-gradient(140deg,#06143B 0%,#215DFF 50%,#19D7D7 100%)",
+                background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
                 position: "relative", overflow: "hidden",
               }}
             >
@@ -427,12 +427,12 @@ export default function AdminDashboard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
                     <XAxis
                       dataKey="period"
-                      tick={{ fontSize: 9, fill: "#9ca3af", fontWeight: 600 }}
+                      tick={{ fontSize: 9, fill: "var(--text-muted)", fontWeight: 600 }}
                       axisLine={false}
                       tickLine={false}
                     />
                     <YAxis
-                      tick={{ fontSize: 9, fill: "#9ca3af" }}
+                      tick={{ fontSize: 9, fill: "var(--text-muted)" }}
                       axisLine={false}
                       tickLine={false}
                       tickFormatter={(v: number) => v >= 1000 ? `$${(v / 1000).toFixed(0)}k` : `$${v}`}
@@ -455,7 +455,7 @@ export default function AdminDashboard() {
                   ].map(l => (
                     <div key={l.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <div style={{ width: 20, height: 2, background: l.color, borderRadius: 1, borderTop: l.dashed ? "2px dashed currentColor" : undefined }} />
-                      <span style={{ fontSize: 10, color: "#6b7280", fontWeight: 600 }}>{l.label}</span>
+                      <span style={{ fontSize: 10, color: "var(--text-muted)", fontWeight: 600 }}>{l.label}</span>
                     </div>
                   ))}
                 </div>
@@ -490,7 +490,7 @@ export default function AdminDashboard() {
                       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 5 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
                           <div style={{ width: 8, height: 8, borderRadius: 2, background: c.bar, flexShrink: 0 }} />
-                          <span style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>{row.bucket}</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)" }}>{row.bucket}</span>
                         </div>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, background: c.bg, color: c.text }}>
@@ -510,7 +510,7 @@ export default function AdminDashboard() {
                           }}
                         />
                       </div>
-                      <div style={{ textAlign: "right", fontSize: 10, color: "#9ca3af", marginTop: 3 }}>
+                      <div style={{ textAlign: "right", fontSize: 10, color: "var(--text-muted)", marginTop: 3 }}>
                         {new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(row.totalAmount)}
                       </div>
                     </div>
@@ -563,7 +563,7 @@ export default function AdminDashboard() {
         <div style={{ padding: "8px 16px 0" }} className="anim-section anim-d6">
           <div style={{
             borderRadius: 20,
-            background: "linear-gradient(135deg, #3A00C8, #215DFF)",
+            background: "linear-gradient(135deg, #1A4FE0, #215DFF)",
             padding: "20px",
             position: "relative",
             overflow: "hidden",

@@ -115,7 +115,7 @@ function TableCobranza({ data }: { data: any[] }) {
               <td style={{ padding: "10px" }}>
                 <span style={{ padding: "3px 8px", borderRadius: 100, fontSize: 11, fontWeight: 700,
                   background: r.payment_status === "on_time" ? "var(--surface-3)" : r.payment_status === "late" ? "var(--surface-3)" : "#f3f4f6",
-                  color: r.payment_status === "on_time" ? "#166534" : r.payment_status === "late" ? "var(--text-secondary)" : "#374151" }}>
+                  color: r.payment_status === "on_time" ? "#166534" : r.payment_status === "late" ? "var(--text-secondary)" : "var(--text-primary)" }}>
                   {r.payment_status === "on_time" ? "Puntual" : r.payment_status === "late" ? "Con mora" : r.payment_status}
                 </span>
               </td>

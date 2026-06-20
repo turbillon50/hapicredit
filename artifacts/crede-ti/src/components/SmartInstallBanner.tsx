@@ -118,17 +118,17 @@ export default function SmartInstallBanner() {
           padding: "24px 20px 48px",
         }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-            <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b" }}>Instala la app en tu iPhone</div>
+            <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)" }}>Instala la app en tu iPhone</div>
             <button
               onClick={dismiss}
-              style={{ width: 32, height: 32, borderRadius: 8, background: "#f1f5f9", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "#64748b" }}
+              style={{ width: 32, height: 32, borderRadius: 8, background: "var(--surface-2)", border: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)" }}
             >
               <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                 <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
               </svg>
             </button>
           </div>
-          <div style={{ fontSize: 13, color: "#64748b", marginBottom: 18, lineHeight: 1.5 }}>
+          <div style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 18, lineHeight: 1.5 }}>
             Agrega credeti a tu pantalla de inicio para usarla como app nativa, sin abrir el navegador.
           </div>
           {[
@@ -136,13 +136,13 @@ export default function SmartInstallBanner() {
             { num: 2, color: "#16a34a", bg: "var(--surface-3)", title: '"Agregar a pantalla de inicio"', sub: 'Desliza hacia abajo en el menú y selecciona esta opción' },
             { num: 3, color: "#ea580c", bg: "#fff7ed", title: 'Toca "Agregar"', sub: "Confirma y el ícono aparecerá en tu pantalla de inicio" },
           ].map(step => (
-            <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: 16, background: "#f8fafc", border: "1.5px solid #e2e8f0", marginBottom: 10 }}>
+            <div key={step.num} style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 14px", borderRadius: 16, background: "#f8fafc", border: "1.5px solid var(--border)", marginBottom: 10 }}>
               <div style={{ width: 38, height: 38, borderRadius: 10, background: step.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <span style={{ fontWeight: 900, fontSize: 16, color: step.color }}>{step.num}</span>
               </div>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 13, color: "#1e293b" }}>{step.title}</div>
-                <div style={{ fontSize: 12, color: "#94a3b8", marginTop: 2 }}>{step.sub}</div>
+                <div style={{ fontWeight: 700, fontSize: 13, color: "var(--text-primary)" }}>{step.title}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{step.sub}</div>
               </div>
             </div>
           ))}

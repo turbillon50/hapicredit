@@ -146,7 +146,7 @@ export default function ExecutiveCobrar() {
             ) : (
               <div>
                 <div className="relative mb-2">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="#9ca3af" /></span>
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2"><IconBuscar size={18} color="var(--text-muted)" /></span>
                   <input
                     type="text"
                     placeholder="Buscar cliente por nombre..."

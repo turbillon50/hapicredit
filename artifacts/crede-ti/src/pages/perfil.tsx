@@ -217,7 +217,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
         <div className="flex flex-col gap-2">
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Disponibles</div>
           {activeCodes.map((c: any) => (
-            <div key={c.id} className="rounded-2xl p-3" style={{ background: "var(--surface-inset)", border: "1.5px solid #e2e8f0" }}>
+            <div key={c.id} className="rounded-2xl p-3" style={{ background: "var(--surface-inset)", border: "1.5px solid var(--border)" }}>
               <div className="flex items-center justify-between mb-2">
                 <div>
                   <span className="font-mono text-base font-bold text-gray-900">{c.code}</span>
@@ -248,7 +248,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
                 <button
                   onClick={() => copyLink(c.code)}
                   className="w-9 h-9 rounded-xl flex items-center justify-center pressable"
-                  style={{ background: copied === c.code ? "var(--surface-3)" : "#f1f5f9", color: copied === c.code ? "#16a34a" : "#64748b" }}
+                  style={{ background: copied === c.code ? "var(--surface-3)" : "var(--surface-2)", color: copied === c.code ? "#16a34a" : "var(--text-secondary)" }}
                 >
                   <IconCopiar size={15} />
                 </button>
@@ -266,7 +266,7 @@ function InviteCodes({ userRole }: { userRole: string }) {
         <div className="flex flex-col gap-2">
           <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Ya utilizados</div>
           {usedCodes.slice(0, 5).map((c: any) => (
-            <div key={c.id} className="flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: "var(--surface-inset)", border: "1px solid #e2e8f0" }}>
+            <div key={c.id} className="flex items-center justify-between rounded-xl px-3 py-2.5" style={{ background: "var(--surface-inset)", border: "1px solid var(--border)" }}>
               <div>
                 <span className="font-mono text-sm text-gray-500 line-through">{c.code}</span>
                 {c.usedByName && <span className="ml-2 text-xs text-gray-400">→ {c.usedByName}</span>}
@@ -403,7 +403,7 @@ function ClientProfileEditor({ client, onSaved }: { client: any; onSaved: () => 
             onChange={e => f.set(e.target.value)}
             placeholder={f.ph}
             className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm bg-white text-gray-800 focus:outline-none"
-            style={{ borderColor: "#e5e7eb" }}
+            style={{ borderColor: "var(--border)" }}
           />
         </div>
       ))}
@@ -411,7 +411,7 @@ function ClientProfileEditor({ client, onSaved }: { client: any; onSaved: () => 
       <div className="flex gap-2 mt-1">
         <button onClick={() => setEditing(false)}
           className="flex-1 py-2.5 rounded-xl text-sm font-bold pressable"
-          style={{ background: "var(--surface-2)", color: "#374151", border: "1.5px solid #e5e7eb" }}>
+          style={{ background: "var(--surface-2)", color: "var(--text-primary)", border: "1.5px solid var(--border)" }}>
           Cancelar
         </button>
         <button onClick={save} disabled={busy}
@@ -550,7 +550,7 @@ export default function Perfil() {
             )}
             {client && (<>
             {/* Document upload */}
-            <div className="card" style={{ border: "2px dashed #e2e8f0", background: "var(--surface-inset)" }}>
+            <div className="card" style={{ border: "2px dashed var(--border)", background: "var(--surface-inset)" }}>
               <div className="flex items-center gap-2 mb-3">
                 <IconSubir size={20} color="#215DFF" />
                 <div className="text-sm font-bold text-gray-800">Cargar documento</div>
@@ -591,7 +591,7 @@ export default function Perfil() {
                 <div className="text-xs text-gray-400 text-center py-6">Cargando...</div>
               ) : (docs as any[]).length === 0 ? (
                 <div className="text-center py-8 text-gray-400">
-                  <span className="mx-auto mb-2"><IconCarpeta size={30} color="#9ca3af" /></span>
+                  <span className="mx-auto mb-2"><IconCarpeta size={30} color="var(--text-muted)" /></span>
                   <div className="text-sm">Sin documentos cargados</div>
                 </div>
               ) : (
@@ -609,7 +609,7 @@ export default function Perfil() {
                           </div>
                         ) : (
                           <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center shrink-0">
-                            <IconDocumento size={24} color="#9ca3af" />
+                            <IconDocumento size={24} color="var(--text-muted)" />
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
@@ -664,11 +664,11 @@ export default function Perfil() {
               style={{
                 width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer",
-                borderTop: "1px solid #f1f5f9",
+                borderTop: "1px solid var(--surface-2)",
               }}
             >
-              <span style={{ fontSize: 14, color: "#374151", fontWeight: 500 }}>{item.label}</span>
-              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <span style={{ fontSize: 14, color: "var(--text-primary)", fontWeight: 500 }}>{item.label}</span>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           ))}
           {userRole === "admin" && (
@@ -678,18 +678,18 @@ export default function Perfil() {
               style={{
                 width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between",
                 padding: "13px 16px", background: "transparent", border: "none", cursor: "pointer",
-                borderTop: "1px solid #f1f5f9",
+                borderTop: "1px solid var(--surface-2)",
               }}
             >
-              <span style={{ fontSize: 14, color: "#374151", fontWeight: 500 }}>Administrar FAQ</span>
-              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+              <span style={{ fontSize: 14, color: "var(--text-primary)", fontWeight: 500 }}>Administrar FAQ</span>
+              <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           )}
         </div>
 
         {/* App info */}
         <div className="card flex items-start gap-3" style={{ background: "var(--surface-inset)" }}>
-          <span className="mt-0.5 shrink-0"><IconInfo size={20} color="#9ca3af" /></span>
+          <span className="mt-0.5 shrink-0"><IconInfo size={20} color="var(--text-muted)" /></span>
           <div>
             <div className="text-sm font-semibold text-gray-700">credeti v1.0</div>
             <div className="text-xs text-gray-400 leading-relaxed mt-1">
@@ -727,7 +727,7 @@ export default function Perfil() {
         <button
           onClick={() => setDeleteStep(1)}
           className="w-full py-3 rounded-2xl text-sm font-semibold pressable"
-          style={{ background: "transparent", color: "#9ca3af", border: "1px solid #f1f5f9" }}
+          style={{ background: "transparent", color: "var(--text-muted)", border: "1px solid var(--surface-2)" }}
         >
           Eliminar mi cuenta
         </button>
@@ -736,10 +736,10 @@ export default function Perfil() {
         {purgeStep === 1 && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end" }}>
             <div style={{ width: "100%", background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "28px 20px 48px" }}>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", marginBottom: 12 }}>
                 Limpiar datos de prueba
               </div>
-              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.6 }}>
                 Esto eliminará permanentemente todos los clientes, créditos, pagos y asesores de prueba. Tu cuenta de administrador se conserva.
               </div>
               <div style={{ borderRadius: 14, background: "var(--warning-bg)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
@@ -752,7 +752,7 @@ export default function Perfil() {
                 </ul>
               </div>
               <div style={{ display: "flex", gap: 10 }}>
-                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                   Cancelar
                 </button>
                 <button onClick={() => setPurgeStep(2)} className="pressable" style={{ flex: 1, padding: "13px", borderRadius: 14, border: "none", background: "#ea580c", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
@@ -770,10 +770,10 @@ export default function Perfil() {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--warning-bg)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ea580c" strokeWidth="2" strokeLinecap="round"><path d="M3 6h18"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", textAlign: "center", marginBottom: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", textAlign: "center", marginBottom: 10 }}>
                 Confirmar limpieza
               </div>
-              <div style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
                 Esta es la última confirmación. Todos los datos de prueba se eliminarán de forma permanente. No se puede deshacer.
               </div>
               {purgeM.isError && (
@@ -790,7 +790,7 @@ export default function Perfil() {
                 >
                   {purgeM.isPending ? "Limpiando..." : "Sí, eliminar todos los datos de prueba"}
                 </button>
-                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}>
+                <button onClick={() => setPurgeStep(0)} className="pressable" style={{ padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
                   Cancelar
                 </button>
               </div>
@@ -802,10 +802,10 @@ export default function Perfil() {
         {deleteStep === 1 && (
           <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 100, display: "flex", alignItems: "flex-end" }}>
             <div style={{ width: "100%", background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "28px 20px 48px" }}>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", marginBottom: 12 }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", marginBottom: 12 }}>
                 Eliminar cuenta
               </div>
-              <div style={{ fontSize: 14, color: "#64748b", marginBottom: 16, lineHeight: 1.6 }}>
+              <div style={{ fontSize: 14, color: "var(--text-secondary)", marginBottom: 16, lineHeight: 1.6 }}>
                 Al eliminar tu cuenta se eliminarán permanentemente tus datos personales. Esta acción no se puede deshacer.
               </div>
               <div style={{ borderRadius: 14, background: "var(--surface-3)", border: "1px solid var(--surface-3)", padding: "12px 14px", marginBottom: 20 }}>
@@ -822,7 +822,7 @@ export default function Perfil() {
                 <button
                   onClick={() => setDeleteStep(0)}
                   className="pressable"
-                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                  style={{ flex: 1, padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   Cancelar
                 </button>
@@ -845,10 +845,10 @@ export default function Perfil() {
               <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
                 <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2" strokeLinecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
               </div>
-              <div style={{ fontWeight: 800, fontSize: 17, color: "#1e293b", textAlign: "center", marginBottom: 10 }}>
+              <div style={{ fontWeight: 800, fontSize: 17, color: "var(--text-primary)", textAlign: "center", marginBottom: 10 }}>
                 Confirma la eliminación
               </div>
-              <div style={{ fontSize: 13, color: "#64748b", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: "var(--text-secondary)", textAlign: "center", marginBottom: 24, lineHeight: 1.5 }}>
                 Esta es la última confirmación. Tu cuenta y datos personales serán eliminados de forma permanente.
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -863,7 +863,7 @@ export default function Perfil() {
                 <button
                   onClick={() => setDeleteStep(0)}
                   className="pressable"
-                  style={{ padding: "13px", borderRadius: 14, border: "1.5px solid #e2e8f0", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "#475569" }}
+                  style={{ padding: "13px", borderRadius: 14, border: "1.5px solid var(--border)", background: "var(--surface-inset)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}
                 >
                   No, conservar mi cuenta
                 </button>
@@ -979,7 +979,7 @@ function AdminModeCard() {
                 placeholder="••••••••"
                 autoFocus
                 className="w-full h-12 px-4 pr-16 rounded-xl border-2 outline-none text-sm font-medium"
-                style={{ borderColor: err ? "#fca5a5" : "#e5e7eb", background: "#f9fafb" }}
+                style={{ borderColor: err ? "#fca5a5" : "var(--border)", background: "#f9fafb" }}
               />
               <button
                 type="button"
@@ -1000,7 +1000,7 @@ function AdminModeCard() {
               <button
                 onClick={() => setOpen(false)}
                 className="flex-1 h-12 rounded-xl text-sm font-bold pressable"
-                style={{ background: "var(--surface-2)", color: "#374151" }}
+                style={{ background: "var(--surface-2)", color: "var(--text-primary)" }}
               >
                 Cancelar
               </button>
@@ -1095,14 +1095,14 @@ function DemoteCard() {
                   onClick={() => setTarget(opt.value)}
                   className="flex items-center gap-3 p-4 rounded-xl text-left pressable"
                   style={{
-                    border: `2px solid ${target === opt.value ? opt.color : "#e5e7eb"}`,
+                    border: `2px solid ${target === opt.value ? opt.color : "var(--border)"}`,
                     background: target === opt.value ? opt.bg : "#f9fafb",
                     transition: "all 0.15s",
                   }}
                 >
                   <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: target === opt.value ? opt.color : "#d1d5db" }} />
                   <div>
-                    <div className="text-sm font-bold" style={{ color: target === opt.value ? opt.color : "#374151" }}>{opt.label}</div>
+                    <div className="text-sm font-bold" style={{ color: target === opt.value ? opt.color : "var(--text-primary)" }}>{opt.label}</div>
                     <div className="text-xs text-gray-500">{opt.desc}</div>
                   </div>
                 </button>
@@ -1119,7 +1119,7 @@ function DemoteCard() {
               <button
                 onClick={() => setOpen(false)}
                 className="flex-1 h-12 rounded-xl text-sm font-bold pressable"
-                style={{ background: "var(--surface-2)", color: "#374151" }}
+                style={{ background: "var(--surface-2)", color: "var(--text-primary)" }}
               >
                 Cancelar
               </button>

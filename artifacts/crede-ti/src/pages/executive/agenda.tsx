@@ -122,16 +122,16 @@ export default function ExecAgenda() {
                     border: isToday && !isSelected ? "1.5px solid var(--accent)" : "1.5px solid transparent",
                   }}
                 >
-                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: isSelected ? "rgba(255,255,255,0.6)" : "#9ca3af" }}>
+                  <span className="text-[10px] font-bold uppercase tracking-wide" style={{ color: isSelected ? "rgba(255,255,255,0.6)" : "var(--text-muted)" }}>
                     {d}
                   </span>
-                  <span className="text-lg font-black my-0.5" style={{ color: isSelected ? "#fff" : "#111" }}>
+                  <span className="text-lg font-black my-0.5" style={{ color: isSelected ? "#fff" : "var(--text-primary)" }}>
                     {info.count}
                   </span>
                   {info.count > 0 && (
                     <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full" style={{
-                      background: isSelected ? "rgba(255,255,255,0.15)" : "#e5e7eb",
-                      color: isSelected ? "#fff" : "#6b7280",
+                      background: isSelected ? "rgba(255,255,255,0.15)" : "var(--border)",
+                      color: isSelected ? "#fff" : "var(--text-muted)",
                     }}>
                       {info.paid}/{info.count}
                     </span>
@@ -191,7 +191,7 @@ export default function ExecAgenda() {
                         ? <IconCheck size={18} color="#22c55e" />
                         : isLastPayment
                           ? <IconMoneda size={18} color="#f59e0b" />
-                          : <IconReloj size={18} color="#9ca3af" />
+                          : <IconReloj size={18} color="var(--text-muted)" />
                       }
                     </div>
                     <div className="flex-1 min-w-0">
@@ -244,7 +244,7 @@ export default function ExecAgenda() {
                         border: isToday && dow !== selectedDay ? "1px solid var(--accent)" : "none",
                       }}
                     >
-                      <div className="text-[10px] font-black" style={{ color: dow === selectedDay ? "#fff" : "#374151" }}>
+                      <div className="text-[10px] font-black" style={{ color: dow === selectedDay ? "#fff" : "var(--text-primary)" }}>
                         {info.count}
                       </div>
                     </div>

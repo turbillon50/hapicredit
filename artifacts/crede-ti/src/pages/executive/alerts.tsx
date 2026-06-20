@@ -31,7 +31,7 @@ export default function ExecutiveAlerts() {
           ))
         ) : alerts?.length === 0 ? (
           <div className="bg-white rounded-2xl shadow-card p-10 text-center">
-            <div className="flex justify-center mb-3 opacity-30"><IconAlerta size={40} color="#9ca3af" /></div>
+            <div className="flex justify-center mb-3 opacity-30"><IconAlerta size={40} color="var(--text-muted)" /></div>
             <p className="text-[13px] text-muted-foreground">Sin alertas activas</p>
           </div>
         ) : (

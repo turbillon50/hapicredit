@@ -217,7 +217,7 @@ export default function AdminCartera() {
               style={viewMode === "day" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
               title="Agrupar por día"
             >
-              <IconCalendario size={16} color={viewMode === "day" ? "#2563eb" : "#9ca3af"} />
+              <IconCalendario size={16} color={viewMode === "day" ? "#2563eb" : "var(--text-muted)"} />
             </button>
             <button
               onClick={() => setViewMode("list")}
@@ -225,14 +225,14 @@ export default function AdminCartera() {
               style={viewMode === "list" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
               title="Lista"
             >
-              <IconCartera size={16} color={viewMode === "list" ? "#2563eb" : "#9ca3af"} />
+              <IconCartera size={16} color={viewMode === "list" ? "#2563eb" : "var(--text-muted)"} />
             </button>
           </div>
         </div>
 
         <div className="px-4 flex flex-col gap-2.5">
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#9ca3af" strokeWidth="2"/><path d="M16 16l5 5" stroke="#9ca3af" strokeWidth="2" strokeLinecap="round"/></svg></span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="var(--text-muted)" strokeWidth="2"/><path d="M16 16l5 5" stroke="var(--text-muted)" strokeWidth="2" strokeLinecap="round"/></svg></span>
             <input
               type="search"
               placeholder="Buscar cliente..."

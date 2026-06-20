@@ -216,19 +216,19 @@ export default function AdminExpediente() {
           <div className="flex flex-col gap-2">
             {client.phone && (
               <div className="flex items-center gap-2 text-sm">
-                <IconTelefono size={14} color="#9ca3af" />
+                <IconTelefono size={14} color="var(--text-muted)" />
                 <a href={`tel:${client.phone}`} className="text-blue-600 font-medium">{client.phone}</a>
               </div>
             )}
             {client.address && (
               <div className="flex items-start gap-2 text-sm">
-                <IconUbicacion size={14} color="#9ca3af" className="mt-0.5 shrink-0" />
+                <IconUbicacion size={14} color="var(--text-muted)" className="mt-0.5 shrink-0" />
                 <span className="text-gray-600">{client.address}</span>
               </div>
             )}
             {client.curp && (
               <div className="flex items-center gap-2 text-sm">
-                <IconPersona size={14} color="#9ca3af" />
+                <IconPersona size={14} color="var(--text-muted)" />
                 <span className="text-gray-600 font-mono text-xs">{client.curp}</span>
               </div>
             )}
@@ -347,7 +347,7 @@ export default function AdminExpediente() {
                       />
                     ) : (
                       <div className="w-full h-24 bg-gray-100 flex items-center justify-center">
-                        <IconDocumento size={28} color="#9ca3af" />
+                        <IconDocumento size={28} color="var(--text-muted)" />
                       </div>
                     )}
                     <div className="px-2 py-1.5">
@@ -518,7 +518,7 @@ export default function AdminExpediente() {
                   <div className="text-xs text-gray-500">Actual: {client.executiveName}</div>
                 )}
               </div>
-              <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
             </button>
 
             {activeCredit && (
@@ -535,7 +535,7 @@ export default function AdminExpediente() {
                     <div className="text-xs text-gray-500">Actual: {fmtDate(activeCredit.disbursementDate)}</div>
                   )}
                 </div>
-                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
               </button>
             )}
 
@@ -561,7 +561,7 @@ export default function AdminExpediente() {
                   <div className="text-sm font-semibold text-gray-900">Editar condiciones</div>
                   <div className="text-xs text-gray-500">Monto, plazo, pago y observaciones</div>
                 </div>
-                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                <svg className="ml-auto shrink-0" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
               </button>
             )}
           </div>
@@ -601,9 +601,9 @@ export default function AdminExpediente() {
       {showReasignar && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460, maxHeight: "80vh", overflowY: "auto" }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Reasignar asesor</h3>
-            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>Selecciona el nuevo asesor para {client?.fullName}</p>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 4px" }}>Reasignar asesor</h3>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 16px" }}>Selecciona el nuevo asesor para {client?.fullName}</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
               {(executives ?? []).filter((e: any) => e.role === "executive" && e.isActive).map((exec: any) => (
                 <button
@@ -612,7 +612,7 @@ export default function AdminExpediente() {
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 14px", borderRadius: 12,
-                    border: `1.5px solid ${newExecId === exec.id ? "#1d4ed8" : "#e2e8f0"}`,
+                    border: `1.5px solid ${newExecId === exec.id ? "#1d4ed8" : "var(--border)"}`,
                     background: newExecId === exec.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
@@ -621,8 +621,8 @@ export default function AdminExpediente() {
                     {exec.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: "#111" }}>{exec.fullName}</div>
-                    {exec.username && <div style={{ fontSize: 11, color: "#64748b" }}>{exec.username}</div>}
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{exec.fullName}</div>
+                    {exec.username && <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{exec.username}</div>}
                   </div>
                   {newExecId === exec.id && (
                     <div style={{ marginLeft: "auto" }}>
@@ -632,7 +632,7 @@ export default function AdminExpediente() {
                 </button>
               ))}
               {(!executives || executives.length === 0) && (
-                <p style={{ fontSize: 13, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>Cargando asesores...</p>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "16px 0" }}>Cargando asesores...</p>
               )}
             </div>
             <button
@@ -644,7 +644,7 @@ export default function AdminExpediente() {
             </button>
             <button
               onClick={() => { setShowReasignar(false); setNewExecId(null); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -656,19 +656,19 @@ export default function AdminExpediente() {
       {showCambiarFecha && activeCredit && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Cambiar fecha de pago</h3>
-            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 4px" }}>Cambiar fecha de pago</h3>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 16px" }}>
               Modifica la fecha de inicio del ciclo de {client?.fullName}.<br />
               <span style={{ color: "#dc2626", fontSize: 12 }}>Esto recalculara las fechas de todos los pagos del crédito activo.</span>
             </p>
             <div style={{ marginBottom: 18 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Nueva fecha de inicio</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", display: "block", marginBottom: 6 }}>Nueva fecha de inicio</label>
               <input
                 type="date"
                 value={newDate}
                 onChange={e => setNewDate(e.target.value)}
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
               />
             </div>
             <button
@@ -680,7 +680,7 @@ export default function AdminExpediente() {
             </button>
             <button
               onClick={() => { setShowCambiarFecha(false); setNewDate(""); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>
@@ -691,9 +691,9 @@ export default function AdminExpediente() {
       {showEditCond && activeCredit && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460, maxHeight: "90vh", overflowY: "auto" }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Editar condiciones</h3>
-            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>Ajusta los terminos del credito de {client?.fullName}. Cada cambio queda registrado en la bitacora.</p>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 4px" }}>Editar condiciones</h3>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 16px" }}>Ajusta los terminos del credito de {client?.fullName}. Cada cambio queda registrado en la bitacora.</p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
               {([
                 ["amount", "Monto ($)"],
@@ -703,13 +703,13 @@ export default function AdminExpediente() {
                 ["remainingBalance", "Saldo pendiente ($)"],
               ] as const).map(([key, label]) => (
                 <div key={key}>
-                  <label style={{ fontSize: 11, fontWeight: 600, color: "#374151", display: "block", marginBottom: 5 }}>{label}</label>
+                  <label style={{ fontSize: 11, fontWeight: 600, color: "var(--text-primary)", display: "block", marginBottom: 5 }}>{label}</label>
                   <input
                     type="number"
                     inputMode="decimal"
                     value={cond[key]}
                     onChange={e => setCond(cc => ({ ...cc, [key]: e.target.value }))}
-                    style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
+                    style={{ width: "100%", padding: "10px 12px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box" }}
                   />
                 </div>
               ))}
@@ -721,18 +721,18 @@ export default function AdminExpediente() {
                 const total = (wk * tw).toFixed(2);
                 setCond(cc => ({ ...cc, totalToRepay: total, remainingBalance: (activeCredit.currentPaymentNumber ?? 0) === 0 ? total : cc.remainingBalance }));
               }}
-              style={{ width: "100%", padding: "9px", background: "#f1f5f9", color: "#475569", border: "none", borderRadius: 12, fontWeight: 600, fontSize: 12, cursor: "pointer", marginBottom: 14, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: "9px", background: "var(--surface-2)", color: "var(--text-secondary)", border: "none", borderRadius: 12, fontWeight: 600, fontSize: 12, cursor: "pointer", marginBottom: 14, fontFamily: "inherit" }}
             >
               Recalcular total = pago semanal x plazo
             </button>
             <div style={{ marginBottom: 18 }}>
-              <label style={{ fontSize: 12, fontWeight: 600, color: "#374151", display: "block", marginBottom: 6 }}>Observaciones</label>
+              <label style={{ fontSize: 12, fontWeight: 600, color: "var(--text-primary)", display: "block", marginBottom: 6 }}>Observaciones</label>
               <textarea
                 value={cond.notes}
                 onChange={e => setCond(cc => ({ ...cc, notes: e.target.value }))}
                 rows={3}
                 placeholder="Notas internas del credito (motivo de ajuste, acuerdos, etc.)"
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1.5px solid var(--border)", fontSize: 14, fontFamily: "inherit", outline: "none", boxSizing: "border-box", resize: "none" }}
               />
             </div>
             {editCondMut.isError && (
@@ -747,7 +747,7 @@ export default function AdminExpediente() {
             </button>
             <button
               onClick={() => setShowEditCond(false)}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>

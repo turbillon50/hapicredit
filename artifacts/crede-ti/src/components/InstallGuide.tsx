@@ -46,7 +46,7 @@ export function InstallGuide() {
               </div>
             </div>
             <button onClick={() => setOpen(false)} className="w-8 h-8 flex items-center justify-center rounded-full bg-secondary">
-              <IconCerrar size={16} color="#6b7280" />
+              <IconCerrar size={16} color="var(--text-muted)" />
             </button>
           </div>
 

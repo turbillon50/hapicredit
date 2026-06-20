@@ -47,7 +47,7 @@ function FaqItem({ item }: { item: any }) {
       style={{
         borderRadius: 16,
         background: open ? "var(--surface)" : "var(--surface-2)",
-        border: `1.5px solid ${open ? "#215DFF" : "#e2e8f0"}`,
+        border: `1.5px solid ${open ? "#215DFF" : "var(--border)"}`,
         overflow: "hidden",
         transition: "border-color 0.18s, background 0.18s",
       }}
@@ -68,10 +68,10 @@ function FaqItem({ item }: { item: any }) {
           textAlign: "left",
         }}
       >
-        <span style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", lineHeight: 1.4, flex: 1 }}>
+        <span style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)", lineHeight: 1.4, flex: 1 }}>
           {item.question}
         </span>
-        <span style={{ color: open ? "#215DFF" : "#94a3b8", flexShrink: 0 }}>
+        <span style={{ color: open ? "#215DFF" : "var(--text-muted)", flexShrink: 0 }}>
           <IconChevron open={open} />
         </span>
       </button>
@@ -79,9 +79,9 @@ function FaqItem({ item }: { item: any }) {
         <div style={{
           padding: "0 16px 16px",
           fontSize: 14,
-          color: "#475569",
+          color: "var(--text-secondary)",
           lineHeight: 1.65,
-          borderTop: "1px solid #f1f5f9",
+          borderTop: "1px solid var(--surface-2)",
           paddingTop: 12,
         }}>
           {item.answer}
@@ -130,17 +130,17 @@ export default function Faq() {
             onClick={() => window.history.back()}
             style={{
               width: 40, height: 40, borderRadius: 12,
-              background: "#f1f5f9", border: "none", cursor: "pointer",
-              display: "flex", alignItems: "center", justifyContent: "center", color: "#475569", flexShrink: 0,
+              background: "var(--surface-2)", border: "none", cursor: "pointer",
+              display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", flexShrink: 0,
             }}
           >
             <IconBack size={20} />
           </button>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 20, color: "#1e293b", letterSpacing: "-0.03em" }}>
+            <div style={{ fontWeight: 800, fontSize: 20, color: "var(--text-primary)", letterSpacing: "-0.03em" }}>
               Preguntas frecuentes
             </div>
-            <div style={{ fontSize: 13, color: "#94a3b8", marginTop: 1 }}>
+            <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 1 }}>
               Encuentra respuestas rápidas
             </div>
           </div>
@@ -148,7 +148,7 @@ export default function Faq() {
 
         {/* Search */}
         <div style={{ position: "relative" }}>
-          <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "#94a3b8", pointerEvents: "none" }}>
+          <span style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", pointerEvents: "none" }}>
             <IconSearch size={17} />
           </span>
           <input
@@ -160,10 +160,10 @@ export default function Faq() {
               width: "100%",
               padding: "12px 14px 12px 38px",
               borderRadius: 14,
-              border: "1.5px solid #e2e8f0",
+              border: "1.5px solid var(--border)",
               background: "var(--surface-inset)",
               fontSize: 14,
-              color: "#1e293b",
+              color: "var(--text-primary)",
               outline: "none",
               boxSizing: "border-box",
             }}
@@ -179,9 +179,9 @@ export default function Faq() {
               style={{
                 padding: "7px 14px",
                 borderRadius: 50,
-                border: `1.5px solid ${!activeCategory ? "#215DFF" : "#e2e8f0"}`,
+                border: `1.5px solid ${!activeCategory ? "#215DFF" : "var(--border)"}`,
                 background: !activeCategory ? "#215DFF" : "#f8fafc",
-                color: !activeCategory ? "#fff" : "#64748b",
+                color: !activeCategory ? "#fff" : "var(--text-secondary)",
                 fontWeight: 700,
                 fontSize: 12,
                 cursor: "pointer",
@@ -199,9 +199,9 @@ export default function Faq() {
                 style={{
                   padding: "7px 14px",
                   borderRadius: 50,
-                  border: `1.5px solid ${activeCategory === cat ? "#215DFF" : "#e2e8f0"}`,
+                  border: `1.5px solid ${activeCategory === cat ? "#215DFF" : "var(--border)"}`,
                   background: activeCategory === cat ? "#215DFF" : "#f8fafc",
-                  color: activeCategory === cat ? "#fff" : "#64748b",
+                  color: activeCategory === cat ? "#fff" : "var(--text-secondary)",
                   fontWeight: 700,
                   fontSize: 12,
                   cursor: "pointer",
@@ -219,19 +219,19 @@ export default function Faq() {
         {isLoading ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
             {[1, 2, 3, 4].map(i => (
-              <div key={i} style={{ height: 52, borderRadius: 16, background: "#f1f5f9", animation: "pulse 1.5s ease infinite" }} />
+              <div key={i} style={{ height: 52, borderRadius: 16, background: "var(--surface-2)", animation: "pulse 1.5s ease infinite" }} />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div style={{ textAlign: "center", padding: "48px 24px", color: "#94a3b8" }}>
+          <div style={{ textAlign: "center", padding: "48px 24px", color: "var(--text-muted)" }}>
             <div style={{
               width: 56, height: 56, borderRadius: "50%",
-              background: "#f1f5f9", margin: "0 auto 16px",
+              background: "var(--surface-2)", margin: "0 auto 16px",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
               <IconSearch size={24} />
             </div>
-            <div style={{ fontWeight: 700, fontSize: 15, color: "#475569", marginBottom: 6 }}>
+            <div style={{ fontWeight: 700, fontSize: 15, color: "var(--text-secondary)", marginBottom: 6 }}>
               {query ? "Sin resultados" : "No hay preguntas disponibles"}
             </div>
             <div style={{ fontSize: 13 }}>

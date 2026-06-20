@@ -14,7 +14,7 @@ const ROLE_CFG: Record<string, { label: string; bg: string; color: string; borde
 };
 
 const STATUS_COLOR: Record<string, string> = {
-  current: "#16a34a", at_risk: "#d97706", overdue: "#dc2626", defaulted: "#7f1d1d", inactive: "#6b7280",
+  current: "#16a34a", at_risk: "#d97706", overdue: "#dc2626", defaulted: "#7f1d1d", inactive: "var(--text-muted)",
 };
 const STATUS_LABEL: Record<string, string> = {
   current: "Al corriente", at_risk: "En riesgo", overdue: "Vencido", defaulted: "Incumplimiento", inactive: "Inactivo",
@@ -57,9 +57,9 @@ function DeleteModal({ name, onConfirm, onCancel, loading }: { name: string; onC
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 24px" }} />
-        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#111", margin: "0 0 8px", letterSpacing: "-0.03em" }}>Eliminar asesor</h3>
-        <p style={{ fontSize: 14, color: "#64748b", margin: "0 0 24px", lineHeight: 1.5 }}>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 24px" }} />
+        <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 8px", letterSpacing: "-0.03em" }}>Eliminar asesor</h3>
+        <p style={{ fontSize: 14, color: "var(--text-secondary)", margin: "0 0 24px", lineHeight: 1.5 }}>
           ¿Seguro que quieres eliminar a <strong>{name}</strong> y desactivar sus acreditados? Esta acción no se puede deshacer.
         </p>
         <button
@@ -71,7 +71,7 @@ function DeleteModal({ name, onConfirm, onCancel, loading }: { name: string; onC
         </button>
         <button
           onClick={onCancel}
-          style={{ width: "100%", padding: "14px", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "#64748b", fontFamily: "inherit" }}
+          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
         >
           Cancelar
         </button>
@@ -86,13 +86,13 @@ function EditModal({ node, onSave, onCancel, loading }: { node: TreeNode; onSave
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
       <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460 }}>
-        <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 24px" }} />
-        <h3 style={{ fontSize: 18, fontWeight: 800, color: "#111", margin: "0 0 20px", letterSpacing: "-0.03em" }}>Editar asesor</h3>
-        <label style={{ fontSize: 12, fontWeight: 700, color: "#475569", textTransform: "uppercase", letterSpacing: "0.04em" }}>Nombre completo</label>
+        <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 24px" }} />
+        <h3 style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 20px", letterSpacing: "-0.03em" }}>Editar asesor</h3>
+        <label style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.04em" }}>Nombre completo</label>
         <input
           value={name}
           onChange={e => setName(e.target.value)}
-          style={{ width: "100%", border: "1.5px solid #e2e8f0", borderRadius: 12, padding: "13px 14px", fontSize: 15, fontFamily: "inherit", marginTop: 8, marginBottom: 20, boxSizing: "border-box", outline: "none" }}
+          style={{ width: "100%", border: "1.5px solid var(--border)", borderRadius: 12, padding: "13px 14px", fontSize: 15, fontFamily: "inherit", marginTop: 8, marginBottom: 20, boxSizing: "border-box", outline: "none" }}
           autoFocus
         />
         <button
@@ -104,7 +104,7 @@ function EditModal({ node, onSave, onCancel, loading }: { node: TreeNode; onSave
         </button>
         <button
           onClick={onCancel}
-          style={{ width: "100%", padding: "14px", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "#64748b", fontFamily: "inherit" }}
+          style={{ width: "100%", padding: "14px", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", background: "transparent", color: "var(--text-secondary)", fontFamily: "inherit" }}
         >
           Cancelar
         </button>
@@ -141,16 +141,16 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
 
           {/* Info */}
           <div style={{ flex: 1, minWidth: 0, cursor: hasChildren ? "pointer" : "default" }} onClick={() => hasChildren && setOpen(o => !o)}>
-            <div style={{ fontWeight: 700, fontSize: 14, color: "#1e293b", marginBottom: 2 }}>{node.fullName}</div>
+            <div style={{ fontWeight: 700, fontSize: 14, color: "var(--text-primary)", marginBottom: 2 }}>{node.fullName}</div>
             <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
               <span style={{ fontSize: 11, fontWeight: 700, padding: "1px 7px", borderRadius: 20, background: cfg.bg, color: cfg.color }}>{cfg.label}</span>
-              {node.username && <span style={{ fontSize: 11, color: "#94a3b8" }}>@{node.username}</span>}
-              {node.phone && !node.username && <span style={{ fontSize: 11, color: "#94a3b8" }}>{node.phone}</span>}
+              {node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>@{node.username}</span>}
+              {node.phone && !node.username && <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{node.phone}</span>}
               {statusColor && <span style={{ fontSize: 11, fontWeight: 600, color: statusColor }}>{STATUS_LABEL[node.status!] ?? node.status}</span>}
               {node.isActive === false && <span style={{ fontSize: 10, color: "#ef4444", fontWeight: 600 }}>Inactivo</span>}
             </div>
             {node.clientCount !== undefined && node.clientCount > 0 && (
-              <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>{node.clientCount} acreditado{node.clientCount !== 1 ? "s" : ""}</div>
+              <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 2 }}>{node.clientCount} acreditado{node.clientCount !== 1 ? "s" : ""}</div>
             )}
           </div>
 
@@ -168,7 +168,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
               )}
               <button
                 onClick={() => onEdit?.(node)}
-                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid #e2e8f0", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "#475569", cursor: "pointer" }}
+                style={{ width: 32, height: 32, borderRadius: 9, border: "1.5px solid var(--border)", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--text-secondary)", cursor: "pointer" }}
               >
                 <EditIcon />
               </button>
@@ -183,7 +183,7 @@ function NodeCard({ node, depth = 0, defaultOpen = true, onDelete, onEdit, onCam
 
           {hasChildren && (
             <div
-              style={{ fontSize: 12, color: "#94a3b8", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", flexShrink: 0, cursor: "pointer" }}
+              style={{ fontSize: 12, color: "var(--text-muted)", transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.2s", flexShrink: 0, cursor: "pointer" }}
               onClick={() => setOpen(o => !o)}
             >▼</div>
           )}
@@ -285,26 +285,26 @@ export default function AdminArbol() {
           <h1 style={{ fontSize: 20, fontWeight: 800, color: "var(--text-primary)" }}>
             {userRole === "admin" ? "Mi Árbol" : "Mi Red"}
           </h1>
-          <p style={{ fontSize: 13, color: "#64748b", marginTop: 2 }}>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>
             {userRole === "admin" ? "Todos los asesores y acreditados de tu organización" : "Acreditados que registraste"}
           </p>
         </div>
 
         {/* Summary */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-          <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid #f1f5f9" }}>
+          <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
             <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalAll}</div>
-            <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Total</div>
+            <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Total</div>
           </div>
           {userRole === "admin" && (
             <>
-              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid #f1f5f9" }}>
+              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalExecs}</div>
-                <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Asesores</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Asesores</div>
               </div>
-              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid #f1f5f9" }}>
+              <div style={{ background: "white", borderRadius: 12, padding: "12px", textAlign: "center", border: "1px solid var(--surface-2)" }}>
                 <div style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{totalClientes}</div>
-                <div style={{ fontSize: 11, color: "#64748b", fontWeight: 600, textTransform: "uppercase" }}>Acreditados</div>
+                <div style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase" }}>Acreditados</div>
               </div>
             </>
           )}
@@ -321,11 +321,11 @@ export default function AdminArbol() {
         {/* Tree is empty */}
         {!isLoading && !error && level1.length === 0 && (
           <div style={{ textAlign: "center", marginTop: 50, padding: "0 8px" }}>
-            <div style={{ width: 64, height: 64, borderRadius: 20, background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
-              <IconEquipo size={32} color="#cbd5e1" />
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: "var(--surface-2)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <IconEquipo size={32} color="var(--text-muted)" />
             </div>
-            <p style={{ color: "#475569", marginTop: 0, fontWeight: 700, fontSize: 17 }}>Tu red está vacía</p>
-            <p style={{ color: "#94a3b8", fontSize: 13, marginTop: 6, lineHeight: 1.5, maxWidth: 280, margin: "6px auto 28px" }}>
+            <p style={{ color: "var(--text-secondary)", marginTop: 0, fontWeight: 700, fontSize: 17 }}>Tu red está vacía</p>
+            <p style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 6, lineHeight: 1.5, maxWidth: 280, margin: "6px auto 28px" }}>
               Genera códigos de invitación desde tu perfil para agregar asesores y acreditados a tu red.
             </p>
             <a
@@ -353,7 +353,7 @@ export default function AdminArbol() {
                 </div>
                 <div style={{ fontSize: 12, color: "rgba(255,255,255,0.35)", fontWeight: 600 }}>{totalAll} miembros</div>
               </div>
-              <div style={{ width: 2, height: 12, background: "#e2e8f0", marginLeft: 36 }} />
+              <div style={{ width: 2, height: 12, background: "var(--border)", marginLeft: 36 }} />
             </div>
 
             <div>
@@ -397,9 +397,9 @@ export default function AdminArbol() {
       {cambiarSucursalTarget && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 1000, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
           <div style={{ background: "#fff", borderRadius: "24px 24px 0 0", padding: "28px 24px 40px", width: "100%", maxWidth: 460, maxHeight: "80vh", overflowY: "auto" }}>
-            <div style={{ width: 40, height: 4, borderRadius: 2, background: "#e2e8f0", margin: "0 auto 20px" }} />
-            <h3 style={{ fontSize: 17, fontWeight: 800, color: "#111", margin: "0 0 4px" }}>Cambiar sucursal</h3>
-            <p style={{ fontSize: 13, color: "#64748b", margin: "0 0 16px" }}>
+            <div style={{ width: 40, height: 4, borderRadius: 2, background: "var(--border)", margin: "0 auto 20px" }} />
+            <h3 style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", margin: "0 0 4px" }}>Cambiar sucursal</h3>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "0 0 16px" }}>
               Mover a <strong>{cambiarSucursalTarget.fullName}</strong> a una nueva sucursal
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 18 }}>
@@ -410,7 +410,7 @@ export default function AdminArbol() {
                   style={{
                     display: "flex", alignItems: "center", gap: 12,
                     padding: "12px 14px", borderRadius: 12,
-                    border: `1.5px solid ${newParentId === admin.id ? "var(--text-secondary)" : "#e2e8f0"}`,
+                    border: `1.5px solid ${newParentId === admin.id ? "var(--text-secondary)" : "var(--border)"}`,
                     background: newParentId === admin.id ? "var(--surface-3)" : "#fff",
                     cursor: "pointer", fontFamily: "inherit", textAlign: "left",
                   }}
@@ -419,8 +419,8 @@ export default function AdminArbol() {
                     {admin.fullName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: 14, color: "#111" }}>{admin.fullName}</div>
-                    {admin.username && <div style={{ fontSize: 11, color: "#64748b" }}>{admin.username}</div>}
+                    <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-primary)" }}>{admin.fullName}</div>
+                    {admin.username && <div style={{ fontSize: 11, color: "var(--text-secondary)" }}>{admin.username}</div>}
                   </div>
                   {newParentId === admin.id && (
                     <div style={{ marginLeft: "auto" }}>
@@ -430,7 +430,7 @@ export default function AdminArbol() {
                 </button>
               ))}
               {(!allAdmins || allAdmins.filter((a: any) => a.role === "admin").length === 0) && (
-                <p style={{ fontSize: 13, color: "#9ca3af", textAlign: "center", padding: "16px 0" }}>
+                <p style={{ fontSize: 13, color: "var(--text-muted)", textAlign: "center", padding: "16px 0" }}>
                   {allAdmins ? "No hay otros administradores disponibles" : "Cargando..."}
                 </p>
               )}
@@ -444,7 +444,7 @@ export default function AdminArbol() {
             </button>
             <button
               onClick={() => { setCambiarSucursalTarget(null); setNewParentId(null); }}
-              style={{ width: "100%", padding: 14, background: "transparent", color: "#64748b", border: "1.5px solid #e2e8f0", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "transparent", color: "var(--text-secondary)", border: "1.5px solid var(--border)", borderRadius: 14, fontWeight: 600, fontSize: 15, cursor: "pointer", fontFamily: "inherit" }}
             >
               Cancelar
             </button>

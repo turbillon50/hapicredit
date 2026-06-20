@@ -70,7 +70,7 @@ export default function Terminos() {
 
         {/* Hero */}
         <div style={{
-          background: "linear-gradient(135deg, #3A00C8, #215DFF)",
+          background: "linear-gradient(135deg, #1A4FE0, #215DFF)",
           borderRadius: 20, padding: "32px 28px", marginBottom: 36, color: "white",
         }}>
           <div style={{ fontSize: 13, fontWeight: 700, opacity: 0.6, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>
@@ -257,11 +257,11 @@ export default function Terminos() {
         </div>
 
         {/* Footer */}
-        <div style={{ borderTop: "1px solid #e5e7eb", paddingTop: 24, textAlign: "center" }}>
-          <p style={{ fontSize: 12, color: "#9ca3af" }}>
+        <div style={{ borderTop: "1px solid var(--border)", paddingTop: 24, textAlign: "center" }}>
+          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
             credeti — crede-ti.info
           </p>
-          <p style={{ fontSize: 12, color: "#9ca3af" }}>
+          <p style={{ fontSize: 12, color: "var(--text-muted)" }}>
             Al utilizar credeti, usted confirma haber leído y aceptado estos Términos y Condiciones.
           </p>
         </div>

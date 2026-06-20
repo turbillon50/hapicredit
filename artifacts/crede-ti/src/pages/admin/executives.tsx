@@ -12,7 +12,7 @@ const fmt = (n: number | null | undefined) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 type Period = "week" | "month";
-const MEDAL = ["#f59e0b", "#9ca3af", "#b45309"];
+const MEDAL = ["#f59e0b", "var(--text-muted)", "#b45309"];
 
 export default function AdminAsesores() {
   const [period, setPeriod] = useState<Period>("month");

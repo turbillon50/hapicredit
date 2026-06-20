@@ -287,7 +287,7 @@ function CreditDetail({
           {editError && <div className="text-xs text-red-600 font-semibold">{editError}</div>}
           <button onClick={saveConditions} disabled={savingEdit || amt <= 0 || weeks <= 0}
             className="flex items-center justify-center gap-2 py-3 rounded-2xl text-white text-sm font-bold pressable"
-            style={{ background: savingEdit ? "#9ca3af" : "linear-gradient(135deg,#215DFF,#3b82f6)" }}>
+            style={{ background: savingEdit ? "var(--text-muted)" : "linear-gradient(135deg,#215DFF,#3b82f6)" }}>
             <IconLoader size={16} style={{ display: savingEdit ? "block" : "none" }} />
             {savingEdit ? "Guardando..." : "💾 Guardar cambios"}
           </button>
@@ -296,14 +296,14 @@ function CreditDetail({
         <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-0">
           <div className="text-xs font-bold text-gray-400 uppercase tracking-wide mb-2">Resumen financiero</div>
           {[
-            { label: "Monto prestado", val: fmt(credit.amount), color: "#111" },
+            { label: "Monto prestado", val: fmt(credit.amount), color: "var(--text-primary)" },
             { label: "Intereses",      val: fmt(credit.totalToRepay - credit.amount), color: "#d97706" },
             { label: "Total a pagar",  val: fmt(credit.totalToRepay), color: "var(--brand-blue)", bold: true },
             { label: "Pago semanal",   val: fmt(credit.weeklyPayment), color: "#215DFF" },
-            { label: "Plazo",          val: `${credit.termWeeks} semanas`, color: "#111" },
-            ...((credit as any).openingFee > 0 ? [{ label: "Comisión", val: fmt((credit as any).openingFee), color: "#6b7280" }] : []),
-            ...(credit.executiveName ? [{ label: "Asesor", val: credit.executiveName, color: "#111" }] : []),
-            { label: "Solicitud", val: fmtDateTime(credit.createdAt), color: "#6b7280" },
+            { label: "Plazo",          val: `${credit.termWeeks} semanas`, color: "var(--text-primary)" },
+            ...((credit as any).openingFee > 0 ? [{ label: "Comisión", val: fmt((credit as any).openingFee), color: "var(--text-muted)" }] : []),
+            ...(credit.executiveName ? [{ label: "Asesor", val: credit.executiveName, color: "var(--text-primary)" }] : []),
+            { label: "Solicitud", val: fmtDateTime(credit.createdAt), color: "var(--text-muted)" },
           ].map((r: any) => (
             <div key={r.label} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
               <span className="text-sm text-gray-500">{r.label}</span>
@@ -333,7 +333,7 @@ function CreditDetail({
       <button onClick={() => { if (!notes.trim()) return; mut.mutate({ action: "needs_info", n: notes }); }}
         disabled={mut.isPending || !notes.trim()}
         className="flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold pressable"
-        style={{ background: notes.trim() ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "#e5e7eb", color: notes.trim() ? "#451a03" : "#9ca3af", border: "none" }}>
+        style={{ background: notes.trim() ? "linear-gradient(135deg,#f59e0b,#fbbf24)" : "var(--border)", color: notes.trim() ? "#451a03" : "var(--text-muted)", border: "none" }}>
         {mut.isPending ? <IconLoader size={16} /> : <IconDocumento size={16} />}
         Solicitar información al cliente
       </button>
@@ -398,11 +398,11 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
 
   return (
     <div style={{ marginBottom: "24px" }}>
-      <h4 style={{ fontWeight: "700", marginBottom: "12px", color: "#1e293b" }}>
+      <h4 style={{ fontWeight: "700", marginBottom: "12px", color: "var(--text-primary)" }}>
         💬 Mensajes con el cliente
       </h4>
       <div style={{
-        border: "1px solid #e2e8f0",
+        border: "1px solid var(--border)",
         borderRadius: "12px",
         maxHeight: "260px",
         overflowY: "auto",
@@ -414,7 +414,7 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
         background: "#f8fafc",
       }}>
         {notes.length === 0 ? (
-          <p style={{ color: "#94a3b8", textAlign: "center", fontSize: "14px" }}>
+          <p style={{ color: "var(--text-muted)", textAlign: "center", fontSize: "14px" }}>
             No hay mensajes aún
           </p>
         ) : (
@@ -426,8 +426,8 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
                 justifyContent: isAdmin ? "flex-end" : "flex-start",
               }}>
                 <div style={{
-                  background: isAdmin ? "#3b82f6" : "#e2e8f0",
-                  color: isAdmin ? "white" : "#1e293b",
+                  background: isAdmin ? "#3b82f6" : "var(--border)",
+                  color: isAdmin ? "white" : "var(--text-primary)",
                   borderRadius: "10px",
                   padding: "8px 12px",
                   maxWidth: "75%",
@@ -461,7 +461,7 @@ function AdminMensajesSection({ clientId }: { clientId: number }) {
           onClick={sendMsg}
           disabled={sending || !msg.trim()}
           style={{
-            background: sending ? "#9ca3af" : "#3b82f6",
+            background: sending ? "var(--text-muted)" : "#3b82f6",
             color: "white",
             border: "none",
             borderRadius: "8px",
@@ -581,7 +581,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const weekly = Number(credit.weeklyPayment ?? credit.perInstallment ?? 0) || 0;
   const monthlyBurden = weekly * 4.33;
   const pct = income > 0 && weekly > 0 ? Math.round((monthlyBurden / income) * 100) : null;
-  const capColor = pct == null ? "#9ca3af" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#dc2626";
+  const capColor = pct == null ? "var(--text-muted)" : pct < 30 ? "#059669" : pct <= 50 ? "#d97706" : "#dc2626";
   const capBg = pct == null ? "#f3f4f6" : pct < 30 ? "var(--surface-3)" : pct <= 50 ? "#fffbeb" : "var(--surface-3)";
   const capLabel = pct == null ? "Sin datos" : pct < 30 ? "Saludable" : pct <= 50 ? "Ajustado" : "Riesgo alto";
 
@@ -639,7 +639,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
   const inp = (label: string, key: string, num = false) => (
     <div className="flex items-center gap-2 text-sm">
       <span className="text-gray-500 shrink-0 w-24">{label}:</span>
-      <input value={String((form as any)[key] ?? "")} onChange={e => setF(key, e.target.value)} inputMode={num ? "decimal" : undefined} className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-gray-800 font-medium" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+      <input value={String((form as any)[key] ?? "")} onChange={e => setF(key, e.target.value)} inputMode={num ? "decimal" : undefined} className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-gray-800 font-medium" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
     </div>
   );
   const kv = (label: string, val: any, mono = false) => (
@@ -677,11 +677,11 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
       </div>
 
       {/* Asignacion */}
-      <div className="rounded-2xl p-3 flex items-center gap-2 flex-wrap" style={{ background: "#fff", border: "1.5px solid #e5e7eb" }}>
+      <div className="rounded-2xl p-3 flex items-center gap-2 flex-wrap" style={{ background: "#fff", border: "1.5px solid var(--border)" }}>
         <span className="text-xs font-bold text-gray-500 uppercase tracking-wide">Asignada a</span>
-        <span className="text-sm font-semibold" style={{ color: assignedName ? "#0f172a" : "#9ca3af" }}>{assignedName ?? "Sin asignar"}</span>
+        <span className="text-sm font-semibold" style={{ color: assignedName ? "#0f172a" : "var(--text-muted)" }}>{assignedName ?? "Sin asignar"}</span>
         <div className="flex items-center gap-2 ml-auto">
-          <select value={assignedTo ?? ""} onChange={e => assignM.mutate({ userId: e.target.value === "" ? null : Number(e.target.value) })} disabled={assignM.isPending} className="text-xs rounded-lg px-2 py-1" style={{ border: "1.5px solid #e5e7eb", background: "#fff", outline: "none", maxWidth: 150 }}>
+          <select value={assignedTo ?? ""} onChange={e => assignM.mutate({ userId: e.target.value === "" ? null : Number(e.target.value) })} disabled={assignM.isPending} className="text-xs rounded-lg px-2 py-1" style={{ border: "1.5px solid var(--border)", background: "#fff", outline: "none", maxWidth: 150 }}>
             <option value="">Sin asignar</option>
             {assignableStaff.map(u => <option key={u.id} value={u.id}>{u.fullName}</option>)}
           </select>
@@ -691,7 +691,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
 
       {/* Review: aprobar / rechazar / comentar */}
       {(() => { const m = reqStatusMeta(reqStatus); return (
-      <div className="rounded-2xl p-3.5 flex flex-col gap-3" style={{ background: "#fff", border: "1.5px solid #e5e7eb" }}>
+      <div className="rounded-2xl p-3.5 flex flex-col gap-3" style={{ background: "#fff", border: "1.5px solid var(--border)" }}>
         <div className="flex items-center justify-between">
           <div className="text-xs font-bold text-gray-500 uppercase tracking-wide">Revision</div>
           <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: m.bg, color: m.color, border: `1px solid ${m.border}` }}>{m.label}</span>
@@ -705,15 +705,15 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             <div className="text-sm font-semibold" style={{ color: confirm === "approved" ? "#059669" : "#dc2626" }}>
               {confirm === "approved" ? "\u00bfAprobar esta solicitud?" : "\u00bfRechazar esta solicitud?"}
             </div>
-            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+            <textarea value={comment} onChange={e => setComment(e.target.value)} rows={2} placeholder={dEmail ? "Comentario para el solicitante (se enviara por correo)" : "Comentario interno (sin correo registrado)"} style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
             <div className="flex gap-2">
-              <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
+              <button onClick={() => setConfirm(null)} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "1px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 13, cursor: "pointer" }}>Cancelar</button>
               <button disabled={decisionM.isPending} onClick={() => decisionM.mutate({ decision: confirm, comment: comment.trim() || undefined })} style={{ flex: 1, padding: "9px", borderRadius: 12, border: "none", background: confirm === "approved" ? "#10b981" : "#ef4444", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: decisionM.isPending ? 0.6 : 1 }}>{decisionM.isPending ? "..." : "Confirmar"}</button>
             </div>
           </div>
         )}
-        <div className="flex flex-col gap-2" style={{ borderTop: "1px solid #f1f5f9", paddingTop: 10 }}>
-          <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid #e5e7eb", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
+        <div className="flex flex-col gap-2" style={{ borderTop: "1px solid var(--surface-2)", paddingTop: 10 }}>
+          <textarea value={note} onChange={e => setNote(e.target.value)} rows={2} placeholder="Escribe un comentario para el solicitante..." style={{ width: "100%", border: "1px solid var(--border)", borderRadius: 10, padding: "8px 10px", fontSize: 13, resize: "none", outline: "none" }} />
           <label className="flex items-center gap-2 text-xs text-gray-600 select-none">
             <input type="checkbox" checked={notify} onChange={e => setNotify(e.target.checked)} /> Avisar al solicitante por correo
           </label>
@@ -726,7 +726,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           <div className="flex flex-col gap-2 pt-1">
             <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">Historial</div>
             {comments.map(c => (
-              <div key={c.id} className="rounded-xl p-2.5" style={{ background: "#f8fafc", border: "1px solid #f1f5f9" }}>
+              <div key={c.id} className="rounded-xl p-2.5" style={{ background: "#f8fafc", border: "1px solid var(--surface-2)" }}>
                 <div className="flex justify-between items-center mb-0.5">
                   <span className="text-xs font-semibold text-gray-700">{c.author_name}</span>
                   <span className="text-[10px] text-gray-400">{fmtDateTime(c.created_at)}</span>
@@ -767,7 +767,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
           </div>
         </div>
         {pct != null && (
-          <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ background: "#e5e7eb" }}>
+          <div className="mt-2 h-2 rounded-full overflow-hidden" style={{ background: "var(--border)" }}>
             <div style={{ width: `${Math.min(pct, 100)}%`, height: "100%", background: capColor }} />
           </div>
         )}
@@ -786,7 +786,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="bg-gray-50 rounded-2xl p-3 text-center">
           <div className="text-xs text-gray-500 mb-1">Plazo (sem)</div>
           {editing ? (
-            <input type="number" inputMode="numeric" value={form.termWeeks} onChange={e => setF("termWeeks", e.target.value)} className="w-full text-center text-base font-bold text-gray-800 bg-white rounded-xl py-1" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+            <input type="number" inputMode="numeric" value={form.termWeeks} onChange={e => setF("termWeeks", e.target.value)} className="w-full text-center text-base font-bold text-gray-800 bg-white rounded-xl py-1" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
           ) : (
             <div className="text-base font-bold text-gray-800">{credit.termWeeks ?? "\u2014"} sem</div>
           )}
@@ -870,15 +870,15 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         {editing ? (
           <div className="flex flex-col gap-2">
             {form.references.map((r, idx) => (
-              <div key={idx} className="rounded-xl p-2 flex flex-col gap-1.5" style={{ background: "#fff", border: "1px solid #e5e7eb" }}>
+              <div key={idx} className="rounded-xl p-2 flex flex-col gap-1.5" style={{ background: "#fff", border: "1px solid var(--border)" }}>
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-bold text-gray-400">Referencia {idx + 1}</span>
                   <button onClick={() => setForm(f => ({ ...f, references: f.references.filter((_, i) => i !== idx) }))} className="text-[11px] font-semibold" style={{ color: "#dc2626" }}>Quitar</button>
                 </div>
-                <input value={r.name} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, name: e.target.value } : x) }))} placeholder="Nombre" className="bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+                <input value={r.name} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, name: e.target.value } : x) }))} placeholder="Nombre" className="bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
                 <div className="flex gap-1.5">
-                  <input value={r.phone} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, phone: e.target.value } : x) }))} placeholder="Telefono" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
-                  <input value={r.relation} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, relation: e.target.value } : x) }))} placeholder="Relacion" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid #e5e7eb", outline: "none" }} />
+                  <input value={r.phone} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, phone: e.target.value } : x) }))} placeholder="Telefono" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
+                  <input value={r.relation} onChange={e => setForm(f => ({ ...f, references: f.references.map((x, i) => i === idx ? { ...x, relation: e.target.value } : x) }))} placeholder="Relacion" className="flex-1 min-w-0 bg-white rounded-lg px-2 py-1 text-sm" style={{ border: "1.5px solid var(--border)", outline: "none" }} />
                 </div>
               </div>
             ))}
@@ -924,7 +924,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
         <div className="flex flex-col gap-2 sticky bottom-0 pb-1" style={{ background: "linear-gradient(to top, #fff 70%, transparent)" }}>
           {detailsM.isError && <div className="text-xs text-center" style={{ color: "#dc2626" }}>{(detailsM.error as Error).message}</div>}
           <div className="flex gap-2">
-            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "1.5px solid #e5e7eb", background: "#fff", color: "#6b7280", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
+            <button onClick={() => setEditing(false)} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "1.5px solid var(--border)", background: "#fff", color: "var(--text-muted)", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>Cancelar</button>
             <button disabled={detailsM.isPending} onClick={saveAll} className="flex-1" style={{ padding: "12px", borderRadius: 12, border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: detailsM.isPending ? 0.6 : 1 }}>{detailsM.isPending ? "Guardando..." : "Guardar todo"}</button>
           </div>
         </div>
@@ -986,7 +986,7 @@ function PublicAppDetail({ app, onDone }: { app: PublicApp; onDone?: () => void 
             onClick={() => convertM.mutate()}
             style={{ width: "100%", padding: "14px 16px", borderRadius: 16, border: "none", cursor: "pointer",
               fontSize: 14, fontWeight: 700, color: "#fff",
-              background: convertM.isPending ? "#9ca3af" : "linear-gradient(135deg,#059669,#10b981)",
+              background: convertM.isPending ? "var(--text-muted)" : "linear-gradient(135deg,#059669,#10b981)",
               opacity: convertM.isPending ? 0.7 : 1 }}
           >
             {convertM.isPending ? "Creando expediente..." : "✓ Enviar a revisión — crear crédito pendiente"}

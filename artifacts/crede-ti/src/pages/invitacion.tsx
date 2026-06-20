@@ -42,7 +42,7 @@ export default function Invitacion() {
 
   if (loading) {
     return (
-      <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#06143B 0%,#215DFF 60%,#19D7D7 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ minHeight: "100dvh", background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <div style={{ color: "rgba(255,255,255,0.5)", fontFamily: "Montserrat, sans-serif", fontSize: 14 }}>Cargando tu invitación…</div>
       </div>
     );
@@ -50,7 +50,7 @@ export default function Invitacion() {
 
   if (error || !invite) {
     return (
-      <div style={{ minHeight: "100dvh", background: "linear-gradient(160deg,#06143B 0%,#215DFF 60%,#19D7D7 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "Montserrat, sans-serif" }}>
+      <div style={{ minHeight: "100dvh", background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24, fontFamily: "Montserrat, sans-serif" }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <div style={{ color: "#fff", fontSize: 20, fontWeight: 800, marginBottom: 8, textAlign: "center" }}>Invitación no disponible</div>
         <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 14, textAlign: "center", maxWidth: 280 }}>{error || "Esta invitación expiró o ya fue utilizada."}</div>
@@ -67,7 +67,7 @@ export default function Invitacion() {
   return (
     <div style={{
       minHeight: "100dvh",
-      background: "linear-gradient(160deg,#06143B 0%,#215DFF 55%,#19D7D7 100%)",
+      background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
       display: "flex", flexDirection: "column", alignItems: "center",
       padding: "32px 20px 40px",
       fontFamily: "Montserrat, Inter, -apple-system, sans-serif",

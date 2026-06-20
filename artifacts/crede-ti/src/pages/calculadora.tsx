@@ -45,7 +45,7 @@ function SliderCampo({
   return (
     <div style={{ marginBottom: 24 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, alignItems: "flex-end" }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)" }}>{label}</span>
         <motion.span
           key={valor}
           initial={{ scale: 1.15, color: AZUL }}
@@ -58,7 +58,7 @@ function SliderCampo({
             : valor.toLocaleString("es-MX")}{sufijo}
         </motion.span>
       </div>
-      <div style={{ position: "relative", height: 6, borderRadius: 99, background: "#e5e7eb" }}>
+      <div style={{ position: "relative", height: 6, borderRadius: 99, background: "var(--border)" }}>
         <div style={{
           position: "absolute", left: 0, top: 0, height: "100%",
           width: `${pct}%`, borderRadius: 99,
@@ -75,8 +75,8 @@ function SliderCampo({
         />
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", marginTop: 4 }}>
-        <span style={{ fontSize: 11, color: "#9ca3af" }}>{prefijo}{min.toLocaleString("es-MX")}{sufijo}</span>
-        <span style={{ fontSize: 11, color: "#9ca3af" }}>{prefijo}{max.toLocaleString("es-MX")}{sufijo}</span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{prefijo}{min.toLocaleString("es-MX")}{sufijo}</span>
+        <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{prefijo}{max.toLocaleString("es-MX")}{sufijo}</span>
       </div>
     </div>
   );
@@ -104,7 +104,7 @@ function FilaResultado({
       display: "flex", justifyContent: "space-between", alignItems: "center",
       padding: "11px 0", borderBottom: "1px solid #f3f4f6",
     }}>
-      <span style={{ fontSize: 13, color: "#6b7280" }}>{etiqueta}</span>
+      <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{etiqueta}</span>
       <motion.span
         key={valor}
         initial={{ opacity: 0, x: 8 }}
@@ -112,7 +112,7 @@ function FilaResultado({
         transition={{ duration: 0.2 }}
         style={{
           fontSize: grande ? 20 : 15, fontWeight: grande ? 900 : 700,
-          color: color ?? (grande ? AZUL2 : "#111"),
+          color: color ?? (grande ? AZUL2 : "var(--text-primary)"),
         }}
       >
         {valor}
@@ -144,7 +144,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
         <span style={{ fontWeight: 800, fontSize: 14, color: AZUL2 }}>¿Cómo se calcula tu interés?</span>
       </div>
 
-      <div style={{ fontSize: 13, color: "#374151", lineHeight: 1.7 }}>
+      <div style={{ fontSize: 13, color: "var(--text-primary)", lineHeight: 1.7 }}>
         <p style={{ margin: "0 0 8px" }}>
           credeti cobra <strong>5% mensual</strong>. Solo pagas la parte proporcional
           al número de semanas de tu crédito:
@@ -162,7 +162,7 @@ function InfoTasa({ semanas, monto, tasaEfectiva, interes }: {
           </div>
         </div>
 
-        <p style={{ margin: "10px 0 0", fontSize: 12, color: "#6b7280" }}>
+        <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-muted)" }}>
           A menor plazo → menos interés total. A mayor plazo → pago semanal más accesible.
         </p>
       </div>
@@ -178,7 +178,7 @@ function BarraProporciones({ monto, interes }: { monto: number; interes: number 
   return (
     <div style={{ marginBottom: 20 }}>
       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-        <span style={{ fontSize: 12, color: "#6b7280" }}>Composición del total</span>
+        <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Composición del total</span>
       </div>
       <div style={{ display: "flex", height: 10, borderRadius: 99, overflow: "hidden", gap: 2 }}>
         <motion.div
@@ -195,11 +195,11 @@ function BarraProporciones({ monto, interes }: { monto: number; interes: number 
       <div style={{ display: "flex", gap: 16, marginTop: 6 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <div style={{ width: 10, height: 10, borderRadius: 3, background: AZUL }} />
-          <span style={{ fontSize: 11, color: "#6b7280" }}>Capital {fmtPct(pctCapital)}</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Capital {fmtPct(pctCapital)}</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 5 }}>
           <div style={{ width: 10, height: 10, borderRadius: 3, background: AMARILLO }} />
-          <span style={{ fontSize: 11, color: "#6b7280" }}>Interés {fmtPct(pctInteres)}</span>
+          <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Interés {fmtPct(pctInteres)}</span>
         </div>
       </div>
     </div>
@@ -215,7 +215,7 @@ function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: 
         <thead>
           <tr>
             {[etiqueta, "Pago", "Saldo restante"].map(h => (
-              <th key={h} style={{ textAlign: "right", padding: "6px 4px", fontWeight: 700, color: "#6b7280", borderBottom: "2px solid #f3f4f6", fontSize: 12 }}>{h}</th>
+              <th key={h} style={{ textAlign: "right", padding: "6px 4px", fontWeight: 700, color: "var(--text-muted)", borderBottom: "2px solid #f3f4f6", fontSize: 12 }}>{h}</th>
             ))}
           </tr>
         </thead>
@@ -230,9 +230,9 @@ function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: 
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05 }}
               >
-                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: "#374151", fontWeight: 600 }}>{i + 1}</td>
+                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: "var(--text-primary)", fontWeight: 600 }}>{i + 1}</td>
                 <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: AZUL, fontWeight: 700 }}>{fmt(pago)}</td>
-                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: esUltima || saldo < 0.01 ? VERDE : "#111", fontWeight: esUltima ? 700 : 400 }}>
+                <td style={{ textAlign: "right", padding: "9px 4px", borderBottom: "1px solid #f9fafb", color: esUltima || saldo < 0.01 ? VERDE : "var(--text-primary)", fontWeight: esUltima ? 700 : 400 }}>
                   {saldo < 0.01 ? "✓ Liquidado" : fmt(saldo)}
                 </td>
               </motion.tr>
@@ -240,7 +240,7 @@ function TablaAmort({ pago, total, periodos, etiqueta }: { pago: number; total: 
           })}
           {periodos > 5 && (
             <tr>
-              <td colSpan={3} style={{ textAlign: "center", padding: "10px 4px", fontSize: 12, color: "#9ca3af" }}>
+              <td colSpan={3} style={{ textAlign: "center", padding: "10px 4px", fontSize: 12, color: "var(--text-muted)" }}>
                 ··· y {periodos - 5} {etiqueta.toLowerCase()}s más al mismo pago de {fmt(pago)}
               </td>
             </tr>
@@ -338,7 +338,7 @@ export default function Calculadora() {
                 style={{
                   flex: 1, padding: "11px 0", borderRadius: 12, border: "none",
                   cursor: "pointer", fontWeight: 700, fontSize: 14, position: "relative",
-                  background: "transparent", color: tipo === t ? "#fff" : "#6b7280",
+                  background: "transparent", color: tipo === t ? "#fff" : "var(--text-muted)",
                   transition: "color 0.2s",
                 }}
               >
@@ -380,11 +380,11 @@ export default function Calculadora() {
           ) : (
             <div style={{ marginBottom: 24 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <span style={{ fontSize: 13, fontWeight: 600, color: "#6b7280" }}>Plazo</span>
+                <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-muted)" }}>Plazo</span>
                 <span style={{ fontSize: 20, fontWeight: 900, color: AZUL2 }}>{nuevoPlazo} semanas</span>
               </div>
               <div style={{ height: 6, borderRadius: 99, background: `linear-gradient(90deg, ${AZUL}, ${AMARILLO})` }} />
-              <div style={{ fontSize: 12, color: "#9ca3af", marginTop: 4 }}>Plazo fijo para primer crédito</div>
+              <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>Plazo fijo para primer crédito</div>
             </div>
           )}
 
@@ -435,7 +435,7 @@ export default function Calculadora() {
           transition={{ delay: 0.24 }}
           style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
-          <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
+          <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Resumen
           </p>
           <BarraProporciones monto={monto} interes={interes} />
@@ -453,7 +453,7 @@ export default function Calculadora() {
           transition={{ delay: 0.3 }}
           style={{ background: "var(--surface)", borderRadius: 20, padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
         >
-          <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "#9ca3af" }}>
+          <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Calendario de pagos
           </p>
           <AnimatePresence mode="wait">

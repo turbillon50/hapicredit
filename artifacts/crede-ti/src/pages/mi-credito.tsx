@@ -360,7 +360,7 @@ function NeedsInfoResponse({ creditId }: { creditId: number }) {
         onClick={respond}
         disabled={sending || !msg.trim()}
         style={{
-          background: sending ? "#9ca3af" : "#f59e0b",
+          background: sending ? "var(--text-muted)" : "#f59e0b",
           color: "white",
           border: "none",
           borderRadius: "8px",

@@ -176,7 +176,7 @@ function StepBar({ step, total }: { step: number; total: number }) {
         <div
           key={i}
           className="flex-1 h-1.5 rounded-full transition-all duration-500"
-          style={{ background: i < step ? "var(--accent)" : "#e5e7eb" }}
+          style={{ background: i < step ? "var(--accent)" : "var(--border)" }}
         />
       ))}
     </div>
@@ -405,7 +405,7 @@ export default function AltaCliente() {
                 className="rounded-2xl p-3 flex items-center gap-3"
                 style={{ background: docsOk ? "var(--surface-3)" : "#f8fafc" }}
               >
-                <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "#cbd5e1"} /></span>
+                <span className="shrink-0"><IconCheck size={24} color={docsOk ? "#10b981" : "var(--text-muted)"} /></span>
                 <div className="text-sm">
                   <div className="font-semibold text-gray-800">
                     {docsOk ? "Documentos requeridos completos" : `Faltan ${requiredDocs.filter(f => !docs[f.key]).length} documentos obligatorios`}
@@ -546,8 +546,8 @@ export default function AltaCliente() {
                 disabled={!canContinue()}
                 className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all pressable"
                 style={{
-                  background: canContinue() ? "var(--accent)" : "#e5e7eb",
-                  color: canContinue() ? "white" : "#9ca3af",
+                  background: canContinue() ? "var(--accent)" : "var(--border)",
+                  color: canContinue() ? "white" : "var(--text-muted)",
                 }}
               >
                 Continuar <IconFlecha size={16} />
@@ -559,8 +559,8 @@ export default function AltaCliente() {
                 disabled={!canContinue() || submitting}
                 className="flex-1 flex items-center justify-center gap-2 py-4 rounded-2xl text-sm font-bold transition-all pressable"
                 style={{
-                  background: canContinue() && !submitting ? "#10b981" : "#e5e7eb",
-                  color: canContinue() && !submitting ? "white" : "#9ca3af",
+                  background: canContinue() && !submitting ? "#10b981" : "var(--border)",
+                  color: canContinue() && !submitting ? "white" : "var(--text-muted)",
                 }}
               >
                 {submitting
