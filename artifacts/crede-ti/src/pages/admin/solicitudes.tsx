@@ -129,6 +129,18 @@ function CreditDetail({
   onDone: () => void;
 }) {
   const qc = useQueryClient();
+  // Documentos que el cliente subió (INE, selfie, comprobante) para revisarlos antes de aprobar.
+  const { data: expediente } = useQuery<any>({
+    queryKey: ["review-expediente", credit.clientId],
+    queryFn: async () => { const r = await fetch(`${API}/clients/${credit.clientId}/expediente`, { headers: auth() }); if (!r.ok) return null; return r.json(); },
+    enabled: !!credit.clientId,
+  });
+  const reviewUserId = expediente?.user?.id ?? null;
+  const { data: reviewDocs = [] } = useQuery<any[]>({
+    queryKey: ["review-docs", reviewUserId],
+    queryFn: async () => { const r = await fetch(`${API}/uploads/user/${reviewUserId}`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
+    enabled: !!reviewUserId,
+  });
   const [notes, setNotes]             = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
   const [confirm, setConfirm]         = useState<"approve" | "reject" | null>(null);
   const [editMode, setEditMode]       = useState(false);
@@ -312,6 +324,41 @@ function CreditDetail({
           ))}
         </div>
       )}
+
+      {/* Documentos subidos por el cliente — para revisar antes de aprobar */}
+      <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-3">
+        <div className="flex items-center justify-between">
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Documentos del cliente</div>
+          <div className="text-[11px] text-gray-400">{reviewDocs.length} {reviewDocs.length === 1 ? "archivo" : "archivos"}</div>
+        </div>
+        {reviewDocs.length === 0 ? (
+          <div className="text-xs text-gray-400 text-center py-4">El cliente aún no ha subido documentos.</div>
+        ) : (
+          <div className="grid grid-cols-3 gap-2">
+            {reviewDocs.map((doc: any) => {
+              const url = doc.blobUrl ?? doc.url ?? "";
+              const isImg = (doc.mimeType ?? "").startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(url);
+              const label = ({
+                ine_front: "INE Frente", ine_back: "INE Reverso", selfie_ine: "Selfie + INE",
+                comprobante_domicilio: "Domicilio", foto: "Foto", curp: "CURP", otro: "Otro",
+              } as Record<string, string>)[doc.type] ?? doc.type ?? "Documento";
+              return (
+                <a key={doc.id ?? url} href={url} target="_blank" rel="noopener noreferrer"
+                   className="flex flex-col gap-1 pressable">
+                  <div className="aspect-square rounded-xl overflow-hidden bg-white flex items-center justify-center"
+                       style={{ border: "1.5px solid var(--border)" }}>
+                    {isImg
+                      ? <img src={url} alt={label} className="w-full h-full object-cover" />
+                      : <IconDocumento size={28} color="#9ca3af" />}
+                  </div>
+                  <div className="text-[10px] text-center text-gray-500 font-medium truncate">{label}</div>
+                </a>
+              );
+            })}
+          </div>
+        )}
+        <div className="text-[10px] text-gray-400 text-center">Toca un documento para verlo en grande.</div>
+      </div>
 
       <AdminMensajesSection clientId={credit.clientId} />
 
