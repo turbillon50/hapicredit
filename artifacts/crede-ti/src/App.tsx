@@ -179,6 +179,11 @@ function ClerkCacheInvalidator() {
         // Fetch the DB role — source of truth after elevation via master code.
         // Clerk publicMetadata may lag until the JWT is refreshed.
         let role = (clerkUser.publicMetadata?.role as string | undefined) ?? "client";
+        // Auto-corrige rol admin para emails en SUPERADMIN_EMAILS (sin intervención manual).
+        try {
+          const clerkEmail = clerkUser.primaryEmailAddress?.emailAddress ?? "";
+          await fetch(`${API}/auth/sync-role`, { method: "POST", headers: { Authorization: `Bearer ${token}`, "x-user-email": clerkEmail } });
+        } catch { /* no crítico */ }
         try {
           const meRes = await fetch(`${API}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
           if (meRes.ok) { const me = await meRes.json(); if (me?.role) role = me.role; }

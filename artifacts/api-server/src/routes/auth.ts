@@ -592,12 +592,17 @@ router.post("/auth/sync-role", requireAuth, async (req, res): Promise<void> => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
   if (!user) { res.status(404).json({ error: "User not found" }); return; }
 
-  const email = user.email?.toLowerCase() ?? "";
-  const shouldBeAdmin = superadminEmails.includes(email);
+  // Email de la tabla O el que venga en el header (Clerk lo pasa via req.userEmail si está disponible).
+  const headerEmail = (req.headers["x-user-email"] as string | undefined)?.toLowerCase();
+  const email = (user.email?.toLowerCase() || headerEmail || "").trim();
+  const shouldBeAdmin = email !== "" && superadminEmails.includes(email);
 
-  if (shouldBeAdmin && user.role !== "admin") {
+  // Si la tabla no tenía email pero lo recibimos, lo poblamos para futuras sincronizaciones.
+  const needsEmailBackfill = !user.email && headerEmail;
+
+  if (shouldBeAdmin && (user.role !== "admin" || needsEmailBackfill)) {
     await db.update(usersTable)
-      .set({ role: "admin", updatedAt: new Date() })
+      .set({ role: "admin", email: user.email ?? headerEmail ?? null, updatedAt: new Date() })
       .where(eq(usersTable.id, user.id));
     res.json({ ok: true, role: "admin", updated: true });
     return;
