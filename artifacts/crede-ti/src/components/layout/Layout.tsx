@@ -168,30 +168,45 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
   const { signOut } = useClerk();
   const { isLoaded: clerkLoaded, isSignedIn, user: clerkUser } = useUser();
 
-  // Auth is derived from BOTH the legacy localStorage token (demo mode + admin
-  // master-code login) AND the live Clerk session. The Clerk session is the
-  // reason a brand-new user who just signed up is authenticated even before
-  // ClerkCacheInvalidator has finished writing credeti_token to localStorage.
-  // Deriving from useUser() (reactive) is what stops the "me regresa al login"
-  // bounce right after registering.
+  // ============================================================================
+  // AUTH / ROUTING — ARQUITECTURA (ver AUTH_ARCHITECTURE.md)
+  // ----------------------------------------------------------------------------
+  // UNA SOLA fuente de verdad para el estado de auth, resuelta de forma síncrona.
+  // Reglas (en este orden estricto):
+  //   1. token: localStorage (master-login demo) O sesión Clerk activa.
+  //   2. role:  si hay sesión Clerk → SIEMPRE el rol de Clerk (publicMetadata,
+  //             NO editable por el usuario). Si no hay Clerk → roleLS (demo).
+  //   3. authReady: el rol está RESUELTO en cuanto Clerk terminó de cargar
+  //             (clerkLoaded). Nunca dependemos de que localStorage tenga el rol
+  //             — eso causaba que la pantalla se quedara TRABADA en el loader.
+  // El routing vive en UN SOLO useEffect; en render solo mostramos el loader
+  // mientras authReady es false. Cuando Clerk carga, authReady=true SIEMPRE, así
+  // que el routing corre y nunca se traba.
+  // ============================================================================
   const tokenLS = localStorage.getItem("credeti_token");
   const roleLS  = localStorage.getItem("credeti_role");
   const clerkRole = (clerkUser?.publicMetadata?.role as string | undefined) ?? undefined;
+
   const token = tokenLS ?? (isSignedIn ? "clerk-session" : null);
-  // SEGURIDAD: si hay sesión Clerk, su rol (publicMetadata, NO editable por el
-  // usuario) MANDA sobre el localStorage (que sí se puede editar en el navegador).
-  // Así un usuario no puede auto-promoverse a admin tocando credeti_role.
-  // El localStorage solo se usa para el master-login de demo (sin sesión Clerk).
+  // Si hay sesión Clerk, su rol manda (seguridad: no auto-promoción por localStorage).
+  // Si no, el rol de demo (master-login). El fallback "client" solo aplica a un
+  // usuario Clerk recién creado sin metadata todavía.
   const role  = (isSignedIn ? (clerkRole ?? "client") : roleLS) ?? null;
   const user  = (() => { try { return JSON.parse(localStorage.getItem("credeti_user") || "{}"); } catch { return {}; } })();
 
-  const publicPaths = ["/", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
+  const publicPaths = ["/", "/inicio", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
   const isPublicPath = publicPaths.includes(location) || location.startsWith("/sign-in") || location.startsWith("/sign-up");
 
-  // On a protected route with no token yet: if Clerk is still booting OR the
-  // user IS signed in (token sync in flight), show a loader instead of bouncing
-  // them to /login. Once Clerk settles this re-renders with the right auth.
-  if (!token && !isPublicPath && (!clerkLoaded || isSignedIn)) {
+  // authReady: ¿ya podemos tomar decisiones de routing sin riesgo de trabarnos?
+  // - Si NO hay sesión Clerk (modo demo / anónimo): listo de inmediato.
+  // - Si HAY sesión Clerk: listo en cuanto Clerk terminó de cargar (clerkLoaded).
+  //   En ese punto clerkRole ya está disponible (o aplica el fallback "client").
+  const authReady = !isSignedIn || clerkLoaded;
+
+  // Loader ÚNICO: solo mientras la auth se resuelve. Garantía anti-trabado:
+  // en cuanto authReady es true, este bloque NO se ejecuta y el componente
+  // renderiza normal o el effect navega. Nunca se queda colgado.
+  if (!authReady) {
     return (
       <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
         background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
@@ -201,41 +216,33 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     );
   }
 
-  // Routing se maneja SOLO en el useEffect de abajo (nunca navigate en render,
-  // que causa bucle/rebote durante el asentamiento de Clerk). Aquí solo decidimos
-  // si mostrar el loader mientras la ruta se resuelve.
+  // En este punto la auth está RESUELTA. checkAccess decide si la ruta es válida.
   const access = checkAccess(location, token, role);
-  if (access !== "ok") {
-    // No navegamos en render — mostramos el loader; el effect hará el navigate.
-    return (
-      <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
-        background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
-        color: "rgba(255,255,255,0.75)", fontFamily: "Montserrat, Inter, sans-serif", fontSize: 14 }}>
-        Cargando…
-      </div>
-    );
-  }
 
   const isAdmin = location.startsWith("/admin");
   const isExec  = location.startsWith("/dashboard") || location.startsWith("/executive");
   const isStaff = isAdmin || isExec;
   const navItems = isAdmin ? adminNav : isExec ? execNav : clientNav;
 
+  // ROUTING: una sola fuente, en un solo effect. Nunca navega en render.
+  // Como authReady ya es true aquí, el rol es definitivo y no hay rebote.
   useEffect(() => {
-    if (!clerkLoaded) return; // wait for Clerk before making routing decisions
-    const t = token;
-    const r = role;
-    const isPublic = isPublicPath;
-    if (!t) { if (!isPublic) navigate("/login"); return; }
-    // Si hay sesión pero el rol todavía no se resuelve (boot de Clerk), NO navegar:
-    // evita el rebote admin→cliente cuando role cae temporalmente a su fallback.
-    const roleResolving = isSignedIn && !localStorage.getItem("credeti_role");
-    if (roleResolving) return;
-    // Única fuente de routing: checkAccess centralizado.
-    const target = checkAccess(location, t, r);
-    if (target === "login") { navigate("/login"); return; }
-    if (target !== "ok") { navigate(target); return; }
-  }, [location, clerkLoaded, token, role, isSignedIn]);
+    if (!authReady) return;
+    if (access === "login") { navigate("/login"); return; }
+    if (access !== "ok")    { navigate(access); return; }
+  }, [location, authReady, access, navigate]);
+
+  // Si la ruta no es válida, mostramos el loader UN instante mientras el effect
+  // de arriba redirige (no renderizamos contenido de una ruta no autorizada).
+  if (access !== "ok") {
+    return (
+      <div style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center",
+        background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
+        color: "rgba(255,255,255,0.75)", fontFamily: "Montserrat, Inter, sans-serif", fontSize: 14 }}>
+        Redirigiendo…
+      </div>
+    );
+  }
 
   function handleLogout() {
     localStorage.removeItem("credeti_token");
