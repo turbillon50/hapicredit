@@ -818,6 +818,18 @@ export default function Perfil() {
           </button>
         )}
 
+        {/* Acceso discreto al panel de administración — solo para admins */}
+        {userRole === "admin" && (
+          <button
+            onClick={() => { window.location.href = "/admin"; }}
+            className="w-full py-3.5 rounded-2xl text-sm font-bold pressable"
+            style={{ background: "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Panel de administración
+          </button>
+        )}
+
         {/* Logout */}
         <button
           onClick={() => {

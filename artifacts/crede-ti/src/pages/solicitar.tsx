@@ -82,7 +82,7 @@ export default function Solicitar() {
   const { user: clerkUser } = useUser();
   // Email del usuario: del campo del form, o del perfil Clerk, o del localStorage
   const clerkEmail = clerkUser?.primaryEmailAddress?.emailAddress ?? null;
-  useRequireAuth(["client"]);
+  useRequireAuth(["client", "customer", "admin", "executive"]);
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState<string | null>(null);

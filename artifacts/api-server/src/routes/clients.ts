@@ -359,7 +359,7 @@ router.patch("/clients/:id", requireAuth, requireRole("admin", "executive"), asy
 });
 
 // ─── GET /api/me/client — link logged-in client user to their client record ───
-router.get("/me/client", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.get("/me/client", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   // Robust link: FK -> normalized name -> phone, backfilling the FK on first match.
   const clientId = await resolveClientId(req.userId!);
   if (!clientId) { res.status(404).json({ error: "No client record linked to this user" }); return; }
@@ -390,7 +390,7 @@ router.get("/me/client", requireAuth, requireRole("client", "customer"), async (
 // ─── PUT /api/me/profile ─── client creates/updates their own basic profile ───
 // Works even before they file a credit application, so the perfil page always
 // has somewhere to save name/phone/address/CURP.
-router.put("/me/profile", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.put("/me/profile", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const { fullName, phone, altPhone, address, curp } = req.body ?? {};
 
   // Try to find existing client record
@@ -532,7 +532,7 @@ router.get("/clients/:id/risk-score", requireAuth, async (req, res): Promise<voi
 });
 
 // ─── GET /api/me/timeline — trazabilidad cronologica del credito del cliente ───
-router.get("/me/timeline", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.get("/me/timeline", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const clientId = await resolveClientId(req.userId!);
   if (!clientId) { res.json([]); return; }
 

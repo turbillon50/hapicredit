@@ -92,7 +92,7 @@ router.get("/credits", requireAuth, async (req, res): Promise<void> => {
 
 // GET /credits/my-credit -- active credit for authenticated client
 // NOTE: must be before /credits/:id
-router.get("/credits/my-credit", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.get("/credits/my-credit", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const resolvedClientId = await resolveClientId(req.userId!);
   if (!resolvedClientId) { res.status(404).json({ error: "No client record found" }); return; }
   const [clientRecord] = await db.select({ id: clientsTable.id, fullName: clientsTable.fullName }).from(clientsTable).where(eq(clientsTable.id, resolvedClientId)).limit(1);
@@ -354,7 +354,7 @@ router.patch("/credits/:id", requireAuth, requireRole("admin", "executive"), asy
 // Creates (or reuses) the client record linked to this user and a pending
 // credit, so the application shows up in the admin "solicitudes" queue and in
 // the client's "mi crédito" page immediately.
-router.post("/me/apply", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.post("/me/apply", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!));
   if (!user) { res.status(404).json({ error: "Usuario no encontrado" }); return; }
 
@@ -472,7 +472,7 @@ router.post("/me/apply", requireAuth, requireRole("client", "customer"), async (
 });
 
 // Cliente responde a needs_info → regresa el crédito a pending
-router.patch("/credits/:id/client-response", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.patch("/credits/:id/client-response", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   try {
     const { id } = req.params;
     const { message } = req.body;

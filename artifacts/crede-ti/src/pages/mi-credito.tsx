@@ -400,7 +400,7 @@ function Greeting({ name }: { name: string }) {
 }
 
 export default function MiCredito() {
-  useRequireAuth(["client"]);
+  useRequireAuth(["client", "customer", "admin", "executive"]);
 
   const { data: client, isLoading } = useQuery<ClientProfile | null>({
     queryKey: ["me-client"],

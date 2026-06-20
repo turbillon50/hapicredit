@@ -51,10 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             localStorage.setItem("credeti_role", d.role);
             setUser(corrected as any);
             setInit(true);
-            // Redirect to the correct home for the new role
-            if (d.role === "admin" && !window.location.pathname.startsWith("/admin")) {
-              window.location.replace("/admin");
-            }
+            // Ya NO redirigimos automáticamente a /admin — el admin se queda en
+            // la vista cliente y entra al panel con el switch discreto del perfil.
           } else {
             setUser(meData);
             setInit(true);

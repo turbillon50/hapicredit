@@ -153,12 +153,12 @@ function RoleBadge({ role }: { role: string | null }) {
 function checkAccess(location: string, t: string | null, r: string | null): "ok" | "login" | string {
   const publicPaths = ["/", "/inicio", "/login", "/registro", "/privacidad", "/terminos", "/faq", "/calculadora"];
   if (!t) return publicPaths.includes(location) ? "ok" : "login";
+  // El panel admin sigue protegido: solo admins entran a /admin.
   if (location.startsWith("/admin") && r !== "admin") return r === "executive" ? "/dashboard" : "/mi-credito";
-  if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive") return r === "admin" ? "/admin" : "/mi-credito";
-  if (["/solicitar", "/mi-credito", "/perfil"].includes(location)) {
-    if (r === "admin") return "/admin";
-    if (r === "executive") return "/dashboard";
-  }
+  // El dashboard de ejecutivo solo para executives (un admin puede verlo también).
+  if ((location.startsWith("/dashboard") || location === "/executive") && r !== "executive" && r !== "admin") return "/mi-credito";
+  // La vista de cliente (/solicitar, /mi-credito, /perfil) queda ABIERTA para
+  // admins y ejecutivos también — pueden solicitar crédito y vivir el flujo.
   return "ok";
 }
 
@@ -270,6 +270,11 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
               </svg>
             </a>
           </>)}
+          {isAdmin && (
+            <Link href="/mi-credito" style={{ color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center" }} title="Ver como cliente">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </Link>
+          )}
           <Link href="/inicio" style={{ color: "rgba(255,255,255,0.7)", display: "flex", alignItems: "center" }} title="Ver inicio">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
           </Link>

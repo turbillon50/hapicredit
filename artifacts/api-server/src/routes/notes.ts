@@ -111,14 +111,14 @@ router.post("/notes", requireAuth, async (req, res): Promise<void> => {
 });
 
 // GET /notes/my-messages -- message thread for the authenticated client
-router.get("/notes/my-messages", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.get("/notes/my-messages", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const clientId = await resolveClientId(req.userId!);
   if (!clientId) { res.json([]); return; }
   res.json(await fetchClientThread(clientId));
 });
 
 // POST /notes/my-message -- client sends a message to their advisor
-router.post("/notes/my-message", requireAuth, requireRole("client", "customer"), async (req, res): Promise<void> => {
+router.post("/notes/my-message", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
   const { content } = req.body;
   if (!content || typeof content !== "string" || !content.trim()) {
     res.status(400).json({ error: "El mensaje no puede estar vacío" });

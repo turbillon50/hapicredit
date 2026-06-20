@@ -50,6 +50,8 @@ import Invitacion      from "@/pages/invitacion";
 import AdminReportes   from "@/pages/admin/reportes";
 import AdminCentro        from "@/pages/admin/centro";
 import AdminExpediente    from "@/pages/admin/expediente";
+import AdminExpediente    from "@/pages/admin/expediente";
+import AdminExpediente    from "@/pages/admin/expediente";
 import NotFound         from "@/pages/not-found";
 import UpdatePrompt     from "@/components/UpdatePrompt";
 import SmartInstallBanner from "@/components/SmartInstallBanner";
@@ -247,10 +249,11 @@ function ClerkCacheInvalidator() {
 function RootRedirect() {
   const role  = localStorage.getItem("credeti_role");
   const token = localStorage.getItem("credeti_token");
-  if (role === "admin")     return <Redirect to="/admin" />;
+  // Los admins NO aterrizan en /admin (ruta no obvia). Entran a la vista de
+  // cliente como cualquier usuario — pueden solicitar crédito y vivir el flujo.
+  // El panel admin se alcanza con el switch discreto desde el perfil.
   if (role === "executive") return <Redirect to="/dashboard" />;
-  // Logged-in client lands on their credit dashboard, not the public home.
-  if (token && role === "client") return <Redirect to="/mi-credito" />;
+  if (token && (role === "client" || role === "admin")) return <Redirect to="/mi-credito" />;
   return <Home />;
 }
 
@@ -287,6 +290,8 @@ function Router() {
       {/* Admin */}
       <Route path="/admin"                  component={AdminDashboard} />
       <Route path="/admin/solicitudes"      component={AdminSolicitudes} />
+      <Route path="/admin/expediente/:userId" component={AdminExpediente} />
+      <Route path="/admin/expediente/:userId" component={AdminExpediente} />
       <Route path="/admin/expediente/:userId" component={AdminExpediente} />
       <Route path="/admin/cartera"          component={AdminCartera} />
       <Route path="/admin/morosos"          component={AdminMorosos} />
