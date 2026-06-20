@@ -55,15 +55,15 @@ function getEntryIcon(type: string) {
   switch (type) {
     case "income":
     case "late_fee":
-      return <IconMoneda size={16} color="#0B7A53" />;
+      return <IconMoneda size={16} color="var(--success)" />;
     case "disbursement":
-      return <IconCartera size={16} color="#B91C1C" />;
+      return <IconCartera size={16} color="var(--danger)" />;
     case "payroll":
-      return <IconNomina size={16} color="#d97706" />;
+      return <IconNomina size={16} color="var(--warning)" />;
     case "capital":
       return <IconCaja size={16} color="var(--text-secondary)" />;
     case "expense":
-      return <IconAlerta size={16} color="#B91C1C" />;
+      return <IconAlerta size={16} color="var(--danger)" />;
     default:
       return <IconMoneda size={16} color="var(--text-muted)" />;
   }
@@ -375,7 +375,7 @@ export default function AdminMovimientos() {
                                 </button>
                                 <button
                                   onClick={() => setDeleteTarget({ id: cajaId, amount: Math.abs(entry.amount), description: entry.description })}
-                                  style={{ background: "var(--surface-3)", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "#B91C1C" }}
+                                  style={{ background: "var(--surface-3)", border: "none", borderRadius: 6, padding: "3px 6px", cursor: "pointer", color: "var(--danger)" }}
                                 >
                                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
                                 </button>
@@ -454,7 +454,7 @@ export default function AdminMovimientos() {
             <button
               onClick={() => deleteExpense.mutate(deleteTarget.id)}
               disabled={deleteExpense.isPending}
-              style={{ width: "100%", padding: 14, background: "#C81E1E", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: deleteExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: deleteExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
+              style={{ width: "100%", padding: 14, background: "var(--danger)", color: "white", border: "none", borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 15, cursor: deleteExpense.isPending ? "default" : "pointer", marginBottom: 10, opacity: deleteExpense.isPending ? 0.6 : 1, fontFamily: "inherit" }}
             >
               {deleteExpense.isPending ? "Eliminando..." : "Eliminar"}
             </button>

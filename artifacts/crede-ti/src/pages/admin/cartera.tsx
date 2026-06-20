@@ -62,9 +62,9 @@ function fetchPortfolio(): Promise<CarteraItem[]> {
 
 function semaphoreColor(status: string, daysOverdue: number) {
   if (status === "defaulted" || daysOverdue >= 31) return { bg: "#1a1a1a", text: "#fff", label: "Cartera vencida", dot: "#000" };
-  if (status === "overdue" || daysOverdue >= 16)   return { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Atraso critico", dot: "#C81E1E" };
-  if (status === "at_risk" || daysOverdue >= 1)    return { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Atraso leve", dot: "#B26A00" };
-  return                                           { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Al corriente", dot: "#0E9F6E" };
+  if (status === "overdue" || daysOverdue >= 16)   return { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Atraso critico", dot: "var(--danger)" };
+  if (status === "at_risk" || daysOverdue >= 1)    return { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Atraso leve", dot: "var(--warning)" };
+  return                                           { bg: "var(--surface-3)", text: "var(--text-secondary)", label: "Al corriente", dot: "var(--success)" };
 }
 
 type StatusFilter = "todos" | "current" | "at_risk" | "overdue" | "defaulted";
@@ -115,7 +115,7 @@ function CreditCard({ item, navigate }: { item: CarteraItem; navigate: (path: st
         <div className="w-full h-1.5 rounded-full bg-gray-100">
           <div
             className="h-full rounded-full transition-all"
-            style={{ width: `${progress}%`, background: progress >= 80 ? "#0E9F6E" : "var(--accent)" }}
+            style={{ width: `${progress}%`, background: progress >= 80 ? "var(--success)" : "var(--accent)" }}
           />
         </div>
       </div>
@@ -174,9 +174,9 @@ export default function AdminCartera() {
 
   const STATUS_TABS: { key: StatusFilter; label: string; color: string }[] = [
     { key: "todos",     label: "Todos",        color: "var(--accent)" },
-    { key: "current",   label: "Al corriente", color: "#0E9F6E" },
-    { key: "at_risk",   label: "Riesgo",       color: "#B26A00" },
-    { key: "overdue",   label: "Mora",         color: "#C81E1E" },
+    { key: "current",   label: "Al corriente", color: "var(--success)" },
+    { key: "at_risk",   label: "Riesgo",       color: "var(--warning)" },
+    { key: "overdue",   label: "Mora",         color: "var(--danger)" },
     { key: "defaulted", label: "Vencida",      color: "#000" },
   ];
 
@@ -214,7 +214,7 @@ export default function AdminCartera() {
             <button
               onClick={() => setViewMode("day")}
               className="p-2 rounded-md pressable"
-              style={viewMode === "day" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
+              style={viewMode === "day" ? { background: "#fff", boxShadow: "var(--shadow-xs)" } : {}}
               title="Agrupar por día"
             >
               <IconCalendario size={16} color={viewMode === "day" ? "#2563eb" : "var(--text-muted)"} />
@@ -222,7 +222,7 @@ export default function AdminCartera() {
             <button
               onClick={() => setViewMode("list")}
               className="p-2 rounded-md pressable"
-              style={viewMode === "list" ? { background: "#fff", boxShadow: "0 1px 3px rgba(0,0,0,0.1)" } : {}}
+              style={viewMode === "list" ? { background: "#fff", boxShadow: "var(--shadow-xs)" } : {}}
               title="Lista"
             >
               <IconCartera size={16} color={viewMode === "list" ? "#2563eb" : "var(--text-muted)"} />

@@ -87,7 +87,7 @@ export default function Invitacion() {
 
       {/* Badge */}
       <div style={{
-        background: isRenewal ? "linear-gradient(135deg,#B26A00,#fbbf24)" : "linear-gradient(135deg,#10b981,#059669)",
+        background: isRenewal ? "linear-gradient(135deg,var(--warning),#fbbf24)" : "linear-gradient(135deg,#10b981,#059669)",
         color: isRenewal ? "#451a03" : "#fff",
         fontSize: 11, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.08em",
         padding: "5px 14px", borderRadius: 100, marginBottom: 20,
@@ -160,7 +160,7 @@ export default function Invitacion() {
             width: "100%", height: 56, borderRadius: "var(--r-xl)", border: "none",
             background: "linear-gradient(135deg,#19D7D7,#215DFF)",
             color: "#fff", fontSize: 16, fontWeight: 800, cursor: "pointer",
-            boxShadow: "0 8px 32px rgba(33,93,255,0.4)",
+            boxShadow: "var(--shadow-md)",
           }}>
           {isRenewal ? "Activar mi renovación" : "Reclamar mi crédito"}
         </button>

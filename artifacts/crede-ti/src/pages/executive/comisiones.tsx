@@ -111,7 +111,7 @@ export default function ExecutiveComisiones() {
                     <div key={c.creditId ?? i} className="card flex items-center gap-3 py-3">
                       <div
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-base shrink-0"
-                        style={{ background: c.status === "active" ? "var(--surface-3)" : "rgba(33,93,255,0.10)", color: c.status === "active" ? "#0B7A53" : "var(--brand-blue)" }}
+                        style={{ background: c.status === "active" ? "var(--surface-3)" : "rgba(33,93,255,0.10)", color: c.status === "active" ? "var(--success)" : "var(--brand-blue)" }}
                       >
                         {c.status === "active" ? <IconCheck size={18} /> : <IconReloj size={18} />}
                       </div>
@@ -124,7 +124,7 @@ export default function ExecutiveComisiones() {
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-sm font-extrabold" style={{ color: "#0B7A53" }}>
+                        <div className="text-sm font-extrabold" style={{ color: "var(--success)" }}>
                           +{fmt(c.commission)}
                         </div>
                         <Badge variant={c.status === "active" ? "success" : "warning"} size="sm">

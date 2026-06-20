@@ -10,7 +10,7 @@ const ROLE_LABEL: Record<string, string> = { admin: "Administrador", executive: 
 const ROLE_COLOR: Record<string, { bg: string; color: string }> = {
   admin:     { bg: "var(--surface-3)", color: "var(--text-secondary)" },
   executive: { bg: "rgba(33,93,255,0.10)", color: "var(--brand-blue)" },
-  client:    { bg: "var(--surface-3)", color: "#166534" },
+  client:    { bg: "var(--surface-3)", color: "var(--success)" },
 };
 
 type Code = {
@@ -179,7 +179,7 @@ export default function AdminCodigos() {
                   {generateMutation.isPending ? "Generando..." : "Generar"}
                 </button>
               </div>
-              {generateMutation.isError && <p style={{ color: "#C81E1E", fontSize: 13, marginTop: 10 }}>{(generateMutation.error as Error).message}</p>}
+              {generateMutation.isError && <p style={{ color: "var(--danger)", fontSize: 13, marginTop: 10 }}>{(generateMutation.error as Error).message}</p>}
             </div>
           </div>
         )}
@@ -193,7 +193,7 @@ export default function AdminCodigos() {
                   <div style={{ fontSize: 40, marginBottom: 12 }}>
                     <svg width="48" height="48" viewBox="0 0 24 24" fill="none">
                       <circle cx="12" cy="12" r="12" fill="var(--surface-3)"/>
-                      <path d="M7 12.5l3.5 3.5 6.5-7" stroke="#0B7A53" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      <path d="M7 12.5l3.5 3.5 6.5-7" stroke="var(--success)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                     </svg>
                   </div>
                   <h3 style={{ fontSize: 18, fontWeight: 700, color: "var(--navy-800)", marginBottom: 8 }}>Correo enviado</h3>
@@ -216,7 +216,7 @@ export default function AdminCodigos() {
                       <input value={emailName} onChange={e => setEmailName(e.target.value)} placeholder="Nombre del invitado" style={inputStyle} />
                     </div>
                   </div>
-                  {emailError && <p style={{ color: "#C81E1E", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
+                  {emailError && <p style={{ color: "var(--danger)", fontSize: 13, marginBottom: 12 }}>{emailError}</p>}
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={() => setEmailModal(null)} style={{ flex: 1, padding: "12px", border: "1.5px solid var(--border)", borderRadius: "var(--r-md)", background: "white", fontWeight: 600, cursor: "pointer" }}>Cancelar</button>
                     <button onClick={sendEmail} disabled={emailLoading || !emailTo} style={{ flex: 2, padding: "12px", background: "var(--accent)", color: "white", border: "none", borderRadius: "var(--r-md)", fontWeight: 700, cursor: "pointer", opacity: emailLoading || !emailTo ? 0.6 : 1 }}>
@@ -249,7 +249,7 @@ export default function AdminCodigos() {
                     </p>
                   )}
                   <div style={{ display: "flex", gap: 8 }}>
-                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: "var(--r-sm)", background: copied === c.code ? "var(--surface-3)" : "white", color: copied === c.code ? "#166534" : "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
+                    <button onClick={() => copyCode(c.code)} style={{ flex: 1, padding: "9px", border: "1.5px solid var(--border)", borderRadius: "var(--r-sm)", background: copied === c.code ? "var(--surface-3)" : "white", color: copied === c.code ? "var(--success)" : "var(--text-primary)", fontWeight: 600, fontSize: 12, cursor: "pointer" }}>
                       {copied === c.code ? "Copiado" : "Copiar"}
                     </button>
                     <button

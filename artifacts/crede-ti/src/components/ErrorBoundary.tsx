@@ -38,7 +38,7 @@ export class ErrorBoundary extends Component<{ children: ReactNode }, State> {
           background: "#fff",
           borderRadius: "var(--r-lg)",
           padding: 22,
-          boxShadow: "0 8px 28px rgba(0,0,0,0.06)",
+          boxShadow: "var(--shadow-lg)",
           border: "1px solid #e8e4dc",
         }}>
           <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "0.12em", color: "#19D7D7", textTransform: "uppercase", marginBottom: 8 }}>

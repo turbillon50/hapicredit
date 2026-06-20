@@ -180,7 +180,7 @@ export default function ExecAgenda() {
                     className="rounded-2xl p-4 flex items-center gap-3 pressable"
                     style={{
                       background: paid ? "var(--success-bg)" : "var(--surface)",
-                      border: paid ? "1.5px solid #86efac" : "1.5px solid #f3f4f6",
+                      border: paid ? "1.5px solid var(--success)" : "1.5px solid #f3f4f6",
                     }}
                   >
                     <div
@@ -188,9 +188,9 @@ export default function ExecAgenda() {
                       style={{ background: paid ? "var(--surface-3)" : isLastPayment ? "#fff3cd" : "var(--surface-2)" }}
                     >
                       {paid
-                        ? <IconCheck size={18} color="#0E9F6E" />
+                        ? <IconCheck size={18} color="var(--success)" />
                         : isLastPayment
-                          ? <IconMoneda size={18} color="#B26A00" />
+                          ? <IconMoneda size={18} color="var(--warning)" />
                           : <IconReloj size={18} color="var(--text-muted)" />
                       }
                     </div>
@@ -208,7 +208,7 @@ export default function ExecAgenda() {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="text-base font-extrabold" style={{ color: paid ? "#0E9F6E" : "var(--navy)" }}>
+                      <div className="text-base font-extrabold" style={{ color: paid ? "var(--success)" : "var(--navy)" }}>
                         {fmt(parseFloat(credit.weeklyPayment))}
                       </div>
                       {paid && (

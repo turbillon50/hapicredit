@@ -32,7 +32,7 @@ const fmtPct = (n: number) => `${n.toFixed(1)}%`;
 const AZUL   = "#215DFF";
 const AZUL2  = "#0A2E8A";
 const AMARILLO = "#19D7D7";
-const VERDE  = "#0B7A53";
+const VERDE  = "var(--success)";
 
 // ─── Componentes pequeños ─────────────────────────────────────────────────────
 function SliderCampo({
@@ -328,7 +328,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: 8, marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: 8, marginBottom: 12, boxShadow: "var(--shadow-md)" }}
         >
           <div style={{ display: "flex", background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: 4, gap: 4 }}>
             {(["nuevo", "existente"] as ClienteType[]).map(t => (
@@ -362,7 +362,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18 }}
-          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "24px 20px 16px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "24px 20px 16px", marginBottom: 12, boxShadow: "var(--shadow-md)" }}
         >
           <SliderCampo
             label="Monto del crédito"
@@ -403,10 +403,10 @@ export default function Calculadora() {
                 borderRadius: "var(--r-lg)", padding: "10px 14px",
               }}
             >
-              <span style={{ fontSize: 13, color: tipo === "nuevo" ? "#166534" : "var(--brand-blue)", fontWeight: 600 }}>
+              <span style={{ fontSize: 13, color: tipo === "nuevo" ? "var(--success)" : "var(--brand-blue)", fontWeight: 600 }}>
                 {tipo === "nuevo" ? "Interés fijo (30% único)" : `Tasa efectiva (5% mensual)`}
               </span>
-              <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "#166534" : AZUL }}>
+              <span style={{ fontSize: 17, fontWeight: 900, color: tipo === "nuevo" ? "var(--success)" : AZUL }}>
                 <NumAnimado valor={tasaEfectiva} fmt={fmtPct} />
               </span>
             </motion.div>
@@ -433,14 +433,14 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.24 }}
-          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 12px", marginBottom: 12, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 12px", marginBottom: 12, boxShadow: "var(--shadow-md)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Resumen
           </p>
           <BarraProporciones monto={monto} interes={interes} />
           <FilaResultado etiqueta="Capital prestado" valor={fmt(monto)} />
-          <FilaResultado etiqueta="Intereses totales" valor={fmt(interes)} color="#d97706" />
+          <FilaResultado etiqueta="Intereses totales" valor={fmt(interes)} color="var(--warning)" />
           <FilaResultado etiqueta="Plazo" valor={tipo === "nuevo" ? "4 semanas (30 días)" : `${semanas} semanas`} />
           <FilaResultado etiqueta="Pago semanal" valor={fmt(pago)} color={AZUL} />
           <FilaResultado etiqueta="Total a pagar" valor={fmt(total)} grande color={AZUL2} />
@@ -451,7 +451,7 @@ export default function Calculadora() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 16px", marginBottom: 16, boxShadow: "0 4px 24px rgba(21,32,110,0.18)" }}
+          style={{ background: "var(--surface)", borderRadius: "var(--r-xl)", padding: "20px 20px 16px", marginBottom: 16, boxShadow: "var(--shadow-md)" }}
         >
           <p style={{ margin: "0 0 12px", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--text-muted)" }}>
             Calendario de pagos
@@ -477,7 +477,7 @@ export default function Calculadora() {
             borderRadius: "var(--r-lg)", border: "none", cursor: "pointer",
             fontWeight: 900, fontSize: 17, textAlign: "center",
             textDecoration: "none", boxSizing: "border-box",
-            boxShadow: "0 6px 24px rgba(240,169,58,0.5)",
+            boxShadow: "var(--shadow-md)",
           }}
         >
           Solicitar {fmt(monto)} →

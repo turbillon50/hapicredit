@@ -180,7 +180,7 @@ export default function ExecutiveCobrar() {
               {creditsLoading ? (
                 <div className="rounded-2xl p-4 bg-gray-50 text-sm text-gray-400 text-center">Cargando crédito...</div>
               ) : activeCredit ? (
-                <div className="rounded-2xl p-4 border-2" style={{ background: "var(--surface-3)", borderColor: "#86efac" }}>
+                <div className="rounded-2xl p-4 border-2" style={{ background: "var(--surface-3)", borderColor: "var(--success)" }}>
                   <div className="flex justify-between items-center mb-3">
                     <span className="text-xs font-bold text-green-700 uppercase tracking-wide">Crédito activo</span>
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">
@@ -199,7 +199,7 @@ export default function ExecutiveCobrar() {
                   </div>
                   {daysOverdue > 0 && (
                     <div className="mt-3 flex items-center gap-2 bg-red-50 rounded-xl px-3 py-2">
-                      <IconAlerta size={14} color="#C81E1E" />
+                      <IconAlerta size={14} color="var(--danger)" />
                       <span className="text-xs text-red-600 font-semibold">
                         {daysOverdue} día(s) de atraso · Multa estimada: {fmt(daysOverdue * 200)}
                       </span>

@@ -32,7 +32,7 @@ export function ReportButton() {
       <button onClick={() => setOpen(true)} aria-label="Reportar un problema" className="pressable"
         style={{ position: "fixed", right: 16, bottom: 92, zIndex: 40, width: 52, height: 52, borderRadius: "var(--r-xl)",
           background: "var(--brand-blue, #0E68CC)", color: "#fff", border: "none", cursor: "pointer",
-          boxShadow: "0 6px 20px rgba(14,104,204,0.4)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          boxShadow: "var(--shadow-md)", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       </button>
       {open && (
@@ -41,7 +41,7 @@ export function ReportButton() {
             <h3 style={{ margin: "0 0 4px", fontSize: 18, fontWeight: 700, color: "var(--text, #0f172a)" }}>Reportar un problema</h3>
             <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--text-muted, var(--text-secondary))" }}>Cuentanos que pasa y nuestro equipo te ayudara.</p>
             {done ? (
-              <div style={{ padding: "24px 0", textAlign: "center", color: "#0B7A53", fontWeight: 600 }}>Reporte enviado. Gracias \uD83D\uDC99</div>
+              <div style={{ padding: "24px 0", textAlign: "center", color: "var(--success)", fontWeight: 600 }}>Reporte enviado. Gracias \uD83D\uDC99</div>
             ) : (<>
               <select value={category} onChange={(e) => setCategory(e.target.value)} style={{ width: "100%", padding: 12, marginBottom: 10, borderRadius: "var(--r-md)", border: "1px solid var(--border,var(--border))", background: "var(--surface-2,#f8fafc)", color: "var(--text,#0f172a)" }}>
                 <option value="general">General</option>

@@ -113,11 +113,11 @@ export default function Terminos() {
             background: "var(--surface-3)", border: "1px solid var(--surface-3)",
             borderRadius: "var(--r-lg)", padding: "18px 20px", marginBottom: 16,
           }}>
-            <p style={{ ...s.p, color: "#166534", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
+            <p style={{ ...s.p, color: "var(--success)", fontWeight: 700, marginBottom: 8 }}>Cliente nuevo (primera apertura)</p>
             <ul style={s.ul}>
-              <li style={{ ...s.li, color: "#166534" }}>Monto: <strong>$500 a $1,000 MXN</strong></li>
-              <li style={{ ...s.li, color: "#166534" }}>Plazo: <strong>4 semanas (30 días)</strong></li>
-              <li style={{ ...s.li, color: "#166534" }}>Interés: <strong>30% fijo</strong> sobre el monto</li>
+              <li style={{ ...s.li, color: "var(--success)" }}>Monto: <strong>$500 a $1,000 MXN</strong></li>
+              <li style={{ ...s.li, color: "var(--success)" }}>Plazo: <strong>4 semanas (30 días)</strong></li>
+              <li style={{ ...s.li, color: "var(--success)" }}>Interés: <strong>30% fijo</strong> sobre el monto</li>
             </ul>
           </div>
 

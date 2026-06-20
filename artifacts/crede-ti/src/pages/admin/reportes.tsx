@@ -72,7 +72,7 @@ function TableCartera({ data }: { data: any[] }) {
             <td style={{ padding: "10px" }}>
               <span style={{ padding: "3px 10px", borderRadius: 100, fontSize: 11, fontWeight: 700,
                 background: r.status === "active" ? "var(--surface-3)" : "var(--surface-3)",
-                color: r.status === "active" ? "#166534" : "var(--text-secondary)" }}>
+                color: r.status === "active" ? "var(--success)" : "var(--text-secondary)" }}>
                 {r.status}
               </span>
             </td>
@@ -113,11 +113,11 @@ function TableCobranza({ data }: { data: any[] }) {
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{r.executive_name ?? "—"}</td>
               <td style={{ padding: "10px", fontWeight: 700, color: "#059669" }}>{fmt(r.amount_paid)}</td>
               <td style={{ padding: "10px", color: "var(--text-muted)" }}>{fmt(r.amount_expected)}</td>
-              <td style={{ padding: "10px", color: "#B91C1C" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
+              <td style={{ padding: "10px", color: "var(--danger)" }}>{r.late_fee > 0 ? fmt(r.late_fee) : "—"}</td>
               <td style={{ padding: "10px" }}>
                 <span style={{ padding: "3px 8px", borderRadius: 100, fontSize: 11, fontWeight: 700,
                   background: r.payment_status === "on_time" ? "var(--surface-3)" : r.payment_status === "late" ? "var(--surface-3)" : "#f3f4f6",
-                  color: r.payment_status === "on_time" ? "#166534" : r.payment_status === "late" ? "var(--text-secondary)" : "var(--text-primary)" }}>
+                  color: r.payment_status === "on_time" ? "var(--success)" : r.payment_status === "late" ? "var(--text-secondary)" : "var(--text-primary)" }}>
                   {r.payment_status === "on_time" ? "Puntual" : r.payment_status === "late" ? "Con mora" : r.payment_status}
                 </span>
               </td>
@@ -166,10 +166,10 @@ function FlujoCaja({ data }: { data: any }) {
     <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
       <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
         {[
-          { label: "Desembolsado", val: data.disbursed, color: "#B91C1C" },
+          { label: "Desembolsado", val: data.disbursed, color: "var(--danger)" },
           { label: "Cobrado", val: data.collected, color: "#059669" },
-          { label: "Pend. validar", val: data.pendingValidation, color: "#d97706" },
-          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "#B91C1C" },
+          { label: "Pend. validar", val: data.pendingValidation, color: "var(--warning)" },
+          { label: "Flujo neto", val: data.netFlow, color: data.netFlow >= 0 ? "#059669" : "var(--danger)" },
         ].map(item => (
           <div key={item.label} style={{ background: "var(--surface-2)", borderRadius: "var(--r-lg)", padding: "16px" }}>
             <div style={{ fontSize: 11, color: "var(--text-muted)", marginBottom: 4 }}>{item.label}</div>
@@ -291,7 +291,7 @@ export default function AdminReportes() {
               {/* Contenido */}
               <div style={{ padding: 16, overflowX: "auto" }}>
                 {isLoading && <div style={{ padding: 32, textAlign: "center", color: "var(--text-muted)" }}>Cargando…</div>}
-                {error && <div style={{ padding: 16, color: "#B91C1C", fontSize: 13 }}>Error al cargar el reporte</div>}
+                {error && <div style={{ padding: 16, color: "var(--danger)", fontSize: 13 }}>Error al cargar el reporte</div>}
                 {!isLoading && !error && data && (
                   selected === "cartera-activa"  ? <TableCartera data={tableData} /> :
                   selected === "cobranza"        ? <TableCobranza data={tableData} /> :

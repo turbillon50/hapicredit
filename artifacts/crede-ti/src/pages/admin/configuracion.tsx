@@ -239,7 +239,7 @@ function InviteVIP() {
           </div>
         )}
 
-        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#B91C1C", fontWeight: 600 }}>{err}</div>}
+        {err && <div style={{ marginTop: 8, fontSize: 12, color: "var(--danger)", fontWeight: 600 }}>{err}</div>}
       </div>
     </div>
   );
@@ -368,7 +368,7 @@ function InviteByWhatsApp() {
           </div>
         )}
 
-        {err && <div style={{ marginTop: 8, fontSize: 12, color: "#B91C1C", fontWeight: 600 }}>{err}</div>}
+        {err && <div style={{ marginTop: 8, fontSize: 12, color: "var(--danger)", fontWeight: 600 }}>{err}</div>}
       </div>
     </div>
   );

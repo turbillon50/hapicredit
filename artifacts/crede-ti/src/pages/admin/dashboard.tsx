@@ -230,7 +230,7 @@ export default function AdminDashboard() {
                 <div
                   style={{
                     width: 44, height: 44, borderRadius: "var(--r-lg)", flexShrink: 0,
-                    background: "#B26A00",
+                    background: "var(--warning)",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     boxShadow: "0 2px 8px rgba(245,158,11,0.35)",
                   }}
@@ -253,16 +253,16 @@ export default function AdminDashboard() {
               style={{
                 display: "flex", alignItems: "center", gap: 12,
                 padding: "12px 16px", borderRadius: "var(--r-xl)",
-                background: "var(--success-bg)",
-                border: "1.5px solid #86efac",
+                background: "var(--surface)",
+                border: "1px solid var(--border)",
               }}
             >
               <div style={{ width: 36, height: 36, borderRadius: "var(--r-lg)", flexShrink: 0, background: "var(--surface-3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <IconCheck size={18} color="#0B7A53" />
+                <IconCheck size={18} color="var(--success)" />
               </div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#15803d" }}>Todo al día</div>
-                <div style={{ fontSize: 11, color: "#166534", marginTop: 1 }}>Sin pagos pendientes de validar</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Todo al día</div>
+                <div style={{ fontSize: 11, color: "var(--text-muted)", marginTop: 1 }}>Sin pagos pendientes de validar</div>
               </div>
             </div>
           )}
@@ -295,7 +295,7 @@ export default function AdminDashboard() {
                   {needsInfoCount > 0 && (
                     <span style={{
                       position: "absolute", top: -4, right: -4,
-                      background: "#B26A00", color: "#fff",
+                      background: "var(--warning)", color: "#fff",
                       fontSize: 9, fontWeight: 800, width: 16, height: 16,
                       borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
                       border: "1.5px solid #fff",
@@ -379,7 +379,7 @@ export default function AdminDashboard() {
                   ].map(row => (
                     <div key={row.label} style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                       <span style={{ fontSize: 13, color: "var(--text-secondary)" }}>{row.label}</span>
-                      <span style={{ fontSize: 14, fontWeight: 700, color: row.positive ? "#059669" : "#B91C1C" }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: row.positive ? "#059669" : "var(--danger)" }}>
                         {row.positive ? "+" : "−"}{row.value}
                       </span>
                     </div>
@@ -387,7 +387,7 @@ export default function AdminDashboard() {
                   <div style={{ height: 1, background: "var(--border)", margin: "2px 0" }} />
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: "var(--text-primary)" }}>Flujo neto</span>
-                    <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.04em", color: (d?.netFlowWeek ?? 0) >= 0 ? "#059669" : "#B91C1C" }}>
+                    <span style={{ fontSize: 16, fontWeight: 800, letterSpacing: "-0.04em", color: (d?.netFlowWeek ?? 0) >= 0 ? "#059669" : "var(--danger)" }}>
                       {fmt(d?.netFlowWeek ?? 0)}
                     </span>
                   </div>
@@ -612,10 +612,10 @@ export default function AdminDashboard() {
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
               { label: "Cartera activa",  value: fmt(d?.totalPortfolio ?? 0),       sub: "Saldo total",       color: "#215DFF" },
-              { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "#0B7A53" },
-              { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "#d97706" },
+              { label: "Cobrado semana",  value: fmt(d?.collectionWeek ?? 0),       sub: "Ingresos",          color: "var(--success)" },
+              { label: "Desembolso sem",  value: fmt(d?.disbursementsWeek ?? 0),    sub: "Egresos",           color: "var(--warning)" },
               { label: "Flujo neto sem",  value: fmt(d?.netFlowWeek ?? 0),          sub: "Balance",           color: "var(--text-secondary)" },
-              { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "#B91C1C" },
+              { label: "Multas mora",     value: fmt(d?.totalLateFees ?? 0),        sub: "10% por cuota",     color: "var(--danger)" },
               { label: "% Morosidad",     value: `${(d?.delinquencyRate ?? 0).toFixed(1)}%`, sub: "Cartera vencida", color: "#ea580c" },
             ].map(k => (
               <div key={k.label} style={{

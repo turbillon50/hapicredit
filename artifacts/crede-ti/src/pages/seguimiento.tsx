@@ -8,7 +8,7 @@ const inStyle: React.CSSProperties = { width: "100%", marginTop: 6, padding: "11
 const STATUS_MAP: Record<string, { label: string; desc: string; color: string; bg: string }> = {
   pending:   { label: "En revisión",          desc: "Recibimos tu solicitud y nuestro equipo la está revisando.", color: "#b45309", bg: "#fffbeb" },
   approved:  { label: "Aprobada",             desc: "¡Felicidades! Tu solicitud fue aprobada. Pronto te contactaremos.", color: "#059669", bg: "var(--surface-3)" },
-  rejected:  { label: "No aprobada",          desc: "Por ahora tu solicitud no procedió. Contáctanos para más información.", color: "#B91C1C", bg: "var(--surface-3)" },
+  rejected:  { label: "No aprobada",          desc: "Por ahora tu solicitud no procedió. Contáctanos para más información.", color: "var(--danger)", bg: "var(--surface-3)" },
   contacted: { label: "Requiere tu atención", desc: "Necesitamos más información o documentos. Revisa los mensajes abajo.", color: "#2563eb", bg: "var(--surface-3)" },
 };
 
@@ -54,7 +54,7 @@ export default function Seguimiento() {
           <label style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)" }}>Teléfono
             <input value={phone} onChange={e => setPhone(e.target.value)} inputMode="tel" placeholder="10 dígitos" style={inStyle} onKeyDown={e => { if (e.key === "Enter") consultar(); }} />
           </label>
-          {error && <div style={{ fontSize: 13, color: "#B91C1C" }}>{error}</div>}
+          {error && <div style={{ fontSize: 13, color: "var(--danger)" }}>{error}</div>}
           <button onClick={consultar} disabled={loading} style={{ padding: "12px", borderRadius: "var(--r-lg)", border: "none", background: "#215DFF", color: "#fff", fontWeight: 700, fontSize: 15, cursor: loading ? "default" : "pointer", opacity: loading ? 0.6 : 1 }}>{loading ? "Consultando..." : "Consultar estatus"}</button>
         </div>
 
