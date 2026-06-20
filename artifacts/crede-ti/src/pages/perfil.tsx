@@ -821,7 +821,7 @@ export default function Perfil() {
         {/* Acceso discreto al panel de administración — solo para admins */}
         {userRole === "admin" && (
           <button
-            onClick={() => { window.location.href = "/admin"; }}
+            onClick={() => navigate("/admin")}
             className="w-full py-3.5 rounded-2xl text-sm font-bold pressable"
             style={{ background: "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
           >
