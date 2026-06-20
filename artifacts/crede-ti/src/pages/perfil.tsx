@@ -452,6 +452,7 @@ export default function Perfil() {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
         clientPayload: JSON.stringify({ type: "foto" }),
+        headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
       });
       await qc.invalidateQueries({ queryKey: ["my-avatar"] });
     } catch (err) {
@@ -518,6 +519,7 @@ export default function Perfil() {
         access: "public",
         handleUploadUrl: `${API}/uploads/sign`,
         clientPayload: JSON.stringify({ type: labelKey }),
+        headers: { Authorization: `Bearer ${localStorage.getItem("credeti_token")}` },
       });
       await qc.invalidateQueries({ queryKey: ["client-docs", client?.id] });
       await qc.invalidateQueries({ queryKey: ["uploads-mine"] });
