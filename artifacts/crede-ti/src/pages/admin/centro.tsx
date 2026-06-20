@@ -93,6 +93,22 @@ function ResumenTab() {
 }
 
 /* ── Panel de detalle de usuario (créditos, pagos, stats) ── */
+/* ── Avatar de cliente: muestra su foto de perfil si existe ── */
+function ClientAvatar({ userId, name, size = 46 }: { userId: number; name: string; size?: number }) {
+  const { data } = useQuery<{ url: string | null }>({
+    queryKey: ["avatar", userId],
+    queryFn: async () => { const r = await fetch(`${API}/uploads/avatar?userId=${userId}`, { headers: auth() }); if (!r.ok) return { url: null }; return r.json(); },
+  });
+  const initials = (name ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0]?.toUpperCase()??"").join("");
+  return (
+    <div style={{ width: size, height: size, borderRadius: "50%", overflow: "hidden", background: data?.url ? "var(--surface-3)" : "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: size * 0.35, flexShrink: 0 }}>
+      {data?.url
+        ? <img src={data.url} alt={name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        : initials}
+    </div>
+  );
+}
+
 function UserDetailPanel({ userId }: { userId: number }) {
   const { data, isLoading } = useQuery<any>({
     queryKey: ["user-detail", userId],
@@ -283,9 +299,7 @@ function UsuariosTab() {
           <div style={{ width: "100%", maxWidth: 460, background: "var(--surface)", borderRadius: "24px 24px 0 0", padding: "24px 20px 40px", maxHeight: "88vh", overflowY: "auto" }}>
             <div style={{ width: 40, height: 4, borderRadius: 100, background: "var(--border-mid)", margin: "0 auto 18px" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
-              <div style={{ width: 46, height: 46, borderRadius: 23, background: "var(--brand-blue-deep)", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16 }}>
-                {(editing.fullName ?? "?").split(" ").filter(Boolean).slice(0,2).map((w:string)=>w[0].toUpperCase()).join("")}
-              </div>
+              <ClientAvatar userId={editing.id} name={editing.fullName ?? "?"} size={46} />
               <div>
                 <div style={{ fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>{editing.fullName}</div>
                 <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{editing.email ?? editing.username}</div>

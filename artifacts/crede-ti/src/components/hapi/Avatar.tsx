@@ -10,9 +10,10 @@ interface AvatarProps {
   name: string;
   size?: 'xs' | 'sm' | 'md' | 'lg';
   className?: string;
+  photoUrl?: string | null;
 }
 
-export function Avatar({ name, size = 'md', className = '' }: AvatarProps) {
+export function Avatar({ name, size = 'md', className = '', photoUrl }: AvatarProps) {
   const initials = name.trim().split(/\s+/).slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('');
   const bg = hashColor(name);
   const sizeClass = {
@@ -24,10 +25,12 @@ export function Avatar({ name, size = 'md', className = '' }: AvatarProps) {
 
   return (
     <div
-      className={`${sizeClass} rounded-full flex items-center justify-center text-white font-bold shrink-0 ${className}`}
-      style={{ background: bg }}
+      className={`${sizeClass} rounded-full flex items-center justify-center text-white font-bold shrink-0 overflow-hidden ${className}`}
+      style={{ background: photoUrl ? 'var(--surface-3)' : bg }}
     >
-      {initials}
+      {photoUrl
+        ? <img src={photoUrl} alt={name} className="w-full h-full object-cover" />
+        : initials}
     </div>
   );
 }

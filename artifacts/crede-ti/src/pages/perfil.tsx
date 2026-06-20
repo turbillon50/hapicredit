@@ -434,6 +434,33 @@ export default function Perfil() {
   const [preview, setPreview] = useState<any | null>(null);
   const [deleteStep, setDeleteStep] = useState<0 | 1 | 2>(0);
   const [purgeStep, setPurgeStep] = useState<0 | 1 | 2>(0);
+  const avatarRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
+
+  const { data: avatarData } = useQuery<{ url: string | null }>({
+    queryKey: ["my-avatar"],
+    queryFn: async () => { const r = await fetch(`${API}/uploads/avatar`, { headers: auth() }); if (!r.ok) return { url: null }; return r.json(); },
+  });
+
+  async function handleAvatar(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setAvatarUploading(true);
+    try {
+      const { upload } = await import("@vercel/blob/client");
+      await upload(file.name, file, {
+        access: "public",
+        handleUploadUrl: `${API}/uploads/sign`,
+        clientPayload: JSON.stringify({ type: "foto" }),
+      });
+      await qc.invalidateQueries({ queryKey: ["my-avatar"] });
+    } catch (err) {
+      console.error("avatar upload failed", err);
+    } finally {
+      setAvatarUploading(false);
+      if (avatarRef.current) avatarRef.current.value = "";
+    }
+  }
 
   const purgeM = useMutation({
     mutationFn: () =>
@@ -519,7 +546,25 @@ export default function Perfil() {
 
         {/* Profile header card */}
         <div className="card flex flex-col items-center text-center py-6">
-          <Avatar name={displayName} size="lg" />
+          <input ref={avatarRef} type="file" accept="image/*" onChange={handleAvatar} className="hidden" id="avatar-up" />
+          <button
+            onClick={() => avatarRef.current?.click()}
+            disabled={avatarUploading}
+            style={{ position: "relative", background: "transparent", border: "none", padding: 0, cursor: "pointer", borderRadius: "50%" }}
+            title="Cambiar foto de perfil"
+          >
+            <div style={{ width: 88, height: 88, borderRadius: "50%", overflow: "hidden", background: avatarData?.url ? "var(--surface-3)" : "var(--brand-blue-deep)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-md)" }}>
+              {avatarData?.url
+                ? <img src={avatarData.url} alt={displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                : <span style={{ fontSize: 30, fontWeight: 800, color: "#fff" }}>{displayName.trim().split(/\s+/).slice(0,2).map((w:string)=>w[0]?.toUpperCase()??"").join("")}</span>}
+            </div>
+            {/* Botón de cámara */}
+            <div style={{ position: "absolute", bottom: 2, right: 2, width: 28, height: 28, borderRadius: "50%", background: "var(--brand-blue)", border: "2.5px solid var(--surface)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-sm)" }}>
+              {avatarUploading
+                ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                : <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>}
+            </div>
+          </button>
           <div className="text-xl font-extrabold text-gray-900 mt-3">{displayName}</div>
           {displayUsername && <div className="text-sm text-gray-400 mt-0.5">@{displayUsername}</div>}
           <div className="mt-3">

@@ -94,4 +94,28 @@ router.get("/uploads/mine", requireAuth, async (req, res): Promise<void> => {
   }
 });
 
+// ─── GET /uploads/avatar — foto de perfil más reciente del usuario ───
+// Sin ?userId → la del propio usuario. Con ?userId=N → la de ese cliente (solo admin/asesor).
+router.get("/uploads/avatar", requireAuth, async (req, res): Promise<void> => {
+  try {
+    const { eq, and, desc } = await import("drizzle-orm");
+    let targetId = req.userId!;
+    const q = req.query.userId ? parseInt(req.query.userId as string, 10) : null;
+    if (q && q !== req.userId) {
+      // Solo staff puede ver avatares de otros
+      if (req.userRole !== "admin" && req.userRole !== "executive") {
+        res.status(403).json({ error: "Forbidden" }); return;
+      }
+      targetId = q;
+    }
+    const [row] = await db.select().from(documentsTable)
+      .where(and(eq(documentsTable.userId, targetId), eq(documentsTable.type, "foto")))
+      .orderBy(desc(documentsTable.uploadedAt))
+      .limit(1);
+    res.json({ url: row?.blobUrl ?? null });
+  } catch {
+    res.json({ url: null });
+  }
+});
+
 export default router;
