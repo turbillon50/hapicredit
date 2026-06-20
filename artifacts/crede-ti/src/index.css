@@ -583,3 +583,88 @@ html { scroll-behavior: smooth; }
       #05070e;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   LAYOUT RESPONSIVE — Móvil PWA / Escritorio módulo tipo Stripe
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Sidebar de escritorio: oculta por defecto (móvil) */
+.desktop-sidebar { display: none; }
+
+/* En móvil todo queda igual. En escritorio: sidebar + contenido amplio */
+@media (min-width: 900px) {
+  /* La sidebar lateral aparece */
+  .desktop-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    width: 264px;
+    background: var(--brand-blue-deep);
+    border-right: 1px solid rgba(255,255,255,0.06);
+    z-index: 40;
+    padding: 0;
+  }
+
+  /* El bottom nav se oculta en escritorio */
+  .mobile-bottom-nav { display: none !important; }
+
+  /* El contenedor de la app se desplaza para dejar lugar a la sidebar
+     y se centra como un módulo amplio */
+  .app-shell {
+    padding-left: 264px;
+  }
+
+  /* El contenido interno se vuelve un módulo centrado con ancho cómodo */
+  .app-main-content {
+    max-width: 1180px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+
+  /* El header superior móvil se oculta en escritorio (la sidebar manda) */
+  .mobile-header { display: none !important; }
+
+  /* Quitar el padding-bottom del main que reservaba espacio al bottom nav */
+  .app-main-scroll { padding-bottom: 32px !important; }
+}
+
+/* Ítem de navegación de la sidebar de escritorio */
+.dsb-item {
+  display: flex; align-items: center; gap: 13px;
+  padding: 11px 16px; margin: 2px 12px;
+  border-radius: 11px;
+  color: rgba(255,255,255,0.55);
+  font-size: 14px; font-weight: 600;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.16s var(--ease-out-expo), color 0.16s var(--ease-out-expo);
+  letter-spacing: -0.01em;
+}
+.dsb-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.92); }
+.dsb-item.active { background: rgba(255,255,255,0.10); color: #fff; }
+.dsb-item.active .dsb-icon { color: var(--brand-gold); }
+.dsb-icon { color: inherit; display: flex; flex-shrink: 0; }
+
+/* ─── Topbar de escritorio (dentro del módulo) ─── */
+.desktop-topbar { display: none; }
+@media (min-width: 900px) {
+  .desktop-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 22px 32px 8px;
+    width: 100%;
+  }
+  .desktop-topbar-title {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+  }
+}

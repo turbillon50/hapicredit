@@ -230,7 +230,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
   /* ── Staff (admin/exec) header — marca profunda ── */
   const StaffHeader = () => (
-    <div className="sticky top-0 z-30 shrink-0" style={{ background: "linear-gradient(135deg, var(--brand-blue-deep) 0%, var(--brand-blue) 110%)" }}>
+    <div className="sticky top-0 z-30 shrink-0 mobile-header" style={{ background: "linear-gradient(135deg, var(--brand-blue-deep) 0%, var(--brand-blue) 110%)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
         <button
@@ -281,7 +281,7 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
 
   /* ── Client/public header — superficie ── */
   const ClientHeader = () => (
-    <div className="sticky top-0 z-30 shrink-0" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
+    <div className="sticky top-0 z-30 shrink-0 mobile-header" style={{ background: "var(--surface)", borderBottom: "1px solid var(--border)" }}>
       <div style={{ height: "env(safe-area-inset-top, 0px)" }} />
       <header className="flex items-center justify-between px-4" style={{ height: 58 }}>
         <BrandMark />
@@ -320,14 +320,46 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
     }).catch(() => { /* ignore — keep the demo banner visible until we know better */ });
   }, [isDemo]);
 
+  // ── Sidebar de escritorio (módulo tipo Stripe). Solo visible >= 900px vía CSS ──
+  const DesktopSidebar = () => (
+    <aside className="desktop-sidebar">
+      <div style={{ padding: "22px 20px 18px", display: "flex", alignItems: "center", gap: 10, borderBottom: "1px solid rgba(255,255,255,0.06)" }}>
+        <CredetiSymbol size={30} />
+        <span className="font-display" style={{ fontWeight: 700, fontSize: 19, color: "#fff" }}>
+          crede<span style={{ color: "var(--brand-gold)" }}>ti</span>
+        </span>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto", paddingTop: 14 }}>
+        {navItems.map(item => {
+          const active = isActive(item.path, location);
+          return (
+            <Link key={item.path} href={item.path} className={`dsb-item${active ? " active" : ""}`}>
+              <span className="dsb-icon">{item.icon}</span>
+              <span>{item.label}</span>
+            </Link>
+          );
+        })}
+      </div>
+      <div style={{ padding: "14px 16px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+        <button
+          onClick={() => { localStorage.clear(); window.location.href = "/"; }}
+          className="dsb-item"
+          style={{ width: "auto", background: "rgba(255,255,255,0.04)", border: "none", margin: 0 }}
+        >
+          <span className="dsb-icon">
+            <svg width={20} height={20} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+          </span>
+          <span>Salir</span>
+        </button>
+      </div>
+    </aside>
+  );
+
   return (
-    <div style={{
-      display: "flex", flexDirection: "column", minHeight: "100dvh",
-      background: "var(--bg-warm)",
-      maxWidth: 480, marginLeft: "auto", marginRight: "auto",
-      width: "100%", position: "relative",
-      boxShadow: "0 0 60px rgba(15,23,42,0.10)",
-    }}>
+    <div className="app-shell" style={{ display: "flex", flexDirection: "column", minHeight: "100dvh", background: "var(--bg-warm)" }}>
+      {isStaff && <DesktopSidebar />}
       {isDemo && (
         <div style={{
           background: "var(--brand-gold)", color: "var(--brand-blue-deep)",
@@ -356,16 +388,26 @@ export function Layout({ children, title, back }: { children: React.ReactNode; t
       )}
       {isStaff ? <StaffHeader /> : <ClientHeader />}
 
-      <main style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>
-        {children}
+      <main className="app-main-scroll" style={{ flex: 1, overflowY: "auto", paddingBottom: 80 }}>
+        {isStaff && (
+          <div className="desktop-topbar">
+            <span className="desktop-topbar-title">{title ?? (isAdmin ? "Panel de administración" : "Panel de asesor")}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <ThemeToggle tone="dark" />
+              <RoleBadge role={role} />
+            </div>
+          </div>
+        )}
+        <div className="app-main-content">
+          {children}
+        </div>
       </main>
 
       <ReportButton />
 
       {/* ── Bottom Navigation ── */}
-      <nav style={{
-        position: "fixed", bottom: 0, left: "50%", transform: "translateX(-50%)",
-        width: "100%", maxWidth: 480, zIndex: 30,
+      <nav className="mobile-bottom-nav" style={{
+        position: "fixed", bottom: 0, left: 0, right: 0, zIndex: 30,
         display: "flex",
         background: isStaff ? "var(--brand-blue-deep)" : "var(--surface)",
         borderTop: isStaff ? "1px solid rgba(255,255,255,0.08)" : "1px solid var(--border)",

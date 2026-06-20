@@ -51,16 +51,16 @@ const fmt = (n: number) =>
   new Intl.NumberFormat("es-MX", { style: "currency", currency: "MXN", maximumFractionDigits: 0 }).format(n ?? 0);
 
 const ACCESOS = [
-  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "rgba(217,142,30,0.10)", iconColor: "#B26A00" },
-  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "rgba(33,93,255,0.10)", iconColor: "#1A4FE0" },
+  { path: "/admin/validar-pagos", icon: <IconValidar size={20} />,  label: "Validar pagos",         sub: "Pagos pendientes de aprobación",        iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/solicitudes",   icon: <IconBandeja size={20} />,  label: "Solicitudes",            sub: "Afiliaciones y créditos pendientes",     iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/cartera",       icon: <IconCartera size={20} />,  label: "Cartera detallada",      sub: "Saldos, fechas y pagos por cliente",     iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
-  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado", iconBg: "rgba(224,36,36,0.10)", iconColor: "#C81E1E" },
-  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "rgba(14,159,110,0.10)", iconColor: "#0B7A53" },
+  { path: "/admin/morosos",       icon: <IconAlerta size={20} />,   label: "Morosos y multas",       sub: "Clientes en atraso, 10% del pago atrasado", iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/financiero",    icon: <IconFinanzas size={20} />, label: "Análisis financiero",    sub: "Utilidad, flujo de caja, proyecciones",  iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/asesores",      icon: <IconMedalla size={20} />,  label: "Ranking de asesores",    sub: "Colocación, cobranza y desempeño",       iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
-  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "rgba(217,142,30,0.10)", iconColor: "#B26A00" },
-  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "rgba(33,93,255,0.10)", iconColor: "#1A4FE0" },
+  { path: "/admin/caja",          icon: <IconCaja size={20} />,     label: "Control de caja",        sub: "Cobros, desembolsos y diferencias",      iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
+  { path: "/admin/arbol",         icon: <IconArbol size={20} />,    label: "Mi Red de Asesores",     sub: "Mapa de árbol interactivo",              iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
   { path: "/admin/codigos",       icon: <IconEquipo size={20} />,   label: "Códigos de invitación",  sub: "Genera y comparte códigos de registro",  iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
-  { path: "/admin/configuracion",  icon: <IconConfig size={20} />,   label: "Configuración",          sub: "Tasas, montos y ajustes del negocio",    iconBg: "rgba(10,144,144,0.10)", iconColor: "#0A8585" },
+  { path: "/admin/configuracion",  icon: <IconConfig size={20} />,   label: "Configuración",          sub: "Tasas, montos y ajustes del negocio",    iconBg: "var(--surface-3)", iconColor: "var(--text-secondary)" },
 ];
 
 function dot(color: string) {
