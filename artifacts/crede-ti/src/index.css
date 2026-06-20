@@ -94,7 +94,7 @@
   --brand-blue-mid:    #6E7CF2;
   --brand-blue-light:  #8E9AF8;
 
-  --brand-gold:        #19D7D7;
+  --brand-gold:        #2BC4CC;
   --brand-gold-hover:  #168A91;
   --brand-gold-light:  rgba(25,215,215,0.16);
   --brand-gold-xlight: rgba(25,215,215,0.08);
@@ -401,7 +401,7 @@ body {
   /* Gradiente de marca para acentos */
   --grad-brand:    linear-gradient(135deg, #215DFF 0%, #3A00C8 100%);
   --grad-brand-soft: linear-gradient(135deg, rgba(33,93,255,0.12) 0%, rgba(58,0,200,0.10) 100%);
-  --grad-accent:   linear-gradient(135deg, #19D7D7 0%, #215DFF 100%);
+  --grad-accent:   linear-gradient(135deg, #1BA8B0 0%, #215DFF 100%);
   --grad-sheen:    linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
 }
 
