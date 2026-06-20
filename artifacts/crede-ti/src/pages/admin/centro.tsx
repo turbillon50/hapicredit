@@ -331,7 +331,7 @@ function CreditosTab() {
 /* ═══════════ TAB: BANNERS / PUBLICIDAD ═══════════ */
 function BannersTab() {
   const qc = useQueryClient();
-  const [creating, setCreating] = useState(false);
+  const [editId, setEditId] = useState<number | "new" | null>(null);
   const [form, setForm] = useState({ title: "", body: "", ctaLabel: "", ctaUrl: "" });
 
   const { data: banners = [], isLoading } = useQuery<any[]>({
@@ -339,12 +339,18 @@ function BannersTab() {
     queryFn: async () => { const r = await fetch(`${API}/content/banners`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
   });
 
-  const createM = useMutation({
+  const openNew = () => { setForm({ title: "", body: "", ctaLabel: "", ctaUrl: "" }); setEditId("new"); };
+  const openEdit = (b: any) => { setForm({ title: b.title ?? "", body: b.body ?? "", ctaLabel: b.cta_label ?? "", ctaUrl: b.cta_url ?? "" }); setEditId(b.id); };
+  const close = () => setEditId(null);
+
+  const saveM = useMutation({
     mutationFn: async () => {
-      const r = await fetch(`${API}/content/banners`, { method: "POST", headers: HDR(), body: JSON.stringify(form) });
+      const isNew = editId === "new";
+      const url = isNew ? `${API}/content/banners` : `${API}/content/banners/${editId}`;
+      const r = await fetch(url, { method: isNew ? "POST" : "PUT", headers: HDR(), body: JSON.stringify(form) });
       if (!r.ok) throw new Error();
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["banners"] }); setCreating(false); setForm({ title: "", body: "", ctaLabel: "", ctaUrl: "" }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["banners"] }); close(); },
   });
   const toggleM = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
@@ -359,28 +365,28 @@ function BannersTab() {
 
   return (
     <div className="flex flex-col gap-3">
-      {!creating && (
-        <button onClick={() => setCreating(true)} className="pressable btn-brand"
+      {editId === null && (
+        <button onClick={openNew} className="pressable btn-brand"
           style={{ padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
           + Nuevo banner
         </button>
       )}
 
-      {creating && (
+      {editId !== null && (
         <div className="card flex flex-col gap-3">
-          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>Nuevo banner</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>{editId === "new" ? "Nuevo banner" : "Editar banner"}</div>
           <input className="input-field" placeholder="Título" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
           <textarea className="input-field" placeholder="Mensaje (opcional)" rows={2} value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} style={{ resize: "vertical" }} />
           <input className="input-field" placeholder="Texto del botón (opcional)" value={form.ctaLabel} onChange={e => setForm({ ...form, ctaLabel: e.target.value })} />
           <input className="input-field" placeholder="Enlace del botón (opcional)" value={form.ctaUrl} onChange={e => setForm({ ...form, ctaUrl: e.target.value })} />
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => { setCreating(false); }} className="pressable"
+            <button onClick={close} className="pressable"
               style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
               Cancelar
             </button>
-            <button onClick={() => createM.mutate()} disabled={!form.title || createM.isPending} className="pressable btn-brand"
+            <button onClick={() => saveM.mutate()} disabled={!form.title || saveM.isPending} className="pressable btn-brand"
               style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: !form.title ? 0.5 : 1 }}>
-              {createM.isPending ? "Creando…" : "Crear banner"}
+              {saveM.isPending ? "Guardando…" : (editId === "new" ? "Crear banner" : "Guardar cambios")}
             </button>
           </div>
         </div>
@@ -400,7 +406,11 @@ function BannersTab() {
                   {b.body && <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 2 }}>{b.body}</div>}
                   {b.cta_label && <div style={{ fontSize: 11, color: "var(--brand-blue)", marginTop: 4, fontWeight: 600 }}>{b.cta_label} →</div>}
                 </div>
-                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <button onClick={() => openEdit(b)} className="pressable"
+                    style={{ fontSize: 11, fontWeight: 700, padding: "5px 10px", borderRadius: 100, cursor: "pointer", border: "1.5px solid var(--border)", background: "var(--surface)", color: "var(--text-secondary)" }}>
+                    Editar
+                  </button>
                   <button onClick={() => toggleM.mutate({ id: b.id, isActive: !b.is_active })} className="pressable"
                     style={{ fontSize: 11, fontWeight: 700, padding: "5px 10px", borderRadius: 100, cursor: "pointer", border: "1.5px solid var(--border)", background: "var(--surface)", color: b.is_active ? "var(--brand-blue)" : "var(--text-muted)" }}>
                     {b.is_active ? "Activo" : "Oculto"}
@@ -419,10 +429,11 @@ function BannersTab() {
   );
 }
 
+
 /* ═══════════ TAB: NOTIFICACIONES ═══════════ */
 function AvisosTab() {
   const qc = useQueryClient();
-  const [creating, setCreating] = useState(false);
+  const [editId, setEditId] = useState<number | "new" | null>(null);
   const [form, setForm] = useState({ title: "", body: "", audience: "all" });
 
   const { data: avisos = [], isLoading } = useQuery<any[]>({
@@ -430,12 +441,18 @@ function AvisosTab() {
     queryFn: async () => { const r = await fetch(`${API}/content/notifications`, { headers: auth() }); if (!r.ok) return []; return r.json(); },
   });
 
-  const createM = useMutation({
+  const openNew = () => { setForm({ title: "", body: "", audience: "all" }); setEditId("new"); };
+  const openEdit = (n: any) => { setForm({ title: n.title ?? "", body: n.body ?? "", audience: n.audience ?? "all" }); setEditId(n.id); };
+  const close = () => setEditId(null);
+
+  const saveM = useMutation({
     mutationFn: async () => {
-      const r = await fetch(`${API}/content/notifications`, { method: "POST", headers: HDR(), body: JSON.stringify(form) });
+      const isNew = editId === "new";
+      const url = isNew ? `${API}/content/notifications` : `${API}/content/notifications/${editId}`;
+      const r = await fetch(url, { method: isNew ? "POST" : "PUT", headers: HDR(), body: JSON.stringify(form) });
       if (!r.ok) throw new Error();
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ["notifications"] }); setCreating(false); setForm({ title: "", body: "", audience: "all" }); },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["notifications"] }); close(); },
   });
   const toggleM = useMutation({
     mutationFn: async ({ id, isActive }: { id: number; isActive: boolean }) => {
@@ -452,16 +469,16 @@ function AvisosTab() {
 
   return (
     <div className="flex flex-col gap-3">
-      {!creating && (
-        <button onClick={() => setCreating(true)} className="pressable btn-brand"
+      {editId === null && (
+        <button onClick={openNew} className="pressable btn-brand"
           style={{ padding: 13, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer" }}>
           + Nueva notificación
         </button>
       )}
 
-      {creating && (
+      {editId !== null && (
         <div className="card flex flex-col gap-3">
-          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>Nueva notificación general</div>
+          <div style={{ fontSize: 13, fontWeight: 800, color: "var(--text-primary)" }}>{editId === "new" ? "Nueva notificación general" : "Editar notificación"}</div>
           <input className="input-field" placeholder="Título" value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} />
           <textarea className="input-field" placeholder="Mensaje" rows={3} value={form.body} onChange={e => setForm({ ...form, body: e.target.value })} style={{ resize: "vertical" }} />
           <div>
@@ -473,13 +490,13 @@ function AvisosTab() {
             </select>
           </div>
           <div style={{ display: "flex", gap: 10 }}>
-            <button onClick={() => setCreating(false)} className="pressable"
+            <button onClick={close} className="pressable"
               style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 14, cursor: "pointer", color: "var(--text-secondary)" }}>
               Cancelar
             </button>
-            <button onClick={() => createM.mutate()} disabled={!form.title || !form.body || createM.isPending} className="pressable btn-brand"
+            <button onClick={() => saveM.mutate()} disabled={!form.title || !form.body || saveM.isPending} className="pressable btn-brand"
               style={{ flex: 1, padding: 12, borderRadius: "var(--r-lg)", fontWeight: 700, fontSize: 14, cursor: "pointer", opacity: (!form.title || !form.body) ? 0.5 : 1 }}>
-              {createM.isPending ? "Enviando…" : "Publicar"}
+              {saveM.isPending ? "Guardando…" : (editId === "new" ? "Publicar" : "Guardar cambios")}
             </button>
           </div>
         </div>
@@ -501,7 +518,11 @@ function AvisosTab() {
                   </div>
                   <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 3 }}>{n.body}</div>
                 </div>
-                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                <div style={{ display: "flex", gap: 6, flexShrink: 0, flexWrap: "wrap", justifyContent: "flex-end" }}>
+                  <button onClick={() => openEdit(n)} className="pressable"
+                    style={{ fontSize: 11, fontWeight: 700, padding: "5px 10px", borderRadius: 100, cursor: "pointer", border: "1.5px solid var(--border)", background: "var(--surface)", color: "var(--text-secondary)" }}>
+                    Editar
+                  </button>
                   <button onClick={() => toggleM.mutate({ id: n.id, isActive: !n.is_active })} className="pressable"
                     style={{ fontSize: 11, fontWeight: 700, padding: "5px 10px", borderRadius: 100, cursor: "pointer", border: "1.5px solid var(--border)", background: "var(--surface)", color: n.is_active ? "var(--brand-blue)" : "var(--text-muted)" }}>
                     {n.is_active ? "Activa" : "Oculta"}

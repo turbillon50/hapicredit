@@ -58,7 +58,7 @@ export default function ExecutiveDashboard() {
           <div style={{ margin: "12px 16px 0" }} className="anim-section anim-d1">
             <div
               style={{
-                borderRadius: 22, padding: "20px",
+                borderRadius: "var(--r-xl)", padding: "20px",
                 background: "linear-gradient(150deg,#06143B 0%,#0A2E8A 50%,#215DFF 100%)",
                 position: "relative", overflow: "hidden",
               }}
@@ -235,7 +235,7 @@ export default function ExecutiveDashboard() {
                     boxShadow: "var(--shadow-xs)",
                   }}
                 >
-                  <div style={{ width: 42, height: 42, borderRadius: 13, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: item.iconBg, color: item.iconColor }}>
+                  <div style={{ width: 42, height: 42, borderRadius: "var(--r-lg)", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", background: item.iconBg, color: item.iconColor }}>
                     {item.icon}
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>

@@ -121,13 +121,18 @@ router.post("/content/notifications", requireAuth, requireRole("admin"), async (
   res.json(rows[0]);
 });
 
-// Admin: activar/desactivar
+// Admin: editar (texto, audiencia y/o activar/desactivar)
 router.put("/content/notifications/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
   await ensureTables();
-  const { isActive } = req.body ?? {};
+  const { title, body, audience, isActive } = req.body ?? {};
   const { rows } = await pool.query(
-    `UPDATE app_notifications SET is_active = COALESCE($2,is_active) WHERE id = $1 RETURNING *`,
-    [req.params.id, isActive ?? null]
+    `UPDATE app_notifications SET
+       title = COALESCE($2,title),
+       body = COALESCE($3,body),
+       audience = COALESCE($4,audience),
+       is_active = COALESCE($5,is_active)
+     WHERE id = $1 RETURNING *`,
+    [req.params.id, title ?? null, body ?? null, audience ?? null, isActive ?? null]
   );
   res.json(rows[0] ?? null);
 });
