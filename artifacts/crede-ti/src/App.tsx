@@ -157,6 +157,7 @@ function ClerkCacheInvalidator() {
           localStorage.removeItem("credeti_token");
           localStorage.removeItem("credeti_role");
           localStorage.removeItem("credeti_user");
+          localStorage.removeItem("credeti_admin_origin");
         }
       }
       prevUserIdRef.current = userId;

@@ -748,8 +748,10 @@ export default function Perfil() {
         {/* Admin demote — only visible when already in admin mode */}
         {userRole === "admin" && <DemoteCard />}
 
-        {/* Acceso a modo administrador con clave maestra — para usuarios que NO son admin todavia */}
-        {userRole !== "admin" && <AdminModeCard />}
+        {/* AdminModeCard NO se muestra a clientes (seguridad). El acceso admin es
+            por la liga magica privada /entrar/:key. Solo lo ve un admin que entro
+            a vista cliente con el toggle (marca credeti_admin_origin). */}
+        {userRole !== "admin" && typeof window !== "undefined" && localStorage.getItem("credeti_admin_origin") === "1" && <AdminModeCard />}
 
         {/* Invite codes for admin and executive */}
         {(userRole === "admin" || userRole === "executive") && (
@@ -1167,6 +1169,8 @@ function DemoteCard() {
         localStorage.setItem("credeti_role", data.user.role);
         localStorage.setItem("credeti_user", JSON.stringify(data.user));
       }
+      // Marca que es un admin viendo como cliente -> podra volver a admin con la clave.
+      localStorage.setItem("credeti_admin_origin", "1");
       window.location.href = target === "executive" ? "/dashboard" : "/mi-credito";
     } catch {
       setErr("Error de conexión. Intenta de nuevo.");
