@@ -120,6 +120,17 @@ export default function Expediente() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["expediente-requests", linkedUserId] }),
   });
 
+  // Eliminar cliente completo (admin) — borra credito, pagos, notas y al cliente
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const deleteM = useMutation({
+    mutationFn: async () => {
+      const r = await fetch(`${API}/clients/${clientId}`, { method: "DELETE", headers: auth() });
+      if (!r.ok) throw new Error("No se pudo eliminar");
+      return r.json();
+    },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["cartera"] }); navigate("/admin/cartera"); },
+  });
+
   // Editar condiciones del crédito (monto, plazo, tasa, pago semanal)
   const editCreditM = useMutation({
     mutationFn: (body: any) =>
@@ -438,6 +449,20 @@ export default function Expediente() {
           </div>
         </div>
       )}
+
+      {/* Zona de eliminacion — borra el cliente y todo su historial */}
+      <div style={{ marginTop: 24, padding: 16, borderRadius: "var(--r-xl)", border: "1.5px solid var(--danger)", background: "#fef2f2" }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: "var(--danger)", marginBottom: 4 }}>Eliminar cliente</div>
+        <div style={{ fontSize: 12, color: "var(--text-secondary)", marginBottom: 12 }}>Borra al cliente y todo su historial (creditos, pagos, notas). No se puede deshacer.</div>
+        {!confirmDelete ? (
+          <button onClick={() => setConfirmDelete(true)} className="pressable" style={{ padding: "10px 16px", borderRadius: "var(--r-lg)", border: "1.5px solid var(--danger)", background: "transparent", color: "var(--danger)", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>Eliminar cliente</button>
+        ) : (
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={() => setConfirmDelete(false)} className="pressable" style={{ flex: 1, padding: 11, borderRadius: "var(--r-lg)", border: "1.5px solid var(--border)", background: "var(--surface)", fontWeight: 700, fontSize: 13, cursor: "pointer", color: "var(--text-secondary)" }}>Cancelar</button>
+            <button onClick={() => deleteM.mutate()} disabled={deleteM.isPending} className="pressable" style={{ flex: 1, padding: 11, borderRadius: "var(--r-lg)", border: "none", background: "var(--danger)", color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", opacity: deleteM.isPending ? 0.6 : 1 }}>{deleteM.isPending ? "Eliminando…" : "Si, eliminar"}</button>
+          </div>
+        )}
+      </div>
     </Layout>
   );
 }

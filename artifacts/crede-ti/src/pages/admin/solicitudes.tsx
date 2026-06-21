@@ -136,6 +136,8 @@ function CreditDetail({
     enabled: !!credit.id,
   });
   const reviewDocs: any[] = application?.documents ?? [];
+  const reviewInfo: any = application?.personalInfo ?? {};
+  const reviewRefs: any[] = Array.isArray(application?.references) ? application.references : [];
   const [notes, setNotes]             = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
   const [confirm, setConfirm]         = useState<"approve" | "reject" | null>(null);
   const [editMode, setEditMode]       = useState(false);
@@ -317,6 +319,41 @@ function CreditDetail({
               <span className="text-sm" style={{ fontWeight: r.bold ? 900 : 700, color: r.color, fontSize: r.bold ? 17 : 13 }}>{r.val}</span>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* Datos del cliente — info personal y referencias de la solicitud */}
+      {(reviewInfo.fullName || reviewInfo.phone || reviewInfo.curp || reviewInfo.address || reviewInfo.occupation || reviewInfo.monthlyIncome || reviewInfo.income || reviewRefs.length > 0) && (
+        <div className="bg-gray-50 rounded-2xl p-4 flex flex-col gap-3">
+          <div className="text-xs font-bold text-gray-400 uppercase tracking-wide">Datos del cliente</div>
+          <div className="flex flex-col gap-2">
+            {[
+              ["Nombre", reviewInfo.fullName],
+              ["Telefono", reviewInfo.phone],
+              ["CURP", reviewInfo.curp],
+              ["Domicilio", reviewInfo.address],
+              ["Ocupacion", reviewInfo.occupation],
+              ["Ingreso mensual", reviewInfo.monthlyIncome || reviewInfo.income],
+            ].filter(([, v]) => v).map(([label, value]) => (
+              <div key={label as string} className="flex justify-between gap-3 text-sm">
+                <span className="text-gray-400">{label}</span>
+                <span className="font-semibold text-right" style={{ color: "var(--text-primary)" }}>{value}</span>
+              </div>
+            ))}
+          </div>
+          {reviewRefs.length > 0 && (
+            <div className="mt-1 pt-3 border-t border-gray-200">
+              <div className="text-[11px] font-bold text-gray-400 uppercase mb-2">Referencias</div>
+              <div className="flex flex-col gap-2">
+                {reviewRefs.map((r: any, i: number) => (
+                  <div key={i} className="text-sm">
+                    <span className="font-semibold" style={{ color: "var(--text-primary)" }}>{r.name || "Sin nombre"}</span>
+                    <span className="text-gray-400">{(r.relation || r.relationship) ? ` · ${r.relation || r.relationship}` : ""}{r.phone ? ` · ${r.phone}` : ""}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

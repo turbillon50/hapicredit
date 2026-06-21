@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { and, auditLogTable, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, usersTable } from "@workspace/db";
+import { and, auditLogTable, clientsTable, commitmentsTable, creditsTable, db, eq, ilike, inArray, notesTable, paymentsTable, sql, usersTable } from "@workspace/db";
 import { resolveClientId } from "../lib/clientResolver";
 import { requireAuth, requireRole } from "../middlewares/auth";
 import { sendClientReassignmentEmail, sendCustomClientEmail, EMAIL_PRECARGADOS } from "../lib/email";
@@ -670,6 +670,27 @@ router.get("/clients/:id/expediente", requireAuth, requireRole("admin", "executi
     })),
     stats,
   });
+});
+
+// ─── DELETE /api/clients/:id — eliminar cliente y todo lo ligado (admin) ───
+// Borra en orden de llaves foraneas: pagos, compromisos, notas, alertas, creditos, cliente.
+router.delete("/clients/:id", requireAuth, requireRole("admin"), async (req, res): Promise<void> => {
+  const clientId = parseInt(req.params.id as string, 10);
+  if (isNaN(clientId)) { res.status(400).json({ error: "ID invalido" }); return; }
+  try {
+    await db.execute(sql`DELETE FROM payments WHERE client_id = ${clientId} OR credit_id IN (SELECT id FROM credits WHERE client_id = ${clientId})`);
+    await db.execute(sql`DELETE FROM commitments WHERE client_id = ${clientId}`);
+    await db.execute(sql`DELETE FROM notes WHERE client_id = ${clientId}`);
+    await db.execute(sql`DELETE FROM alerts WHERE client_id = ${clientId}`);
+    await db.execute(sql`DELETE FROM credits WHERE client_id = ${clientId}`);
+    const del: any = await db.execute(sql`DELETE FROM clients WHERE id = ${clientId} RETURNING id, full_name`);
+    const rows = del?.rows ?? del ?? [];
+    if (!rows.length) { res.status(404).json({ error: "Cliente no encontrado" }); return; }
+    res.json({ ok: true, deleted: rows[0] });
+  } catch (err) {
+    console.error("[delete-client]", err);
+    res.status(503).json({ error: "No se pudo eliminar el cliente" });
+  }
 });
 
 export default router;
