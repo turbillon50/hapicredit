@@ -82,6 +82,28 @@ export default function Expediente() {
     enabled: creditIds.length > 0,
   });
 
+  // Info personal y referencias de las solicitudes (ocupacion, ingreso y refs viven aqui)
+  const { data: appInfo } = useQuery<any>({
+    queryKey: ["expediente-appinfo", clientId, creditIds.join(",")],
+    queryFn: async () => {
+      let info: any = {}; let refs: any[] = [];
+      for (const cid of creditIds) {
+        try {
+          const r = await fetch(`${API}/credits/${cid}/application`, { headers: auth() });
+          if (r.ok) {
+            const j = await r.json();
+            if (j.personalInfo) info = { ...info, ...j.personalInfo };
+            if (Array.isArray(j.references) && j.references.length) refs = j.references;
+          }
+        } catch {}
+      }
+      return { info, refs };
+    },
+    enabled: creditIds.length > 0,
+  });
+  const pInfo: any = appInfo?.info ?? {};
+  const pRefs: any[] = appInfo?.refs ?? [];
+
   // Combinar ambas fuentes, sin duplicar por URL.
   const seen = new Set<string>();
   const docs = [...appDocs, ...tableDocs].filter((d: any) => {
@@ -219,13 +241,31 @@ export default function Expediente() {
             <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Datos personales</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               {[
-                ["Teléfono", client.phone],
-                ["Domicilio", client.address],
-                ["CURP", client.curp],
+                ["Nombre", pInfo.fullName || u?.fullName],
+                ["Teléfono", client.phone || pInfo.phone],
+                ["Domicilio", client.address || pInfo.address],
+                ["CURP", client.curp || pInfo.curp],
+                ["Ocupación", pInfo.occupation],
+                ["Ingreso mensual", (pInfo.monthlyIncome || pInfo.income) ? `$${pInfo.monthlyIncome || pInfo.income}` : ""],
               ].map(([k, v], i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                   <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{k}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", textAlign: "right" }}>{v || "—"}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* DATOS PERSONALES: REFERENCIAS */}
+        {pRefs.length > 0 && (
+          <div className="card" style={{ padding: 18 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Referencias</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {pRefs.map((r: any, i: number) => (
+                <div key={i} style={{ display: "flex", flexDirection: "column", gap: 2 }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)" }}>{r.name || "Sin nombre"}</span>
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>{[r.relation || r.relationship, r.phone].filter(Boolean).join(" · ")}</span>
                 </div>
               ))}
             </div>
