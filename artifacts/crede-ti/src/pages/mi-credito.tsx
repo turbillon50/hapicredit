@@ -610,7 +610,29 @@ export default function MiCredito() {
             <MensajesSection messages={messages} client={client} queryClient={qc} />
 
             {activeCredit && (
-              <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
+              <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }} className="anim-section anim-d4">
+                {/* Boton de pago en linea (Mercado Pago) — accion principal */}
+                <a
+                  href="https://link.mercadopago.com.mx/credeti"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="pressable"
+                  style={{
+                    display: "flex", alignItems: "center", gap: 12,
+                    padding: "16px", borderRadius: "var(--r-xl)",
+                    background: "var(--accent)", color: "#fff",
+                    textDecoration: "none", boxShadow: "var(--shadow-sm)",
+                  }}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: "var(--r-lg)", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <IconTarjeta size={20} color="#fff" />
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700 }}>Pagar mi credito</div>
+                    <div style={{ fontSize: 12, opacity: 0.9, marginTop: 1 }}>Paga en linea de forma segura</div>
+                  </div>
+                  <IconFlecha size={16} color="#fff" />
+                </a>
                 <Link href="/solicitar?renovar=1">
                   <div
                     className="pressable"
