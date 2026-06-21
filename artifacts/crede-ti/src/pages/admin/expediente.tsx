@@ -193,7 +193,8 @@ export default function Expediente() {
 
   const u = detail.user;
   const client = detail.client;
-  const initials = (u?.fullName ?? "?").split(" ").filter(Boolean).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? "").join("");
+  const displayName = pInfo.fullName || u?.fullName || client?.fullName || "Cliente";
+  const initials = displayName.split(" ").filter(Boolean).slice(0, 2).map((w: string) => w[0]?.toUpperCase() ?? "").join("");
   const pendingReqs = requests.filter((r: any) => r.status === "pending");
 
   return (
@@ -204,11 +205,11 @@ export default function Expediente() {
         <div className="card" style={{ padding: 20, display: "flex", alignItems: "center", gap: 16 }}>
           <div style={{ width: 64, height: 64, borderRadius: "50%", overflow: "hidden", flexShrink: 0, background: avatar?.url ? "var(--surface-3)" : "var(--brand-blue-deep)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "var(--shadow-sm)" }}>
             {avatar?.url
-              ? <img src={avatar.url} alt={u.fullName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ? <img src={avatar.url} alt={displayName} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               : <span style={{ fontSize: 22, fontWeight: 800, color: "#fff" }}>{initials}</span>}
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>{u.fullName}</div>
+            <div style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)", letterSpacing: "-0.02em" }}>{displayName}</div>
             <div style={{ fontSize: 13, color: "var(--text-muted)" }}>{u.email ?? client?.phone ?? "—"}</div>
             {client?.status && (
               <span style={{ display: "inline-block", marginTop: 6, fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 100, background: "var(--surface-3)", color: "var(--text-secondary)" }}>
