@@ -554,16 +554,20 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
 // La llave vive solo en la URL y se valida contra ADMIN_MAGIC_TOKEN (env del servidor).
 router.post("/auth/magic-admin", async (req, res): Promise<void> => {
   const key = (req.body?.key ?? req.query?.key) as string | undefined;
-  const expected = process.env.ADMIN_MAGIC_TOKEN;
-  if (!expected || !key || key !== expected) {
+  // Mapeo de llaves -> correo del admin objetivo. Cada quien entra a SU cuenta.
+  const keyMap: Record<string, string> = {};
+  if (process.env.ADMIN_MAGIC_TOKEN)     keyMap[process.env.ADMIN_MAGIC_TOKEN]     = "financiamiento@crede-ti.com";
+  if (process.env.ADMIN_MAGIC_TOKEN_DEV) keyMap[process.env.ADMIN_MAGIC_TOKEN_DEV] = "luisdelator@vmomentums.info";
+  const targetEmail = key ? keyMap[key] : undefined;
+  if (!targetEmail) {
     res.status(401).json({ error: "Llave invalida" });
     return;
   }
   try {
-    // Objetivo: el dueno (financiamiento@crede-ti.com) si es admin; si no, el primer admin.
+    // Objetivo: el admin dueno de la llave; si no se encuentra, el primer admin.
     const ownerQ = await pool.query(
       "select id, coalesce(username,'admin') as username, coalesce(full_name,'Administrador') as \"fullName\", email, role from users where lower(email)=lower($1) and role='admin' and coalesce(is_active,true)=true limit 1",
-      ["financiamiento@crede-ti.com"],
+      [targetEmail],
     );
     let targetUser = ownerQ.rows[0];
     if (!targetUser) {
