@@ -590,4 +590,44 @@ router.get("/credits/:id/application", requireAuth, requireRole("admin", "execut
   });
 });
 
+// ─── GET /me/last-application — datos archivados de la ultima solicitud del cliente ───
+// Para renovacion: el cliente no recaptura nada, se precarga lo que ya dio.
+router.get("/me/last-application", requireAuth, requireRole("client", "customer", "admin", "executive"), async (req, res): Promise<void> => {
+  const clientId = await resolveClientId(req.userId!);
+  if (!clientId) { res.json({ found: false }); return; }
+
+  // Credito mas reciente del cliente
+  const creditRows = await db.select({ id: creditsTable.id }).from(creditsTable)
+    .where(eq(creditsTable.clientId, clientId))
+    .orderBy(sql`${creditsTable.id} DESC`)
+    .limit(1);
+  if (creditRows.length === 0) { res.json({ found: false }); return; }
+  const creditId = creditRows[0].id;
+
+  const rows = await db.select().from(publicRequestsTable)
+    .where(sql`${publicRequestsTable.message} LIKE ${'%"creditId":' + creditId + '%'}`)
+    .orderBy(sql`${publicRequestsTable.id} DESC`)
+    .limit(1);
+  if (rows.length === 0) { res.json({ found: false }); return; }
+
+  let parsed: any = {};
+  try { parsed = JSON.parse(rows[0].message as string); } catch { parsed = {}; }
+
+  const docsObj = parsed.documents ?? {};
+  const documents = Object.entries(docsObj).map(([key, v]: [string, any]) => ({
+    type: key,
+    url: v?.url ?? null,
+    filename: v?.filename ?? null,
+    provided: v?.provided ?? !!(v?.url),
+  })).filter(d => d.url || d.provided);
+
+  res.json({
+    found: true,
+    personalInfo: parsed.personalInfo ?? null,
+    businessInfo: parsed.businessInfo ?? null,
+    references: parsed.references ?? [],
+    documents,
+  });
+});
+
 export default router;

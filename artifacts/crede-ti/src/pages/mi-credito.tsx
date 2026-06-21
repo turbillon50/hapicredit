@@ -611,7 +611,7 @@ export default function MiCredito() {
 
             {activeCredit && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d4">
-                <Link href="/solicitar">
+                <Link href="/solicitar?renovar=1">
                   <div
                     className="pressable"
                     style={{

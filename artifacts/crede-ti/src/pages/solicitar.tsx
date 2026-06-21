@@ -1,4 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useSearch } from "wouter";
 import { useAuth, useUser } from "@clerk/react";
 import { Layout } from "@/components/layout/Layout";
 import { useRequireAuth } from "@/hooks/useRequireAuth";
@@ -158,11 +160,50 @@ export default function Solicitar() {
   const [clabe, setClabe]                 = useState("");
   const [accountHolder, setAccountHolder] = useState("");
 
+  // ── Renovacion: precargar datos que el cliente ya dio (no recapturar) ──────
+  const searchStr = useSearch();
+  const isRenewal = new URLSearchParams(searchStr).get("renovar") === "1";
+  const [prefilled, setPrefilled] = useState(false);
+
+  const { data: lastApp } = useQuery<any>({
+    queryKey: ["my-last-application"],
+    queryFn: async () => {
+      const tok = localStorage.getItem("credeti_token");
+      const r = await fetch(`${API}/me/last-application`, { headers: { Authorization: `Bearer ${tok}` } });
+      if (!r.ok) return null;
+      return r.json();
+    },
+  });
+
+  useEffect(() => {
+    if (prefilled || !lastApp || !lastApp.found) return;
+    const pi = lastApp.personalInfo || {};
+    if (pi.fullName) setFullName(pi.fullName);
+    if (pi.phone) setPhone(pi.phone);
+    if (pi.curp) setCurp(pi.curp);
+    if (pi.address) setAddress(pi.address);
+    if (pi.occupation) setOccupation(pi.occupation);
+    if (pi.income != null && pi.income !== "") setIncome(String(pi.income));
+    const refs = lastApp.references || [];
+    if (refs[0]) { setRef1Name(refs[0].name || ""); setRef1Phone(refs[0].phone || ""); setRef1Relation(refs[0].relation || refs[0].relationship || ""); }
+    if (refs[1]) { setRef2Name(refs[1].name || ""); setRef2Phone(refs[1].phone || ""); setRef2Relation(refs[1].relation || refs[1].relationship || ""); }
+    const existingDocs = (lastApp.documents || []).filter((d: any) => d.url).map((d: any) => ({
+      key: d.type, filename: d.filename || "documento", mimeType: "image/jpeg",
+      url: d.url, localPreview: d.url, uploading: false,
+    }));
+    if (existingDocs.length) setDocs(existingDocs as any);
+    setIsNewClient(false);
+    setPrefilled(true);
+    // En renovacion, saltar directo al paso de credito (datos ya cargados).
+    if (isRenewal) setStep(1);
+  }, [lastApp, isRenewal, prefilled]);
+
+
   // ── Derived ranges + computed schedule ────────────────────────────────────
   // Rangos abiertos: el cliente solicita lo que quiera y administracion
   // ajusta los parametros al revisar. No condicionamos el formulario.
   const amountMin = 100;
-  const amountMax = 50000;
+  const amountMax = 30000;
   const termMin   = 1;
   const termMax   = 48;
 
