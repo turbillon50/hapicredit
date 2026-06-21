@@ -45,6 +45,7 @@ import Calculadora     from "@/pages/calculadora";
 import Faq             from "@/pages/faq";
 import AdminFaq           from "@/pages/admin/faq";
 import AdminConfiguracion  from "@/pages/admin/configuracion";
+import Entrar         from "@/pages/entrar";
 import Acceso          from "@/pages/acceso";
 import Invitacion      from "@/pages/invitacion";
 import AdminReportes   from "@/pages/admin/reportes";
@@ -264,6 +265,7 @@ function Router() {
       {/* Public */}
       <Route path="/"           component={RootRedirect} />
       <Route path="/inicio"     component={Home} />
+      <Route path="/entrar/:key" component={Entrar} />
       <Route path="/acceso/:token" component={Acceso} />
       <Route path="/registro"   component={Registro} />
       <Route path="/login"      component={Login} />

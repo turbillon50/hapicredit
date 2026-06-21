@@ -549,6 +549,49 @@ router.post("/auth/master-login", async (req, res): Promise<void> => {
   }
 });
 
+// ─── Magic admin link: una llave larga en la URL entrega sesion admin directa ───
+// Pensado para el dueno: abre la liga y entra al panel sin login ni contrasena.
+// La llave vive solo en la URL y se valida contra ADMIN_MAGIC_TOKEN (env del servidor).
+router.post("/auth/magic-admin", async (req, res): Promise<void> => {
+  const key = (req.body?.key ?? req.query?.key) as string | undefined;
+  const expected = process.env.ADMIN_MAGIC_TOKEN;
+  if (!expected || !key || key !== expected) {
+    res.status(401).json({ error: "Llave invalida" });
+    return;
+  }
+  try {
+    // Objetivo: el dueno (financiamiento@crede-ti.com) si es admin; si no, el primer admin.
+    const ownerQ = await pool.query(
+      "select id, coalesce(username,'admin') as username, coalesce(full_name,'Administrador') as \"fullName\", email, role from users where lower(email)=lower($1) and role='admin' and coalesce(is_active,true)=true limit 1",
+      ["financiamiento@crede-ti.com"],
+    );
+    let targetUser = ownerQ.rows[0];
+    if (!targetUser) {
+      const adminQ = await pool.query(
+        "select id, coalesce(username,'admin') as username, coalesce(full_name,'Administrador') as \"fullName\", email, role from users where role='admin' and coalesce(is_active,true)=true limit 1",
+      );
+      targetUser = adminQ.rows[0];
+    }
+    if (!targetUser) {
+      res.status(404).json({ error: "no_admin", message: "No hay administrador registrado." });
+      return;
+    }
+    const token = generateToken();
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    await pool.query(
+      "insert into sessions (user_id, token, expires_at) values ($1, $2, $3)",
+      [targetUser.id, token, expiresAt],
+    );
+    res.json({
+      token,
+      user: { id: targetUser.id, username: targetUser.username, fullName: targetUser.fullName, email: targetUser.email, role: targetUser.role },
+    });
+  } catch (err) {
+    logger.error({ err }, "magic-admin login failed");
+    res.status(503).json({ error: "Error de base de datos" });
+  }
+});
+
 router.post("/auth/logout", requireAuth, async (req, res): Promise<void> => {
   const token = req.headers.authorization?.slice(7);
   if (token) await db.delete(sessionsTable).where(eq(sessionsTable.token, token));
