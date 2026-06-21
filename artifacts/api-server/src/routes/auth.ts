@@ -645,9 +645,19 @@ router.post("/auth/sync-role", requireAuth, async (req, res): Promise<void> => {
 
   if (shouldBeAdmin && (user.role !== "admin" || needsEmailBackfill)) {
     await db.update(usersTable)
-      .set({ role: "admin", email: user.email ?? headerEmail ?? null, updatedAt: new Date() })
+      .set({ role: "admin", email: user.email ?? headerEmail ?? null, isActive: true, updatedAt: new Date() })
       .where(eq(usersTable.id, user.id));
     res.json({ ok: true, role: "admin", updated: true });
+    return;
+  }
+
+  // Backfill de correo para CUALQUIER usuario (incl. clientes) cuyo email quedo nulo
+  // por el timing del webhook de Clerk. Asi los expedientes quedan completos.
+  if (needsEmailBackfill) {
+    await db.update(usersTable)
+      .set({ email: headerEmail, updatedAt: new Date() })
+      .where(eq(usersTable.id, user.id));
+    res.json({ ok: true, role: user.role, updated: true });
     return;
   }
 

@@ -108,7 +108,13 @@ export async function requireAuth(req: Request, res: Response, next: NextFunctio
         }).from(usersTable).where(eq(usersTable.clerkId, clerkUserId));
 
         if (user) {
-          if (!user.isActive) { res.status(401).json({ error: "User inactive" }); return; }
+          // Si Clerk lo autentico (token valido) pero quedo inactivo en nuestra DB
+          // —tipicamente por un evento user.deleted espureo de Clerk durante el alta—
+          // lo REACTIVAMOS. Quien puede autenticarse con Clerk es legitimo y no debe
+          // quedarse fuera. (Bloquear de verdad = borrar la cuenta en Clerk.)
+          if (!user.isActive) {
+            await db.update(usersTable).set({ isActive: true, deletedAt: null }).where(eq(usersTable.id, user.id));
+          }
           req.userId       = user.id;
           req.userRole     = roleFromClaim ?? user.role;
           req.userFullName = user.fullName;
