@@ -355,6 +355,14 @@ export default function Expediente() {
                     {cr.status === "active" && (
                       <button onClick={() => { if (confirm("¿Marcar este crédito como liquidado?")) creditStatusM.mutate({ id: cr.id, status: "closed" }); }} className="pressable" style={{ flex: "1 1 auto", minWidth: 90, padding: "8px 10px", borderRadius: "var(--r-sm)", border: "1.5px solid var(--border)", background: "var(--surface)", fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", cursor: "pointer" }}>Liquidar</button>
                     )}
+                    {(cr.status === "active" || cr.status === "approved") && (client?.phone || pInfo.phone) && (
+                      <a
+                        href={`https://wa.me/52${(client?.phone || pInfo.phone || "").replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(`Hola ${displayName}, te recordamos tu pago semanal de ${money(cr.weeklyPayment)} de tu credito con Crede-Ti. Saldo restante: ${money(cr.remainingBalance)}. Puedes coordinar tu pago por este medio. Gracias!`)}`}
+                        target="_blank" rel="noopener noreferrer" className="pressable"
+                        style={{ flex: "1 1 100%", padding: "9px 10px", borderRadius: "var(--r-sm)", border: "none", background: "#25D366", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", textDecoration: "none" }}>
+                        Cobrar por WhatsApp
+                      </a>
+                    )}
                   </div>
                 </div>
               ))}

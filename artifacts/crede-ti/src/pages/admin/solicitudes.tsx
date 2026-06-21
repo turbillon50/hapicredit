@@ -138,6 +138,9 @@ function CreditDetail({
   const reviewDocs: any[] = application?.documents ?? [];
   const reviewInfo: any = application?.personalInfo ?? {};
   const reviewRefs: any[] = Array.isArray(application?.references) ? application.references : [];
+  const capWeekly = Number(credit.weeklyPayment) || 0;
+  const capIncome = Number(reviewInfo.monthlyIncome || reviewInfo.income) || 0;
+  const capPct = capIncome > 0 && capWeekly > 0 ? Math.round(((capWeekly * 52 / 12) / capIncome) * 100) : null;
   const [notes, setNotes]             = useState(credit.status === "needs_info" ? (credit.notes ?? "") : "");
   const [confirm, setConfirm]         = useState<"approve" | "reject" | null>(null);
   const [editMode, setEditMode]       = useState(false);
@@ -237,6 +240,16 @@ function CreditDetail({
           {editMode ? "✕ Cancelar" : "✏️ Editar condiciones"}
         </button>
       </div>
+
+      {capPct != null && (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, padding: "12px 16px", borderRadius: "var(--r-lg)", background: capPct < 30 ? "#ecfdf5" : capPct <= 50 ? "#fffbeb" : "#fef2f2", border: `1px solid ${capPct < 30 ? "#a7f3d0" : capPct <= 50 ? "#fde68a" : "#fecaca"}`, marginBottom: 4 }}>
+          <div>
+            <div className="text-xs font-bold uppercase tracking-wide" style={{ color: "var(--text-secondary)" }}>Capacidad de pago</div>
+            <div style={{ fontSize: 13, color: "var(--text-secondary)", marginTop: 2 }}>El pago compromete el {capPct}% del ingreso mensual</div>
+          </div>
+          <span style={{ fontSize: 12, fontWeight: 800, padding: "5px 12px", borderRadius: 100, color: "#fff", whiteSpace: "nowrap", background: capPct < 30 ? "var(--success)" : capPct <= 50 ? "var(--warning)" : "var(--danger)" }}>{capPct < 30 ? "Saludable" : capPct <= 50 ? "Ajustado" : "Riesgo alto"}</span>
+        </div>
+      )}
 
       {credit.status === "needs_info" && credit.notes && (
         <div style={{ background: "var(--warning-bg)", border: "1px solid #fde68a", borderRadius: "var(--r-lg)", padding: "12px 16px" }}>
