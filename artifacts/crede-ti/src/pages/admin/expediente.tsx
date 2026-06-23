@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useRoute, useLocation } from "wouter";
 import { Layout } from "@/components/layout/Layout";
+const SOURCE_LABELS: Record<string, string> = { facebook: "Facebook", whatsapp: "WhatsApp directo", recommendation: "Recomendacion", referral: "Referido de otro cliente", other: "Otro" };
 
 const API = import.meta.env.BASE_URL?.replace(/\/$/, "") + "/api";
 const auth = () => ({ Authorization: `Bearer ${localStorage.getItem("credeti_token")}` });
@@ -86,7 +87,7 @@ export default function Expediente() {
   const { data: appInfo } = useQuery<any>({
     queryKey: ["expediente-appinfo", clientId, creditIds.join(",")],
     queryFn: async () => {
-      let info: any = {}; let refs: any[] = [];
+      let info: any = {}; let refs: any[] = []; let bank: any = {};
       for (const cid of creditIds) {
         try {
           const r = await fetch(`${API}/credits/${cid}/application`, { headers: auth() });
@@ -94,15 +95,17 @@ export default function Expediente() {
             const j = await r.json();
             if (j.personalInfo) info = { ...info, ...j.personalInfo };
             if (Array.isArray(j.references) && j.references.length) refs = j.references;
+            if (j.creditRequest?.bankInfo) bank = { ...bank, ...j.creditRequest.bankInfo };
           }
         } catch {}
       }
-      return { info, refs };
+      return { info, refs, bank };
     },
     enabled: creditIds.length > 0,
   });
   const pInfo: any = appInfo?.info ?? {};
   const pRefs: any[] = appInfo?.refs ?? [];
+  const pBank: any = appInfo?.bank ?? {};
 
   // Combinar ambas fuentes, sin duplicar por URL.
   const seen = new Set<string>();
@@ -248,6 +251,7 @@ export default function Expediente() {
                 ["CURP", client.curp || pInfo.curp],
                 ["Ocupación", pInfo.occupation],
                 ["Ingreso mensual", (pInfo.monthlyIncome || pInfo.income) ? `$${pInfo.monthlyIncome || pInfo.income}` : ""],
+                ["Como nos conocio", pInfo.source ? (SOURCE_LABELS[pInfo.source] || pInfo.source) : ""],
               ].map(([k, v], i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                   <span style={{ fontSize: 13, color: "var(--text-muted)" }}>{k}</span>
@@ -333,6 +337,25 @@ export default function Expediente() {
         </div>
 
         {/* ═══ CRÉDITOS ═══ */}
+        {/* Datos bancarios — para depositar el credito */}
+        {(pBank.bankName || pBank.clabe || pBank.accountHolder) && (
+          <div className="card" style={{ padding: 18 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Datos bancarios</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {[
+                ["Banco", pBank.bankName],
+                ["CLABE", pBank.clabe],
+                ["Titular", pBank.accountHolder],
+              ].filter(([, v]) => v).map(([k, v], i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+                  <span style={{ fontSize: 13, color: "var(--text-muted)", flexShrink: 0 }}>{k}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", textAlign: "right", wordBreak: "break-all", fontVariantNumeric: "tabular-nums" }}>{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {detail.credits.length > 0 && (
           <div className="card" style={{ padding: 18 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Créditos</div>
