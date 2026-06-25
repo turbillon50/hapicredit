@@ -395,7 +395,7 @@ export default function Solicitar() {
             </div>
           </div>
           <a
-            href="https://wa.me/529984292748"
+            href="https://wa.me/5215559634368"
             className="flex items-center justify-center gap-2 w-full max-w-xs rounded-2xl py-3.5 text-white text-sm font-semibold pressable mb-6"
             style={{ background: "#25d366" }}
           >

@@ -657,6 +657,32 @@ export default function MiCredito() {
               </div>
             )}
 
+            {/* Renovar cuando credito esta liquidado y no hay activo ni pendiente */}
+            {!activeCredit && pendingCredits.length === 0 && historicCredits.some(c => c.status === "closed") && (
+              <div style={{ padding: "0 16px", display: "flex", flexDirection: "column", gap: 10 }} className="anim-section anim-d4">
+                <Link href="/solicitar?renovar=1">
+                  <div
+                    className="pressable"
+                    style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "16px", borderRadius: "var(--r-xl)",
+                      background: "var(--brand-blue)", color: "#fff",
+                      textDecoration: "none", boxShadow: "var(--shadow-sm)",
+                    }}
+                  >
+                    <div style={{ width: 40, height: 40, borderRadius: "var(--r-lg)", background: "rgba(255,255,255,0.20)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <IconMas size={20} color="#fff" />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700 }}>Renovar credito</div>
+                      <div style={{ fontSize: 12, opacity: 0.95, marginTop: 1 }}>Solicita tu siguiente credito</div>
+                    </div>
+                    <IconFlecha size={16} color="#fff" />
+                  </div>
+                </Link>
+              </div>
+            )}
+
             {pendingCredits.length > 0 && (
               <div style={{ padding: "0 16px" }} className="anim-section anim-d5">
                 <div style={{ fontSize: 12, fontWeight: 700, color: "var(--text-secondary)", marginBottom: 8, textTransform: "uppercase", letterSpacing: "0.06em" }}>
