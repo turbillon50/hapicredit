@@ -338,7 +338,7 @@ export default function Expediente() {
 
         {/* ═══ CRÉDITOS ═══ */}
         {/* Datos bancarios — para depositar el credito */}
-        {(pBank.bankName || pBank.clabe || pBank.accountHolder) && (
+        {creditIds.length > 0 && (  /* siempre visible para admin */
           <div className="card" style={{ padding: 18 }}>
             <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 12 }}>Datos bancarios</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
@@ -346,10 +346,10 @@ export default function Expediente() {
                 ["Banco", pBank.bankName],
                 ["CLABE", pBank.clabe],
                 ["Titular", pBank.accountHolder],
-              ].filter(([, v]) => v).map(([k, v], i) => (
+              ].map(([k, v], i) => (
                 <div key={i} style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
                   <span style={{ fontSize: 13, color: "var(--text-muted)", flexShrink: 0 }}>{k}</span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", textAlign: "right", wordBreak: "break-all", fontVariantNumeric: "tabular-nums" }}>{v}</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: "var(--text-primary)", textAlign: "right", wordBreak: "break-all", fontVariantNumeric: "tabular-nums" }}>{v || "â"}</span>
                 </div>
               ))}
             </div>

@@ -179,6 +179,8 @@ export default function Solicitar() {
     if (prefilled || !lastApp || !lastApp.found) return;
     const pi = lastApp.personalInfo || {};
     if (pi.fullName) setFullName(pi.fullName);
+    const cr = lastApp.creditRequest || {};
+    if (cr.purpose) setPurpose(cr.purpose);
     if (pi.phone) setPhone(pi.phone);
     if (pi.curp) setCurp(pi.curp);
     if (pi.address) setAddress(pi.address);

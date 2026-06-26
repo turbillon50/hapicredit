@@ -626,6 +626,7 @@ router.get("/me/last-application", requireAuth, requireRole("client", "customer"
     personalInfo: parsed.personalInfo ?? null,
     businessInfo: parsed.businessInfo ?? null,
     references: parsed.references ?? [],
+    creditRequest: parsed.creditRequest ?? null,
     documents,
   });
 });
